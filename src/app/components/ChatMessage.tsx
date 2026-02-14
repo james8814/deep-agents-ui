@@ -109,11 +109,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         <div
           className={cn(
             "min-w-0 max-w-full",
-            isUser ? "max-w-[70%]" : "w-full"
+            isUser ? "max-w-[70%]" : "w-full group"
           )}
         >
           {hasContent && (
-            <div className={cn("relative flex items-end gap-0", !isUser && "group")}>
+            <div className="relative flex items-end gap-0">
               <div
                 className={cn(
                   "mt-4 overflow-hidden break-words text-sm font-normal leading-[150%]",
@@ -138,25 +138,23 @@ export const ChatMessage = React.memo<ChatMessageProps>(
 
               {/* Copy button — hover triggered, AI messages only */}
               {!isUser && hasContent && !isStreaming && (
-                <div className="absolute -top-1 right-0 flex opacity-0 transition-opacity group-hover:opacity-100">
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground shadow-sm transition-colors hover:text-foreground"
-                    title="Copy message"
-                  >
-                    {copied ? (
-                      <>
-                        <Check size={12} className="text-success" />
-                        <span>Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={12} />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button
+                  onClick={handleCopy}
+                  className="absolute -top-0 right-0 flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground shadow-sm opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100"
+                  title="Copy message"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={12} className="text-success" />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={12} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
               )}
             </div>
           )}
