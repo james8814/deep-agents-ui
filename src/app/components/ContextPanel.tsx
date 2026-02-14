@@ -8,6 +8,7 @@ import {
   FileText,
   ListTodo,
   PanelRightClose,
+  RefreshCw,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -22,10 +23,23 @@ interface ContextPanelProps {
   onClose: () => void;
 }
 
+// Helper to extract file content from various formats
+function extractFileContent(rawContent: unknown): string {
+  if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
+    const content = (rawContent as { content: unknown }).content;
+    if (Array.isArray(content)) {
+      return content.join("\n");
+    }
+    return String(content || "");
+  }
+  return String(rawContent || "");
+}
+
 export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
   const { todos, files, setFiles, isLoading, interrupt } = useChatContext();
   const [activeTab, setActiveTab] = useState<Tab>("tasks");
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const hasTasks = todos.length > 0;
   const fileCount = Object.keys(files).length;
@@ -43,9 +57,26 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
   const handleSaveFile = useCallback(
     async (fileName: string, content: string) => {
       await setFiles({ ...files, [fileName]: content });
+      // Update selectedFile with new content immediately
       setSelectedFile({ path: fileName, content });
+      // Trigger refresh to update file list
+      setRefreshKey((k) => k + 1);
     },
     [files, setFiles]
+  );
+
+  const handleRefresh = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  // Get fresh file content when selecting a file
+  const handleFileSelect = useCallback(
+    (filePath: string) => {
+      const rawContent = files[filePath];
+      const content = extractFileContent(rawContent);
+      setSelectedFile({ path: filePath, content });
+    },
+    [files]
   );
 
   return (
@@ -99,15 +130,26 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
             </span>
           )}
         </button>
+        {activeTab === "files" && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={handleRefresh}
+            title="Refresh file list"
+          >
+            <RefreshCw size={14} />
+          </Button>
+        )}
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" key={refreshKey}>
         {activeTab === "tasks" && (
           <TasksTab groupedTodos={groupedTodos} hasTasks={hasTasks} />
         )}
         {activeTab === "files" && (
-          <FilesTab files={files} onFileSelect={setSelectedFile} />
+          <FilesTab files={files} onFileSelect={handleFileSelect} />
         )}
       </ScrollArea>
 
@@ -199,7 +241,7 @@ function FilesTab({
   onFileSelect,
 }: {
   files: Record<string, string>;
-  onFileSelect: (file: FileItem) => void;
+  onFileSelect: (filePath: string) => void;
 }) {
   const fileEntries = Object.keys(files);
 
@@ -220,23 +262,13 @@ function FilesTab({
       <div className="space-y-1">
         {fileEntries.map((filePath) => {
           const rawContent = files[filePath];
-          const fileContent =
-            typeof rawContent === "object" &&
-            rawContent !== null &&
-            "content" in rawContent
-              ? String(
-                  (rawContent as { content: unknown }).content || ""
-                )
-              : String(rawContent || "");
-
+          const fileContent = extractFileContent(rawContent);
           const ext = filePath.split(".").pop()?.toLowerCase() || "";
 
           return (
             <button
               key={filePath}
-              onClick={() =>
-                onFileSelect({ path: filePath, content: fileContent })
-              }
+              onClick={() => onFileSelect(filePath)}
               className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent"
             >
               <FileText
