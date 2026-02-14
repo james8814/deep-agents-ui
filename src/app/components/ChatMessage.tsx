@@ -18,7 +18,7 @@ import {
   extractStringFromMessageContent,
   copyToClipboard,
 } from "@/app/utils/utils";
-import { Copy, Check, RefreshCw, Pencil, X } from "lucide-react";
+import { Copy, Check, RefreshCw, Pencil, X, Image, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -46,6 +46,17 @@ interface ChatMessageProps {
 
 // Stable no-op function to avoid creating new references on each render
 const NOOP = () => {};
+
+// Helper to check if content is multimodal (array of content blocks)
+const isMultimodalContent = (
+  content: unknown
+): content is Array<{
+  type: string;
+  text?: string;
+  image_url?: { url: string };
+}> => {
+  return Array.isArray(content);
+};
 
 export const ChatMessage = React.memo<ChatMessageProps>(
   ({
@@ -213,9 +224,60 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 }
               >
                 {isUser ? (
-                  <p className="m-0 whitespace-pre-wrap break-words text-sm leading-relaxed">
-                    {messageContent}
-                  </p>
+                  isMultimodalContent(message.content) ? (
+                    <div className="space-y-2">
+                      {/* Text parts */}
+                      {message.content
+                        .filter((b) => b.type === "text")
+                        .map((block, i) => (
+                          <div
+                            key={i}
+                            className="m-0 whitespace-pre-wrap break-words text-sm leading-relaxed"
+                          >
+                            {block.text}
+                          </div>
+                        ))}
+                      {/* Image/file attachment indicators */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {message.content
+                          .filter(
+                            (b) => b.type === "image_url" || b.type === "file"
+                          )
+                          .map((block, i) => {
+                            if (block.type === "image_url") {
+                              return (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-muted/50 text-sm"
+                                >
+                                  <Image
+                                    size={14}
+                                    className="text-muted-foreground"
+                                  />
+                                  <span>Image attachment</span>
+                                </div>
+                              );
+                            }
+                            return (
+                              <div
+                                key={i}
+                                className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-muted/50 text-sm"
+                              >
+                                <FileText
+                                  size={14}
+                                  className="text-muted-foreground"
+                                />
+                                <span>File attachment</span>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="m-0 whitespace-pre-wrap break-words text-sm leading-relaxed">
+                      {messageContent}
+                    </p>
+                  )
                 ) : hasContent ? (
                   <MarkdownContent content={messageContent} isStreaming={isStreaming} />
                 ) : null}
