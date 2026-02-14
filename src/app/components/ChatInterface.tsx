@@ -47,6 +47,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     sendMessage,
     stopStream,
     resumeInterrupt,
+    regenerateLastMessage,
   } = useChatContext();
 
   // Notify user when interrupt occurs on background tab
@@ -76,6 +77,13 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       }
     },
     [handleSubmit, submitDisabled]
+  );
+
+  const handleEditAndResend = useCallback(
+    (newContent: string) => {
+      sendMessage(newContent);
+    },
+    [sendMessage]
   );
 
   // TODO: can we make this part of the hook?
@@ -259,6 +267,9 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       stream={stream}
                       onResumeInterrupt={resumeInterrupt}
                       graphId={assistant?.graph_id}
+                      isLastAiMessage={isLastMessage && data.message.type === "ai"}
+                      onRegenerate={regenerateLastMessage}
+                      onEditAndResend={data.message.type === "human" ? handleEditAndResend : undefined}
                     />
                   </div>
                 );

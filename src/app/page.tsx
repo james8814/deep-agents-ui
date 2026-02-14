@@ -17,6 +17,7 @@ import { ThreadList } from "@/app/components/ThreadList";
 import { ChatProvider } from "@/providers/ChatProvider";
 import { ChatInterface } from "@/app/components/ChatInterface";
 import { ContextPanel } from "@/app/components/ContextPanel";
+import { cn } from "@/lib/utils";
 
 interface HomePageInnerProps {
   config: StandaloneConfig;
@@ -134,7 +135,13 @@ function HomePageInner({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span
+                className={cn(
+                  "inline-block h-2 w-2 rounded-full",
+                  assistant ? "bg-green-500" : "bg-red-500"
+                )}
+              />
               <span className="font-medium">Assistant:</span>{" "}
               {config.assistantId}
             </div>

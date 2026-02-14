@@ -9,13 +9,21 @@ import {
   ListTodo,
   PanelRightClose,
   RefreshCw,
+  ArrowLeft,
+  Maximize2,
+  Pencil,
+  X,
+  Check,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useChatContext } from "@/providers/ChatProvider";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
+import { MarkdownContent } from "@/app/components/MarkdownContent";
 import type { TodoItem, FileItem } from "@/app/types/types";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 type Tab = "tasks" | "files";
 
@@ -39,6 +47,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
   const { todos, files, setFiles, isLoading, interrupt } = useChatContext();
   const [activeTab, setActiveTab] = useState<Tab>("tasks");
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const hasTasks = todos.length > 0;
@@ -74,10 +83,20 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
     (filePath: string) => {
       const rawContent = files[filePath];
       const content = extractFileContent(rawContent);
-      setSelectedFile({ path: filePath, content });
+      setViewingFile({ path: filePath, content });
     },
     [files]
   );
+
+  const handleExpandFile = useCallback(() => {
+    if (viewingFile) {
+      setSelectedFile(viewingFile);
+    }
+  }, [viewingFile]);
+
+  const handleBackToFileList = useCallback(() => {
+    setViewingFile(null);
+  }, []);
 
   return (
     <div className="flex h-full flex-col">
@@ -148,8 +167,20 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
         {activeTab === "tasks" && (
           <TasksTab groupedTodos={groupedTodos} hasTasks={hasTasks} />
         )}
-        {activeTab === "files" && (
+        {activeTab === "files" && !viewingFile && (
           <FilesTab files={files} onFileSelect={handleFileSelect} />
+        )}
+        {activeTab === "files" && viewingFile && (
+          <InlineFileViewer
+            file={viewingFile}
+            onBack={handleBackToFileList}
+            onExpand={handleExpandFile}
+            onSave={async (content) => {
+              await handleSaveFile(viewingFile.path, content);
+              setViewingFile({ ...viewingFile, content });
+            }}
+            editDisabled={isLoading === true || interrupt !== undefined}
+          />
         )}
       </ScrollArea>
 
@@ -284,6 +315,167 @@ function FilesTab({
             </button>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// --- Inline File Viewer Component ---
+
+const LANGUAGE_MAP: Record<string, string> = {
+  js: "javascript",
+  jsx: "javascript",
+  ts: "typescript",
+  tsx: "typescript",
+  py: "python",
+  rb: "ruby",
+  go: "go",
+  rs: "rust",
+  java: "java",
+  cpp: "cpp",
+  c: "c",
+  cs: "csharp",
+  php: "php",
+  swift: "swift",
+  kt: "kotlin",
+  scala: "scala",
+  sh: "bash",
+  bash: "bash",
+  zsh: "bash",
+  json: "json",
+  xml: "xml",
+  html: "html",
+  css: "css",
+  scss: "scss",
+  sass: "sass",
+  less: "less",
+  sql: "sql",
+  yaml: "yaml",
+  yml: "yaml",
+  toml: "toml",
+  ini: "ini",
+  dockerfile: "dockerfile",
+  makefile: "makefile",
+  md: "markdown",
+  markdown: "markdown",
+};
+
+function InlineFileViewer({
+  file,
+  onBack,
+  onExpand,
+  onSave,
+  editDisabled,
+}: {
+  file: FileItem;
+  onBack: () => void;
+  onExpand: () => void;
+  onSave: (content: string) => Promise<void>;
+  editDisabled: boolean;
+}) {
+  const ext = file.path.split(".").pop()?.toLowerCase() || "";
+  const isMarkdown = ext === "md" || ext === "markdown";
+  const language = LANGUAGE_MAP[ext] || "text";
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(file.content);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(editContent);
+      setIsEditing(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditContent(file.content);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Header */}
+      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+        <button
+          onClick={onBack}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft size={14} />
+        </button>
+        <span className="flex-1 truncate text-xs font-medium">{file.path}</span>
+        {!isEditing && !editDisabled && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-muted-foreground hover:text-foreground"
+            title="Edit file"
+          >
+            <Pencil size={14} />
+          </button>
+        )}
+        <button
+          onClick={onExpand}
+          className="text-muted-foreground hover:text-foreground"
+          title="Open full screen"
+        >
+          <Maximize2 size={14} />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-2">
+        {isEditing ? (
+          <div className="flex h-full flex-col">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="flex-1 w-full resize-none rounded-md border border-border bg-background p-2 font-mono text-xs"
+              placeholder="Enter file content..."
+            />
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                onClick={handleCancel}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent"
+              >
+                <X size={12} />
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || !editContent.trim()}
+                className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <Circle size={12} className="animate-spin" />
+                ) : (
+                  <Check size={12} />
+                )}
+                Save
+              </button>
+            </div>
+          </div>
+        ) : isMarkdown ? (
+          <div className="rounded-md p-2">
+            <MarkdownContent content={file.content} />
+          </div>
+        ) : (
+          <SyntaxHighlighter
+            language={language}
+            style={oneDark}
+            customStyle={{
+              margin: 0,
+              borderRadius: "0.375rem",
+              fontSize: "0.75rem",
+            }}
+            showLineNumbers
+            wrapLines
+          >
+            {file.content || ""}
+          </SyntaxHighlighter>
+        )}
       </div>
     </div>
   );

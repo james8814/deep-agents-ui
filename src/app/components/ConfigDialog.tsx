@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { StandaloneConfig } from "@/lib/config";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Client } from "@langchain/langgraph-sdk";
 
 interface ConfigDialogProps {
   open: boolean;
@@ -36,14 +38,34 @@ export function ConfigDialog({
   const [langsmithApiKey, setLangsmithApiKey] = useState(
     initialConfig?.langsmithApiKey || ""
   );
+  const [connectionStatus, setConnectionStatus] = useState<"idle" | "testing" | "ok" | "error">("idle");
+  const [connectionError, setConnectionError] = useState("");
 
   useEffect(() => {
     if (open && initialConfig) {
       setDeploymentUrl(initialConfig.deploymentUrl);
       setAssistantId(initialConfig.assistantId);
       setLangsmithApiKey(initialConfig.langsmithApiKey || "");
+      setConnectionStatus("idle");
+      setConnectionError("");
     }
   }, [open, initialConfig]);
+
+  const testConnection = async () => {
+    setConnectionStatus("testing");
+    setConnectionError("");
+    try {
+      const testClient = new Client({
+        apiUrl: deploymentUrl,
+        apiKey: langsmithApiKey || undefined,
+      });
+      await testClient.assistants.search({ limit: 1 });
+      setConnectionStatus("ok");
+    } catch (e) {
+      setConnectionStatus("error");
+      setConnectionError(e instanceof Error ? e.message : "Connection failed");
+    }
+  };
 
   const handleSave = () => {
     if (!deploymentUrl || !assistantId) {
@@ -79,8 +101,43 @@ export function ConfigDialog({
               id="deploymentUrl"
               placeholder="https://<deployment-url>"
               value={deploymentUrl}
-              onChange={(e) => setDeploymentUrl(e.target.value)}
+              onChange={(e) => {
+                setDeploymentUrl(e.target.value);
+                setConnectionStatus("idle");
+                setConnectionError("");
+              }}
             />
+            {/* Connection test button */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={testConnection}
+                disabled={!deploymentUrl || connectionStatus === "testing"}
+              >
+                {connectionStatus === "testing" ? (
+                  <>
+                    <Loader2 size={14} className="mr-1 animate-spin" />
+                    Testing...
+                  </>
+                ) : (
+                  "Test Connection"
+                )}
+              </Button>
+              {connectionStatus === "ok" && (
+                <span className="flex items-center gap-1 text-xs text-green-600">
+                  <CheckCircle size={12} /> Connected
+                </span>
+              )}
+              {connectionStatus === "error" && (
+                <span
+                  className="flex items-center gap-1 text-xs text-red-600"
+                  title={connectionError}
+                >
+                  <XCircle size={12} /> Failed
+                </span>
+              )}
+            </div>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="assistantId">Assistant ID</Label>

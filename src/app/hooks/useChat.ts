@@ -145,6 +145,33 @@ export function useChat({
     stream.stop();
   }, [stream]);
 
+  const regenerateLastMessage = useCallback(() => {
+    // Find the last human message to re-submit
+    const lastHumanIdx = [...stream.messages].reverse().findIndex(m => m.type === "human");
+    if (lastHumanIdx === -1) return;
+
+    const actualIdx = stream.messages.length - 1 - lastHumanIdx;
+    const lastHuman = stream.messages[actualIdx];
+    const content = typeof lastHuman.content === "string"
+      ? lastHuman.content
+      : "";
+
+    if (!content) return;
+
+    // Re-submit the same message
+    const newMessage: Message = { id: uuidv4(), type: "human", content };
+    stream.submit(
+      { messages: [newMessage] },
+      {
+        optimisticValues: (prev) => ({
+          messages: [...(prev.messages ?? []), newMessage],
+        }),
+        config: { ...(activeAssistant?.config ?? {}), recursion_limit: 200 },
+      }
+    );
+    onHistoryRevalidate?.();
+  }, [stream, activeAssistant?.config, onHistoryRevalidate]);
+
   return {
     stream,
     todos: stream.values.todos ?? [],
@@ -163,5 +190,6 @@ export function useChat({
     stopStream,
     markCurrentThreadAsResolved,
     resumeInterrupt,
+    regenerateLastMessage,
   };
 }

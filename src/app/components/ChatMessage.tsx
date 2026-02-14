@@ -16,8 +16,9 @@ import {
   extractStringFromMessageContent,
   copyToClipboard,
 } from "@/app/utils/utils";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, RefreshCw, Pencil, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface ChatMessageProps {
   message: Message;
@@ -30,6 +31,9 @@ interface ChatMessageProps {
   stream?: any;
   onResumeInterrupt?: (value: any) => void;
   graphId?: string;
+  isLastAiMessage?: boolean;
+  onRegenerate?: () => void;
+  onEditAndResend?: (newContent: string) => void;
 }
 
 export const ChatMessage = React.memo<ChatMessageProps>(
@@ -44,11 +48,18 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     stream,
     onResumeInterrupt,
     graphId,
+    isLastAiMessage,
+    onRegenerate,
+    onEditAndResend,
   }) => {
     const isUser = message.type === "human";
     const messageContent = extractStringFromMessageContent(message);
     const hasContent = messageContent && messageContent.trim() !== "";
     const hasToolCalls = toolCalls.length > 0;
+
+    // Edit state for user messages
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(messageContent);
     const subAgents = useMemo(() => {
       return toolCalls
         .filter((toolCall: ToolCall) => {
@@ -112,7 +123,51 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             isUser ? "max-w-[70%]" : "w-full group"
           )}
         >
-          {hasContent && (
+          {/* Edit button for user messages - shows on hover */}
+          {isUser && hasContent && !isLoading && !isEditing && (
+            <button
+              onClick={() => {
+                setIsEditing(true);
+                setEditContent(messageContent);
+              }}
+              className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+              title="Edit message"
+            >
+              <Pencil size={12} />
+            </button>
+          )}
+
+          {/* Editing UI for user messages */}
+          {isUser && isEditing ? (
+            <div className="mt-4 w-full max-w-[100%]">
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background p-3 text-sm"
+                rows={3}
+                autoFocus
+              />
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="flex items-center gap-1 rounded-md px-3 py-1 text-xs text-muted-foreground hover:bg-accent"
+                >
+                  <X size={12} />
+                  Cancel
+                </button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    onEditAndResend?.(editContent);
+                    setIsEditing(false);
+                  }}
+                  disabled={!editContent.trim()}
+                >
+                  Send
+                </Button>
+              </div>
+            </div>
+          ) : hasContent ? (
             <div className={cn("relative flex items-end gap-0 group")}>
               <div
                 className={cn(
@@ -160,7 +215,21 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 </button>
               )}
             </div>
+          ) : null}
+
+          {/* Regenerate button for last AI message */}
+          {!isUser && isLastAiMessage && !isLoading && !isStreaming && hasContent && onRegenerate && (
+            <div className="mt-2 flex gap-1">
+              <button
+                onClick={onRegenerate}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <RefreshCw size={12} />
+                Regenerate
+              </button>
+            </div>
           )}
+
           {hasToolCalls && (
             <div className="mt-4 flex w-full flex-col">
               {toolCalls.map((toolCall: ToolCall) => {
