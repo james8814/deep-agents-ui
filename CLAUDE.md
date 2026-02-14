@@ -18,7 +18,7 @@ yarn format:check     # Prettier check
 yarn format           # Prettier auto-format
 ```
 
-Node version: 20 (see `.nvmrc`).
+Node version: 20 (see `.nvmrc`). Use `npm run <script>` if yarn is unavailable.
 
 No test framework is configured.
 
@@ -34,7 +34,6 @@ User Input → ChatInterface → useChat.sendMessage()
         ├── TodoListMiddleware     → todos state
         ├── FilesystemMiddleware   → files state (ls/read/write/edit/glob/grep/execute)
         ├── SubAgentMiddleware     → task tool, sub-agent delegation
-        ├── SummarizationMiddleware
         └── other middleware...
     ← Streams back StateType { messages, todos, files, email?, ui? }
   → React real-time UI updates
@@ -42,20 +41,12 @@ User Input → ChatInterface → useChat.sendMessage()
 
 The UI `StateType` directly mirrors the backend agent state schema. `files` is `Record<string, string>` of file contents, `todos` is a task list, and `ui` supports GenUI custom component rendering.
 
-### Backend Agent (deepagents repo)
-
-The backend uses `create_deep_agent()` (`libs/deepagents/deepagents/graph.py`) which builds a LangGraph `CompiledStateGraph` with:
-- **Default model**: Claude Sonnet 4.5
-- **Middleware stack** (ordered): TodoList → Memory → Skills → Filesystem → SubAgent → Summarization → PromptCaching → PatchToolCalls
-- **Built-in tools**: `write_todos`, `ls`, `read_file`, `write_file`, `edit_file`, `glob`, `grep`, `execute`, `task`
-- **Sub-agent mechanism**: The `task` tool spawns ephemeral sub-agents with isolated context. Sub-agents return a single result message. Multiple sub-agents can run in parallel.
-
 ### State Management
 
-- **LangGraph streaming state**: `useStream` from `@langchain/langgraph-sdk/react` is the core primitive. The `useChat` hook (`src/app/hooks/useChat.ts`) wraps it and exposes `sendMessage`, `runSingleStep`, `continueStream`, `resumeInterrupt`, `markCurrentThreadAsResolved`, `stopStream`.
+- **LangGraph streaming state**: `useStream` from `@langchain/langgraph-sdk/react` is the core primitive. The `useChat` hook wraps it and exposes `sendMessage`, `runSingleStep`, `continueStream`, `resumeInterrupt`, `markCurrentThreadAsResolved`, `stopStream`, `regenerateLastMessage`.
 - **Graph state shape** (`StateType`): `{ messages, todos, files, email?, ui? }` — this mirrors the LangGraph server state.
-- **URL query state**: `nuqs` manages `threadId`, `assistantId`, and `sidebar` as URL search params.
-- **Thread listing**: `useThreads` (`src/app/hooks/useThreads.ts`) uses SWR infinite pagination via `client.threads.search()`.
+- **URL query state**: `nuqs` manages `threadId`, `assistantId`, `sidebar`, and `context` as URL search params.
+- **Thread listing**: `useThreads` uses SWR infinite pagination via `client.threads.search()`.
 - **Configuration**: Stored in `localStorage` under key `"deep-agent-config"` (`src/lib/config.ts`). Holds `deploymentUrl`, `assistantId`, `langsmithApiKey`.
 
 ### Provider Hierarchy
@@ -71,13 +62,15 @@ Providers live in `src/providers/`. The main page (`src/app/page.tsx`) manages c
 
 ### Key Directories
 
-- `src/app/components/` — App-specific components (ChatInterface, ChatMessage, ToolCallBox, ThreadList, etc.)
+- `src/app/components/` — App-specific components (ChatInterface, ChatMessage, ToolCallBox, ContextPanel, ThreadList, etc.)
+- `src/app/components/tool-renderers/` — Tool-specific argument renderers (registry pattern)
 - `src/app/hooks/` — `useChat` (core streaming logic) and `useThreads` (thread pagination)
-- `src/app/types/` — TypeScript interfaces (ToolCall, SubAgent, TodoItem, InterruptData, etc.)
+- `src/app/types/` — TypeScript interfaces (ToolCall, SubAgent, TodoItem, FileMetadata, etc.)
 - `src/app/utils/` — Message content extraction and string formatting helpers
 - `src/providers/` — React context providers (ClientProvider, ChatProvider)
 - `src/components/ui/` — shadcn/ui components (Radix UI primitives)
 - `src/lib/` — Shared utilities (`cn()`, config persistence)
+- `docs/implementation/` — Detailed implementation specs for UI optimization phases
 
 ### Component Relationships
 
@@ -92,10 +85,12 @@ page.tsx (entry point)
 │       │   └── ChatMessage × N
 │       │       ├── MarkdownContent — user/AI text rendering
 │       │       ├── ToolCallBox × N — tool call display
+│       │       │   ├── ToolArgsRenderer — human-friendly tool args
 │       │       │   └── LoadExternalComponent — GenUI custom components
 │       │       └── SubAgentIndicator × N — expandable sub-agent display
-│       ├── TasksFilesSidebar — inline todo + file panel
-│       │   └── FileViewDialog — file content viewer
+│       ├── ContextPanel (right sidebar, toggleable)
+│       │   ├── TasksTab — todo list with status icons
+│       │   └── FilesTab — file list with sorting, InlineFileViewer
 │       └── Input area + Send/Stop buttons
 ```
 
@@ -105,9 +100,12 @@ AI messages flow through this pipeline:
 1. `message.tool_calls` extracted, matched with `ToolMessage` results by `tool_call_id`
 2. Tool calls with `name === "task"` → rendered as `SubAgentIndicator` (special sub-agent UI)
 3. Other tool calls → rendered as `ToolCallBox`:
+   - `ToolArgsRenderer` (`tool-renderers/index.tsx`) provides human-friendly display per tool type
    - If GenUI `ui` component exists → `LoadExternalComponent` from `@langchain/langgraph-sdk/react-ui`
    - Otherwise → collapsible arguments/result JSON display
 4. Status icons: pending (spinner) / completed (✓) / error (✗) / interrupted (⏸)
+
+To add a new tool renderer, add an entry to `TOOL_RENDERERS` in `src/app/components/tool-renderers/index.tsx`.
 
 ### UI Component Library
 
@@ -117,10 +115,13 @@ Uses shadcn/ui with Radix UI primitives. Component config in `components.json` (
 
 - **Path alias**: `@/*` maps to `./src/*`
 - **All app components are client components** (`"use client"` directive)
+- **React.memo**: Wrap performance-sensitive components with `React.memo` and set `displayName`
 - **ESLint allows `any`** (`@typescript-eslint/no-explicit-any` is disabled)
 - **Unused vars**: Must be prefixed with `_` (enforced by ESLint)
 - **Prettier**: Uses `prettier-plugin-tailwindcss` for class sorting
-- **Tailwind**: Custom theme in `tailwind.config.mjs` with Radix UI colors and custom font sizes. Uses plugins: container-queries, typography, forms, animate, headlessui.
+- **Tailwind**: Custom theme in `tailwind.config.mjs` with Radix UI colors and custom font sizes
+- **No Redux/Zustand** — React Context + hooks exclusively
+- **Styling tokens**: `text-primary`, `text-muted-foreground`, `bg-background`, `bg-accent`, `border-border`, `text-success`, `text-warning`, `text-destructive`
 
 ## Debug Mode
 
@@ -137,6 +138,7 @@ The backend triggers interrupts via `HumanInTheLoopMiddleware` + `interrupt_on` 
 - `ToolCallBox` auto-expands interrupted tool calls
 - `resumeInterrupt(value)` sends `Command({ resume: value })` to resume execution
 - `markCurrentThreadAsResolved()` sends `Command({ goto: "__end__" })` to end the thread
+- Interrupt banner appears when agent needs approval; input is disabled during interrupts
 
 ## Environment Variables
 
@@ -146,6 +148,11 @@ NEXT_PUBLIC_LANGSMITH_API_KEY="lsv2_..."  # Optional, for LangSmith-protected de
 
 UI config dialog settings take precedence over env vars.
 
-## Migration Context
+## Implementation Docs
 
-The UI was ported from the LangSmith smith-frontend AgentBuilder chat interface. See `MIGRATION_ANALYSIS.md` for the full migration plan and feature parity matrix. Key decisions preserved: Next.js (vs Vite), React 19, user-configurable deployment URL/assistant ID (vs env-only), shadcn/ui component library.
+Detailed implementation specs are in `docs/implementation/`:
+- `00-overview.md` — Architecture context, conventions, branch strategy
+- `01-phase1-execution-visibility.md` — Status bar, streaming display
+- `02-phase2-layout-restructure.md` — Context panel, interrupt UX
+- `03-phase3-interaction-enhancement.md` — Message actions, tool renderers, inline file viewer
+- `04-phase4-experience-polish.md` — Input enhancements (diff view, theme, shortcuts deferred)
