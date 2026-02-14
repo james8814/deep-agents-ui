@@ -113,7 +113,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           )}
         >
           {hasContent && (
-            <div className="relative flex items-end gap-0">
+            <div className={cn("relative flex items-end gap-0 group")}>
               <div
                 className={cn(
                   "mt-4 overflow-hidden break-words text-sm font-normal leading-[150%]",
@@ -136,11 +136,14 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 ) : null}
               </div>
 
-              {/* Copy button — hover triggered, AI messages only */}
-              {!isUser && hasContent && !isStreaming && (
+              {/* Copy button — hover triggered, all messages with content */}
+              {hasContent && !isStreaming && (
                 <button
                   onClick={handleCopy}
-                  className="absolute -top-0 right-0 flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground shadow-sm opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100"
+                  className={cn(
+                    "absolute -top-0 flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground shadow-sm opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100",
+                    isUser ? "-left-16" : "right-0"
+                  )}
                   title="Copy message"
                 >
                   {copied ? (
