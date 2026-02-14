@@ -13,6 +13,8 @@ Polish the overall experience with file diffs, theme support, keyboard shortcuts
 
 ## Task 4.1: File Diff View
 
+> **Status: PENDING** (Deferred)
+
 ### Problem
 
 The `diff` package (v8.0.2) is already in `package.json` but unused. When the agent modifies a file, users only see the final content — they can't tell what changed.
@@ -179,6 +181,8 @@ const [viewMode, setViewMode] = useState<"content" | "diff">("content");
 
 ## Task 4.2: Dark/Light Theme Toggle
 
+> **Status: PENDING** (Deferred)
+
 ### Problem
 
 Some components already use `dark:` Tailwind classes, but there's no way for users to switch themes.
@@ -276,6 +280,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 ## Task 4.3: Keyboard Shortcuts
 
+> **Status: PENDING** (Deferred)
+
 ### New File: `src/app/hooks/useKeyboardShortcuts.ts`
 
 ```typescript
@@ -364,6 +370,8 @@ useKeyboardShortcuts({
 ---
 
 ## Task 4.4: Thread Search & Management
+
+> **Status: PENDING** (Deferred)
 
 ### Problem
 
@@ -464,6 +472,8 @@ const handleDeleteThread = useCallback(async (threadId: string) => {
 
 ## Task 4.5: Input Area Enhancements
 
+> **Status: IMPLEMENTED**
+
 ### 4.5.1: Interrupt-aware Input
 
 When an interrupt is active, the input area should guide the user:
@@ -529,19 +539,19 @@ Show a subtle hint below the textarea:
 
 | File | Action | Changes |
 |------|--------|---------|
-| `src/app/components/DiffViewer.tsx` | **NEW** | Line-by-line diff component |
-| `src/components/ui/theme-toggle.tsx` | **NEW** | Theme toggle button |
-| `src/app/hooks/useKeyboardShortcuts.ts` | **NEW** | Keyboard shortcut handler |
-| `src/app/layout.tsx` | MODIFY | Add ThemeProvider |
-| `src/app/page.tsx` | MODIFY | Add theme toggle, register shortcuts |
-| `src/app/components/ThreadList.tsx` | MODIFY | Add search, delete functionality |
-| `src/app/components/ChatInterface.tsx` | MODIFY | Interrupt-aware input, hints |
-| `src/app/components/FileViewDialog.tsx` | MODIFY | Add diff tab |
+| `src/app/components/ChatInterface.tsx` | MODIFY | Interrupt-aware input, hints, character counter |
+| `src/app/components/DiffViewer.tsx` | **PENDING** | Line-by-line diff component |
+| `src/components/ui/theme-toggle.tsx` | **PENDING** | Theme toggle button |
+| `src/app/hooks/useKeyboardShortcuts.ts` | **PENDING** | Keyboard shortcut handler |
+| `src/app/layout.tsx` | **PENDING** | Add ThemeProvider |
+| `src/app/page.tsx` | **PENDING** | Add theme toggle, register shortcuts |
+| `src/app/components/ThreadList.tsx` | **PENDING** | Add search, delete functionality |
+| `src/app/components/FileViewDialog.tsx` | **PENDING** | Add diff tab |
 
 ## New Dependencies
 
-| Package | Purpose | Install |
-|---------|---------|---------|
-| `next-themes` | Theme toggle (light/dark/system) | `yarn add next-themes` |
+| Package | Purpose | Status |
+|---------|---------|--------|
+| `next-themes` | Theme toggle (light/dark/system) | **PENDING** |
 
 All other functionality uses existing packages (`diff` is already installed).

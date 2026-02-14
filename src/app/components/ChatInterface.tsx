@@ -347,31 +347,50 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isLoading ? "Running..." : "Write your message..."}
-              className="font-inherit field-sizing-content flex-1 resize-none border-0 bg-transparent px-[18px] pb-[13px] pt-[14px] text-sm leading-7 text-primary outline-none placeholder:text-tertiary"
+              placeholder={
+                isLoading
+                  ? "Running..."
+                  : interrupt
+                  ? "Agent is waiting for approval above ↑"
+                  : "Write your message..."
+              }
+              disabled={!!interrupt}
+              className={cn(
+                "font-inherit field-sizing-content flex-1 resize-none border-0 bg-transparent px-[18px] pb-[13px] pt-[14px] text-sm leading-7 text-primary outline-none placeholder:text-tertiary",
+                interrupt && "cursor-not-allowed opacity-50"
+              )}
               rows={1}
             />
-            <div className="flex justify-between gap-2 p-3">
-              <div className="flex justify-end gap-2">
-                <Button
-                  type={isLoading ? "button" : "submit"}
-                  variant={isLoading ? "destructive" : "default"}
-                  onClick={isLoading ? stopStream : handleSubmit}
-                  disabled={!isLoading && (submitDisabled || !input.trim())}
-                >
-                  {isLoading ? (
-                    <>
-                      <Square size={14} />
-                      <span>Stop</span>
-                    </>
-                  ) : (
-                    <>
-                      <ArrowUp size={18} />
-                      <span>Send</span>
-                    </>
-                  )}
-                </Button>
-              </div>
+            {/* Input hints row */}
+            <div className="flex items-center justify-between border-t border-border/50 px-[18px] py-1.5">
+              <span className="text-[10px] text-muted-foreground/60">
+                Shift+Enter for new line
+              </span>
+              {input.length > 500 && (
+                <span className="text-[10px] tabular-nums text-muted-foreground/60">
+                  {input.length.toLocaleString()} chars
+                </span>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 p-3 pt-2">
+              <Button
+                type={isLoading ? "button" : "submit"}
+                variant={isLoading ? "destructive" : "default"}
+                onClick={isLoading ? stopStream : handleSubmit}
+                disabled={!isLoading && (submitDisabled || !input.trim())}
+              >
+                {isLoading ? (
+                  <>
+                    <Square size={14} />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowUp size={18} />
+                    <span>Send</span>
+                  </>
+                )}
+              </Button>
             </div>
           </form>
         </div>
