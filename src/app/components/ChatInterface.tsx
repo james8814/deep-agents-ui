@@ -6,21 +6,16 @@ import React, {
   useCallback,
   useMemo,
   FormEvent,
-  Fragment,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Square,
   ArrowUp,
-  CheckCircle,
-  Clock,
-  Circle,
-  FileIcon,
+  AlertCircle,
 } from "lucide-react";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import type {
-  TodoItem,
   ToolCall,
   ActionRequest,
   ReviewConfig,
@@ -30,41 +25,13 @@ import { extractStringFromMessageContent } from "@/app/utils/utils";
 import { useChatContext } from "@/providers/ChatProvider";
 import { cn } from "@/lib/utils";
 import { useStickToBottom } from "use-stick-to-bottom";
-import { FilesPopover } from "@/app/components/TasksFilesSidebar";
+import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
 }
 
-const getStatusIcon = (status: TodoItem["status"], className?: string) => {
-  switch (status) {
-    case "completed":
-      return (
-        <CheckCircle
-          size={16}
-          className={cn("text-success/80", className)}
-        />
-      );
-    case "in_progress":
-      return (
-        <Clock
-          size={16}
-          className={cn("text-warning/80", className)}
-        />
-      );
-    default:
-      return (
-        <Circle
-          size={16}
-          className={cn("text-tertiary/70", className)}
-        />
-      );
-  }
-};
-
 export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
-  const [metaOpen, setMetaOpen] = useState<"tasks" | "files" | null>(null);
-  const tasksContainerRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [input, setInput] = useState("");
@@ -73,10 +40,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const {
     stream,
     messages,
-    todos,
-    files,
     ui,
-    setFiles,
     isLoading,
     isThreadLoading,
     interrupt,
@@ -84,6 +48,9 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     stopStream,
     resumeInterrupt,
   } = useChatContext();
+
+  // Notify user when interrupt occurs on background tab
+  useInterruptNotification(interrupt);
 
   const submitDisabled = isLoading || !assistant;
 
@@ -216,15 +183,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     });
   }, [messages, interrupt]);
 
-  const groupedTodos = {
-    in_progress: todos.filter((t) => t.status === "in_progress"),
-    pending: todos.filter((t) => t.status === "pending"),
-    completed: todos.filter((t) => t.status === "completed"),
-  };
-
-  const hasTasks = todos.length > 0;
-  const hasFiles = Object.keys(files).length > 0;
-
   // Parse out any action requests or review configs from the interrupt
   const actionRequestsMap: Map<string, ActionRequest> | null = useMemo(() => {
     const actionRequests =
@@ -285,23 +243,24 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                 );
                 const isLastMessage = index === processedMessages.length - 1;
                 return (
-                  <ChatMessage
-                    key={data.message.id}
-                    message={data.message}
-                    toolCalls={data.toolCalls}
-                    isLoading={isLoading}
-                    isStreaming={isLoading && isLastMessage && data.message.type === "ai"}
-                    actionRequestsMap={
-                      isLastMessage ? actionRequestsMap : undefined
-                    }
-                    reviewConfigsMap={
-                      isLastMessage ? reviewConfigsMap : undefined
-                    }
-                    ui={messageUi}
-                    stream={stream}
-                    onResumeInterrupt={resumeInterrupt}
-                    graphId={assistant?.graph_id}
-                  />
+                  <div key={data.message.id} data-last-message={isLastMessage ? "" : undefined}>
+                    <ChatMessage
+                      message={data.message}
+                      toolCalls={data.toolCalls}
+                      isLoading={isLoading}
+                      isStreaming={isLoading && isLastMessage && data.message.type === "ai"}
+                      actionRequestsMap={
+                        isLastMessage ? actionRequestsMap : undefined
+                      }
+                      reviewConfigsMap={
+                        isLastMessage ? reviewConfigsMap : undefined
+                      }
+                      ui={messageUi}
+                      stream={stream}
+                      onResumeInterrupt={resumeInterrupt}
+                      graphId={assistant?.graph_id}
+                    />
+                  </div>
                 );
               })}
               {/* Streaming indicator — shows when agent is loading but no AI content yet */}
@@ -334,6 +293,33 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         currentTool={currentExecutionInfo.tool}
       />
 
+      {/* Interrupt Banner — shows when agent needs human approval */}
+      {interrupt && (
+        <div className="flex items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
+          <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
+            <AlertCircle size={14} className="text-orange-600 dark:text-orange-400" />
+          </div>
+          <div className="flex-1 text-sm">
+            <span className="font-medium text-orange-800 dark:text-orange-200">
+              Action required
+            </span>
+            <span className="ml-1 text-orange-600 dark:text-orange-400">
+              — The agent is waiting for your approval above
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              // Scroll to the interrupt tool call
+              const lastMessage = document.querySelector("[data-last-message]");
+              lastMessage?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+            className="flex-shrink-0 rounded-md border border-orange-300 bg-white px-3 py-1 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-50 dark:border-orange-600 dark:bg-orange-900/50 dark:text-orange-300"
+          >
+            Review
+          </button>
+        </div>
+      )}
+
       <div className="flex-shrink-0 bg-background">
         <div
           className={cn(
@@ -341,213 +327,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             "mx-auto w-[calc(100%-32px)] max-w-[1024px] transition-colors duration-200 ease-in-out"
           )}
         >
-          {(hasTasks || hasFiles) && (
-            <div className="flex max-h-72 flex-col overflow-y-auto border-b border-border bg-sidebar empty:hidden">
-              {!metaOpen && (
-                <>
-                  {(() => {
-                    const activeTask = todos.find(
-                      (t) => t.status === "in_progress"
-                    );
-
-                    const totalTasks = todos.length;
-                    const remainingTasks =
-                      totalTasks - groupedTodos.pending.length;
-                    const isCompleted = totalTasks === remainingTasks;
-
-                    const tasksTrigger = (() => {
-                      if (!hasTasks) return null;
-                      return (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setMetaOpen((prev) =>
-                              prev === "tasks" ? null : "tasks"
-                            )
-                          }
-                          className="grid w-full cursor-pointer grid-cols-[auto_auto_1fr] items-center gap-3 px-[18px] py-3 text-left"
-                          aria-expanded={metaOpen === "tasks"}
-                        >
-                          {(() => {
-                            if (isCompleted) {
-                              return [
-                                <CheckCircle
-                                  key="icon"
-                                  size={16}
-                                  className="text-success/80"
-                                />,
-                                <span
-                                  key="label"
-                                  className="ml-[1px] min-w-0 truncate text-sm"
-                                >
-                                  All tasks completed
-                                </span>,
-                              ];
-                            }
-
-                            if (activeTask != null) {
-                              return [
-                                <div key="icon">
-                                  {getStatusIcon(activeTask.status)}
-                                </div>,
-                                <span
-                                  key="label"
-                                  className="ml-[1px] min-w-0 truncate text-sm"
-                                >
-                                  Task{" "}
-                                  {totalTasks - groupedTodos.pending.length} of{" "}
-                                  {totalTasks}
-                                </span>,
-                                <span
-                                  key="content"
-                                  className="min-w-0 gap-2 truncate text-sm text-muted-foreground"
-                                >
-                                  {activeTask.content}
-                                </span>,
-                              ];
-                            }
-
-                            return [
-                              <Circle
-                                key="icon"
-                                size={16}
-                                className="text-tertiary/70"
-                              />,
-                              <span
-                                key="label"
-                                className="ml-[1px] min-w-0 truncate text-sm"
-                              >
-                                Task {totalTasks - groupedTodos.pending.length}{" "}
-                                of {totalTasks}
-                              </span>,
-                            ];
-                          })()}
-                        </button>
-                      );
-                    })();
-
-                    const filesTrigger = (() => {
-                      if (!hasFiles) return null;
-                      return (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setMetaOpen((prev) =>
-                              prev === "files" ? null : "files"
-                            )
-                          }
-                          className="flex flex-shrink-0 cursor-pointer items-center gap-2 px-[18px] py-3 text-left text-sm"
-                          aria-expanded={metaOpen === "files"}
-                        >
-                          <FileIcon size={16} />
-                          Files (State)
-                          <span className="h-4 min-w-4 rounded-full bg-[#2F6868] px-0.5 text-center text-[10px] leading-[16px] text-white">
-                            {Object.keys(files).length}
-                          </span>
-                        </button>
-                      );
-                    })();
-
-                    return (
-                      <div className="grid grid-cols-[1fr_auto_auto] items-center">
-                        {tasksTrigger}
-                        {filesTrigger}
-                      </div>
-                    );
-                  })()}
-                </>
-              )}
-
-              {metaOpen && (
-                <>
-                  <div className="sticky top-0 flex items-stretch bg-sidebar text-sm">
-                    {hasTasks && (
-                      <button
-                        type="button"
-                        className="py-3 pr-4 first:pl-[18px] aria-expanded:font-semibold"
-                        onClick={() =>
-                          setMetaOpen((prev) =>
-                            prev === "tasks" ? null : "tasks"
-                          )
-                        }
-                        aria-expanded={metaOpen === "tasks"}
-                      >
-                        Tasks
-                      </button>
-                    )}
-                    {hasFiles && (
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 py-3 pr-4 first:pl-[18px] aria-expanded:font-semibold"
-                        onClick={() =>
-                          setMetaOpen((prev) =>
-                            prev === "files" ? null : "files"
-                          )
-                        }
-                        aria-expanded={metaOpen === "files"}
-                      >
-                        Files (State)
-                        <span className="h-4 min-w-4 rounded-full bg-[#2F6868] px-0.5 text-center text-[10px] leading-[16px] text-white">
-                          {Object.keys(files).length}
-                        </span>
-                      </button>
-                    )}
-                    <button
-                      aria-label="Close"
-                      className="flex-1"
-                      onClick={() => setMetaOpen(null)}
-                    />
-                  </div>
-                  <div
-                    ref={tasksContainerRef}
-                    className="px-[18px]"
-                  >
-                    {metaOpen === "tasks" &&
-                      Object.entries(groupedTodos)
-                        .filter(([_, todos]) => todos.length > 0)
-                        .map(([status, todos]) => (
-                          <div
-                            key={status}
-                            className="mb-4"
-                          >
-                            <h3 className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-tertiary">
-                              {
-                                {
-                                  pending: "Pending",
-                                  in_progress: "In Progress",
-                                  completed: "Completed",
-                                }[status]
-                              }
-                            </h3>
-                            <div className="grid grid-cols-[auto_1fr] gap-3 rounded-sm p-1 pl-0 text-sm">
-                              {todos.map((todo, index) => (
-                                <Fragment key={`${status}_${todo.id}_${index}`}>
-                                  {getStatusIcon(todo.status, "mt-0.5")}
-                                  <span className="break-words text-inherit">
-                                    {todo.content}
-                                  </span>
-                                </Fragment>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-
-                    {metaOpen === "files" && (
-                      <div className="mb-6">
-                        <FilesPopover
-                          files={files}
-                          setFiles={setFiles}
-                          editDisabled={
-                            isLoading === true || interrupt !== undefined
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
           <form
             onSubmit={handleSubmit}
             className="flex flex-col"
