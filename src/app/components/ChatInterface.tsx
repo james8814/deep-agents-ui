@@ -36,36 +36,50 @@ interface ChatInterfaceProps {
 
 export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputPanelRef = useRef<HTMLDivElement | null>(null);
 
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
   const { scrollRef, contentRef } = useStickToBottom();
 
   // Height constants
   const LINE_HEIGHT = 24; // leading-6 = 24px
   const MIN_HEIGHT = 44; // Single line min height
   const AUTO_MAX_LINES = 8; // Max lines before auto-expand stops
-  const EXPANDED_MAX_LINES = 16; // Max lines when expanded
   const AUTO_MAX_HEIGHT = MIN_HEIGHT + (AUTO_MAX_LINES - 1) * LINE_HEIGHT; // ~212px
-  const EXPANDED_MAX_HEIGHT = MIN_HEIGHT + (EXPANDED_MAX_LINES - 1) * LINE_HEIGHT; // ~428px
+  const TOOLBAR_HEIGHT = 44; // Toolbar + padding
+
+  // Calculate expanded height (fill remaining space in the middle column)
+  useEffect(() => {
+    if (isExpanded && containerRef.current && inputPanelRef.current) {
+      const containerHeight = containerRef.current.clientHeight;
+      // Expanded height = container height - toolbar height - some margin
+      const calculatedHeight = containerHeight - TOOLBAR_HEIGHT - 16;
+      setExpandedHeight(Math.max(calculatedHeight, MIN_HEIGHT));
+    } else {
+      setExpandedHeight(null);
+    }
+  }, [isExpanded]);
 
   // Auto-resize textarea based on content
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    // Reset height to auto to get the correct scrollHeight
-    textarea.style.height = "auto";
-
-    // Calculate new height
-    const maxHeight = isExpanded ? EXPANDED_MAX_HEIGHT : AUTO_MAX_HEIGHT;
-    const newHeight = Math.min(Math.max(textarea.scrollHeight, MIN_HEIGHT), maxHeight);
-
-    textarea.style.height = `${newHeight}px`;
-
-    // Enable scroll if content exceeds max height
-    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
-  }, [input, isExpanded, AUTO_MAX_HEIGHT, EXPANDED_MAX_HEIGHT, MIN_HEIGHT]);
+    if (isExpanded && expandedHeight) {
+      // Expanded mode: use fixed expanded height
+      textarea.style.height = `${expandedHeight}px`;
+      textarea.style.overflowY = "auto";
+    } else {
+      // Auto-expand mode: calculate based on content
+      textarea.style.height = "auto";
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, MIN_HEIGHT), AUTO_MAX_HEIGHT);
+      textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY = textarea.scrollHeight > AUTO_MAX_HEIGHT ? "auto" : "hidden";
+    }
+  }, [input, isExpanded, expandedHeight, AUTO_MAX_HEIGHT, MIN_HEIGHT]);
 
   // Reset to compact mode when input is cleared
   useEffect(() => {
@@ -267,7 +281,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   }, [isLoading, messages]);
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div ref={containerRef} className="flex flex-1 flex-col overflow-hidden">
       <div
         className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
         ref={scrollRef}
@@ -369,7 +383,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       )}
 
       {/* Input Panel */}
-      <div className="flex-shrink-0 bg-background p-4 pt-2">
+      <div ref={inputPanelRef} className="flex-shrink-0 bg-background p-4 pt-2">
         <div
           className={cn(
             "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
