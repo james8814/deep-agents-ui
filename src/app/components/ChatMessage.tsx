@@ -4,11 +4,13 @@ import React, { useMemo, useState, useCallback } from "react";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
+import { DeliveryCard } from "@/app/components/DeliveryCard";
 import type {
   SubAgent,
   ToolCall,
   ActionRequest,
   ReviewConfig,
+  FileMetadata,
 } from "@/app/types/types";
 import { Message } from "@langchain/langgraph-sdk";
 import {
@@ -34,7 +36,15 @@ interface ChatMessageProps {
   isLastAiMessage?: boolean;
   onRegenerate?: () => void;
   onEditAndResend?: (newContent: string) => void;
+  files?: Record<string, string>;
+  fileMetadata?: Map<string, FileMetadata>;
+  onViewFile?: (path: string) => void;
+  onViewAllFiles?: () => void;
+  showDeliveryCards?: boolean;
 }
+
+// Stable no-op function to avoid creating new references on each render
+const NOOP = () => {};
 
 export const ChatMessage = React.memo<ChatMessageProps>(
   ({
@@ -51,6 +61,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     isLastAiMessage,
     onRegenerate,
     onEditAndResend,
+    files,
+    fileMetadata,
+    onViewFile,
+    onViewAllFiles,
+    showDeliveryCards,
   }) => {
     const isUser = message.type === "human";
     const messageContent = extractStringFromMessageContent(message);
@@ -84,6 +99,16 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           } as SubAgent;
         });
     }, [toolCalls]);
+
+    // Memoize delivery files to prevent unnecessary re-renders
+    const deliveryFiles = useMemo(() => {
+      if (!files) return [];
+      return Object.entries(files).map(([path, content]) => ({
+        path,
+        content,
+        metadata: fileMetadata?.get(path),
+      }));
+    }, [files, fileMetadata]);
 
     const [expandedSubAgents, setExpandedSubAgents] = useState<
       Record<string, boolean>
@@ -298,6 +323,14 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 </div>
               ))}
             </div>
+          )}
+          {/* Delivery cards - show for AI messages with delivered files */}
+          {message.type === "ai" && showDeliveryCards && deliveryFiles.length > 0 && (
+            <DeliveryCard
+              files={deliveryFiles}
+              onViewFile={onViewFile || NOOP}
+              onViewAll={onViewAllFiles}
+            />
           )}
         </div>
       </div>
