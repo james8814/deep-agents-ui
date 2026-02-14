@@ -16,6 +16,7 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
+import { FileUploadZone, UploadButton, FileChipData } from "./FileUploadZone";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import type {
@@ -38,8 +39,10 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputPanelRef = useRef<HTMLDivElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const [input, setInput] = useState("");
+  const [attachedFiles, setAttachedFiles] = useState<FileChipData[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
   const { scrollRef, contentRef } = useStickToBottom();
@@ -112,12 +115,33 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         e.preventDefault();
       }
       const messageText = input.trim();
-      if (!messageText || isLoading || submitDisabled) return;
-      sendMessage(messageText);
+      if (!messageText || isLoading || !assistant) return;
+
+      // Build content - text + image blocks (only images are supported by the SDK)
+      const imageFiles = attachedFiles.filter((f): f is FileChipData & { data: string } =>
+        f.type.startsWith("image/") && typeof f.data === "string"
+      );
+      const content: string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> =
+        imageFiles.length > 0
+          ? [
+              { type: "text", text: messageText },
+              ...imageFiles.map((file) => ({
+                type: "image_url" as const,
+                image_url: { url: file.data },
+              })),
+            ]
+          : messageText;
+
+      sendMessage(content);
       setInput("");
+      setAttachedFiles([]);
     },
-    [input, isLoading, sendMessage, setInput, submitDisabled]
+    [input, isLoading, sendMessage, setInput, assistant, attachedFiles]
   );
+
+  const triggerUpload = useCallback(() => {
+    uploadInputRef.current?.click();
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -394,6 +418,14 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             onSubmit={handleSubmit}
             className="flex flex-col"
           >
+            {/* File Upload Zone */}
+            <FileUploadZone
+              files={attachedFiles}
+              onFilesChange={setAttachedFiles}
+              disabled={isLoading || !!interrupt}
+              inputRef={uploadInputRef}
+            />
+
             {/* Textarea */}
             <textarea
               ref={textareaRef}
@@ -415,10 +447,14 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               rows={1}
             />
 
-            {/* Toolbar: Expand + Hints + Button */}
+            {/* Toolbar: Upload + Expand + Hints + Button */}
             <div className="flex items-center justify-between border-t border-border/50 px-3 py-2">
-              {/* Left: Expand button + hint */}
+              {/* Left: Upload + Expand button + hint */}
               <div className="flex items-center gap-2">
+                <UploadButton
+                  onClick={triggerUpload}
+                  disabled={isLoading || !!interrupt}
+                />
                 <button
                   type="button"
                   onClick={() => setIsExpanded(!isExpanded)}

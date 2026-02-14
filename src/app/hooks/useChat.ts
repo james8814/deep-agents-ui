@@ -7,6 +7,11 @@ import {
   type Assistant,
   type Checkpoint,
 } from "@langchain/langgraph-sdk";
+
+// Type for multimodal message content
+export type MultimodalContent =
+  | string
+  | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>;
 import { v4 as uuidv4 } from "uuid";
 import type { UseStreamThread } from "@langchain/langgraph-sdk/react";
 import type { TodoItem } from "@/app/types/types";
@@ -54,7 +59,7 @@ export function useChat({
   });
 
   const sendMessage = useCallback(
-    (content: string) => {
+    (content: MultimodalContent) => {
       const newMessage: Message = { id: uuidv4(), type: "human", content };
       stream.submit(
         { messages: [newMessage] },

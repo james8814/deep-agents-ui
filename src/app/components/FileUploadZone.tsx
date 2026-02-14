@@ -5,24 +5,23 @@ import { Paperclip } from "lucide-react";
 import { FileChip, FileChipData } from "./FileChip";
 import { cn } from "@/lib/utils";
 
+// Re-export FileChipData for convenience
+export type { FileChipData } from "./FileChip";
+
 export interface FileUploadZoneProps {
   files: FileChipData[];
   onFilesChange: (files: FileChipData[] | ((prev: FileChipData[]) => FileChipData[])) => void;
   disabled?: boolean;
   className?: string;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
+// Only images are supported by the LangGraph SDK's multimodal content format
 const ACCEPTED_TYPES = [
   "image/png",
   "image/jpeg",
   "image/gif",
   "image/webp",
-  "text/plain",
-  "text/markdown",
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "text/csv",
-  "application/json",
 ];
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -48,8 +47,10 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
   onFilesChange,
   disabled = false,
   className,
+  inputRef: externalInputRef,
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = externalInputRef ?? internalInputRef;
   const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
