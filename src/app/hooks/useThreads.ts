@@ -65,7 +65,7 @@ export function useThreads(props: {
     }) => {
       const client = new Client({
         apiUrl: deploymentUrl,
-        defaultHeaders: apiKey ? { "X-Api-Key": apiKey } : {},
+        defaultHeaders: apiKey ? { "X-Api-Key": apiKey, "x-auth-scheme": "langsmith" } : {"x-auth-scheme": "langsmith"},
       });
 
       // Check if assistantId is a UUID (deployed) or graph name (local)

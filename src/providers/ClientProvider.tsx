@@ -26,6 +26,7 @@ export function ClientProvider({
       defaultHeaders: {
         "Content-Type": "application/json",
         "X-Api-Key": apiKey,
+        "x-auth-scheme": "langsmith",
       },
     });
   }, [deploymentUrl, apiKey]);
