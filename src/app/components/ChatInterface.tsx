@@ -12,6 +12,8 @@ import {
   Square,
   ArrowUp,
   AlertCircle,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
@@ -35,6 +37,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [input, setInput] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const { scrollRef, contentRef } = useStickToBottom();
 
   const {
@@ -331,66 +334,105 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         </div>
       )}
 
-      <div className="flex-shrink-0 bg-background">
+      {/* Input Panel */}
+      <div className="flex-shrink-0 bg-background p-4 pt-2">
         <div
           className={cn(
-            "mx-4 mb-6 flex flex-shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-background",
-            "mx-auto w-[calc(100%-32px)] max-w-[1024px] transition-colors duration-200 ease-in-out"
+            "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
+            "w-full max-w-[1024px] transition-all duration-200 ease-out"
           )}
         >
           <form
             onSubmit={handleSubmit}
             className="flex flex-col"
           >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                isLoading
-                  ? "Running..."
-                  : interrupt
-                  ? "Agent is waiting for approval above ↑"
-                  : "Write your message..."
-              }
-              disabled={!!interrupt}
+            {/* Textarea Area */}
+            <div
               className={cn(
-                "font-inherit field-sizing-content flex-1 resize-none border-0 bg-transparent px-[18px] pb-[13px] pt-[14px] text-sm leading-7 text-primary outline-none placeholder:text-tertiary",
-                interrupt && "cursor-not-allowed opacity-50"
+                "relative overflow-hidden transition-all duration-200 ease-out",
+                isExpanded ? "max-h-[320px]" : "max-h-[176px]" // 8 lines ≈ 176px, expanded ≈ 320px
               )}
-              rows={1}
-            />
-            {/* Input hints row */}
-            <div className="flex items-center justify-between border-t border-border/50 px-[18px] py-1.5">
-              <span className="text-[10px] text-muted-foreground/60">
-                Shift+Enter for new line
-              </span>
-              {input.length > 500 && (
-                <span className="text-[10px] tabular-nums text-muted-foreground/60">
-                  {input.length.toLocaleString()} chars
-                </span>
-              )}
-            </div>
-            <div className="flex justify-end gap-2 p-3 pt-2">
-              <Button
-                type={isLoading ? "button" : "submit"}
-                variant={isLoading ? "destructive" : "default"}
-                onClick={isLoading ? stopStream : handleSubmit}
-                disabled={!isLoading && (submitDisabled || !input.trim())}
-              >
-                {isLoading ? (
-                  <>
-                    <Square size={14} />
-                    <span>Stop</span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowUp size={18} />
-                    <span>Send</span>
-                  </>
+            >
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  isLoading
+                    ? "Running..."
+                    : interrupt
+                    ? "Agent is waiting for approval above ↑"
+                    : "Write your message..."
+                }
+                disabled={!!interrupt}
+                className={cn(
+                  "w-full resize-none border-0 bg-transparent px-4 py-3 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/50",
+                  "min-h-[44px]", // Single line min height
+                  isExpanded ? "max-h-[320px] overflow-y-auto" : "max-h-[176px]",
+                  interrupt && "cursor-not-allowed opacity-50"
                 )}
-              </Button>
+                rows={1}
+                style={{
+                  height: isExpanded ? "320px" : "auto",
+                  overflowY: isExpanded ? "auto" : "hidden",
+                }}
+              />
+            </div>
+
+            {/* Toolbar: Expand + Hints + Button */}
+            <div className="flex items-center justify-between border-t border-border/50 px-3 py-2">
+              {/* Left: Expand button + hint */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className={cn(
+                    "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
+                    "hover:bg-accent hover:text-foreground",
+                    isExpanded && "bg-accent text-foreground"
+                  )}
+                  title={isExpanded ? "Collapse" : "Expand"}
+                >
+                  {isExpanded ? (
+                    <ChevronDown size={14} />
+                  ) : (
+                    <ChevronUp size={14} />
+                  )}
+                </button>
+                <span className="text-[10px] text-muted-foreground/60">
+                  Shift+Enter
+                </span>
+              </div>
+
+              {/* Right: Char count + Send button */}
+              <div className="flex items-center gap-3">
+                {input.length > 500 && (
+                  <span className="text-[10px] tabular-nums text-muted-foreground/60">
+                    {input.length.toLocaleString()}
+                  </span>
+                )}
+                <Button
+                  type={isLoading ? "button" : "submit"}
+                  variant={isLoading ? "destructive" : "default"}
+                  size="sm"
+                  onClick={isLoading ? stopStream : undefined}
+                  disabled={!isLoading && (submitDisabled || !input.trim())}
+                  className="h-7 px-3 text-xs"
+                >
+                  {isLoading ? (
+                    <>
+                      <Square size={12} className="mr-1" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <ArrowUp size={14} className="mr-1" />
+                      Send
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
