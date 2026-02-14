@@ -6,14 +6,15 @@ import React, {
   useCallback,
   useMemo,
   FormEvent,
+  useEffect,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Square,
   ArrowUp,
   AlertCircle,
-  ChevronUp,
-  ChevronDown,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
@@ -39,6 +40,39 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const { scrollRef, contentRef } = useStickToBottom();
+
+  // Height constants
+  const LINE_HEIGHT = 24; // leading-6 = 24px
+  const MIN_HEIGHT = 44; // Single line min height
+  const AUTO_MAX_LINES = 8; // Max lines before auto-expand stops
+  const EXPANDED_MAX_LINES = 16; // Max lines when expanded
+  const AUTO_MAX_HEIGHT = MIN_HEIGHT + (AUTO_MAX_LINES - 1) * LINE_HEIGHT; // ~212px
+  const EXPANDED_MAX_HEIGHT = MIN_HEIGHT + (EXPANDED_MAX_LINES - 1) * LINE_HEIGHT; // ~428px
+
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = "auto";
+
+    // Calculate new height
+    const maxHeight = isExpanded ? EXPANDED_MAX_HEIGHT : AUTO_MAX_HEIGHT;
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, MIN_HEIGHT), maxHeight);
+
+    textarea.style.height = `${newHeight}px`;
+
+    // Enable scroll if content exceeds max height
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [input, isExpanded, AUTO_MAX_HEIGHT, EXPANDED_MAX_HEIGHT, MIN_HEIGHT]);
+
+  // Reset to compact mode when input is cleared
+  useEffect(() => {
+    if (!input.trim()) {
+      setIsExpanded(false);
+    }
+  }, [input]);
 
   const {
     stream,
@@ -346,39 +380,26 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             onSubmit={handleSubmit}
             className="flex flex-col"
           >
-            {/* Textarea Area */}
-            <div
+            {/* Textarea */}
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                isLoading
+                  ? "Running..."
+                  : interrupt
+                  ? "Agent is waiting for approval above ↑"
+                  : "Write your message..."
+              }
+              disabled={!!interrupt}
               className={cn(
-                "relative overflow-hidden transition-all duration-200 ease-out",
-                isExpanded ? "max-h-[320px]" : "max-h-[176px]" // 8 lines ≈ 176px, expanded ≈ 320px
+                "w-full resize-none border-0 bg-transparent px-4 py-3 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/50",
+                interrupt && "cursor-not-allowed opacity-50"
               )}
-            >
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={
-                  isLoading
-                    ? "Running..."
-                    : interrupt
-                    ? "Agent is waiting for approval above ↑"
-                    : "Write your message..."
-                }
-                disabled={!!interrupt}
-                className={cn(
-                  "w-full resize-none border-0 bg-transparent px-4 py-3 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/50",
-                  "min-h-[44px]", // Single line min height
-                  isExpanded ? "max-h-[320px] overflow-y-auto" : "max-h-[176px]",
-                  interrupt && "cursor-not-allowed opacity-50"
-                )}
-                rows={1}
-                style={{
-                  height: isExpanded ? "320px" : "auto",
-                  overflowY: isExpanded ? "auto" : "hidden",
-                }}
-              />
-            </div>
+              rows={1}
+            />
 
             {/* Toolbar: Expand + Hints + Button */}
             <div className="flex items-center justify-between border-t border-border/50 px-3 py-2">
@@ -387,17 +408,19 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                 <button
                   type="button"
                   onClick={() => setIsExpanded(!isExpanded)}
+                  disabled={!input.trim()}
                   className={cn(
                     "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
                     "hover:bg-accent hover:text-foreground",
+                    "disabled:opacity-30 disabled:cursor-not-allowed",
                     isExpanded && "bg-accent text-foreground"
                   )}
-                  title={isExpanded ? "Collapse" : "Expand"}
+                  title={isExpanded ? "Collapse to 8 lines" : "Expand to 16 lines"}
                 >
                   {isExpanded ? (
-                    <ChevronDown size={14} />
+                    <Minimize2 size={14} />
                   ) : (
-                    <ChevronUp size={14} />
+                    <Maximize2 size={14} />
                   )}
                 </button>
                 <span className="text-[10px] text-muted-foreground/60">
