@@ -93,7 +93,7 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
       );
 
       onFilesChange((prev) => [...prev, ...newFiles]);
-    } catch (err) {
+    } catch {
       setError("Failed to process files. Please try again.");
     }
 
@@ -101,7 +101,7 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-  }, [onFilesChange, threadId]);
+  }, [onFilesChange, threadId, inputRef]);
 
   const handleRemoveFile = useCallback((fileId: string) => {
     onFilesChange((prev) => prev.filter(f => f.id !== fileId));
