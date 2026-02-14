@@ -18,6 +18,7 @@ import {
   FileIcon,
 } from "lucide-react";
 import { ChatMessage } from "@/app/components/ChatMessage";
+import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import type {
   TodoItem,
   ToolCall,
@@ -241,6 +242,27 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     );
   }, [interrupt]);
 
+  // Extract current execution info for the status bar
+  const currentExecutionInfo = useMemo(() => {
+    if (!isLoading) return { step: null, tool: null };
+
+    // Check if the last message is an AI message with tool calls in progress
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.type === "ai" && lastMsg.tool_calls?.length) {
+      const pendingTool = lastMsg.tool_calls.find(
+        (tc: { name?: string }) => tc.name && tc.name !== ""
+      );
+      if (pendingTool) {
+        return {
+          step: null,
+          tool: pendingTool.name,
+        };
+      }
+    }
+
+    return { step: null, tool: null };
+  }, [isLoading, messages]);
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div
@@ -268,6 +290,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                     message={data.message}
                     toolCalls={data.toolCalls}
                     isLoading={isLoading}
+                    isStreaming={isLoading && isLastMessage && data.message.type === "ai"}
                     actionRequestsMap={
                       isLastMessage ? actionRequestsMap : undefined
                     }
@@ -281,10 +304,35 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                   />
                 );
               })}
+              {/* Streaming indicator — shows when agent is loading but no AI content yet */}
+              {isLoading && processedMessages.length > 0 && (() => {
+                const lastMsg = messages[messages.length - 1];
+                if (lastMsg?.type === "ai") {
+                  const content = extractStringFromMessageContent(lastMsg);
+                  if (!content?.trim()) {
+                    return (
+                      <div className="mt-4 flex items-start gap-2 px-1">
+                        <div className="flex items-center gap-1.5 rounded-lg px-3 py-2">
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary/60" />
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary/40" style={{ animationDelay: "0.2s" }} />
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary/20" style={{ animationDelay: "0.4s" }} />
+                        </div>
+                      </div>
+                    );
+                  }
+                }
+                return null;
+              })()}
             </>
           )}
         </div>
       </div>
+
+      <ExecutionStatusBar
+        isLoading={isLoading}
+        currentStep={currentExecutionInfo.step}
+        currentTool={currentExecutionInfo.tool}
+      />
 
       <div className="flex-shrink-0 bg-background">
         <div

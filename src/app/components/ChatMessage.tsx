@@ -14,13 +14,16 @@ import { Message } from "@langchain/langgraph-sdk";
 import {
   extractSubAgentContent,
   extractStringFromMessageContent,
+  copyToClipboard,
 } from "@/app/utils/utils";
+import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatMessageProps {
   message: Message;
   toolCalls: ToolCall[];
   isLoading?: boolean;
+  isStreaming?: boolean;
   actionRequestsMap?: Map<string, ActionRequest>;
   reviewConfigsMap?: Map<string, ReviewConfig>;
   ui?: any[];
@@ -34,6 +37,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     message,
     toolCalls,
     isLoading,
+    isStreaming,
     actionRequestsMap,
     reviewConfigsMap,
     ui,
@@ -84,6 +88,17 @@ export const ChatMessage = React.memo<ChatMessageProps>(
       }));
     }, []);
 
+    // Copy button state
+    const [copied, setCopied] = useState(false);
+    const handleCopy = useCallback(() => {
+      copyToClipboard(messageContent).then((ok) => {
+        if (ok) {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
+      });
+    }, [messageContent]);
+
     return (
       <div
         className={cn(
@@ -98,7 +113,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           )}
         >
           {hasContent && (
-            <div className={cn("relative flex items-end gap-0")}>
+            <div className={cn("relative flex items-end gap-0", !isUser && "group")}>
               <div
                 className={cn(
                   "mt-4 overflow-hidden break-words text-sm font-normal leading-[150%]",
@@ -117,9 +132,32 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                     {messageContent}
                   </p>
                 ) : hasContent ? (
-                  <MarkdownContent content={messageContent} />
+                  <MarkdownContent content={messageContent} isStreaming={isStreaming} />
                 ) : null}
               </div>
+
+              {/* Copy button — hover triggered, AI messages only */}
+              {!isUser && hasContent && !isStreaming && (
+                <div className="absolute -top-1 right-0 flex opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+                    title="Copy message"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={12} className="text-success" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={12} />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
           {hasToolCalls && (

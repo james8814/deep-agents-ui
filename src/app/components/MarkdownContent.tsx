@@ -1,19 +1,82 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MarkdownContentProps {
   content: string;
   className?: string;
+  isStreaming?: boolean;
 }
 
+// Code block component with copy functionality
+interface CodeBlockProps {
+  language: string;
+  children: string;
+}
+
+const CodeBlock = memo(function CodeBlock({ language, children }: CodeBlockProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(children.replace(/\n$/, ""));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [children]);
+
+  return (
+    <div className="group/code relative">
+      <button
+        onClick={handleCopy}
+        className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/60 opacity-0 transition-opacity hover:bg-white/10 hover:text-white group-hover/code:opacity-100"
+        title="Copy code"
+      >
+        {copied ? (
+          <>
+            <Check size={12} className="text-green-400" />
+            <span>Copied</span>
+          </>
+        ) : (
+          <>
+            <Copy size={12} />
+            <span>Copy</span>
+          </>
+        )}
+      </button>
+      <SyntaxHighlighter
+        style={oneDark}
+        language={language}
+        PreTag="div"
+        className="max-w-full rounded-md text-sm"
+        wrapLines={true}
+        wrapLongLines={true}
+        lineProps={{
+          style: {
+            wordBreak: "break-all",
+            whiteSpace: "pre-wrap",
+            overflowWrap: "break-word",
+          },
+        }}
+        customStyle={{
+          margin: 0,
+          maxWidth: "100%",
+          overflowX: "auto",
+          fontSize: "0.875rem",
+        }}
+      >
+        {children.replace(/\n$/, "")}
+      </SyntaxHighlighter>
+    </div>
+  );
+});
+
 export const MarkdownContent = React.memo<MarkdownContentProps>(
-  ({ content, className = "" }) => {
+  ({ content, className = "", isStreaming = false }) => {
     return (
       <div
         className={cn(
@@ -35,30 +98,11 @@ export const MarkdownContent = React.memo<MarkdownContentProps>(
               children?: React.ReactNode;
             }) {
               const match = /language-(\w+)/.exec(className || "");
+
               return !inline && match ? (
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match[1]}
-                  PreTag="div"
-                  className="max-w-full rounded-md text-sm"
-                  wrapLines={true}
-                  wrapLongLines={true}
-                  lineProps={{
-                    style: {
-                      wordBreak: "break-all",
-                      whiteSpace: "pre-wrap",
-                      overflowWrap: "break-word",
-                    },
-                  }}
-                  customStyle={{
-                    margin: 0,
-                    maxWidth: "100%",
-                    overflowX: "auto",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {String(children).replace(/\n$/, "")}
-                </SyntaxHighlighter>
+                <CodeBlock language={match[1]}>
+                  {String(children)}
+                </CodeBlock>
               ) : (
                 <code
                   className="bg-surface rounded-sm px-1 py-0.5 font-mono text-[0.9em]"
@@ -127,6 +171,9 @@ export const MarkdownContent = React.memo<MarkdownContentProps>(
         >
           {content}
         </ReactMarkdown>
+        {isStreaming && (
+          <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-foreground" />
+        )}
       </div>
     );
   }
