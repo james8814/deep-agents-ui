@@ -126,12 +126,18 @@ export const FileViewDialog = React.memo<{
   }, [file, onClose]);
 
   const fileNameIsValid = useMemo(() => {
+    // For existing files, we only need to check that fileName is not empty
+    // (the path may contain "/" which is valid for existing files)
+    if (file !== null) {
+      return fileName.trim() !== "";
+    }
+    // For new files, validate that the name doesn't contain "/" or spaces
     return (
       fileName.trim() !== "" &&
       !fileName.includes("/") &&
       !fileName.includes(" ")
     );
-  }, [fileName]);
+  }, [fileName, file]);
 
   return (
     <Dialog
