@@ -20,6 +20,17 @@ export interface FileItem {
   content: string;
 }
 
+export interface FileMetadata {
+  path: string;
+  name: string;
+  directory: string;
+  addedAt: number; // timestamp in ms
+  size: number; // character count
+  extension: string;
+}
+
+export type FileSortBy = "name" | "time";
+
 export interface TodoItem {
   id: string;
   content: string;

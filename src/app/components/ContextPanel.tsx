@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   CheckCircle,
   Circle,
@@ -14,6 +14,8 @@ import {
   Pencil,
   X,
   Check,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { useChatContext } from "@/providers/ChatProvider";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
-import type { TodoItem, FileItem } from "@/app/types/types";
+import type { TodoItem, FileItem, FileMetadata, FileSortBy } from "@/app/types/types";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -49,6 +51,70 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [sortBy, setSortBy] = useState<FileSortBy>("time");
+  const [sortAsc, setSortAsc] = useState(false);
+
+  // Track file metadata (creation time, etc.) in local state
+  const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());
+
+  // Update file metadata when files change
+  useEffect(() => {
+    const currentPaths = new Set(Object.keys(files));
+    const now = Date.now();
+
+    // Add metadata for new files
+    currentPaths.forEach((path) => {
+      if (!fileMetadataRef.current.has(path)) {
+        const rawContent = files[path];
+        const content = extractFileContent(rawContent);
+        const segments = path.split("/");
+        const name = segments[segments.length - 1] || path;
+        const directory = segments.slice(0, -1).join("/") || ".";
+        const extension = name.includes(".") ? name.split(".").pop()?.toLowerCase() || "" : "";
+
+        fileMetadataRef.current.set(path, {
+          path,
+          name,
+          directory,
+          addedAt: now,
+          size: content.length,
+          extension,
+        });
+      } else {
+        // Update size for existing files
+        const rawContent = files[path];
+        const content = extractFileContent(rawContent);
+        const existing = fileMetadataRef.current.get(path)!;
+        fileMetadataRef.current.set(path, {
+          ...existing,
+          size: content.length,
+        });
+      }
+    });
+
+    // Remove metadata for deleted files
+    fileMetadataRef.current.forEach((_, path) => {
+      if (!currentPaths.has(path)) {
+        fileMetadataRef.current.delete(path);
+      }
+    });
+  }, [files]);
+
+  // Get sorted file metadata
+  // Note: 'files' in deps triggers re-sort when files change (updates metadataRef via useEffect)
+  const sortedFileMetadata = useMemo(() => {
+    const metadata = Array.from(fileMetadataRef.current.values());
+    return metadata.sort((a, b) => {
+      if (sortBy === "name") {
+        return sortAsc
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else {
+        return sortAsc ? a.addedAt - b.addedAt : b.addedAt - a.addedAt;
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy, sortAsc, files]);
 
   const hasTasks = todos.length > 0;
   const fileCount = Object.keys(files).length;
@@ -168,7 +234,20 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
           <TasksTab groupedTodos={groupedTodos} hasTasks={hasTasks} />
         )}
         {activeTab === "files" && !viewingFile && (
-          <FilesTab files={files} onFileSelect={handleFileSelect} />
+          <FilesTab
+            onFileSelect={handleFileSelect}
+            sortedMetadata={sortedFileMetadata}
+            sortBy={sortBy}
+            sortAsc={sortAsc}
+            onSortChange={(newSortBy) => {
+              if (newSortBy === sortBy) {
+                setSortAsc(!sortAsc);
+              } else {
+                setSortBy(newSortBy);
+                setSortAsc(false);
+              }
+            }}
+          />
         )}
         {activeTab === "files" && viewingFile && (
           <InlineFileViewer
@@ -268,15 +347,19 @@ function TasksTab({
 }
 
 function FilesTab({
-  files,
   onFileSelect,
+  sortedMetadata,
+  sortBy,
+  sortAsc,
+  onSortChange,
 }: {
-  files: Record<string, string>;
   onFileSelect: (filePath: string) => void;
+  sortedMetadata: FileMetadata[];
+  sortBy: FileSortBy;
+  sortAsc: boolean;
+  onSortChange: (sortBy: FileSortBy) => void;
 }) {
-  const fileEntries = Object.keys(files);
-
-  if (fileEntries.length === 0) {
+  if (sortedMetadata.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
         <FileText size={24} className="mb-2 text-muted-foreground/50" />
@@ -290,26 +373,66 @@ function FilesTab({
 
   return (
     <div className="p-3">
-      <div className="space-y-1">
-        {fileEntries.map((filePath) => {
-          const rawContent = files[filePath];
-          const fileContent = extractFileContent(rawContent);
-          const ext = filePath.split(".").pop()?.toLowerCase() || "";
+      {/* Sort Controls */}
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-[10px] text-muted-foreground">Sort by:</span>
+        <button
+          onClick={() => onSortChange("time")}
+          className={cn(
+            "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium transition-colors",
+            sortBy === "time"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          )}
+        >
+          Time
+          {sortBy === "time" && (
+            sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />
+          )}
+        </button>
+        <button
+          onClick={() => onSortChange("name")}
+          className={cn(
+            "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium transition-colors",
+            sortBy === "name"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          )}
+        >
+          Name
+          {sortBy === "name" && (
+            sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />
+          )}
+        </button>
+      </div>
 
+      {/* File List */}
+      <div className="space-y-1">
+        {sortedMetadata.map((meta) => {
           return (
             <button
-              key={filePath}
-              onClick={() => onFileSelect(filePath)}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent"
+              key={meta.path}
+              onClick={() => onFileSelect(meta.path)}
+              className="group flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent"
             >
               <FileText
-                size={14}
-                className="flex-shrink-0 text-muted-foreground"
+                size={16}
+                className="mt-0.5 flex-shrink-0 text-muted-foreground"
               />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{filePath}</div>
-                <div className="truncate text-xs text-muted-foreground">
-                  {ext.toUpperCase()} · {fileContent.length} chars
+                {/* File name */}
+                <div className="truncate font-medium">{meta.name}</div>
+                {/* Directory + Type + Size */}
+                <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <span className="truncate">{meta.directory}</span>
+                  <span className="text-muted-foreground/50">·</span>
+                  <span className="uppercase">{meta.extension || "file"}</span>
+                  <span className="text-muted-foreground/50">·</span>
+                  <span>{formatSize(meta.size)}</span>
+                </div>
+                {/* Relative time */}
+                <div className="mt-0.5 text-[10px] text-muted-foreground/60">
+                  Added {formatRelativeTime(meta.addedAt)}
                 </div>
               </div>
             </button>
@@ -318,6 +441,35 @@ function FilesTab({
       </div>
     </div>
   );
+}
+
+// Helper: Format file size
+function formatSize(chars: number): string {
+  if (chars < 1024) return `${chars} chars`;
+  if (chars < 1024 * 1024) return `${(chars / 1024).toFixed(1)}KB`;
+  return `${(chars / 1024 / 1024).toFixed(1)}MB`;
+}
+
+// Helper: Format relative time
+function formatRelativeTime(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (seconds < 60) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+
+  // For older files, show the date
+  const date = new Date(timestamp);
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 // --- Inline File Viewer Component ---
