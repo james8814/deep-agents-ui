@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { FileText, FileCode, FileSpreadsheet, Image, ChevronRight, Clock } from "lucide-react";
+import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
+import { FileText, FileCode, FileSpreadsheet, Image, ChevronRight, Clock, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FileMetadata } from "@/app/types/types";
+import { copyToClipboard } from "@/app/utils/utils";
 
 interface DeliveryFile {
   path: string;
   content: string;
   metadata?: FileMetadata;
+  shareUrl?: string;
 }
 
 interface DeliveryCardProps {
@@ -55,6 +57,49 @@ const formatFileSize = (content: string): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+// Copy URL button component
+const CopyUrlButton = React.memo<{ shareUrl: string }>(({ shareUrl }) => {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopy = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    copyToClipboard(shareUrl).then((ok) => {
+      if (ok) {
+        setCopied(true);
+        timeoutRef.current = setTimeout(() => setCopied(false), 2000);
+      }
+    });
+  }, [shareUrl]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      aria-label="Copy share URL"
+      title="Copy share URL"
+    >
+      {copied ? (
+        <Check size={12} className="text-success" />
+      ) : (
+        <Copy size={12} className="text-muted-foreground" />
+      )}
+    </button>
+  );
+});
+
+CopyUrlButton.displayName = "CopyUrlButton";
+
 // Preview component for the last file
 const FilePreview = React.memo<{
   file: DeliveryFile;
@@ -97,6 +142,7 @@ const FilePreview = React.memo<{
         <FileText size={14} className="text-muted-foreground" />
         <span className="text-sm font-medium truncate flex-1">{getFileName(file.path)}</span>
         <span className="text-xs text-muted-foreground">{formatFileSize(file.content)}</span>
+        {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
       </div>
 
       {/* Preview content */}
@@ -169,6 +215,7 @@ export const DeliveryCard = React.memo<DeliveryCardProps>(({
                   <Clock size={10} />
                   {formatRelativeTime(file.metadata?.addedAt)}
                 </span>
+                {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
               </button>
             );
           })}

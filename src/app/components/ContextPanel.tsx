@@ -16,6 +16,7 @@ import {
   Check,
   ArrowUp,
   ArrowDown,
+  Copy,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import { MarkdownContent } from "@/app/components/MarkdownContent";
 import type { TodoItem, FileItem, FileMetadata, FileSortBy } from "@/app/types/types";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useQueryState } from "nuqs";
 
 type Tab = "tasks" | "files";
 
@@ -53,6 +55,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [sortBy, setSortBy] = useState<FileSortBy>("time");
   const [sortAsc, setSortAsc] = useState(false);
+  const [threadId] = useQueryState("threadId");
 
   // Track file metadata (creation time, etc.) in local state
   const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());
@@ -247,6 +250,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
                 setSortAsc(false);
               }
             }}
+            threadId={threadId}
           />
         )}
         {activeTab === "files" && viewingFile && (
@@ -352,13 +356,27 @@ function FilesTab({
   sortBy,
   sortAsc,
   onSortChange,
+  threadId,
 }: {
   onFileSelect: (filePath: string) => void;
   sortedMetadata: FileMetadata[];
   sortBy: FileSortBy;
   sortAsc: boolean;
   onSortChange: (sortBy: FileSortBy) => void;
+  threadId?: string | null;
 }) {
+  const [copiedPath, setCopiedPath] = useState<string | null>(null);
+
+  const handleCopyUrl = useCallback((e: React.MouseEvent, path: string) => {
+    e.stopPropagation();
+    if (threadId) {
+      const shareUrl = `${window.location.origin}/threads/${threadId}/files/${encodeURIComponent(path)}`;
+      navigator.clipboard.writeText(shareUrl);
+      setCopiedPath(path);
+      setTimeout(() => setCopiedPath(null), 2000);
+    }
+  }, [threadId]);
+
   if (sortedMetadata.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -435,6 +453,22 @@ function FilesTab({
                   Added {formatRelativeTime(meta.addedAt)}
                 </div>
               </div>
+              {/* Copy share URL button */}
+              {threadId && (
+                <button
+                  type="button"
+                  onClick={(e) => handleCopyUrl(e, meta.path)}
+                  className="flex-shrink-0 rounded-sm hover:bg-muted-foreground/20 p-1 opacity-0 group-hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none transition-opacity"
+                  aria-label="Copy share URL"
+                  title="Copy share URL"
+                >
+                  {copiedPath === meta.path ? (
+                    <Check size={14} className="text-success" />
+                  ) : (
+                    <Copy size={14} className="text-muted-foreground" />
+                  )}
+                </button>
+              )}
             </button>
           );
         })}

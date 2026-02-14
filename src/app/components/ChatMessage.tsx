@@ -41,6 +41,7 @@ interface ChatMessageProps {
   onViewFile?: (path: string) => void;
   onViewAllFiles?: () => void;
   showDeliveryCards?: boolean;
+  threadId?: string;
 }
 
 // Stable no-op function to avoid creating new references on each render
@@ -66,6 +67,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     onViewFile,
     onViewAllFiles,
     showDeliveryCards,
+    threadId,
   }) => {
     const isUser = message.type === "human";
     const messageContent = extractStringFromMessageContent(message);
@@ -107,8 +109,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         path,
         content,
         metadata: fileMetadata?.get(path),
+        shareUrl: threadId
+          ? `${typeof window !== "undefined" ? window.location.origin : ""}/threads/${threadId}/files/${encodeURIComponent(path)}`
+          : undefined,
       }));
-    }, [files, fileMetadata]);
+    }, [files, fileMetadata, threadId]);
 
     const [expandedSubAgents, setExpandedSubAgents] = useState<
       Record<string, boolean>

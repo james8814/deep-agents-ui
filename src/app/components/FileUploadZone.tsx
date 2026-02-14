@@ -4,6 +4,7 @@ import React, { useRef, useCallback, useState } from "react";
 import { Paperclip } from "lucide-react";
 import { FileChip, FileChipData } from "./FileChip";
 import { cn } from "@/lib/utils";
+import { useQueryState } from "nuqs";
 
 // Re-export FileChipData for convenience
 export type { FileChipData } from "./FileChip";
@@ -52,6 +53,7 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
   const internalInputRef = useRef<HTMLInputElement>(null);
   const inputRef = externalInputRef ?? internalInputRef;
   const [error, setError] = useState<string | null>(null);
+  const [threadId] = useQueryState("threadId");
 
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -76,12 +78,16 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
       const newFiles: FileChipData[] = await Promise.all(
         selectedFiles.map(async (file) => {
           const base64 = await convertToBase64(file);
+          const fileId = `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
           return {
-            id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+            id: fileId,
             name: file.name,
             type: file.type || "application/octet-stream",
             size: file.size,
             data: base64,
+            shareUrl: threadId
+              ? `${window.location.origin}/threads/${threadId}/files/${encodeURIComponent(fileId)}`
+              : undefined,
           };
         })
       );
@@ -95,7 +101,7 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-  }, [onFilesChange]);
+  }, [onFilesChange, threadId]);
 
   const handleRemoveFile = useCallback((fileId: string) => {
     onFilesChange((prev) => prev.filter(f => f.id !== fileId));

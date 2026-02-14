@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import { X, FileText, Image, FileSpreadsheet, FileCode } from "lucide-react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { X, FileText, Image, FileSpreadsheet, FileCode, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { copyToClipboard } from "@/app/utils/utils";
 
 export interface FileChipData {
   id: string;
@@ -11,6 +12,7 @@ export interface FileChipData {
   size?: number;
   data?: string; // base64 data
   url?: string; // URL reference
+  shareUrl?: string; // shareable URL
 }
 
 export interface FileChipProps {
@@ -18,6 +20,7 @@ export interface FileChipProps {
   onRemove?: () => void;
   onClick?: () => void;
   showRemove?: boolean;
+  shareUrl?: string; // external share URL (overrides file.shareUrl)
   className?: string;
 }
 
@@ -40,10 +43,36 @@ export const FileChip = React.memo<FileChipProps>(({
   onRemove,
   onClick,
   showRemove = true,
+  shareUrl: externalShareUrl,
   className,
 }) => {
   const Icon = getFileIcon(file.type);
   const sizeText = formatFileSize(file.size);
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const effectiveShareUrl = externalShareUrl || file.shareUrl;
+
+  const handleCopyUrl = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (effectiveShareUrl) {
+      copyToClipboard(effectiveShareUrl).then((ok) => {
+        if (ok) {
+          setCopied(true);
+          timeoutRef.current = setTimeout(() => setCopied(false), 2000);
+        }
+      });
+    }
+  }, [effectiveShareUrl]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (onClick && (e.key === "Enter" || e.key === " ")) {
@@ -68,6 +97,21 @@ export const FileChip = React.memo<FileChipProps>(({
       <span className="truncate max-w-[200px]">{file.name}</span>
       {sizeText && (
         <span className="text-muted-foreground text-xs">{sizeText}</span>
+      )}
+      {effectiveShareUrl && (
+        <button
+          type="button"
+          onClick={handleCopyUrl}
+          className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-label="Copy share URL"
+          title="Copy share URL"
+        >
+          {copied ? (
+            <Check size={12} className="text-success" />
+          ) : (
+            <Copy size={12} className="text-muted-foreground" />
+          )}
+        </button>
       )}
       {showRemove && onRemove && (
         <button

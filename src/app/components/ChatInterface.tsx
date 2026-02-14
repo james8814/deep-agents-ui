@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
+import { useQueryState } from "nuqs";
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
@@ -48,6 +49,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
   const { scrollRef, contentRef } = useStickToBottom();
+  const [threadId] = useQueryState("threadId");
 
   // File viewing and delivery card state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
@@ -429,6 +431,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       onViewFile={handleViewFile}
                       onViewAllFiles={handleViewAllFiles}
                       showDeliveryCards={isLastMessage && showDelivery && data.message.type === "ai"}
+                      threadId={threadId ?? undefined}
                     />
                   </div>
                 );
