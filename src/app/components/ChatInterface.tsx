@@ -23,6 +23,7 @@ import type {
   ToolCall,
   ActionRequest,
   ReviewConfig,
+  FileMetadata,
 } from "@/app/types/types";
 import { Assistant, Message } from "@langchain/langgraph-sdk";
 import { extractStringFromMessageContent } from "@/app/utils/utils";
@@ -30,6 +31,7 @@ import { useChatContext } from "@/providers/ChatProvider";
 import { cn } from "@/lib/utils";
 import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
+import { FileViewDialog } from "@/app/components/FileViewDialog";
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
@@ -46,6 +48,13 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
   const { scrollRef, contentRef } = useStickToBottom();
+
+  // File viewing and delivery card state
+  const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
+  const [viewingFile, setViewingFile] = useState<string | null>(null);
+  const [showDelivery, setShowDelivery] = useState(false);
+  const prevFilesRef = useRef<Record<string, string>>({});
+  const wasLoadingRef = useRef(false);
 
   // Height constants
   const LINE_HEIGHT = 24; // leading-6 = 24px
@@ -102,10 +111,60 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     stopStream,
     resumeInterrupt,
     regenerateLastMessage,
+    files,
+    setFiles,
   } = useChatContext();
 
   // Notify user when interrupt occurs on background tab
   useInterruptNotification(interrupt);
+
+  // Track file metadata when files change
+  useEffect(() => {
+    const currentFilePaths = new Set(Object.keys(files));
+
+    setFileMetadata((prev) => {
+      const newMetadata = new Map(prev);
+
+      // Add metadata for new files
+      Object.keys(files).forEach((path) => {
+        if (!prevFilesRef.current[path]) {
+          // New file added
+          const ext = path.split(".").pop() || "";
+          newMetadata.set(path, {
+            path,
+            name: path.split("/").pop() || path,
+            directory: path.split("/").slice(0, -1).join("/"),
+            addedAt: Date.now(),
+            size: files[path].length,
+            extension: ext,
+          });
+        }
+      });
+
+      // Remove metadata for deleted files
+      prev.forEach((_, path) => {
+        if (!currentFilePaths.has(path)) {
+          newMetadata.delete(path);
+        }
+      });
+
+      return newMetadata;
+    });
+
+    prevFilesRef.current = files;
+  }, [files]);
+
+  // Detect task completion for delivery cards
+  useEffect(() => {
+    if (isLoading) {
+      // Reset when new task starts
+      setShowDelivery(false);
+    } else if (wasLoadingRef.current) {
+      // Task just completed
+      setShowDelivery(true);
+    }
+    wasLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   const submitDisabled = isLoading || !assistant;
 
@@ -159,6 +218,26 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       sendMessage(newContent);
     },
     [sendMessage]
+  );
+
+  const handleViewFile = useCallback((path: string) => {
+    setViewingFile(path);
+  }, []);
+
+  const handleViewAllFiles = useCallback(() => {
+    // Open the first file or trigger ContextPanel Files tab
+    const fileList = Object.keys(files);
+    if (fileList.length > 0) {
+      setViewingFile(fileList[0]);
+    }
+  }, [files]);
+
+  const handleSaveFile = useCallback(
+    async (fileName: string, content: string) => {
+      await setFiles({ ...files, [fileName]: content });
+      setViewingFile(null);
+    },
+    [files, setFiles]
   );
 
   // TODO: can we make this part of the hook?
@@ -345,6 +424,11 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       isLastAiMessage={isLastMessage && data.message.type === "ai"}
                       onRegenerate={regenerateLastMessage}
                       onEditAndResend={data.message.type === "human" ? handleEditAndResend : undefined}
+                      files={isLastMessage ? files : undefined}
+                      fileMetadata={fileMetadata}
+                      onViewFile={handleViewFile}
+                      onViewAllFiles={handleViewAllFiles}
+                      showDeliveryCards={isLastMessage && showDelivery && data.message.type === "ai"}
                     />
                   </div>
                 );
@@ -510,6 +594,16 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           </form>
         </div>
       </div>
+
+      {/* File viewer dialog */}
+      {viewingFile && files[viewingFile] && (
+        <FileViewDialog
+          file={{ path: viewingFile, content: files[viewingFile] }}
+          onSaveFile={handleSaveFile}
+          onClose={() => setViewingFile(null)}
+          editDisabled={isLoading || !!interrupt}
+        />
+      )}
     </div>
   );
 });
