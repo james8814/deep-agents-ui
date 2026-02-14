@@ -214,7 +214,7 @@ function HomePageInner({
                     order={3}
                     defaultSize={25}
                     minSize={20}
-                    className="relative min-w-[280px]"
+                    className="relative min-w-[280px] h-full"
                   >
                     <ContextPanel onClose={() => setContextPanel(null)} />
                   </ResizablePanel>
