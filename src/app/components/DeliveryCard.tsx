@@ -4,7 +4,7 @@ import React, { useMemo, useState, useCallback, useRef, useEffect } from "react"
 import { FileText, FileCode, FileSpreadsheet, Image, ChevronRight, Clock, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FileMetadata } from "@/app/types/types";
-import { copyToClipboard } from "@/app/utils/utils";
+import { copyToClipboard, extractFileContent } from "@/app/utils/utils";
 
 interface DeliveryFile {
   path: string;
@@ -18,18 +18,6 @@ interface DeliveryCardProps {
   onViewFile: (path: string) => void;
   onViewAll?: () => void;
   className?: string;
-}
-
-// Helper to extract file content from various formats (same as ContextPanel)
-function extractFileContent(rawContent: unknown): string {
-  if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
-    const content = (rawContent as { content: unknown }).content;
-    if (Array.isArray(content)) {
-      return content.join("\n");
-    }
-    return String(content || "");
-  }
-  return String(rawContent || "");
 }
 
 const getFileIcon = (extension: string) => {

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import type { FileItem } from "@/app/types/types";
 import useSWRMutation from "swr/mutation";
+import { extractFileContent } from "@/app/utils/utils";
 
 const LANGUAGE_MAP: Record<string, string> = {
   js: "javascript",
@@ -58,7 +59,7 @@ export const FileViewDialog = React.memo<{
 }>(({ file, onSaveFile, onClose, editDisabled }) => {
   const [isEditingMode, setIsEditingMode] = useState(file === null);
   const [fileName, setFileName] = useState(String(file?.path || ""));
-  const [fileContent, setFileContent] = useState(String(file?.content || ""));
+  const [fileContent, setFileContent] = useState(extractFileContent(file?.content));
 
   const fileUpdate = useSWRMutation(
     { kind: "files-update", fileName, fileContent },
@@ -74,7 +75,7 @@ export const FileViewDialog = React.memo<{
 
   useEffect(() => {
     setFileName(String(file?.path || ""));
-    setFileContent(String(file?.content || ""));
+    setFileContent(extractFileContent(file?.content));
     setIsEditingMode(file === null);
   }, [file]);
 
@@ -120,7 +121,7 @@ export const FileViewDialog = React.memo<{
       onClose();
     } else {
       setFileName(String(file.path));
-      setFileContent(String(file.content));
+      setFileContent(extractFileContent(file.content));
       setIsEditingMode(false);
     }
   }, [file, onClose]);

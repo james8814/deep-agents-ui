@@ -164,3 +164,27 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Extract file content from various formats.
+ * LangGraph state files may contain content as:
+ * - string (direct content)
+ * - { content: string } (wrapped content)
+ * - { content: string[] } (array of lines)
+ */
+export function extractFileContent(rawContent: unknown): string {
+  if (typeof rawContent === "string") {
+    return rawContent;
+  }
+  if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
+    const content = (rawContent as { content: unknown }).content;
+    if (Array.isArray(content)) {
+      return content.join("\n");
+    }
+    if (typeof content === "string") {
+      return content;
+    }
+    return String(content || "");
+  }
+  return String(rawContent || "");
+}

@@ -28,24 +28,13 @@ import type { TodoItem, FileItem, FileMetadata, FileSortBy } from "@/app/types/t
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useQueryState } from "nuqs";
+import { extractFileContent } from "@/app/utils/utils";
 
 type Tab = "tasks" | "files";
 
 interface ContextPanelProps {
   onClose: () => void;
   initialTab?: Tab;
-}
-
-// Helper to extract file content from various formats
-function extractFileContent(rawContent: unknown): string {
-  if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
-    const content = (rawContent as { content: unknown }).content;
-    if (Array.isArray(content)) {
-      return content.join("\n");
-    }
-    return String(content || "");
-  }
-  return String(rawContent || "");
 }
 
 export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab }) => {
