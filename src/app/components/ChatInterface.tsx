@@ -73,7 +73,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const LINE_HEIGHT = 24; // leading-6 = 24px
   const PADDING_Y = 24; // py-3 = 12px * 2 = 24px
   const MIN_HEIGHT = LINE_HEIGHT + PADDING_Y; // ~48px (1 line + padding)
-  const DEFAULT_LINES = 1; // Start with 1 line
   const AUTO_MAX_LINES = 8; // Max lines before auto-expand stops
   const AUTO_MAX_HEIGHT = MIN_HEIGHT + (AUTO_MAX_LINES - 1) * LINE_HEIGHT; // ~216px
   const TOOLBAR_HEIGHT = 44; // Toolbar + padding
