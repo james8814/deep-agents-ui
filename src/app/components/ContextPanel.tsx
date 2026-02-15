@@ -12,11 +12,11 @@ import {
   ArrowLeft,
   Maximize2,
   Pencil,
-  X,
   Check,
   ArrowUp,
   ArrowDown,
   Copy,
+  Download,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -248,6 +248,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab
               }
             }}
             threadId={threadId}
+            files={files}
           />
         )}
         {activeTab === "files" && viewingFile && (
@@ -255,10 +256,6 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab
             file={viewingFile}
             onBack={handleBackToFileList}
             onExpand={handleExpandFile}
-            onSave={async (content) => {
-              await handleSaveFile(viewingFile.path, content);
-              setViewingFile({ ...viewingFile, content });
-            }}
             editDisabled={isLoading === true || interrupt !== undefined}
           />
         )}
@@ -354,6 +351,7 @@ function FilesTab({
   sortAsc,
   onSortChange,
   threadId,
+  files,
 }: {
   onFileSelect: (filePath: string) => void;
   sortedMetadata: FileMetadata[];
@@ -361,6 +359,7 @@ function FilesTab({
   sortAsc: boolean;
   onSortChange: (sortBy: FileSortBy) => void;
   threadId?: string | null;
+  files: Record<string, unknown>;
 }) {
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
 
@@ -373,6 +372,21 @@ function FilesTab({
       setTimeout(() => setCopiedPath(null), 2000);
     }
   }, [threadId]);
+
+  const handleDownload = useCallback((e: React.MouseEvent, path: string) => {
+    e.stopPropagation();
+    const rawContent = files[path];
+    const content = extractFileContent(rawContent);
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = path.split("/").pop() || path;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [files]);
 
   if (sortedMetadata.length === 0) {
     return (
@@ -450,22 +464,35 @@ function FilesTab({
                   Added {formatRelativeTime(meta.addedAt)}
                 </div>
               </div>
-              {/* Copy share URL button */}
-              {threadId && (
+              {/* Action buttons */}
+              <div className="flex flex-shrink-0 items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Download button */}
                 <button
                   type="button"
-                  onClick={(e) => handleCopyUrl(e, meta.path)}
-                  className="flex-shrink-0 rounded-sm hover:bg-muted-foreground/20 p-1 opacity-0 group-hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none transition-opacity"
-                  aria-label="Copy share URL"
-                  title="Copy share URL"
+                  onClick={(e) => handleDownload(e, meta.path)}
+                  className="rounded-sm hover:bg-muted-foreground/20 p-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  aria-label="Download file"
+                  title="Download"
                 >
-                  {copiedPath === meta.path ? (
-                    <Check size={14} className="text-success" />
-                  ) : (
-                    <Copy size={14} className="text-muted-foreground" />
-                  )}
+                  <Download size={14} className="text-muted-foreground" />
                 </button>
-              )}
+                {/* Copy share URL button */}
+                {threadId && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopyUrl(e, meta.path)}
+                    className="rounded-sm hover:bg-muted-foreground/20 p-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    aria-label="Copy share URL"
+                    title="Copy share URL"
+                  >
+                    {copiedPath === meta.path ? (
+                      <Check size={14} className="text-success" />
+                    ) : (
+                      <Copy size={14} className="text-muted-foreground" />
+                    )}
+                  </button>
+                )}
+              </div>
             </button>
           );
         })}
@@ -547,42 +574,21 @@ function InlineFileViewer({
   file,
   onBack,
   onExpand,
-  onSave,
   editDisabled,
 }: {
   file: FileItem;
   onBack: () => void;
   onExpand: () => void;
-  onSave: (content: string) => Promise<void>;
   editDisabled: boolean;
 }) {
   const ext = file.path.split(".").pop()?.toLowerCase() || "";
   const isMarkdown = ext === "md" || ext === "markdown";
   const language = LANGUAGE_MAP[ext] || "text";
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(file.content);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await onSave(editContent);
-      setIsEditing(false);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditContent(file.content);
-    setIsEditing(false);
-  };
-
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col min-h-0">
       {/* Header */}
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-2 flex-shrink-0">
         <button
           onClick={onBack}
           className="text-muted-foreground hover:text-foreground"
@@ -590,11 +596,11 @@ function InlineFileViewer({
           <ArrowLeft size={14} />
         </button>
         <span className="flex-1 truncate text-xs font-medium">{file.path}</span>
-        {!isEditing && !editDisabled && (
+        {!editDisabled && (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={onExpand}
             className="text-muted-foreground hover:text-foreground"
-            title="Edit file"
+            title="Edit file (opens in dialog)"
           >
             <Pencil size={14} />
           </button>
@@ -608,39 +614,9 @@ function InlineFileViewer({
         </button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto p-2">
-        {isEditing ? (
-          <div className="flex h-full flex-col">
-            <textarea
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              className="flex-1 w-full resize-none rounded-md border border-border bg-background p-2 font-mono text-xs"
-              placeholder="Enter file content..."
-            />
-            <div className="mt-2 flex justify-end gap-2">
-              <button
-                onClick={handleCancel}
-                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent"
-              >
-                <X size={12} />
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving || !editContent.trim()}
-                className="flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-              >
-                {isSaving ? (
-                  <Circle size={12} className="animate-spin" />
-                ) : (
-                  <Check size={12} />
-                )}
-                Save
-              </button>
-            </div>
-          </div>
-        ) : isMarkdown ? (
+      {/* Content - let parent ScrollArea handle scrolling */}
+      <div className="flex-1 min-h-0 p-2">
+        {isMarkdown ? (
           <div className="rounded-md p-2">
             <MarkdownContent content={file.content} />
           </div>
@@ -652,6 +628,7 @@ function InlineFileViewer({
               margin: 0,
               borderRadius: "0.375rem",
               fontSize: "0.75rem",
+              maxHeight: "none",
             }}
             showLineNumbers
             wrapLines
