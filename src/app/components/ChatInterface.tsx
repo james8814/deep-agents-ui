@@ -60,6 +60,15 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const prevFilesRef = useRef<Record<string, string>>({});
   const wasLoadingRef = useRef(false);
 
+  // Reset file-related state when thread changes
+  useEffect(() => {
+    setFileMetadata(new Map());
+    setViewingFile(null);
+    setShowDelivery(false);
+    prevFilesRef.current = {};
+    wasLoadingRef.current = false;
+  }, [threadId]);
+
   // Height constants
   const LINE_HEIGHT = 24; // leading-6 = 24px
   const MIN_HEIGHT = 44; // Single line min height

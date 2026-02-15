@@ -46,15 +46,23 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab
   const [sortAsc, setSortAsc] = useState(false);
   const [threadId] = useQueryState("threadId");
 
+  // Track file metadata (creation time, etc.) in local state
+  const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());
+
+  // Reset state when thread changes
+  useEffect(() => {
+    setViewingFile(null);
+    setSelectedFile(null);
+    fileMetadataRef.current = new Map();
+    setRefreshKey((k) => k + 1);
+  }, [threadId]);
+
   // Switch to initialTab when it changes (e.g., from "查看全部" click)
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
     }
   }, [initialTab]);
-
-  // Track file metadata (creation time, etc.) in local state
-  const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());
 
   // Update file metadata when files change
   useEffect(() => {
