@@ -526,6 +526,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             {/* Textarea */}
             <textarea
               ref={textareaRef}
+              name="message"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

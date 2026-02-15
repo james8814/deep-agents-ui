@@ -113,6 +113,7 @@ export const FileUploadZone = React.memo<FileUploadZoneProps>(({
       <input
         ref={inputRef}
         type="file"
+        name="file-upload"
         multiple
         accept={ACCEPTED_TYPES.join(",")}
         onChange={handleFileChange}

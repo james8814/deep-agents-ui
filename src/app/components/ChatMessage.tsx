@@ -192,6 +192,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           {isUser && isEditing ? (
             <div className="mt-4 w-full max-w-[100%]">
               <textarea
+                name="edit-message"
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 className="w-full rounded-lg border border-border bg-background p-3 text-sm"
