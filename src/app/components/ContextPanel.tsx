@@ -599,6 +599,7 @@ function InlineFileViewer({
   const ext = file.path.split(".").pop()?.toLowerCase() || "";
   const isMarkdown = ext === "md" || ext === "markdown";
   const language = LANGUAGE_MAP[ext] || "text";
+  const fileName = file.path.split("/").pop() || file.path;
 
   return (
     <div className="flex h-full flex-col min-h-0">
@@ -606,12 +607,14 @@ function InlineFileViewer({
       <div className="flex items-center gap-2 border-b border-border px-3 py-2 flex-shrink-0">
         <button
           onClick={onBack}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground flex-shrink-0"
         >
           <ArrowLeft size={14} />
         </button>
-        <span className="flex-1 truncate text-xs font-medium">{file.path}</span>
-        <div className="flex items-center gap-1">
+        <span className="flex-1 min-w-0 truncate text-xs font-medium" title={file.path}>
+          {fileName}
+        </span>
+        <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={onExpand}
             disabled={editDisabled}
@@ -624,8 +627,8 @@ function InlineFileViewer({
         </div>
       </div>
 
-      {/* Content - let parent ScrollArea handle scrolling */}
-      <div className="flex-1 min-h-0 p-2 overflow-auto">
+      {/* Content - parent ScrollArea handles scrolling */}
+      <div className="flex-1 min-h-0 p-2">
         {isMarkdown ? (
           <div className="rounded-md p-2">
             <MarkdownContent content={file.content} />

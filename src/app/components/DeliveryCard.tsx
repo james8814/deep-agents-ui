@@ -206,10 +206,18 @@ export const DeliveryCard = React.memo<DeliveryCardProps>(({
           {otherFiles.map((file) => {
             const Icon = getFileIcon(getFileExtension(file.path));
             return (
-              <button
+              <div
                 key={file.path}
                 onClick={() => onViewFile(file.path)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-background hover:bg-muted transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onViewFile(file.path);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-background hover:bg-muted transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
                 <Icon size={14} className="text-muted-foreground" />
                 <span className="text-sm truncate max-w-[150px]">{getFileName(file.path)}</span>
@@ -218,7 +226,7 @@ export const DeliveryCard = React.memo<DeliveryCardProps>(({
                   {formatRelativeTime(file.metadata?.addedAt)}
                 </span>
                 {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
-              </button>
+              </div>
             );
           })}
         </div>
