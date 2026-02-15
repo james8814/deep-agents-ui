@@ -114,9 +114,10 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     }, [toolCalls]);
 
     // Memoize delivery files to prevent unnecessary re-renders
+    // Sort by creation time (newest first) and take last 3 files
     const deliveryFiles = useMemo(() => {
       if (!files) return [];
-      return Object.entries(files).map(([path, content]) => ({
+      const fileEntries = Object.entries(files).map(([path, content]) => ({
         path,
         content,
         metadata: fileMetadata?.get(path),
@@ -124,6 +125,15 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           ? `${typeof window !== "undefined" ? window.location.origin : ""}/threads/${threadId}/files/${encodeURIComponent(path)}`
           : undefined,
       }));
+
+      // Sort by addedAt time (newest first)
+      return fileEntries
+        .sort((a, b) => {
+          const timeA = a.metadata?.addedAt || 0;
+          const timeB = b.metadata?.addedAt || 0;
+          return timeB - timeA; // Descending order (newest first)
+        })
+        .slice(0, 3); // Take last 3 (most recent)
     }, [files, fileMetadata, threadId]);
 
     const [expandedSubAgents, setExpandedSubAgents] = useState<

@@ -50,6 +50,8 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
   const { scrollRef, contentRef } = useStickToBottom();
   const [threadId] = useQueryState("threadId");
+  const [, setContextPanel] = useQueryState("context");
+  const [, setContextTab] = useQueryState("contextTab");
 
   // File viewing and delivery card state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
@@ -227,12 +229,10 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   }, []);
 
   const handleViewAllFiles = useCallback(() => {
-    // Open the first file or trigger ContextPanel Files tab
-    const fileList = Object.keys(files);
-    if (fileList.length > 0) {
-      setViewingFile(fileList[0]);
-    }
-  }, [files]);
+    // Open ContextPanel with Files tab
+    setContextPanel("1");
+    setContextTab("files");
+  }, [setContextPanel, setContextTab]);
 
   const handleSaveFile = useCallback(
     async (fileName: string, content: string) => {

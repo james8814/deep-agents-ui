@@ -33,6 +33,7 @@ type Tab = "tasks" | "files";
 
 interface ContextPanelProps {
   onClose: () => void;
+  initialTab?: Tab;
 }
 
 // Helper to extract file content from various formats
@@ -47,15 +48,22 @@ function extractFileContent(rawContent: unknown): string {
   return String(rawContent || "");
 }
 
-export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
+export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab }) => {
   const { todos, files, setFiles, isLoading, interrupt } = useChatContext();
-  const [activeTab, setActiveTab] = useState<Tab>("tasks");
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tasks");
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [sortBy, setSortBy] = useState<FileSortBy>("time");
   const [sortAsc, setSortAsc] = useState(false);
   const [threadId] = useQueryState("threadId");
+
+  // Switch to initialTab when it changes (e.g., from "查看全部" click)
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // Track file metadata (creation time, etc.) in local state
   const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());

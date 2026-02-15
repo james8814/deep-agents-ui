@@ -36,6 +36,7 @@ function HomePageInner({
   const [threadId, setThreadId] = useQueryState("threadId");
   const [sidebar, setSidebar] = useQueryState("sidebar");
   const [contextPanel, setContextPanel] = useQueryState("context");
+  const [contextTab, setContextTab] = useQueryState("contextTab");
 
   const [mutateThreads, setMutateThreads] = useState<(() => void) | null>(null);
   const [interruptCount, setInterruptCount] = useState(0);
@@ -223,7 +224,13 @@ function HomePageInner({
                     minSize={20}
                     className="relative min-w-[280px] h-full"
                   >
-                    <ContextPanel onClose={() => setContextPanel(null)} />
+                    <ContextPanel
+                      onClose={() => {
+                        setContextPanel(null);
+                        setContextTab(null);
+                      }}
+                      initialTab={contextTab === "files" ? "files" : undefined}
+                    />
                   </ResizablePanel>
                 </>
               )}
