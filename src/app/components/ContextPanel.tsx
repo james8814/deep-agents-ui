@@ -10,7 +10,6 @@ import {
   PanelRightClose,
   RefreshCw,
   ArrowLeft,
-  Maximize2,
   Pencil,
   Check,
   ArrowUp,
@@ -596,26 +595,21 @@ function InlineFileViewer({
           <ArrowLeft size={14} />
         </button>
         <span className="flex-1 truncate text-xs font-medium">{file.path}</span>
-        {!editDisabled && (
+        <div className="flex items-center gap-1">
           <button
             onClick={onExpand}
-            className="text-muted-foreground hover:text-foreground"
-            title="Edit file (opens in dialog)"
+            disabled={editDisabled}
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            title="Open in editor"
           >
-            <Pencil size={14} />
+            <Pencil size={12} />
+            <span>Edit</span>
           </button>
-        )}
-        <button
-          onClick={onExpand}
-          className="text-muted-foreground hover:text-foreground"
-          title="Open full screen"
-        >
-          <Maximize2 size={14} />
-        </button>
+        </div>
       </div>
 
       {/* Content - let parent ScrollArea handle scrolling */}
-      <div className="flex-1 min-h-0 p-2">
+      <div className="flex-1 min-h-0 p-2 overflow-auto">
         {isMarkdown ? (
           <div className="rounded-md p-2">
             <MarkdownContent content={file.content} />
