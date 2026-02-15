@@ -20,6 +20,18 @@ interface DeliveryCardProps {
   className?: string;
 }
 
+// Helper to extract file content from various formats (same as ContextPanel)
+function extractFileContent(rawContent: unknown): string {
+  if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
+    const content = (rawContent as { content: unknown }).content;
+    if (Array.isArray(content)) {
+      return content.join("\n");
+    }
+    return String(content || "");
+  }
+  return String(rawContent || "");
+}
+
 const getFileIcon = (extension: string) => {
   const ext = extension.toLowerCase();
   if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext)) return Image;
@@ -50,8 +62,9 @@ const formatRelativeTime = (timestamp?: number): string => {
   return `${Math.floor(hours / 24)} 天前`;
 };
 
-const formatFileSize = (content: string): string => {
-  const bytes = new Blob([content]).size;
+const formatFileSize = (content: unknown): string => {
+  const str = extractFileContent(content);
+  const bytes = new Blob([str]).size;
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -119,11 +132,12 @@ const FilePreview = React.memo<{
     }
 
     if (isTextFile) {
-      const lines = file.content.split("\n").slice(0, 12);
+      const contentStr = extractFileContent(file.content);
+      const lines = contentStr.split("\n").slice(0, 12);
       return (
         <pre className="text-xs text-muted-foreground overflow-hidden whitespace-pre-wrap break-all line-clamp-12">
           {lines.join("\n")}
-          {file.content.split("\n").length > 12 && "\n..."}
+          {contentStr.split("\n").length > 12 && "\n..."}
         </pre>
       );
     }
