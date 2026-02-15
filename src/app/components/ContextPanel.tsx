@@ -438,10 +438,18 @@ function FilesTab({
       <div className="space-y-1">
         {sortedMetadata.map((meta) => {
           return (
-            <button
+            <div
               key={meta.path}
               onClick={() => onFileSelect(meta.path)}
-              className="group flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onFileSelect(meta.path);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              className="group flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
               <FileText
                 size={16}
@@ -492,7 +500,7 @@ function FilesTab({
                   </button>
                 )}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
