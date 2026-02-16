@@ -13,6 +13,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@ant-design/x": "^2.2.2",
+    "@ant-design/x-markdown": "^2.2.2",
     "@langchain/core": "^1.1.8",
     "@langchain/langgraph": "^1.0.2",
     "@langchain/langgraph-sdk": "^1.0.3",
@@ -28,6 +30,7 @@
     "@types/diff": "^5.0.3",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/uuid": "^9.0.8",
+    "antd": "^6.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^1.2.1",
     "date-fns": "^4.1.0",
