@@ -19,6 +19,8 @@ import {
 import { FileUploadZone, UploadButton, FileChipData } from "./FileUploadZone";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
+import { AntdXMessageList } from "@/app/components/AntdXMessageList";
+import { useFeatureFlag } from "@/lib/featureFlags";
 import type {
   ToolCall,
   ActionRequest,
@@ -52,6 +54,9 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [threadId] = useQueryState("threadId");
   const [, setContextPanel] = useQueryState("context");
   const [, setContextTab] = useQueryState("contextTab");
+
+  // Feature Flag for Ant Design X migration
+  const useAntdxMessageList = useFeatureFlag("USE_ANTDX_MESSAGE_LIST");
 
   // File viewing and delivery card state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
@@ -409,6 +414,19 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             <div className="flex items-center justify-center p-8">
               <p className="text-muted-foreground">Loading...</p>
             </div>
+          ) : useAntdxMessageList ? (
+            <AntdXMessageList
+              messages={messages}
+              isLoading={isLoading}
+              interrupt={interrupt}
+              stream={stream}
+              onEditAndResend={handleEditAndResend}
+              onResumeInterrupt={resumeInterrupt}
+              files={files}
+              fileMetadata={fileMetadata}
+              onViewFile={handleViewFile}
+              showDeliveryCards={showDelivery}
+            />
           ) : (
             <>
               {processedMessages.map((data, index) => {
