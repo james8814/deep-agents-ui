@@ -507,8 +507,12 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           <button
             onClick={() => {
               // Scroll to the interrupt tool call
+              // Priority: ThoughtChain (AntdX) > data-last-message (ChatMessage) > content bottom
+              const thoughtChain = document.querySelector(".ant-thought-chain:last-of-type");
               const lastMessage = document.querySelector("[data-last-message]");
-              lastMessage?.scrollIntoView({ behavior: "smooth", block: "center" });
+              const contentBottom = contentRef.current?.lastElementChild;
+              const target = thoughtChain || lastMessage || contentBottom;
+              target?.scrollIntoView({ behavior: "smooth", block: "center" });
             }}
             className="flex-shrink-0 rounded-md border border-orange-300 bg-white px-3 py-1 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-50 dark:border-orange-600 dark:bg-orange-900/50 dark:text-orange-300"
           >
