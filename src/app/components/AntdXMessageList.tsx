@@ -47,12 +47,14 @@ export const AntdXMessageList = React.memo<AntdXMessageListProps>(
             const item = bubbleItems.find(
               (b) => b.key === info.key
             ) as ConvertedBubbleItem | undefined;
-            if (!item?.toolCalls?.length) return null;
+            const toolCalls = item?.extraInfo?.toolCalls;
+            const isStreaming = item?.extraInfo?.isStreaming;
+            if (!toolCalls?.length) return null;
 
             return (
               <ToolCallFooter
-                toolCalls={item.toolCalls}
-                isLoading={isLoading && item.isStreaming}
+                toolCalls={toolCalls}
+                isLoading={isLoading && isStreaming}
                 interrupt={interrupt}
                 stream={stream}
                 onResumeInterrupt={onResumeInterrupt}

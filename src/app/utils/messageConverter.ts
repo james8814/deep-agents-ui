@@ -4,15 +4,16 @@ import { extractStringFromMessageContent } from "./utils";
 
 /**
  * Extended Bubble type with custom properties for Ant Design X
+ * Uses extraInfo to store custom data (Ant Design X official support)
  */
 export interface ConvertedBubbleItem {
   key: string;
   role: "user" | "ai";
   content: string;
   typing?: { effect: "fade-in" | "typing" } | false;
-  toolCalls?: ToolCall[];
-  isStreaming?: boolean;
-  messageExtras?: {
+  extraInfo?: {
+    toolCalls?: ToolCall[];
+    isStreaming?: boolean;
     status?: string;
     isLast?: boolean;
   };
@@ -45,9 +46,9 @@ export function convertMessagesToBubbles(
         data.message.type === "ai" && !isStreaming
           ? { effect: "fade-in" }
           : false,
-      toolCalls: data.toolCalls,
-      isStreaming,
-      messageExtras: {
+      extraInfo: {
+        toolCalls: data.toolCalls,
+        isStreaming,
         status: getMessageStatus(data, interrupt),
         isLast,
       },
