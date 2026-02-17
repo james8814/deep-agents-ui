@@ -422,10 +422,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               stream={stream}
               onEditAndResend={handleEditAndResend}
               onResumeInterrupt={resumeInterrupt}
-              files={files}
-              fileMetadata={fileMetadata}
-              onViewFile={handleViewFile}
-              showDeliveryCards={showDelivery}
             />
           ) : (
             <>

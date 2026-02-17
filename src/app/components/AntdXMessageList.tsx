@@ -17,10 +17,6 @@ interface AntdXMessageListProps {
   stream?: unknown;
   onEditAndResend?: (content: string) => void;
   onResumeInterrupt?: (value: unknown) => void;
-  files?: Record<string, string>;
-  fileMetadata?: Map<string, unknown>;
-  onViewFile?: (path: string) => void;
-  showDeliveryCards?: boolean;
 }
 
 export const AntdXMessageList = React.memo<AntdXMessageListProps>(
