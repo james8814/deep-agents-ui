@@ -10,12 +10,14 @@ import { useSearchParams } from "next/navigation";
  * - ?useAntdxSender=true
  * - ?useAntdxThreadList=true
  * - ?useAntdxMarkdown=true
+ * - ?useAntdxSubAgent=true
  */
 export const FEATURE_FLAGS = {
   USE_ANTDX_MESSAGE_LIST: false,
   USE_ANTDX_SENDER: false,
   USE_ANTDX_THREAD_LIST: false,
   USE_ANTDX_MARKDOWN: false,
+  USE_ANTDX_SUB_AGENT: false,
 } as const;
 
 export type FeatureFlagKey = keyof typeof FEATURE_FLAGS;
@@ -26,6 +28,7 @@ const URL_KEY_MAP: Record<FeatureFlagKey, string> = {
   USE_ANTDX_SENDER: "useAntdxSender",
   USE_ANTDX_THREAD_LIST: "useAntdxThreadList",
   USE_ANTDX_MARKDOWN: "useAntdxMarkdown",
+  USE_ANTDX_SUB_AGENT: "useAntdxSubAgent",
 };
 
 /**
@@ -53,5 +56,6 @@ export function useAllFeatureFlags(): Record<FeatureFlagKey, boolean> {
     USE_ANTDX_SENDER: useFeatureFlag("USE_ANTDX_SENDER"),
     USE_ANTDX_THREAD_LIST: useFeatureFlag("USE_ANTDX_THREAD_LIST"),
     USE_ANTDX_MARKDOWN: useFeatureFlag("USE_ANTDX_MARKDOWN"),
+    USE_ANTDX_SUB_AGENT: useFeatureFlag("USE_ANTDX_SUB_AGENT"),
   };
 }

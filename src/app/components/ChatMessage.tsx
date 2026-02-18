@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState, useCallback } from "react";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
+import { SubAgentThoughtChain } from "@/app/components/SubAgentThoughtChain";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import { AntdXMarkdown } from "@/app/components/AntdXMarkdown";
@@ -83,6 +84,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     threadId,
   }) => {
     const useAntdxMarkdown = useFeatureFlag("USE_ANTDX_MARKDOWN");
+    const useAntdxSubAgent = useFeatureFlag("USE_ANTDX_SUB_AGENT");
     const isUser = message.type === "human";
     const messageContent = extractStringFromMessageContent(message);
     const hasContent = messageContent && messageContent.trim() !== "";
@@ -139,18 +141,14 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         .slice(0, 3); // Take last 3 (most recent)
     }, [files, fileMetadata, threadId]);
 
-    const [expandedSubAgents, setExpandedSubAgents] = useState<
-      Record<string, boolean>
-    >({});
+    const [_setExpandedSubAgents] = useState<Record<string, boolean>>({});
+    const [expandedSubAgentId, setExpandedSubAgentId] = useState<string | null>(null);
     const isSubAgentExpanded = useCallback(
-      (id: string) => expandedSubAgents[id] ?? true,
-      [expandedSubAgents]
+      (id: string) => expandedSubAgentId === id,
+      [expandedSubAgentId]
     );
     const toggleSubAgent = useCallback((id: string) => {
-      setExpandedSubAgents((prev) => ({
-        ...prev,
-        [id]: prev[id] === undefined ? false : !prev[id],
-      }));
+      setExpandedSubAgentId((currentId) => (currentId === id ? null : id));
     }, []);
 
     // Copy button state
@@ -367,50 +365,63 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           )}
           {!isUser && subAgents.length > 0 && (
             <div className="flex w-fit max-w-full flex-col gap-4">
-              {subAgents.map((subAgent) => (
-                <div
-                  key={subAgent.id}
-                  className="flex w-full flex-col gap-2"
-                >
-                  <div className="flex items-end gap-2">
-                    <div className="w-[calc(100%-100px)]">
-                      <SubAgentIndicator
-                        subAgent={subAgent}
-                        onClick={() => toggleSubAgent(subAgent.id)}
-                        isExpanded={isSubAgentExpanded(subAgent.id)}
-                      />
-                    </div>
-                  </div>
-                  {isSubAgentExpanded(subAgent.id) && (
-                    <div className="w-full max-w-full">
-                      <div className="bg-surface border-border-light rounded-md border p-4">
-                        <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
-                          Input
-                        </h4>
-                        <div className="mb-4">
-                          {useAntdxMarkdown ? (
-                            <AntdXMarkdown content={extractSubAgentContent(subAgent.input)} />
-                          ) : (
-                            <MarkdownContent content={extractSubAgentContent(subAgent.input)} />
-                          )}
+              {useAntdxSubAgent ? (
+                /* Ant Design X ThoughtChain implementation */
+                <SubAgentThoughtChain
+                  subAgents={subAgents}
+                  isLoading={isLoading}
+                  expandedSubAgentId={expandedSubAgentId}
+                  onToggleExpand={toggleSubAgent}
+                />
+              ) : (
+                /* Legacy SubAgentIndicator implementation */
+                <div className="flex w-fit max-w-full flex-col gap-4">
+                  {subAgents.map((subAgent) => (
+                    <div
+                      key={subAgent.id}
+                      className="flex w-full flex-col gap-2"
+                    >
+                      <div className="flex items-end gap-2">
+                        <div className="w-[calc(100%-100px)]">
+                          <SubAgentIndicator
+                            subAgent={subAgent}
+                            onClick={() => toggleSubAgent(subAgent.id)}
+                            isExpanded={isSubAgentExpanded(subAgent.id)}
+                          />
                         </div>
-                        {subAgent.output && (
-                          <>
-                            <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
-                              Output
-                            </h4>
-                            {useAntdxMarkdown ? (
-                              <AntdXMarkdown content={extractSubAgentContent(subAgent.output)} />
-                            ) : (
-                              <MarkdownContent content={extractSubAgentContent(subAgent.output)} />
-                            )}
-                          </>
-                        )}
                       </div>
+                      {isSubAgentExpanded(subAgent.id) && (
+                        <div className="w-full max-w-full">
+                          <div className="bg-surface border-border-light rounded-md border p-4">
+                            <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
+                              Input
+                            </h4>
+                            <div className="mb-4">
+                              {useAntdxMarkdown ? (
+                                <AntdXMarkdown content={extractSubAgentContent(subAgent.input)} />
+                              ) : (
+                                <MarkdownContent content={extractSubAgentContent(subAgent.input)} />
+                              )}
+                            </div>
+                            {subAgent.output && (
+                              <>
+                                <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
+                                  Output
+                                </h4>
+                                {useAntdxMarkdown ? (
+                                  <AntdXMarkdown content={extractSubAgentContent(subAgent.output)} />
+                                ) : (
+                                  <MarkdownContent content={extractSubAgentContent(subAgent.output)} />
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
           {/* Delivery cards - show for AI messages with delivered files */}
