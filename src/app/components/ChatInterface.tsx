@@ -20,6 +20,7 @@ import { FileUploadZone, UploadButton, FileChipData } from "./FileUploadZone";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import { AntdXMessageList } from "@/app/components/AntdXMessageList";
+import { AntdXSender } from "@/app/components/AntdXSender";
 import { useFeatureFlag } from "@/lib/featureFlags";
 import type {
   ToolCall,
@@ -57,6 +58,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   // Feature Flag for Ant Design X migration
   const useAntdxMessageList = useFeatureFlag("USE_ANTDX_MESSAGE_LIST");
+  const useAntdxSender = useFeatureFlag("USE_ANTDX_SENDER");
 
   // File viewing and delivery card state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
@@ -215,6 +217,15 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       setAttachedFiles([]);
     },
     [input, isLoading, sendMessage, setInput, assistant, attachedFiles]
+  );
+
+  // Handler for AntdXSender - accepts content directly instead of reading from state
+  const handleSubmitWithContent = useCallback(
+    (content: string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>) => {
+      if (isLoading || !assistant) return;
+      sendMessage(content);
+    },
+    [isLoading, sendMessage, assistant]
   );
 
   const triggerUpload = useCallback(() => {
@@ -523,108 +534,120 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
       {/* Input Panel */}
       <div ref={inputPanelRef} className="flex-shrink-0 bg-background p-4 pt-2">
-        <div
-          className={cn(
-            "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
-            "w-full max-w-[1024px] transition-all duration-200 ease-out"
-          )}
-        >
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col"
+        {useAntdxSender ? (
+          <AntdXSender
+            onSend={(content) => {
+              handleSubmitWithContent(content as typeof content);
+            }}
+            onStop={stopStream}
+            disabled={!!interrupt}
+            loading={isLoading}
+            interrupt={interrupt}
+          />
+        ) : (
+          <div
+            className={cn(
+              "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
+              "w-full max-w-[1024px] transition-all duration-200 ease-out"
+            )}
           >
-            {/* File Upload Zone */}
-            <FileUploadZone
-              files={attachedFiles}
-              onFilesChange={setAttachedFiles}
-              disabled={isLoading || !!interrupt}
-              inputRef={uploadInputRef}
-            />
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col"
+            >
+              {/* File Upload Zone */}
+              <FileUploadZone
+                files={attachedFiles}
+                onFilesChange={setAttachedFiles}
+                disabled={isLoading || !!interrupt}
+                inputRef={uploadInputRef}
+              />
 
-            {/* Textarea */}
-            <textarea
-              ref={textareaRef}
-              name="message"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                isLoading
-                  ? "Running..."
-                  : interrupt
-                  ? "Agent is waiting for approval above ↑"
-                  : "Write your message..."
-              }
-              disabled={!!interrupt}
-              className={cn(
-                "w-full resize-none border-0 bg-transparent px-4 py-3 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/50",
-                interrupt && "cursor-not-allowed opacity-50"
-              )}
-              rows={1}
-            />
-
-            {/* Toolbar: Upload + Expand + Hints + Button */}
-            <div className="flex items-center justify-between border-t border-border/50 px-3 py-2">
-              {/* Left: Upload + Expand button + hint */}
-              <div className="flex items-center gap-2">
-                <UploadButton
-                  onClick={triggerUpload}
-                  disabled={isLoading || !!interrupt}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  disabled={!input.trim()}
-                  className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
-                    "hover:bg-accent hover:text-foreground",
-                    "disabled:opacity-30 disabled:cursor-not-allowed",
-                    isExpanded && "bg-accent text-foreground"
-                  )}
-                  title={isExpanded ? "Collapse to 8 lines" : "Expand to 16 lines"}
-                >
-                  {isExpanded ? (
-                    <Minimize2 size={14} />
-                  ) : (
-                    <Maximize2 size={14} />
-                  )}
-                </button>
-                <span className="text-[10px] text-muted-foreground/60">
-                  Shift+Enter
-                </span>
-              </div>
-
-              {/* Right: Char count + Send button */}
-              <div className="flex items-center gap-3">
-                {input.length > 500 && (
-                  <span className="text-[10px] tabular-nums text-muted-foreground/60">
-                    {input.length.toLocaleString()}
-                  </span>
+              {/* Textarea */}
+              <textarea
+                ref={textareaRef}
+                name="message"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  isLoading
+                    ? "Running..."
+                    : interrupt
+                    ? "Agent is waiting for approval above ↑"
+                    : "Write your message..."
+                }
+                disabled={!!interrupt}
+                className={cn(
+                  "w-full resize-none border-0 bg-transparent px-4 py-3 text-sm leading-6 text-foreground outline-none placeholder:text-muted-foreground/50",
+                  interrupt && "cursor-not-allowed opacity-50"
                 )}
-                <Button
-                  type={isLoading ? "button" : "submit"}
-                  variant={isLoading ? "destructive" : "default"}
-                  size="sm"
-                  onClick={isLoading ? stopStream : undefined}
-                  disabled={!isLoading && (submitDisabled || !input.trim())}
-                  className="h-7 px-3 text-xs"
-                >
-                  {isLoading ? (
-                    <>
-                      <Square size={12} className="mr-1" />
-                      Stop
-                    </>
-                  ) : (
-                    <>
-                      <ArrowUp size={14} className="mr-1" />
-                      Send
-                    </>
+                rows={1}
+              />
+
+              {/* Toolbar: Upload + Expand + Hints + Button */}
+              <div className="flex items-center justify-between border-t border-border/50 px-3 py-2">
+                {/* Left: Upload + Expand button + hint */}
+                <div className="flex items-center gap-2">
+                  <UploadButton
+                    onClick={triggerUpload}
+                    disabled={isLoading || !!interrupt}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    disabled={!input.trim()}
+                    className={cn(
+                      "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
+                      "hover:bg-accent hover:text-foreground",
+                      "disabled:opacity-30 disabled:cursor-not-allowed",
+                      isExpanded && "bg-accent text-foreground"
+                    )}
+                    title={isExpanded ? "Collapse to 8 lines" : "Expand to 16 lines"}
+                  >
+                    {isExpanded ? (
+                      <Minimize2 size={14} />
+                    ) : (
+                      <Maximize2 size={14} />
+                    )}
+                  </button>
+                  <span className="text-[10px] text-muted-foreground/60">
+                    Shift+Enter
+                  </span>
+                </div>
+
+                {/* Right: Char count + Send button */}
+                <div className="flex items-center gap-3">
+                  {input.length > 500 && (
+                    <span className="text-[10px] tabular-nums text-muted-foreground/60">
+                      {input.length.toLocaleString()}
+                    </span>
                   )}
-                </Button>
+                  <Button
+                    type={isLoading ? "button" : "submit"}
+                    variant={isLoading ? "destructive" : "default"}
+                    size="sm"
+                    onClick={isLoading ? stopStream : undefined}
+                    disabled={!isLoading && (submitDisabled || !input.trim())}
+                    className="h-7 px-3 text-xs"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Square size={12} className="mr-1" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <ArrowUp size={14} className="mr-1" />
+                        Send
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </form>
-        </div>
+            </form>
+          </div>
+        )}
       </div>
 
       {/* File viewer dialog */}
