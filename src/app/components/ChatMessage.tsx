@@ -4,7 +4,9 @@ import React, { useMemo, useState, useCallback } from "react";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
+import { AntdXMarkdown } from "@/app/components/AntdXMarkdown";
 import { DeliveryCard } from "@/app/components/DeliveryCard";
+import { useFeatureFlag } from "@/lib/featureFlags";
 import type {
   SubAgent,
   ToolCall,
@@ -80,6 +82,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     showDeliveryCards,
     threadId,
   }) => {
+    const useAntdxMarkdown = useFeatureFlag("USE_ANTDX_MARKDOWN");
     const isUser = message.type === "human";
     const messageContent = extractStringFromMessageContent(message);
     const hasContent = messageContent && messageContent.trim() !== "";
@@ -290,7 +293,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                     </p>
                   )
                 ) : hasContent ? (
-                  <MarkdownContent content={messageContent} isStreaming={isStreaming} />
+                  useAntdxMarkdown ? (
+                    <AntdXMarkdown content={messageContent} isStreaming={isStreaming} />
+                  ) : (
+                    <MarkdownContent content={messageContent} isStreaming={isStreaming} />
+                  )
                 ) : null}
               </div>
 
@@ -381,18 +388,22 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                           Input
                         </h4>
                         <div className="mb-4">
-                          <MarkdownContent
-                            content={extractSubAgentContent(subAgent.input)}
-                          />
+                          {useAntdxMarkdown ? (
+                            <AntdXMarkdown content={extractSubAgentContent(subAgent.input)} />
+                          ) : (
+                            <MarkdownContent content={extractSubAgentContent(subAgent.input)} />
+                          )}
                         </div>
                         {subAgent.output && (
                           <>
                             <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
                               Output
                             </h4>
-                            <MarkdownContent
-                              content={extractSubAgentContent(subAgent.output)}
-                            />
+                            {useAntdxMarkdown ? (
+                              <AntdXMarkdown content={extractSubAgentContent(subAgent.output)} />
+                            ) : (
+                              <MarkdownContent content={extractSubAgentContent(subAgent.output)} />
+                            )}
                           </>
                         )}
                       </div>

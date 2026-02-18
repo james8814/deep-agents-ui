@@ -12,7 +12,7 @@ interface InterruptActionsProps {
 
 export const InterruptActions = React.memo<InterruptActionsProps>(
   ({ onApprove, onReject, approvalOptions }) => {
-    const options = approvalOptions || [
+    const _options = approvalOptions || [
       { label: "Approve", value: true },
       { label: "Reject", value: false },
     ];

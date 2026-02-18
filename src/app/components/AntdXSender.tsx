@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Sender, Attachments } from "@ant-design/x";
-import type { AttachmentsProps } from "@ant-design/x";
 import { Button } from "antd";
 import { Square, ArrowUp, Paperclip } from "lucide-react";
 
