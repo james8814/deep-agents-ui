@@ -1,0 +1,11 @@
+services:
+  deep-agents-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: deep-agents-ui:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_LANGSMITH_API_KEY=${NEXT_PUBLIC_LANGSMITH_API_KEY}
+    restart: always

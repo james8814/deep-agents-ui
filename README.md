@@ -13,6 +13,30 @@ $ yarn install
 $ yarn dev
 ```
 
+### 🐳 Docker Support
+
+You can also run the application using Docker:
+
+**Using Docker Compose (Recommended)**
+
+```bash
+# Start the application
+$ docker-compose up -d
+
+# Stop the application
+$ docker-compose down
+```
+
+**Using Docker Build**
+
+```bash
+# Build the image
+$ docker build -t deep-agents-ui .
+
+# Run the container
+$ docker run -p 3000:3000 deep-agents-ui
+```
+
 **Deploy a deepagent**
 
 As an example, see our [deepagents quickstart](https://github.com/langchain-ai/deepagents-quickstarts/tree/main/deep_research) repo for an example and run the `deep_research` example.
