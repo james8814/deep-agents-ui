@@ -3,6 +3,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
 import { AntdProvider } from "@/providers/AntdProvider";
 import { ClientInitializer } from "@/components/ClientInitializer";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,9 +23,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ClientInitializer>
-          <NuqsAdapter>
-            <AntdProvider>{children}</AntdProvider>
-          </NuqsAdapter>
+          <AuthProvider>
+            <NuqsAdapter>
+              <AntdProvider>{children}</AntdProvider>
+            </NuqsAdapter>
+          </AuthProvider>
         </ClientInitializer>
         <Toaster />
       </body>
