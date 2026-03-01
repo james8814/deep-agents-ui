@@ -67,11 +67,8 @@ SubAgentThoughtChain.displayName = "SubAgentThoughtChain";
  */
 function mapSubAgentStatus(
   status: SubAgent["status"]
-): ThoughtChainProps["items"][number]["status"] {
-  const map: Record<
-    SubAgent["status"],
-    ThoughtChainProps["items"][number]["status"]
-  > = {
+): "loading" | "success" | "error" | "abort" {
+  const map: Record<SubAgent["status"], "loading" | "success" | "error" | "abort"> = {
     pending: "loading",
     active: "loading",
     completed: "success",

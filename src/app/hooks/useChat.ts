@@ -9,9 +9,13 @@ import {
 } from "@langchain/langgraph-sdk";
 
 // Type for multimodal message content
-export type MultimodalContent =
-  | string
-  | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>;
+// Supports: text, image_url (for images), file (for documents)
+export type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } }
+  | { type: "file"; source: { type: "base64"; media_type: string; data: string }; filename?: string };
+
+export type MultimodalContent = string | ContentBlock[];
 import { v4 as uuidv4 } from "uuid";
 import type { UseStreamThread } from "@langchain/langgraph-sdk/react";
 import type { TodoItem } from "@/app/types/types";
@@ -55,12 +59,14 @@ export function useChat({
     onFinish: onHistoryRevalidate,
     onError: onHistoryRevalidate,
     onCreated: onHistoryRevalidate,
-    experimental_thread: thread,
   });
 
   const sendMessage = useCallback(
     (content: MultimodalContent) => {
-      const newMessage: Message = { id: uuidv4(), type: "human", content };
+      // Cast content to any to support extended content types (file blocks)
+      // The SDK's MessageContent type only supports text and image_url,
+      // but the backend may support additional types like file blocks
+      const newMessage: Message = { id: uuidv4(), type: "human", content: content as Message["content"] };
       stream.submit(
         { messages: [newMessage] },
         {

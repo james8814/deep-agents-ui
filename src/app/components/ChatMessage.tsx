@@ -57,6 +57,8 @@ const isMultimodalContent = (
   type: string;
   text?: string;
   image_url?: { url: string };
+  source?: { type: string; media_type: string; data: string };
+  filename?: string;
 }> => {
   return Array.isArray(content);
 };
@@ -270,6 +272,10 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                                 </div>
                               );
                             }
+                            // File attachment with filename
+                            const filename = (block as { filename?: string }).filename || "File";
+                            const mediaType = (block as { source?: { media_type?: string } }).source?.media_type || "";
+                            const fileExt = filename.split('.').pop()?.toUpperCase() || "FILE";
                             return (
                               <div
                                 key={i}
@@ -279,7 +285,8 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                                   size={14}
                                   className="text-muted-foreground"
                                 />
-                                <span>File attachment</span>
+                                <span className="truncate max-w-[150px]" title={filename}>{filename}</span>
+                                <span className="text-xs text-muted-foreground">({fileExt})</span>
                               </div>
                             );
                           })}

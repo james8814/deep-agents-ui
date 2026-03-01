@@ -31,6 +31,7 @@ import type {
 import { Assistant, Message } from "@langchain/langgraph-sdk";
 import { extractStringFromMessageContent } from "@/app/utils/utils";
 import { useChatContext } from "@/providers/ChatProvider";
+import type { MultimodalContent } from "@/app/hooks/useChat";
 import { cn } from "@/lib/utils";
 import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
@@ -221,7 +222,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   // Handler for AntdXSender - accepts content directly instead of reading from state
   const handleSubmitWithContent = useCallback(
-    (content: string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }>) => {
+    (content: MultimodalContent) => {
       if (isLoading || !assistant) return;
       sendMessage(content);
     },

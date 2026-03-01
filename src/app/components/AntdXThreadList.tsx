@@ -247,15 +247,13 @@ export const AntdXThreadList = React.memo<AntdXThreadListProps>(
         <div className="flex-1 overflow-hidden">
           <Conversations
             items={items}
-            activeKey={activeKey}
+            activeKey={activeKey ?? undefined}
             onActiveChange={(key) => {
               if (key) {
                 onThreadSelect(key);
               }
             }}
             groupable
-            onLoadMore={handleLoadMore}
-            loading={isLoadingMore}
             className="h-full"
           />
         </div>

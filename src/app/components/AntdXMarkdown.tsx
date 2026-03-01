@@ -195,7 +195,6 @@ export const AntdXMarkdown = React.memo<AntdXMarkdownProps>(
                   enableAnimation: true,
                   animationConfig: {
                     fadeDuration: 200,
-                    opacity: 0.2,
                   },
                 }
               : undefined
