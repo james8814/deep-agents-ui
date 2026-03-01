@@ -152,13 +152,6 @@ export const AntdXThreadList = React.memo<AntdXThreadListProps>(
       onInterruptCountChange?.(interruptedCount);
     }, [interruptedCount, onInterruptCountChange]);
 
-    // Handle loading state
-    useEffect(() => {
-      if (!threads.isLoading) {
-        setLoading(false);
-      }
-    }, [threads.isLoading]);
-
     // Convert threads to Conversations items format
     const items: ConversationsProps["items"] = useMemo(() => {
       return flattened.map((thread) => {

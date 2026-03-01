@@ -41,7 +41,8 @@ function HomePageInner({
 
   // Feature Flag for Ant Design X ThreadList
   const [useAntdxThreadList] = useQueryState("useAntdxThreadList");
-  const isAntdxThreadList = useAntdxThreadList === "true";
+  // URL 参数优先，如果没有则使用 localStorage 中的 useAntdX 设置
+  const isAntdxThreadList = useAntdxThreadList === "true" || config.useAntdX === true;
 
   const [mutateThreads, setMutateThreads] = useState<(() => void) | null>(null);
   const [interruptCount, setInterruptCount] = useState(0);

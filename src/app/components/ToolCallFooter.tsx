@@ -50,7 +50,14 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
           {tc.status === "interrupted" && onResumeInterrupt && (
             <InterruptActions
               onApprove={(value) => onResumeInterrupt(value)}
-              onReject={() => onResumeInterrupt({ goto: "__end__" })}
+              onReject={() => onResumeInterrupt({
+                decisions: [
+                  {
+                    type: "reject",
+                    message: "用户拒绝了此操作"
+                  }
+                ]
+              })}
             />
           )}
         </div>

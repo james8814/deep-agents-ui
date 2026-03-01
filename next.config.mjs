@@ -1,10 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: "standalone",
-
-  // Ant Design X 配置
   transpilePackages: [
     "antd",
     "@ant-design/x",
@@ -13,7 +9,6 @@ const nextConfig: NextConfig = {
     "@ant-design/icons-svg",
     "rc-util",
   ],
-
   experimental: {
     optimizePackageImports: [
       "antd",

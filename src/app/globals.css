@@ -393,32 +393,3 @@ button {
   text-decoration: line-through;
   text-decoration-color: #f85149;
 }
-
-/* Ant Design X Dark Theme Support */
-.dark .ant-bubble-list,
-.dark .ant-bubble,
-.dark .ant-bubble-content {
-  color: var(--color-text-primary-dark);
-}
-
-.dark .ant-bubble.ai .ant-bubble-content {
-  background-color: var(--color-surface-dark);
-  color: var(--color-text-primary-dark);
-}
-
-.dark .ant-bubble.user .ant-bubble-content {
-  background-color: var(--color-user-message-dark);
-  color: #ffffff;
-}
-
-.dark .ant-thought-chain,
-.dark .ant-thought-chain-item,
-.dark .ant-thought-chain-item-title,
-.dark .ant-thought-chain-item-description {
-  color: var(--color-text-primary-dark);
-}
-
-.dark .ant-thought-chain-item-content {
-  background-color: var(--color-surface-dark);
-  border-color: var(--color-border-dark);
-}

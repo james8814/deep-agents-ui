@@ -24,6 +24,8 @@ export function ToolApprovalInterrupt({
   const [isEditing, setIsEditing] = useState(false);
   const [editedArgs, setEditedArgs] = useState<Record<string, unknown>>({});
   const [showRejectionInput, setShowRejectionInput] = useState(false);
+  const [approveFeedback, setApproveFeedback] = useState("");
+  const [showApproveFeedback, setShowApproveFeedback] = useState(false);
 
   const allowedDecisions = reviewConfig?.allowedDecisions ?? [
     "approve",
@@ -32,9 +34,22 @@ export function ToolApprovalInterrupt({
   ];
 
   const handleApprove = () => {
-    onResume({
-      decisions: [{ type: "approve" }],
-    });
+    if (showApproveFeedback) {
+      // Approve with feedback message
+      onResume({
+        decisions: [
+          {
+            type: "approve",
+            message: approveFeedback.trim(),
+          },
+        ],
+      });
+    } else {
+      // Simple approve without feedback
+      onResume({
+        decisions: [{ type: "approve" }],
+      });
+    }
   };
 
   const handleReject = () => {
@@ -63,6 +78,11 @@ export function ToolApprovalInterrupt({
     });
   };
 
+  const toggleApproveFeedback = () => {
+    setShowApproveFeedback(!showApproveFeedback);
+    setShowRejectionInput(false);
+  };
+
   const handleEdit = () => {
     if (isEditing) {
       onResume({
@@ -85,6 +105,7 @@ export function ToolApprovalInterrupt({
     setIsEditing(true);
     setEditedArgs(JSON.parse(JSON.stringify(actionRequest.args)));
     setShowRejectionInput(false);
+    setShowApproveFeedback(false);
   };
 
   const cancelEditing = () => {
@@ -179,6 +200,23 @@ export function ToolApprovalInterrupt({
         )}
       </div>
 
+      {/* Approve Feedback Input */}
+      {showApproveFeedback && !isEditing && (
+        <div className="mb-4">
+          <label className="mb-2 block text-xs font-medium text-foreground">
+            您的回复 (可选)
+          </label>
+          <Textarea
+            value={approveFeedback}
+            onChange={(e) => setApproveFeedback(e.target.value)}
+            placeholder="回答 Agent 的澄清问题，或提供补充信息..."
+            className="text-sm"
+            rows={3}
+            disabled={isLoading}
+          />
+        </div>
+      )}
+
       {/* Rejection Message Input */}
       {showRejectionInput && !isEditing && (
         <div className="mb-4">
@@ -240,6 +278,32 @@ export function ToolApprovalInterrupt({
               {isLoading ? "Rejecting..." : "Confirm Reject"}
             </Button>
           </>
+        ) : showApproveFeedback ? (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowApproveFeedback(false);
+                setApproveFeedback("");
+              }}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleApprove}
+              disabled={isLoading}
+              className={cn(
+                "bg-green-600 text-white hover:bg-green-700",
+                "dark:bg-green-600 dark:hover:bg-green-700"
+              )}
+            >
+              <Check size={14} />
+              {isLoading ? "Sending..." : approveFeedback.trim() ? "Approve & Send" : "Approve"}
+            </Button>
+          </>
         ) : (
           <>
             {allowedDecisions.includes("reject") && (
@@ -266,18 +330,28 @@ export function ToolApprovalInterrupt({
               </Button>
             )}
             {allowedDecisions.includes("approve") && (
-              <Button
-                size="sm"
-                onClick={handleApprove}
-                disabled={isLoading}
-                className={cn(
-                  "bg-green-600 text-white hover:bg-green-700",
-                  "dark:bg-green-600 dark:hover:bg-green-700"
-                )}
-              >
-                <Check size={14} />
-                {isLoading ? "Approving..." : "Approve"}
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleApproveFeedback}
+                  disabled={isLoading}
+                >
+                  Reply
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleApprove}
+                  disabled={isLoading}
+                  className={cn(
+                    "bg-green-600 text-white hover:bg-green-700",
+                    "dark:bg-green-600 dark:hover:bg-green-700"
+                  )}
+                >
+                  <Check size={14} />
+                  {isLoading ? "Approving..." : "Approve"}
+                </Button>
+              </>
             )}
           </>
         )}
