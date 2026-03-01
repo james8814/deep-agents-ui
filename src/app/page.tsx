@@ -290,8 +290,8 @@ function HomePageContent() {
     setConfig(newConfig);
   }, []);
 
-  const langsmithApiKey =
-    config?.langsmithApiKey || process.env.NEXT_PUBLIC_LANGSMITH_API_KEY || "";
+  // 移除 API Key，使用 Cookie 认证
+  // const langsmithApiKey = config?.langsmithApiKey || "";
 
   if (!config) {
     return (
@@ -322,7 +322,6 @@ function HomePageContent() {
   return (
     <ClientProvider
       deploymentUrl={config.deploymentUrl}
-      apiKey={langsmithApiKey}
     >
       <HomePageInner
         config={config}
