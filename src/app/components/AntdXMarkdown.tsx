@@ -14,12 +14,33 @@ interface AntdXMarkdownProps {
   isStreaming?: boolean;
 }
 
+// Props that are passed by Ant Design X but should not be spread to DOM elements
+const DOM_PROPS_TO_EXCLUDE = [
+  "domNode",
+  "streamStatus",
+  "block",
+  "node",
+  "sourcePosition",
+];
+
+// Helper to filter out non-DOM props
+function filterDomProps(props: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (!DOM_PROPS_TO_EXCLUDE.includes(key)) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 interface ComponentProps {
   href?: string;
   className?: string;
   children?: ReactNode;
   domNode?: any;
   streamStatus?: "loading" | "done";
+  block?: boolean;
 }
 
 // Code block component with copy functionality and syntax highlighting
@@ -100,79 +121,96 @@ export const AntdXMarkdown = React.memo<AntdXMarkdownProps>(
   ({ content, className = "", isStreaming = false }) => {
     const components = useMemo(
       () => ({
-        a: ({ href, children, ...rest }: ComponentProps) => (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary no-underline hover:underline"
-            {...rest}
-          >
-            {children}
-          </a>
-        ),
-        pre: ({ children, domNode, ...rest }: ComponentProps) => (
-          <div className="my-4 max-w-full overflow-hidden last:mb-0">
-            <pre {...rest}>{children}</pre>
-          </div>
-        ),
+        a: ({ href, children, ...rest }: ComponentProps) => {
+          const domProps = filterDomProps(rest);
+          return (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary no-underline hover:underline"
+              {...domProps}
+            >
+              {children}
+            </a>
+          );
+        },
+        pre: ({ children, ...rest }: ComponentProps) => {
+          const domProps = filterDomProps(rest);
+          return (
+            <div className="my-4 max-w-full overflow-hidden last:mb-0">
+              <pre {...domProps}>{children}</pre>
+            </div>
+          );
+        },
         code: ({ className, children, ...rest }: ComponentProps) => {
           const match = /language-(\w+)/.exec(className || "");
           const isInline = !match;
 
           if (!isInline) {
             return (
-              <CodeBlockWrapper
-                language={match[1]}
-              >
+              <CodeBlockWrapper language={match[1]}>
                 {children}
               </CodeBlockWrapper>
             );
           }
 
+          const domProps = filterDomProps(rest);
           return (
             <code
               className="bg-surface rounded-sm px-1 py-0.5 font-mono text-[0.9em]"
-              {...rest}
+              {...domProps}
             >
               {children}
             </code>
           );
         },
-        blockquote: ({ children, ...rest }: ComponentProps) => (
-          <blockquote
-            {...rest}
-            className="text-primary/50 my-4 border-l-4 border-border pl-4 italic"
-          >
-            {children}
-          </blockquote>
-        ),
-        ul: ({ children, ...rest }: ComponentProps) => (
-          <ul
-            {...rest}
-            className="my-4 pl-6 [&>li:last-child]:mb-0 [&>li]:mb-1"
-          >
-            {children}
-          </ul>
-        ),
-        ol: ({ children, ...rest }: ComponentProps) => (
-          <ol
-            {...rest}
-            className="my-4 pl-6 [&>li:last-child]:mb-0 [&>li]:mb-1"
-          >
-            {children}
-          </ol>
-        ),
-        table: ({ children, ...rest }: ComponentProps) => (
-          <div className="my-4 overflow-x-auto">
-            <table
-              {...rest}
-              className="[&_th]:bg-surface w-full border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold"
+        blockquote: ({ children, ...rest }: ComponentProps) => {
+          const domProps = filterDomProps(rest);
+          return (
+            <blockquote
+              {...domProps}
+              className="text-primary/50 my-4 border-l-4 border-border pl-4 italic"
             >
               {children}
-            </table>
-          </div>
-        ),
+            </blockquote>
+          );
+        },
+        ul: ({ children, ...rest }: ComponentProps) => {
+          const domProps = filterDomProps(rest);
+          return (
+            <ul
+              {...domProps}
+              className="my-4 pl-6 [&>li:last-child]:mb-0 [&>li]:mb-1"
+            >
+              {children}
+            </ul>
+          );
+        },
+        ol: ({ children, ...rest }: ComponentProps) => {
+          const domProps = filterDomProps(rest);
+          return (
+            <ol
+              {...domProps}
+              className="my-4 pl-6 [&>li:last-child]:mb-0 [&>li]:mb-1"
+            >
+              {children}
+            </ol>
+          );
+        },
+        table: ({ children, ...rest }: ComponentProps) => {
+          const domProps = filterDomProps(rest);
+          return (
+            <div className="my-4 overflow-x-auto">
+              <table
+                {...domProps}
+                className="[&_th]:bg-surface w-full border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:text-left [&_th]:font-semibold"
+              >
+                {children}
+              </table>
+            </div>
+          );
+        },
       }),
       []
     );

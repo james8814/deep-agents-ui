@@ -49,15 +49,20 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
           )}
           {tc.status === "interrupted" && onResumeInterrupt && (
             <InterruptActions
+              toolName={tc.name}
               onApprove={(value) => onResumeInterrupt(value)}
-              onReject={() => onResumeInterrupt({
-                decisions: [
-                  {
-                    type: "reject",
-                    message: "用户拒绝了此操作"
-                  }
-                ]
-              })}
+              onReject={(message) => {
+                // 对于 submit_deliverable，reject 表示"需要修改"
+                // 使用用户提供的修改意见作为 reject message
+                onResumeInterrupt({
+                  decisions: [
+                    {
+                      type: "reject",
+                      message: message || "用户要求修改产物",
+                    },
+                  ],
+                });
+              }}
             />
           )}
         </div>

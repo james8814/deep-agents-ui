@@ -37,6 +37,9 @@ const getFileIcon = (mimeType: string | undefined): React.ReactNode => {
   if (!mimeType) return <FileText size={14} />;
   if (mimeType.startsWith("image/")) return <FileImage size={14} />;
   if (mimeType === "application/pdf") return <FileType size={14} />;
+  if (mimeType.includes("wordprocessingml")) return <FileText size={14} />; // docx
+  if (mimeType.includes("presentationml")) return <FileText size={14} />;   // pptx
+  if (mimeType.includes("spreadsheetml")) return <FileText size={14} />;    // xlsx
   return <FileText size={14} />;
 };
 
@@ -46,6 +49,9 @@ const generateFileThumbnail = (filename: string, mimeType: string): string => {
   const ext = filename.split('.').pop()?.toUpperCase() || 'FILE';
   const bgColor = mimeType.startsWith("image/") ? "#e8f5e9" :
                   mimeType === "application/pdf" ? "#ffebee" :
+                  mimeType.includes("wordprocessingml") ? "#e3f2fd" : // docx
+                  mimeType.includes("presentationml") ? "#fff8e1" :   // pptx
+                  mimeType.includes("spreadsheetml") ? "#e8f5e9" :    // xlsx
                   mimeType.includes("text") || mimeType.includes("markdown") ? "#fff3e0" :
                   "#f3f4f6";
 
@@ -69,6 +75,9 @@ const ACCEPTED_FILE_TYPES = [
   "image/svg+xml",
   // 文档
   "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
   // 文本
   "text/plain",
   "text/markdown",
@@ -84,7 +93,7 @@ const ACCEPTED_FILE_TYPES = [
   "text/x-python",
   "text/python",
   // 扩展名匹配
-].join(",") + ",.md,.txt,.pdf,.csv,.json,.js,.ts,.jsx,.tsx,.py,.html,.css,.svg";
+].join(",") + ",.md,.txt,.pdf,.csv,.json,.js,.ts,.jsx,.tsx,.py,.html,.css,.svg,.docx,.pptx,.xlsx";
 
 export const AntdXSender = React.memo<AntdXSenderProps>(
   ({
