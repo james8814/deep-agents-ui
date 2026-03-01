@@ -23,10 +23,7 @@ export function useThreads(props: {
   return useSWRInfinite(
     (pageIndex: number, previousPageData: ThreadItem[] | null) => {
       const config = getConfig();
-      const apiKey =
-        config?.langsmithApiKey ||
-        process.env.NEXT_PUBLIC_LANGSMITH_API_KEY ||
-        "";
+      // 使用 Cookie 认证，不需要 API Key
 
       if (!config) {
         return null;
@@ -43,14 +40,13 @@ export function useThreads(props: {
         pageSize,
         deploymentUrl: config.deploymentUrl,
         assistantId: config.assistantId,
-        apiKey,
+        // 使用 Cookie 认证，不需要 apiKey
         status: props?.status,
       };
     },
     async ({
       deploymentUrl,
       assistantId,
-      apiKey,
       status,
       pageIndex,
       pageSize,
@@ -60,12 +56,14 @@ export function useThreads(props: {
       pageSize: number;
       deploymentUrl: string;
       assistantId: string;
-      apiKey: string;
       status?: Thread["status"];
     }) => {
       const client = new Client({
         apiUrl: deploymentUrl,
-        defaultHeaders: apiKey ? { "X-Api-Key": apiKey, "x-auth-scheme": "langsmith" } : {"x-auth-scheme": "langsmith"},
+        // 使用 Cookie 认证，不需要 API Key Header
+        defaultHeaders: {
+          "Content-Type": "application/json",
+        },
       });
 
       // Check if assistantId is a UUID (deployed) or graph name (local)

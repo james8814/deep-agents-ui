@@ -36,9 +36,7 @@ export function ConfigDialog({
   const [assistantId, setAssistantId] = useState(
     initialConfig?.assistantId || ""
   );
-  const [langsmithApiKey, setLangsmithApiKey] = useState(
-    initialConfig?.langsmithApiKey || ""
-  );
+  // 移除 API Key，使用 Cookie 认证
   const [useAntdX, setUseAntdX] = useState(
     initialConfig?.useAntdX ?? false
   );
@@ -49,7 +47,7 @@ export function ConfigDialog({
     if (open && initialConfig) {
       setDeploymentUrl(initialConfig.deploymentUrl);
       setAssistantId(initialConfig.assistantId);
-      setLangsmithApiKey(initialConfig.langsmithApiKey || "");
+      // 移除 API Key，使用 Cookie 认证
       setUseAntdX(initialConfig.useAntdX ?? false);
       setConnectionStatus("idle");
       setConnectionError("");
@@ -62,7 +60,7 @@ export function ConfigDialog({
     try {
       const testClient = new Client({
         apiUrl: deploymentUrl,
-        apiKey: langsmithApiKey || undefined,
+        // 使用 Cookie 认证，不需要 API Key
       });
       await testClient.assistants.search({ limit: 1 });
       setConnectionStatus("ok");
@@ -81,7 +79,6 @@ export function ConfigDialog({
     onSave({
       deploymentUrl,
       assistantId,
-      langsmithApiKey: langsmithApiKey || undefined,
       useAntdX,
     });
     onOpenChange(false);
@@ -169,19 +166,7 @@ export function ConfigDialog({
               onCheckedChange={setUseAntdX}
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="langsmithApiKey">
-              LangSmith API Key{" "}
-              <span className="text-muted-foreground">(Optional)</span>
-            </Label>
-            <Input
-              id="langsmithApiKey"
-              type="password"
-              placeholder="lsv2_pt_..."
-              value={langsmithApiKey}
-              onChange={(e) => setLangsmithApiKey(e.target.value)}
-            />
-          </div>
+          {/* 移除 API Key 输入，使用 Cookie 认证 */}
         </div>
         <DialogFooter>
           <Button

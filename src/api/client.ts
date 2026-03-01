@@ -108,7 +108,7 @@ export async function fetchWithCredentials<T = unknown>(
 
   // 处理空响应
   const text = await response.text();
-  return text ? JSON.parse(text) : null;
+  return text ? (JSON.parse(text) as T) : (undefined as unknown as T);
 }
 
 /**
