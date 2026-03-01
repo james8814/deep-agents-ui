@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { AntdProvider } from "@/providers/AntdProvider";
 import { ClientInitializer } from "@/components/ClientInitializer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthGuard } from "@/components/AuthGuard";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,9 +25,11 @@ export default function RootLayout({
       >
         <ClientInitializer>
           <AuthProvider>
-            <NuqsAdapter>
-              <AntdProvider>{children}</AntdProvider>
-            </NuqsAdapter>
+            <AuthGuard>
+              <NuqsAdapter>
+                <AntdProvider>{children}</AntdProvider>
+              </NuqsAdapter>
+            </AuthGuard>
           </AuthProvider>
         </ClientInitializer>
         <Toaster />
