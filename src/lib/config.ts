@@ -1,11 +1,16 @@
+/**
+ * 配置管理
+ * 注意：认证已从 API Key 改为 Cookie 模式
+ */
+
 export interface StandaloneConfig {
   deploymentUrl: string;
   assistantId: string;
-  langsmithApiKey?: string;
+  // 移除 langsmithApiKey，改用 Cookie 认证
   useAntdX?: boolean;
 }
 
-const CONFIG_KEY = "deep-agent-config";
+const CONFIG_KEY = "deep-agent-config-v2"; // 新版本 key，避免冲突
 
 export function getConfig(): StandaloneConfig | null {
   if (typeof window === "undefined") return null;
@@ -14,7 +19,16 @@ export function getConfig(): StandaloneConfig | null {
   if (!stored) return null;
 
   try {
-    return JSON.parse(stored);
+    const config = JSON.parse(stored);
+
+    // 迁移：移除旧版本的 apiKey
+    if ("langsmithApiKey" in config) {
+      const { langsmithApiKey, ...rest } = config;
+      saveConfig(rest);
+      return rest;
+    }
+
+    return config;
   } catch {
     return null;
   }
@@ -25,4 +39,18 @@ export function saveConfig(config: StandaloneConfig): void {
   localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
   // Dispatch custom event to notify same-tab listeners
   window.dispatchEvent(new CustomEvent("deep-agent-config-change", { detail: config }));
+}
+
+export function getDefaultConfig(): StandaloneConfig {
+  return {
+    deploymentUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024",
+    assistantId: "pmagent",
+    useAntdX: true,
+  };
+}
+
+// 清理旧版本配置
+export function clearOldConfig(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("deep-agent-config");
 }

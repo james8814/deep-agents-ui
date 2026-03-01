@@ -12,24 +12,23 @@ const ClientContext = createContext<ClientContextValue | null>(null);
 interface ClientProviderProps {
   children: ReactNode;
   deploymentUrl: string;
-  apiKey: string;
+  // 移除 apiKey，改用 Cookie 认证
 }
 
 export function ClientProvider({
   children,
   deploymentUrl,
-  apiKey,
 }: ClientProviderProps) {
   const client = useMemo(() => {
     return new Client({
       apiUrl: deploymentUrl,
+      // 移除 X-Api-Key，使用 Cookie 认证
+      // Monkey Patch 会自动添加 credentials: 'include'
       defaultHeaders: {
         "Content-Type": "application/json",
-        "X-Api-Key": apiKey,
-        "x-auth-scheme": "langsmith",
       },
     });
-  }, [deploymentUrl, apiKey]);
+  }, [deploymentUrl]);
 
   const value = useMemo(() => ({ client }), [client]);
 
