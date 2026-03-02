@@ -33,6 +33,16 @@ export async function logout(): Promise<void> {
   });
 }
 
-export async function getUserInfo(): Promise<User> {
-  return fetchWithCredentials<User>(`${AUTH_SERVER}/auth/me`);
+export async function getUserInfo(token?: string): Promise<User> {
+  const headers: Record<string, string> = {};
+
+  // 如果提供了 token，使用 Bearer Token 认证
+  // 否则依赖 Cookie（credentials: "include"）
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return fetchWithCredentials<User>(`${AUTH_SERVER}/auth/me`, {
+    headers,
+  });
 }

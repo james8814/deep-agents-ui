@@ -1,5 +1,5 @@
 /**
- * Monkey Patch 全局 fetch，为 LangGraph API 请求自动添加 credentials
+ * Monkey Patch 全局 fetch，为 LangGraph API 请求自动添加 Bearer Token
  * ⚠️ 必须在 layout.tsx 中通过 ClientInitializer 导入
  */
 
@@ -8,17 +8,27 @@ if (typeof window === "undefined") {
   throw new Error("fetchInterceptor must only be imported in browser environment");
 }
 
+const TOKEN_KEY = "auth_token";
+
 let isPatchApplied = false;
 
 /**
- * 检查 URL 是否需要添加 credentials
+ * 检查 URL 是否需要添加 Authorization header
  */
-function shouldAddCredentials(url: string): boolean {
+function shouldAddAuthHeader(url: string): boolean {
   return (
     url.includes("localhost:2024") ||
+    url.includes("127.0.0.1:2024") ||
     url.includes("api.your-domain.com") ||
     url.includes(process.env.NEXT_PUBLIC_API_URL || "")
   );
+}
+
+/**
+ * 从 localStorage 获取 token
+ */
+function getStoredToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 try {
@@ -35,11 +45,23 @@ try {
           ? input.href
           : input.toString();
 
-    // 只对 LangGraph API 请求添加 credentials
-    if (shouldAddCredentials(urlString)) {
+    // 只对 LangGraph API 请求添加 Authorization header
+    if (shouldAddAuthHeader(urlString)) {
+      const token = getStoredToken();
+
+      // 创建新的 headers，保留原有的 headers
+      const headers = new Headers(init?.headers as HeadersInit);
+
+      // 添加 Bearer Token
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+
       return originalFetch(input, {
         ...init,
-        credentials: "include",
+        headers,
+        // 不再使用 credentials: "include"，因为 Cookie 跨端口不发送
+        // credentials: "include",
       });
     }
 
@@ -47,7 +69,7 @@ try {
   };
 
   isPatchApplied = true;
-  console.log("[fetchInterceptor] ✅ Cookie 自动携带已启用");
+  console.log("[fetchInterceptor] ✅ Bearer Token 自动添加已启用");
 } catch (error) {
   console.error("[fetchInterceptor] ❌ Patch 失败，将使用原始 fetch", error);
 }

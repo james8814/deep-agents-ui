@@ -61,12 +61,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedToken) {
           setToken(storedToken);
         }
-        const userInfo = await authApi.getUserInfo();
+
+        // 尝试获取用户信息（使用 Cookie 或 Bearer Token）
+        const userInfo = await authApi.getUserInfo(storedToken || undefined);
         setUser(userInfo);
-      } catch {
-        setUser(null);
-        setToken(null);
-        clearTokenFromStorage();
+      } catch (error) {
+        // 只有在真正的认证失败（401）时才清除 token
+        // 网络错误等其他情况不清除
+        const isAuthError = error instanceof Error &&
+          (error.message.includes('401') || error.message.includes('未登录') || error.message.includes('Token'));
+        if (isAuthError) {
+          setUser(null);
+          setToken(null);
+          clearTokenFromStorage();
+        } else {
+          // 网络错误等：保留 token，但标记为未认证
+          console.warn('[Auth] Failed to verify auth status:', error);
+          // 如果有 token，仍然设置为已认证（乐观策略）
+          const storedToken = getStoredToken();
+          if (storedToken) {
+            setToken(storedToken);
+            // 设置一个临时用户对象，等待网络恢复后再验证
+            setUser({ id: 'pending', username: 'User', email: '', is_active: true });
+          }
+        }
       } finally {
         setIsLoading(false);
         setHasChecked(true);
@@ -82,7 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const accessToken = response.access_token;
     saveTokenToStorage(accessToken);
     setToken(accessToken);
-    const userInfo = await authApi.getUserInfo();
+    // 使用 Bearer Token 获取用户信息，避免 Cookie 跨端口问题
+    const userInfo = await authApi.getUserInfo(accessToken);
     setUser(userInfo);
   }, []);
 
