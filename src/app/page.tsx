@@ -7,7 +7,9 @@ import { ConfigDialog } from "@/app/components/ConfigDialog";
 import { Button } from "@/components/ui/button";
 import { Assistant } from "@langchain/langgraph-sdk";
 import { ClientProvider, useClient } from "@/providers/ClientProvider";
-import { Settings, MessagesSquare, SquarePen, PanelRight } from "lucide-react";
+import { MessagesSquare, SquarePen, PanelRight } from "lucide-react";
+import { UserMenu } from "@/components/UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -34,6 +36,7 @@ function HomePageInner({
   handleSaveConfig,
 }: HomePageInnerProps) {
   const client = useClient();
+  const { user } = useAuth();
   const [threadId, setThreadId] = useQueryState("threadId");
   const [sidebar, setSidebar] = useQueryState("sidebar");
   const [contextPanel, setContextPanel] = useQueryState("context");
@@ -163,14 +166,6 @@ function HomePageInner({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setConfigDialogOpen(true)}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={() => setThreadId(null)}
               disabled={!threadId}
               className="border-[#2F6868] bg-[#2F6868] text-white hover:bg-[#2F6868]/80"
@@ -178,6 +173,8 @@ function HomePageInner({
               <SquarePen className="mr-2 h-4 w-4" />
               New Thread
             </Button>
+            {/* 用户菜单 */}
+            <UserMenu onSettingsClick={() => setConfigDialogOpen(true)} />
           </div>
         </header>
 
@@ -263,6 +260,7 @@ function HomePageContent() {
   const [config, setConfig] = useState<StandaloneConfig | null>(null);
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [assistantId, setAssistantId] = useQueryState("assistantId");
+  const { token } = useAuth();  // 获取 token
 
   // On mount, check for saved config, otherwise show config dialog
   useEffect(() => {
@@ -290,7 +288,7 @@ function HomePageContent() {
     setConfig(newConfig);
   }, []);
 
-  // 移除 API Key，使用 Cookie 认证
+  // 移除 API Key，使用 Bearer Token 认证
   // const langsmithApiKey = config?.langsmithApiKey || "";
 
   if (!config) {
@@ -322,6 +320,7 @@ function HomePageContent() {
   return (
     <ClientProvider
       deploymentUrl={config.deploymentUrl}
+      token={token}  // 传递 token
     >
       <HomePageInner
         config={config}

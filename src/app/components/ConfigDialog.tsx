@@ -36,7 +36,6 @@ export function ConfigDialog({
   const [assistantId, setAssistantId] = useState(
     initialConfig?.assistantId || ""
   );
-  // 移除 API Key，使用 Cookie 认证
   const [useAntdX, setUseAntdX] = useState(
     initialConfig?.useAntdX ?? false
   );
@@ -166,7 +165,6 @@ export function ConfigDialog({
               onCheckedChange={setUseAntdX}
             />
           </div>
-          {/* 移除 API Key 输入，使用 Cookie 认证 */}
         </div>
         <DialogFooter>
           <Button

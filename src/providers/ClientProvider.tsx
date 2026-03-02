@@ -12,23 +12,35 @@ const ClientContext = createContext<ClientContextValue | null>(null);
 interface ClientProviderProps {
   children: ReactNode;
   deploymentUrl: string;
-  // 移除 apiKey，改用 Cookie 认证
+  token?: string | null;  // 添加 token prop
 }
 
 export function ClientProvider({
   children,
   deploymentUrl,
+  token,
 }: ClientProviderProps) {
   const client = useMemo(() => {
     return new Client({
       apiUrl: deploymentUrl,
-      // 移除 X-Api-Key，使用 Cookie 认证
-      // Monkey Patch 会自动添加 credentials: 'include'
+      // 使用 onRequest hook 添加 Bearer Token
+      onRequest: (url: URL, init: RequestInit) => {
+        const headers = new Headers(init.headers as HeadersInit);
+
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+
+        return {
+          ...init,
+          headers,
+        };
+      },
       defaultHeaders: {
         "Content-Type": "application/json",
       },
     });
-  }, [deploymentUrl]);
+  }, [deploymentUrl, token]);  // 添加 token 依赖
 
   const value = useMemo(() => ({ client }), [client]);
 

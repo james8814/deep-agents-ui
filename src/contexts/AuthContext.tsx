@@ -11,8 +11,29 @@ import React, {
 import * as authApi from "@/api/auth";
 import type { User } from "@/types/auth";
 
+const TOKEN_KEY = "auth_token";
+
+// Token 存储工具函数
+function saveTokenToStorage(token: string): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+}
+
+export function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+function clearTokenFromStorage(): void {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+}
+
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   hasChecked: boolean;
@@ -24,8 +45,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // 初始化为 true，避免闪烁（根据后端评审意见）
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasChecked, setHasChecked] = useState(false);
 
@@ -36,10 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function checkAuth() {
       setIsLoading(true);
       try {
+        const storedToken = getStoredToken();
+        if (storedToken) {
+          setToken(storedToken);
+        }
         const userInfo = await authApi.getUserInfo();
         setUser(userInfo);
       } catch {
         setUser(null);
+        setToken(null);
+        clearTokenFromStorage();
       } finally {
         setIsLoading(false);
         setHasChecked(true);
@@ -50,7 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [hasChecked]);
 
   const login = useCallback(async (username: string, password: string) => {
-    await authApi.login({ username, password });
+    const response = await authApi.login({ username, password });
+    // 存储 access_token
+    const accessToken = response.access_token;
+    saveTokenToStorage(accessToken);
+    setToken(accessToken);
     const userInfo = await authApi.getUserInfo();
     setUser(userInfo);
   }, []);
@@ -60,6 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authApi.logout();
     } finally {
       setUser(null);
+      setToken(null);
+      clearTokenFromStorage();
     }
   }, []);
 
@@ -74,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token,
         isAuthenticated: !!user,
         isLoading,
         hasChecked,

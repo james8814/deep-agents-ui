@@ -67,4 +67,9 @@ export const fetchInterceptorStatus = {
   },
 };
 
+// 暴露到 window 以便调试和测试
+if (typeof window !== "undefined") {
+  (window as unknown as Record<string, unknown>).fetchInterceptorStatus = fetchInterceptorStatus;
+}
+
 export default fetchInterceptorStatus;
