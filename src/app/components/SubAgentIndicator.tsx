@@ -38,7 +38,7 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
     const statusIcon = (() => {
       switch (subAgent.status) {
         case "active":
-          return <Loader2 size={14} className="animate-spin text-blue-500" />;
+          return <Loader2 size={14} className="animate-spin text-primary" />;
         case "completed":
           return <CheckCircle size={14} className="text-success/80" />;
         case "error":
@@ -66,9 +66,9 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
         className={cn(
           "w-fit max-w-[70vw] overflow-hidden rounded-lg border",
           subAgent.status === "active"
-            ? "border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30"
+            ? "border-primary/30 bg-primary/5 dark:border-primary/40 dark:bg-primary/10"
             : subAgent.status === "error"
-              ? "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/30"
+              ? "border-destructive/30 bg-destructive/5 dark:border-destructive/40 dark:bg-destructive/10"
               : "border-border bg-card"
         )}
       >

@@ -24,14 +24,14 @@ import { useThreads } from "@/app/hooks/useThreads";
 type StatusFilter = "all" | "idle" | "busy" | "interrupted" | "error";
 
 const STATUS_COLORS: Record<ThreadItem["status"], string> = {
-  idle: "bg-green-500",
-  busy: "bg-blue-500",
-  interrupted: "bg-orange-500",
-  error: "bg-red-600",
+  idle: "bg-success",
+  busy: "bg-primary",
+  interrupted: "bg-warning",
+  error: "bg-destructive",
 };
 
 function getThreadColor(status: ThreadItem["status"]): string {
-  return STATUS_COLORS[status] ?? "bg-gray-400";
+  return STATUS_COLORS[status] ?? "bg-muted-foreground";
 }
 
 function StatusFilterItem({
@@ -53,7 +53,7 @@ function StatusFilterItem({
       />
       {label}
       {badge !== undefined && badge > 0 && (
-        <span className="ml-1 inline-flex items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
+        <span className="ml-1 inline-flex items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground">
           {badge}
         </span>
       )}
@@ -64,7 +64,7 @@ function StatusFilterItem({
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
-      <p className="text-sm text-red-600">Failed to load threads</p>
+      <p className="text-sm text-destructive">Failed to load threads</p>
       <p className="mt-1 text-xs text-muted-foreground">{message}</p>
     </div>
   );
@@ -84,7 +84,7 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center">
       <svg
-        className="mb-2 h-12 w-12 text-gray-300"
+        className="mb-2 h-12 w-12 text-muted-foreground/30"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

@@ -131,7 +131,7 @@ export function ToolApprovalInterrupt({
       <div className="mb-3 flex items-center gap-2 text-foreground">
         <AlertCircle
           size={16}
-          className="text-yellow-600 dark:text-yellow-400"
+          className="text-warning"
         />
         <span className="text-xs font-semibold uppercase tracking-wider">
           Approval Required
@@ -250,7 +250,6 @@ export function ToolApprovalInterrupt({
               size="sm"
               onClick={handleEdit}
               disabled={isLoading}
-              className="bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
             >
               <Check size={14} />
               {isLoading ? "Saving..." : "Save & Approve"}
@@ -295,10 +294,6 @@ export function ToolApprovalInterrupt({
               size="sm"
               onClick={handleApprove}
               disabled={isLoading}
-              className={cn(
-                "bg-green-600 text-white hover:bg-green-700",
-                "dark:bg-green-600 dark:hover:bg-green-700"
-              )}
             >
               <Check size={14} />
               {isLoading ? "Sending..." : approveFeedback.trim() ? "Approve & Send" : "Approve"}
@@ -343,10 +338,6 @@ export function ToolApprovalInterrupt({
                   size="sm"
                   onClick={handleApprove}
                   disabled={isLoading}
-                  className={cn(
-                    "bg-green-600 text-white hover:bg-green-700",
-                    "dark:bg-green-600 dark:hover:bg-green-700"
-                  )}
                 >
                   <Check size={14} />
                   {isLoading ? "Approving..." : "Approve"}

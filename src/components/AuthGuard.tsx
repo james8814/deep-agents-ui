@@ -30,8 +30,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // 加载中
   if (isLoading || !hasChecked) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-lg">加载中...</div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex items-center gap-2 text-lg text-muted-foreground">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          加载中...
+        </div>
       </div>
     );
   }

@@ -33,12 +33,12 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
   ),
 
   shell: (args) => (
-    <div className="rounded-md bg-zinc-900 p-3">
-      <div className="flex items-center gap-2 text-xs text-zinc-400">
+    <div className="rounded-md bg-zinc-100 p-3 dark:bg-zinc-900">
+      <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
         <Terminal size={12} />
         <span>Shell Command</span>
       </div>
-      <pre className="mt-1 font-mono text-sm text-green-400">
+      <pre className="mt-1 font-mono text-sm text-green-600 dark:text-green-400">
         $ {String(args.command || args.cmd || "")}
       </pre>
     </div>
@@ -47,12 +47,12 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
   bash: (args) => TOOL_RENDERERS.shell(args),
 
   execute: (args) => (
-    <div className="rounded-md bg-zinc-900 p-3">
-      <div className="flex items-center gap-2 text-xs text-zinc-400">
+    <div className="rounded-md bg-zinc-100 p-3 dark:bg-zinc-900">
+      <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
         <Terminal size={12} />
         <span>Execute</span>
       </div>
-      <pre className="mt-1 font-mono text-sm text-green-400">
+      <pre className="mt-1 font-mono text-sm text-green-600 dark:text-green-400">
         $ {String(args.command || args.cmd || "")}
       </pre>
     </div>

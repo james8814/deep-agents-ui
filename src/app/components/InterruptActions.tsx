@@ -80,7 +80,7 @@ export const InterruptActions = React.memo<InterruptActionsProps>(
       <div className="mt-3 space-y-3">
         {/* 工具描述标签 */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+          <span className="rounded bg-primary/10 px-2 py-0.5 text-primary">
             {config.description}
           </span>
           <span>等待您的确认</span>
@@ -112,7 +112,7 @@ export const InterruptActions = React.memo<InterruptActionsProps>(
               <Button
                 size="sm"
                 onClick={handleApprove}
-                className="gap-1 bg-green-600 text-white hover:bg-green-700"
+                className="gap-1"
               >
                 <Check size={14} />
                 {config.approveLabel}

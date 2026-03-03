@@ -164,11 +164,10 @@ function HomePageInner({
               Context
             </Button>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={() => setThreadId(null)}
               disabled={!threadId}
-              className="border-[#2F6868] bg-[#2F6868] text-white hover:bg-[#2F6868]/80"
             >
               <SquarePen className="mr-2 h-4 w-4" />
               New Thread

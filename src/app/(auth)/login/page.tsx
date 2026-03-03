@@ -3,6 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -28,51 +32,71 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
-        <h1 className="text-center text-2xl font-bold">登录</h1>
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="w-full max-w-md space-y-6 rounded-xl border border-border bg-card p-8 shadow-sm">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            登录
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            输入您的账号信息以继续
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded bg-red-50 p-3 text-sm text-red-600">
-              {error}
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>{error}</span>
             </div>
           )}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">用户名</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="username">用户名</Label>
+            <Input
+              id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded border p-2"
+              placeholder="请输入用户名"
               required
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">密码</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="password">密码</Label>
+            <Input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded border p-2"
+              placeholder="请输入密码"
               required
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full"
           >
-            {isLoading ? "登录中..." : "登录"}
-          </button>
+            {isLoading ? (
+              <>
+                <Loader2 size={16} className="mr-2 animate-spin" />
+                登录中...
+              </>
+            ) : (
+              "登录"
+            )}
+          </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-muted-foreground">
           还没有账号？{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
+          <a
+            href="/register"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
             注册
           </a>
         </p>

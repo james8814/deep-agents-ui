@@ -3,6 +3,14 @@ import type { Thread } from "@langchain/langgraph-sdk";
 import { Client } from "@langchain/langgraph-sdk";
 import { getConfig } from "@/lib/config";
 
+// Token key must match AuthContext
+const TOKEN_KEY = "auth_token";
+
+function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
 export interface ThreadItem {
   id: string;
   updatedAt: Date;
@@ -60,7 +68,18 @@ export function useThreads(props: {
     }) => {
       const client = new Client({
         apiUrl: deploymentUrl,
-        // 使用 Cookie 认证，不需要 API Key Header
+        // 使用 onRequest 添加 Bearer Token
+        onRequest: (_url: URL, init: RequestInit) => {
+          const headers = new Headers(init.headers as HeadersInit);
+          const token = getStoredToken();
+          if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+          }
+          return {
+            ...init,
+            headers,
+          };
+        },
         defaultHeaders: {
           "Content-Type": "application/json",
         },

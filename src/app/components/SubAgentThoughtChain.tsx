@@ -140,7 +140,7 @@ function SubAgentContent({
           <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
             Output
           </h4>
-          <div className="rounded-md border border-border bg-surface p-3">
+          <div className="rounded-md border border-border bg-muted p-3">
             {useAntdxMarkdown ? (
               <AntdXMarkdown content={outputContent} />
             ) : (

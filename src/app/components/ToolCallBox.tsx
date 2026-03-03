@@ -74,7 +74,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
           return (
             <StopCircle
               size={14}
-              className="text-orange-500"
+              className="text-warning"
             />
           );
         default:
@@ -98,7 +98,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
         className={cn(
           "w-full overflow-hidden rounded-lg border-none shadow-none outline-none transition-colors duration-200 hover:bg-accent",
           isExpanded && hasContent && "bg-accent",
-          status === "interrupted" && "ring-2 ring-orange-400/50 ring-offset-1 ring-offset-background"
+          status === "interrupted" && "ring-2 ring-warning/50 ring-offset-1 ring-offset-background"
         )}
       >
         <Button

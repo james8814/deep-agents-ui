@@ -58,32 +58,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       try {
         const storedToken = getStoredToken();
-        if (storedToken) {
-          setToken(storedToken);
+        if (!storedToken) {
+          // 没有 token，直接标记为未登录
+          setUser(null);
+          setToken(null);
+          return;
         }
 
-        // 尝试获取用户信息（使用 Cookie 或 Bearer Token）
-        const userInfo = await authApi.getUserInfo(storedToken || undefined);
+        // 有 token，设置并验证
+        setToken(storedToken);
+
+        // 尝试获取用户信息（使用 Bearer Token）
+        const userInfo = await authApi.getUserInfo(storedToken);
         setUser(userInfo);
       } catch (error) {
-        // 只有在真正的认证失败（401）时才清除 token
-        // 网络错误等其他情况不清除
+        // 认证失败（401/403/Invalid token）时清除 token
         const isAuthError = error instanceof Error &&
-          (error.message.includes('401') || error.message.includes('未登录') || error.message.includes('Token'));
+          (error.message.includes('401') || error.message.includes('403') || error.message.includes('未登录') ||
+           error.message.includes('Invalid token') || error.message.includes('token') || error.message.includes('Token'));
         if (isAuthError) {
           setUser(null);
           setToken(null);
           clearTokenFromStorage();
         } else {
           // 网络错误等：保留 token，但标记为未认证
-          console.warn('[Auth] Failed to verify auth status:', error);
-          // 如果有 token，仍然设置为已认证（乐观策略）
-          const storedToken = getStoredToken();
-          if (storedToken) {
-            setToken(storedToken);
-            // 设置一个临时用户对象，等待网络恢复后再验证
-            setUser({ id: 'pending', username: 'User', email: '', is_active: true });
-          }
+          console.warn('[Auth] Network error during auth check:', error);
+          setUser(null);
         }
       } finally {
         setIsLoading(false);

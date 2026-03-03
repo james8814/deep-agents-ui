@@ -399,7 +399,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                       </div>
                       {isSubAgentExpanded(subAgent.id) && (
                         <div className="w-full max-w-full">
-                          <div className="bg-surface border-border-light rounded-md border p-4">
+                          <div className="rounded-md border border-border bg-muted p-4">
                             <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
                               Input
                             </h4>
