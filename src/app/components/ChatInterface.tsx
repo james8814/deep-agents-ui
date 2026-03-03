@@ -16,11 +16,12 @@ import {
   Maximize2,
   Minimize2,
 } from "lucide-react";
-import { FileUploadZone, UploadButton, FileChipData } from "./FileUploadZone";
+import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
+import { constructMessageWithFiles } from "@/api/upload";
 import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import { AntdXMessageList } from "@/app/components/AntdXMessageList";
-import { AntdXSender } from "@/app/components/AntdXSender";
+import { AntdXSender, type MultimodalContent } from "@/app/components/AntdXSender";
 import { useFeatureFlag } from "@/lib/featureFlags";
 import type {
   ToolCall,
@@ -31,7 +32,6 @@ import type {
 import { Assistant, Message } from "@langchain/langgraph-sdk";
 import { extractStringFromMessageContent } from "@/app/utils/utils";
 import { useChatContext } from "@/providers/ChatProvider";
-import type { MultimodalContent } from "@/app/hooks/useChat";
 import { cn } from "@/lib/utils";
 import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
@@ -49,7 +49,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const [input, setInput] = useState("");
-  const [attachedFiles, setAttachedFiles] = useState<FileChipData[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
   const { scrollRef, contentRef } = useStickToBottom();
@@ -196,22 +196,20 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         e.preventDefault();
       }
       const messageText = input.trim();
-      if (!messageText || isLoading || !assistant) return;
+      if ((!messageText && attachedFiles.length === 0) || isLoading || !assistant) return;
 
-      // Build content - text + image blocks (only images are supported by the SDK)
-      const imageFiles = attachedFiles.filter((f): f is FileChipData & { data: string } =>
-        f.type.startsWith("image/") && typeof f.data === "string"
-      );
-      const content: string | Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> =
-        imageFiles.length > 0
-          ? [
-              { type: "text", text: messageText },
-              ...imageFiles.map((file) => ({
-                type: "image_url" as const,
-                image_url: { url: file.data },
-              })),
-            ]
-          : messageText;
+      // 收集成功上传的文件
+      const uploadedFiles = attachedFiles
+        .filter((f): f is UploadedFile & { status: "success"; path: string } =>
+          f.status === "success" && !!f.path
+        )
+        .map((f) => ({
+          path: f.path,
+          filename: f.name,
+        }));
+
+      // 构造包含文件引用的消息
+      const content = constructMessageWithFiles(messageText, uploadedFiles);
 
       sendMessage(content);
       setInput("");
@@ -224,6 +222,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const handleSubmitWithContent = useCallback(
     (content: MultimodalContent) => {
       if (isLoading || !assistant) return;
+      // AntdXSender 现在发送的是构造好的文本消息（包含文件引用）
       sendMessage(content);
     },
     [isLoading, sendMessage, assistant]

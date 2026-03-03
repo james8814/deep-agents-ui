@@ -16,12 +16,23 @@ let isPatchApplied = false;
  * 检查 URL 是否需要添加 Authorization header
  */
 function shouldAddAuthHeader(url: string): boolean {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
   return (
     url.includes("localhost:2024") ||
     url.includes("127.0.0.1:2024") ||
+    url.includes("localhost:2025") ||
+    url.includes("127.0.0.1:2025") ||
     url.includes("api.your-domain.com") ||
-    url.includes(process.env.NEXT_PUBLIC_API_URL || "")
+    (apiUrl ? url.includes(apiUrl) : false)
   );
+}
+
+/**
+ * 处理认证错误，清除 token 并重定向到登录页
+ */
+function handleAuthError(): void {
+  localStorage.removeItem(TOKEN_KEY);
+  window.location.href = "/login";
 }
 
 /**
@@ -57,12 +68,23 @@ try {
         headers.set("Authorization", `Bearer ${token}`);
       }
 
-      return originalFetch(input, {
+      const response = await originalFetch(input, {
         ...init,
         headers,
         // 不再使用 credentials: "include"，因为 Cookie 跨端口不发送
         // credentials: "include",
       });
+
+      // 处理 401/403 错误，清除 token 并重定向到登录页
+      if (response.status === 401 || response.status === 403) {
+        const token = getStoredToken();
+        if (token) {
+          console.warn(`[fetchInterceptor] 收到 ${response.status} 错误，Token 可能已过期，重定向到登录页`);
+          handleAuthError();
+        }
+      }
+
+      return response;
     }
 
     return originalFetch(input, init);

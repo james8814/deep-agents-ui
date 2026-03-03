@@ -3,15 +3,21 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Sender, Attachments } from "@ant-design/x";
 import { Button } from "antd";
-import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType } from "lucide-react";
+import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType, X, AlertCircle } from "lucide-react";
+import {
+  uploadFile,
+  uploadFiles,
+  deleteUploadedFile,
+  constructMessageWithFiles,
+  formatFileSize,
+  isAllowedFileType,
+  ACCEPTED_FILE_TYPES,
+  type UploadFileResponse,
+} from "@/api/upload";
+import { cn } from "@/lib/utils";
 
-// 支持的内容块类型
-export type ContentBlock =
-  | { type: "text"; text: string }
-  | { type: "image_url"; image_url: { url: string } }
-  | { type: "file"; source: { type: "base64"; media_type: string; data: string }; filename?: string };
-
-export type MultimodalContent = string | ContentBlock[];
+// 支持的内容块类型（简化：现在只发送文本消息）
+export type MultimodalContent = string;
 
 interface AntdXSenderProps {
   onSend: (content: MultimodalContent) => void;
@@ -22,14 +28,19 @@ interface AntdXSenderProps {
   interrupt?: unknown;
 }
 
-interface AttachmentItem {
+// 上传文件项状态
+type UploadStatus = "pending" | "uploading" | "success" | "error";
+
+interface UploadFileItem {
   uid: string;
   name: string;
   type?: string;
   size?: number;
   thumbUrl?: string;
-  url?: string;
-  data?: string; // base64 data for non-image files
+  status: UploadStatus;
+  progress: number; // 0-100
+  path?: string;    // 上传成功后返回的路径
+  error?: string;   // 错误信息
 }
 
 // 文件类型图标映射
@@ -37,23 +48,28 @@ const getFileIcon = (mimeType: string | undefined): React.ReactNode => {
   if (!mimeType) return <FileText size={14} />;
   if (mimeType.startsWith("image/")) return <FileImage size={14} />;
   if (mimeType === "application/pdf") return <FileType size={14} />;
-  if (mimeType.includes("wordprocessingml")) return <FileText size={14} />; // docx
-  if (mimeType.includes("presentationml")) return <FileText size={14} />;   // pptx
-  if (mimeType.includes("spreadsheetml")) return <FileText size={14} />;    // xlsx
+  if (mimeType.includes("wordprocessingml")) return <FileText size={14} />;
+  if (mimeType.includes("presentationml")) return <FileText size={14} />;
+  if (mimeType.includes("spreadsheetml")) return <FileText size={14} />;
   return <FileText size={14} />;
 };
 
 // 生成文件预览图（用于非图片文件）
 const generateFileThumbnail = (filename: string, mimeType: string): string => {
-  // 创建一个简单的 SVG 预览图
-  const ext = filename.split('.').pop()?.toUpperCase() || 'FILE';
-  const bgColor = mimeType.startsWith("image/") ? "#e8f5e9" :
-                  mimeType === "application/pdf" ? "#ffebee" :
-                  mimeType.includes("wordprocessingml") ? "#e3f2fd" : // docx
-                  mimeType.includes("presentationml") ? "#fff8e1" :   // pptx
-                  mimeType.includes("spreadsheetml") ? "#e8f5e9" :    // xlsx
-                  mimeType.includes("text") || mimeType.includes("markdown") ? "#fff3e0" :
-                  "#f3f4f6";
+  const ext = filename.split(".").pop()?.toUpperCase() || "FILE";
+  const bgColor = mimeType.startsWith("image/")
+    ? "#e8f5e9"
+    : mimeType === "application/pdf"
+      ? "#ffebee"
+      : mimeType.includes("wordprocessingml")
+        ? "#e3f2fd"
+        : mimeType.includes("presentationml")
+          ? "#fff8e1"
+          : mimeType.includes("spreadsheetml")
+            ? "#e8f5e9"
+            : mimeType.includes("text") || mimeType.includes("markdown")
+              ? "#fff3e0"
+              : "#f3f4f6";
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
@@ -65,36 +81,6 @@ const generateFileThumbnail = (filename: string, mimeType: string): string => {
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 };
 
-// 支持的文件类型
-const ACCEPTED_FILE_TYPES = [
-  // 图片
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/svg+xml",
-  // 文档
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-  // 文本
-  "text/plain",
-  "text/markdown",
-  "text/csv",
-  "text/html",
-  "text/css",
-  // 代码
-  "text/javascript",
-  "application/javascript",
-  "application/json",
-  "text/typescript",
-  "application/typescript",
-  "text/x-python",
-  "text/python",
-  // 扩展名匹配
-].join(",") + ",.md,.txt,.pdf,.csv,.json,.js,.ts,.jsx,.tsx,.py,.html,.css,.svg,.docx,.pptx,.xlsx";
-
 export const AntdXSender = React.memo<AntdXSenderProps>(
   ({
     onSend,
@@ -105,110 +91,172 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
     interrupt,
   }) => {
     const [value, setValue] = useState("");
-    const [files, setFiles] = useState<AttachmentItem[]>([]);
+    const [files, setFiles] = useState<UploadFileItem[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // 是否有文件正在上传
+    const hasUploadingFiles = files.some((f) => f.status === "uploading");
+
+    // 提交消息
     const handleSubmit = useCallback(() => {
       if (!value.trim() && files.length === 0) return;
-      if (disabled || loading) return;
+      if (disabled || loading || hasUploadingFiles) return;
 
-      if (files.length > 0) {
-        // 构建多模态消息内容
-        const content: ContentBlock[] = [
-          { type: "text", text: value },
-        ];
+      // 收集成功上传的文件
+      const uploadedFiles = files
+        .filter((f): f is UploadFileItem & { status: "success"; path: string } =>
+          f.status === "success" && !!f.path
+        )
+        .map((f) => ({
+          path: f.path,
+          filename: f.name,
+        }));
 
-        for (const file of files) {
-          if (file.type?.startsWith("image/")) {
-            // 图片使用 image_url 格式
-            content.push({
-              type: "image_url",
-              image_url: { url: file.thumbUrl || file.url || "" },
-            });
-          } else if (file.data) {
-            // 其他文件使用 file 格式（带 base64 数据）
-            content.push({
-              type: "file",
-              source: {
-                type: "base64",
-                media_type: file.type || "application/octet-stream",
-                data: file.data,
-              },
-              filename: file.name,
-            });
-          }
-        }
+      // 构造包含文件引用的消息
+      const message = constructMessageWithFiles(value, uploadedFiles);
 
-        onSend(content);
-      } else {
-        onSend(value);
-      }
+      onSend(message);
 
+      // 清空状态
       setValue("");
       setFiles([]);
-    }, [value, files, onSend, disabled, loading]);
+    }, [value, files, onSend, disabled, loading, hasUploadingFiles]);
 
-    // 处理文件上传
-    const handleUpload = useCallback((file: File): Promise<AttachmentItem> => {
-      return new Promise((resolve) => {
-        const uid = `${Date.now()}-${file.name}`;
+    // 处理文件选择并开始上传
+    const handleFileSelect = useCallback(async (selectedFiles: File[]) => {
+      // 验证文件类型
+      const validFiles: File[] = [];
+      for (const file of selectedFiles) {
+        if (!isAllowedFileType(file.name)) {
+          // 显示错误提示（可以改进为 toast 通知）
+          console.warn(`不支持的文件类型: ${file.name}`);
+          continue;
+        }
+        validFiles.push(file);
+      }
 
+      if (validFiles.length === 0) return;
+
+      // 创建上传项（pending 状态）
+      const newItems: UploadFileItem[] = validFiles.map((file) => ({
+        uid: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        thumbUrl: file.type.startsWith("image/") ? undefined : generateFileThumbnail(file.name, file.type),
+        status: "pending",
+        progress: 0,
+      }));
+
+      setFiles((prev) => [...prev, ...newItems]);
+
+      // 开始上传每个文件
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        const item = newItems[i];
+
+        // 图片文件生成预览
         if (file.type.startsWith("image/")) {
-          // 图片文件：生成缩略图
           const reader = new FileReader();
           reader.onload = () => {
-            resolve({
-              uid,
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              thumbUrl: reader.result as string,
-              data: (reader.result as string).split(",")[1], // 保存 base64 数据
-            });
-          };
-          reader.readAsDataURL(file);
-        } else {
-          // 非图片文件：读取为 base64 并生成预览图
-          const reader = new FileReader();
-          reader.onload = () => {
-            const base64 = (reader.result as string).split(",")[1];
-            const thumbUrl = generateFileThumbnail(file.name, file.type);
-            resolve({
-              uid,
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              thumbUrl,
-              data: base64,
-            });
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.uid === item.uid ? { ...f, thumbUrl: reader.result as string } : f
+              )
+            );
           };
           reader.readAsDataURL(file);
         }
-      });
+
+        // 更新为上传中状态
+        setFiles((prev) =>
+          prev.map((f) => (f.uid === item.uid ? { ...f, status: "uploading" } : f))
+        );
+
+        try {
+          // 上传文件
+          const result = await uploadFile(file, (progress) => {
+            setFiles((prev) =>
+              prev.map((f) => (f.uid === item.uid ? { ...f, progress } : f))
+            );
+          });
+
+          // 上传成功
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.uid === item.uid
+                ? { ...f, status: "success", path: result.path, progress: 100 }
+                : f
+            )
+          );
+        } catch (error) {
+          // 上传失败
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.uid === item.uid
+                ? {
+                    ...f,
+                    status: "error",
+                    error: error instanceof Error ? error.message : "上传失败",
+                    progress: 0,
+                  }
+                : f
+            )
+          );
+        }
+      }
     }, []);
+
+    // 移除文件
+    const handleRemoveFile = useCallback(async (uid: string) => {
+      // 找到要删除的文件
+      const fileToRemove = files.find(f => f.uid === uid);
+
+      // 如果文件已成功上传，需要用户确认并调用后端删除
+      if (fileToRemove?.status === "success" && fileToRemove.path) {
+        const confirmed = window.confirm(`确定要删除文件 "${fileToRemove.name}" 吗？\n此操作将同时删除服务器上的文件。`);
+        if (!confirmed) return;
+
+        try {
+          await deleteUploadedFile(fileToRemove.path);
+        } catch (err) {
+          console.error("删除文件失败:", err);
+          // 即使后端删除失败，也从前端状态移除
+        }
+      }
+
+      setFiles((prev) => prev.filter((f) => f.uid !== uid));
+    }, [files]);
 
     // Sender header - 使用 Attachments 组件展示已上传文件
     const header = useMemo(() => {
       if (files.length === 0) return null;
 
-      // 为每个文件添加预览图
-      const itemsWithThumbUrl = files.map((f) => ({
-        ...f,
-        thumbUrl: f.thumbUrl || generateFileThumbnail(f.name, f.type || ""),
+      // 为 Attachments 组件格式化数据
+      const attachmentItems = files.map((f) => ({
+        uid: f.uid,
+        name: f.name,
+        type: f.type,
+        size: f.size,
+        thumbUrl: f.thumbUrl,
+        // 自定义状态显示
+        description: f.status === "uploading"
+          ? `上传中 ${f.progress}%`
+          : f.status === "error"
+            ? f.error || "上传失败"
+            : formatFileSize(f.size || 0),
       }));
 
       return (
-        <Sender.Header title={`Attachments (${files.length})`}>
+        <Sender.Header title={`附件 (${files.filter(f => f.status === "success").length}/${files.length})`}>
           <Attachments
-            items={itemsWithThumbUrl}
-            onRemove={(file) => {
-              setFiles((prev) => prev.filter((f) => f.uid !== file.uid));
-            }}
+            items={attachmentItems}
+            onRemove={(file) => handleRemoveFile(file.uid)}
             overflow="scrollX"
           />
         </Sender.Header>
       );
-    }, [files]);
+    }, [files, handleRemoveFile]);
 
     // Sender footer - 操作按钮
     const footer = useMemo(() => {
@@ -225,6 +273,12 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
             <span className="text-xs text-muted-foreground/60">
               Shift+Enter
             </span>
+            {hasUploadingFiles && (
+              <span className="text-xs text-warning flex items-center gap-1">
+                <span className="animate-spin">⏳</span>
+                上传中...
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {loading ? (
@@ -242,7 +296,12 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
                 type="primary"
                 size="small"
                 onClick={handleSubmit}
-                disabled={disabled || (!value.trim() && files.length === 0)}
+                disabled={
+                  disabled ||
+                  (!value.trim() && files.length === 0) ||
+                  hasUploadingFiles ||
+                  files.every((f) => f.status === "error")
+                }
                 icon={<ArrowUp size={14} />}
               >
                 Send
@@ -256,7 +315,8 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
       disabled,
       interrupt,
       value,
-      files.length,
+      files,
+      hasUploadingFiles,
       handleSubmit,
       onStop,
     ]);
@@ -271,9 +331,10 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
           multiple
           className="hidden"
           onChange={async (e) => {
-            const newFiles = Array.from(e.target.files || []);
-            const processedFiles = await Promise.all(newFiles.map(handleUpload));
-            setFiles((prev) => [...prev, ...processedFiles]);
+            const selectedFiles = Array.from(e.target.files || []);
+            if (selectedFiles.length > 0) {
+              await handleFileSelect(selectedFiles);
+            }
             e.target.value = "";
           }}
         />
@@ -288,8 +349,8 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
             interrupt
               ? "Agent is waiting for approval above ↑"
               : loading
-              ? "Running..."
-              : placeholder
+                ? "Running..."
+                : placeholder
           }
           header={header}
           footer={footer}
