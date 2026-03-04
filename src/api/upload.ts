@@ -8,6 +8,7 @@
  */
 
 import { AUTH_SERVER, fetchWithCredentials } from "./client";
+import { TOKEN_KEY } from "@/lib/constants";
 
 // 统一的文件类型配置
 export const ACCEPTED_FILE_TYPES = [
@@ -116,7 +117,7 @@ export async function uploadFile(
     xhr.open("POST", `${AUTH_SERVER}/api/upload`);
 
     // 添加 Bearer Token 认证（XHR 不走 fetchInterceptor，需要手动添加）
-    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
     if (token) {
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     }

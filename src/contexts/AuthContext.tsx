@@ -9,9 +9,9 @@ import React, {
   ReactNode,
 } from "react";
 import * as authApi from "@/api/auth";
+import { HttpError } from "@/api/client";
 import type { User } from "@/types/auth";
-
-const TOKEN_KEY = "auth_token";
+import { TOKEN_KEY } from "@/lib/constants";
 
 /**
  * 客户端 JWT 过期预检
@@ -22,11 +22,13 @@ function isTokenExpired(token: string): boolean {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return true;
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64));
-    if (!payload.exp) return false; // 无 exp 字段，无法判断，交给服务端验证
-    // exp 是秒级 Unix 时间戳，留 30 秒缓冲
-    return Date.now() >= (payload.exp - 30) * 1000;
+    // URL-safe base64 → 标准 base64，补齐 padding（部分 JWT 库省略 = 填充）
+    const raw = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = raw.padEnd(raw.length + ((4 - (raw.length % 4)) % 4), "=");
+    const payload = JSON.parse(atob(padded));
+    if (typeof payload.exp !== "number") return false; // 无有效 exp，交给服务端验证
+    // exp 是秒级 Unix 时间戳，留 30 秒缓冲（提前 30 秒视为过期）
+    return Date.now() >= payload.exp * 1000 - 30_000;
   } catch {
     // 解析失败，视为过期
     return true;
@@ -101,10 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userInfo = await authApi.getUserInfo(storedToken);
         setUser(userInfo);
       } catch (error) {
-        // 认证失败（401/403/Invalid token）时清除 token
-        const isAuthError = error instanceof Error &&
-          (error.message.includes('401') || error.message.includes('403') || error.message.includes('未登录') ||
-           error.message.includes('Invalid token') || error.message.includes('token') || error.message.includes('Token'));
+        // 通过 HTTP 状态码判断认证错误，而非脆弱的字符串匹配
+        const isAuthError = error instanceof HttpError &&
+          (error.statusCode === 401 || error.statusCode === 403);
         if (isAuthError) {
           setUser(null);
           setToken(null);

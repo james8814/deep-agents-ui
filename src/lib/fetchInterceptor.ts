@@ -8,7 +8,7 @@ if (typeof window === "undefined") {
   throw new Error("fetchInterceptor must only be imported in browser environment");
 }
 
-const TOKEN_KEY = "auth_token";
+import { TOKEN_KEY } from "@/lib/constants";
 
 let isPatchApplied = false;
 
@@ -30,7 +30,6 @@ function shouldAddAuthHeader(url: string): boolean {
     url.includes("127.0.0.1:2024") ||
     url.includes("localhost:2025") ||
     url.includes("127.0.0.1:2025") ||
-    url.includes("api.your-domain.com") ||
     (apiUrl ? url.includes(apiUrl) : false)
   ) {
     return true;

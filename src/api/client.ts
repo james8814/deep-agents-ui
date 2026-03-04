@@ -1,22 +1,36 @@
 /**
  * API 客户端封装
- * 所有请求自动携带 Bearer Token（从 localStorage 获取）
+ * Auth Server API 请求的错误处理和 Token 刷新
  *
  * 架构说明：
- * - 前端(:3000) 与 Auth Server(:8000) 跨端口，Cookie 无法自动发送
- * - 统一使用 Bearer Token 认证（存储在 localStorage）
- * - fetchInterceptor 覆盖 LangGraph Server 的 fetch 调用
- * - 本模块覆盖 Auth Server 的 API 调用
+ * - Token 注入职责分工：
+ *   - fetchInterceptor（A层）：覆盖 LangGraph Server + Auth Server /api/ 端点
+ *   - ClientProvider onRequest（B层）：覆盖 LangGraph SDK client 方法
+ *   - 本模块不做 Token 注入，只负责错误处理和 Token 刷新
+ * - Auth Server /auth/ 端点的 Token 由调用方按需显式传入（如 auth.ts 的 getUserInfo）
  */
 
 import { ApiError } from "@/types/auth";
+import { TOKEN_KEY } from "@/lib/constants";
 
 const AUTH_SERVER = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000";
 const API_SERVER = process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024";
 
 export { AUTH_SERVER, API_SERVER };
 
-const TOKEN_KEY = "auth_token";
+/**
+ * 带 HTTP 状态码的错误类
+ * 用于 AuthContext 等消费方通过 statusCode 判断错误类型，而非脆弱的字符串匹配
+ */
+export class HttpError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number
+  ) {
+    super(message);
+    this.name = "HttpError";
+  }
+}
 
 /**
  * 从 localStorage 获取 Bearer Token
@@ -67,22 +81,20 @@ async function refreshToken(): Promise<void> {
 
 /**
  * 通用 fetch 封装
- * - 自动添加 Bearer Token
- * - 自动处理 401 刷新
- * - 自动处理错误
+ * - 不做 Token 注入（由 fetchInterceptor 或调用方负责）
+ * - 自动处理 401 刷新（非 /auth/ 端点）
+ * - 抛出 HttpError 携带 statusCode，便于消费方判断错误类型
  */
 export async function fetchWithCredentials<T = unknown>(
   url: string,
   options: RequestInit = {},
   isRetry: boolean = false
 ): Promise<T> {
-  const token = getStoredToken();
   const response = await fetch(url, {
     ...options,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
@@ -92,16 +104,15 @@ export async function fetchWithCredentials<T = unknown>(
       .json()
       .catch(() => ({ detail: "请求失败" }));
 
-    // 401 错误处理：尝试刷新 Token
+    // 401 错误处理：尝试刷新 Token（仅非 /auth/ 端点）
     if (
       response.status === 401 &&
       !url.includes("/auth/") &&
       !isRetry
     ) {
-      // 超过重试次数，抛出错误由 AuthContext + AuthGuard 统一处理重定向
       if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
         refreshRetryCount = 0;
-        throw new Error("登录已过期，请重新登录 (401)");
+        throw new HttpError("登录已过期，请重新登录", 401);
       }
 
       refreshRetryCount++;
@@ -109,15 +120,15 @@ export async function fetchWithCredentials<T = unknown>(
       try {
         await refreshToken();
         refreshRetryCount = 0;
-        // 刷新成功，重试原请求
         return fetchWithCredentials<T>(url, options, true);
       } catch {
         refreshRetryCount = 0;
-        throw new Error("请重新登录 (401)");
+        throw new HttpError("请重新登录", 401);
       }
     }
 
-    throw new Error(error.detail);
+    // 抛出 HttpError，携带状态码
+    throw new HttpError(error.detail, response.status);
   }
 
   // 成功后重置计数器
