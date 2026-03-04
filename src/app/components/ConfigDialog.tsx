@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { StandaloneConfig } from "@/lib/config";
+import { StandaloneConfig, getConfig } from "@/lib/config";
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Client } from "@langchain/langgraph-sdk";
@@ -57,16 +57,9 @@ export function ConfigDialog({
     setConnectionStatus("testing");
     setConnectionError("");
     try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+      // 使用 fetchInterceptor 全局注入 Bearer Token，无需手动注入
       const testClient = new Client({
         apiUrl: deploymentUrl,
-        onRequest: (_url: URL, init: RequestInit) => {
-          const headers = new Headers(init.headers as HeadersInit);
-          if (token) {
-            headers.set("Authorization", `Bearer ${token}`);
-          }
-          return { ...init, headers };
-        },
       });
       await testClient.assistants.search({ limit: 1 });
       setConnectionStatus("ok");

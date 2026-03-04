@@ -58,6 +58,9 @@ export function useChat({
     } else if (isNetworkError) {
       // 网络错误会自动重连，降级为 debug 日志
       console.debug("[useChat] 网络错误（将自动重连）:", msg);
+    } else if (/BlockingError|internal error occurred/i.test(msg)) {
+      // 服务端 BlockingError：后端存在同步阻塞 I/O 操作，需后端排查
+      console.warn("[useChat] 服务端内部错误（BlockingError），请检查后端日志:", msg);
     } else {
       // 未知错误保留 error 级别
       console.error("[useChat] Stream 错误:", error);
