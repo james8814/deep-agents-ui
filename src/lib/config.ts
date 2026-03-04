@@ -21,9 +21,9 @@ export function getConfig(): StandaloneConfig | null {
   try {
     const config = JSON.parse(stored);
 
-    // 迁移：移除旧版本的 apiKey
+    // 迁移：移除旧版本的 apiKey（_ 前缀表示故意未使用）
     if ("langsmithApiKey" in config) {
-      const { langsmithApiKey, ...rest } = config;
+      const { langsmithApiKey: __langsmithApiKey, ...rest } = config;
       saveConfig(rest);
       return rest;
     }
