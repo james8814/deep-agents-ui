@@ -28,7 +28,10 @@ export const AntdXMessageList = React.memo<AntdXMessageListProps>(
     onResumeInterrupt,
   }) => {
     const bubbleItems = useMemo(() => {
-      return convertMessagesToBubbles(messages, isLoading, interrupt);
+      // 过滤掉空内容的消息，避免渲染空的气泡
+      return convertMessagesToBubbles(messages, isLoading, interrupt).filter(
+        (item) => item.content && item.content.trim() !== ""
+      );
     }, [messages, isLoading, interrupt]);
 
     const roleConfig = useMemo(
