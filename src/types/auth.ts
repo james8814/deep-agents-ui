@@ -13,6 +13,7 @@ export interface LoginResponse {
   expires_in: number; // 秒，通常 1800 (30分钟)
   user_id: string;
   username: string;
+  refresh_token?: string; // 后端可能返回 refresh_token
 }
 
 export interface RegisterRequest {

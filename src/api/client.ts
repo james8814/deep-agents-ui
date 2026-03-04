@@ -11,7 +11,7 @@
  */
 
 import { ApiError } from "@/types/auth";
-import { TOKEN_KEY } from "@/lib/constants";
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/lib/constants";
 
 const AUTH_SERVER = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000";
 const API_SERVER = process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024";
@@ -40,6 +40,25 @@ function getStoredToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+/**
+ * 从 localStorage 获取 Refresh Token
+ */
+function getStoredRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+/**
+ * 存储新的 Token 对到 localStorage
+ */
+function storeTokenPair(accessToken: string, refreshToken?: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(TOKEN_KEY, accessToken);
+  if (refreshToken) {
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  }
+}
+
 // Token 刷新状态管理
 let refreshPromise: Promise<void> | null = null;
 let refreshRetryCount = 0;
@@ -47,21 +66,30 @@ const MAX_REFRESH_RETRIES = 3;
 
 /**
  * 执行 Token 刷新
- * 使用 Bearer Token 而非 Cookie
+ * 使用 /auth/refresh 端点 + JSON body（跨端口可用）
+ * 不同于 /auth/refresh-cookie（依赖 Cookie，跨端口失效）
  */
 async function doRefreshToken(): Promise<void> {
-  const token = getStoredToken();
-  const response = await fetch(`${AUTH_SERVER}/auth/refresh-cookie`, {
+  const refreshToken = getStoredRefreshToken();
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+
+  const response = await fetch(`${AUTH_SERVER}/auth/refresh`, {
     method: "POST",
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      "Content-Type": "application/json",
     },
-    credentials: "include",
+    body: JSON.stringify({ refresh_token: refreshToken }),
   });
 
   if (!response.ok) {
     throw new Error("Token 刷新失败");
   }
+
+  // 解析响应并存储新的 Token 对
+  const data = await response.json();
+  storeTokenPair(data.access_token, data.refresh_token);
 }
 
 /**

@@ -3,18 +3,18 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Sender, Attachments } from "@ant-design/x";
 import { Button } from "antd";
-import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType, X, AlertCircle } from "lucide-react";
+import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType, X as _X, AlertCircle as _AlertCircle } from "lucide-react";
 import {
   uploadFile,
-  uploadFiles,
+  uploadFiles as _uploadFiles,
   deleteUploadedFile,
   constructMessageWithFiles,
-  formatFileSize,
+  formatFileSize as _formatFileSize,
   isAllowedFileType,
   ACCEPTED_FILE_TYPES,
-  type UploadFileResponse,
+  type UploadFileResponse as _UploadFileResponse,
 } from "@/api/upload";
-import { cn } from "@/lib/utils";
+import { cn as _cn } from "@/lib/utils";
 
 // 支持的内容块类型（简化：现在只发送文本消息）
 export type MultimodalContent = string;
@@ -44,7 +44,7 @@ interface UploadFileItem {
 }
 
 // 文件类型图标映射
-const getFileIcon = (mimeType: string | undefined): React.ReactNode => {
+const _getFileIcon = (mimeType: string | undefined): React.ReactNode => {
   if (!mimeType) return <FileText size={14} />;
   if (mimeType.startsWith("image/")) return <FileImage size={14} />;
   if (mimeType === "application/pdf") return <FileType size={14} />;
@@ -244,7 +244,7 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
           ? `上传中 ${f.progress}%`
           : f.status === "error"
             ? f.error || "上传失败"
-            : formatFileSize(f.size || 0),
+            : _formatFileSize(f.size || 0),
       }));
 
       return (

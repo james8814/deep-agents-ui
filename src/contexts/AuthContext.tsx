@@ -11,7 +11,7 @@ import React, {
 import * as authApi from "@/api/auth";
 import { HttpError } from "@/api/client";
 import type { User } from "@/types/auth";
-import { TOKEN_KEY } from "@/lib/constants";
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/lib/constants";
 
 /**
  * 客户端 JWT 过期预检
@@ -130,6 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const accessToken = response.access_token;
     saveTokenToStorage(accessToken);
     setToken(accessToken);
+    // 存储 refresh_token（用于 Token 刷新）
+    if (response.refresh_token) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
+    }
     // 使用 Bearer Token 获取用户信息，避免 Cookie 跨端口问题
     const userInfo = await authApi.getUserInfo(accessToken);
     setUser(userInfo);
@@ -142,6 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setToken(null);
       clearTokenFromStorage();
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
   }, []);
 

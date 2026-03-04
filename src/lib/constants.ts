@@ -5,3 +5,6 @@
 
 /** localStorage 中存储 JWT Token 的 key */
 export const TOKEN_KEY = "auth_token";
+
+/** localStorage 中存储 Refresh Token 的 key */
+export const REFRESH_TOKEN_KEY = "auth_refresh_token";
