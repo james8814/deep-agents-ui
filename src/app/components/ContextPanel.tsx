@@ -627,8 +627,8 @@ function InlineFileViewer({
         </div>
       </div>
 
-      {/* Content - parent ScrollArea handles scrolling */}
-      <div className="flex-1 min-h-0 p-2">
+      {/* Content - scrollable within ScrollArea */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-2">
         {isMarkdown ? (
           <div className="rounded-md p-2">
             <MarkdownContent content={file.content} />
@@ -641,7 +641,7 @@ function InlineFileViewer({
               margin: 0,
               borderRadius: "0.375rem",
               fontSize: "0.75rem",
-              maxHeight: "none",
+              maxHeight: "100%",
             }}
             showLineNumbers
             wrapLines
