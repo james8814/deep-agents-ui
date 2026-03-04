@@ -178,6 +178,14 @@ function HomePageInner({
         </header>
 
         <div className="flex-1 overflow-hidden">
+          {!assistant ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="text-center">
+                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+                <p className="text-muted-foreground">正在连接 Agent...</p>
+              </div>
+            </div>
+          ) : (
           <ChatProvider
             activeAssistant={assistant}
             onHistoryRevalidate={() => mutateThreads?.()}
@@ -249,6 +257,7 @@ function HomePageInner({
               )}
             </ResizablePanelGroup>
           </ChatProvider>
+          )}
         </div>
       </div>
     </>

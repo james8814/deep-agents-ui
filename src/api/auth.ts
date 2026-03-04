@@ -36,8 +36,8 @@ export async function logout(): Promise<void> {
 export async function getUserInfo(token?: string): Promise<User> {
   const headers: Record<string, string> = {};
 
-  // 如果提供了 token，使用 Bearer Token 认证
-  // 否则依赖 Cookie（credentials: "include"）
+  // 如果提供了 token，显式使用该 token
+  // 否则 fetchWithCredentials 自动从 localStorage 获取
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }

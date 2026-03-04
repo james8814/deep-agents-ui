@@ -14,25 +14,39 @@ let isPatchApplied = false;
 
 /**
  * 检查 URL 是否需要添加 Authorization header
+ *
+ * 覆盖范围：
+ * - LangGraph Server (:2024/:2025) — Agent API 调用
+ * - Auth Server (:8000) 的 /api/ 端点 — 文件上传/下载/删除
+ *   注意：/auth/ 端点不需要（登录/注册本身不需要 token）
  */
 function shouldAddAuthHeader(url: string): boolean {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  return (
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "";
+
+  // LangGraph Server
+  if (
     url.includes("localhost:2024") ||
     url.includes("127.0.0.1:2024") ||
     url.includes("localhost:2025") ||
     url.includes("127.0.0.1:2025") ||
     url.includes("api.your-domain.com") ||
     (apiUrl ? url.includes(apiUrl) : false)
-  );
-}
+  ) {
+    return true;
+  }
 
-/**
- * 处理认证错误，清除 token 并重定向到登录页
- */
-function handleAuthError(): void {
-  localStorage.removeItem(TOKEN_KEY);
-  window.location.href = "/login";
+  // Auth Server 的 /api/ 端点（上传/下载/删除文件等需要认证的端点）
+  const isAuthServerUrl =
+    url.includes("localhost:8000") ||
+    url.includes("127.0.0.1:8000") ||
+    (authUrl ? url.includes(authUrl) : false);
+
+  if (isAuthServerUrl && url.includes("/api/")) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -75,13 +89,9 @@ try {
         // credentials: "include",
       });
 
-      // 处理 401/403 错误，清除 token 并重定向到登录页
+      // 401/403 仅记录日志，认证状态由 AuthContext + AuthGuard 统一管理
       if (response.status === 401 || response.status === 403) {
-        const token = getStoredToken();
-        if (token) {
-          console.warn(`[fetchInterceptor] 收到 ${response.status} 错误，Token 可能已过期，重定向到登录页`);
-          handleAuthError();
-        }
+        console.debug(`[fetchInterceptor] 收到 ${response.status}，由 AuthContext 处理`);
       }
 
       return response;

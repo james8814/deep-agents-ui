@@ -1,6 +1,12 @@
 /**
  * API 客户端封装
- * 所有请求自动携带 Cookie
+ * 所有请求自动携带 Bearer Token（从 localStorage 获取）
+ *
+ * 架构说明：
+ * - 前端(:3000) 与 Auth Server(:8000) 跨端口，Cookie 无法自动发送
+ * - 统一使用 Bearer Token 认证（存储在 localStorage）
+ * - fetchInterceptor 覆盖 LangGraph Server 的 fetch 调用
+ * - 本模块覆盖 Auth Server 的 API 调用
  */
 
 import { ApiError } from "@/types/auth";
@@ -10,6 +16,16 @@ const API_SERVER = process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024";
 
 export { AUTH_SERVER, API_SERVER };
 
+const TOKEN_KEY = "auth_token";
+
+/**
+ * 从 localStorage 获取 Bearer Token
+ */
+function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
 // Token 刷新状态管理
 let refreshPromise: Promise<void> | null = null;
 let refreshRetryCount = 0;
@@ -17,10 +33,15 @@ const MAX_REFRESH_RETRIES = 3;
 
 /**
  * 执行 Token 刷新
+ * 使用 Bearer Token 而非 Cookie
  */
 async function doRefreshToken(): Promise<void> {
+  const token = getStoredToken();
   const response = await fetch(`${AUTH_SERVER}/auth/refresh-cookie`, {
     method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     credentials: "include",
   });
 
@@ -46,7 +67,7 @@ async function refreshToken(): Promise<void> {
 
 /**
  * 通用 fetch 封装
- * - 自动携带 Cookie
+ * - 自动添加 Bearer Token
  * - 自动处理 401 刷新
  * - 自动处理错误
  */
@@ -55,11 +76,13 @@ export async function fetchWithCredentials<T = unknown>(
   options: RequestInit = {},
   isRetry: boolean = false
 ): Promise<T> {
+  const token = getStoredToken();
   const response = await fetch(url, {
     ...options,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
@@ -75,13 +98,10 @@ export async function fetchWithCredentials<T = unknown>(
       !url.includes("/auth/") &&
       !isRetry
     ) {
-      // 超过重试次数
+      // 超过重试次数，抛出错误由 AuthContext + AuthGuard 统一处理重定向
       if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
         refreshRetryCount = 0;
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        throw new Error("登录已过期，请重新登录");
+        throw new Error("登录已过期，请重新登录 (401)");
       }
 
       refreshRetryCount++;
@@ -93,10 +113,7 @@ export async function fetchWithCredentials<T = unknown>(
         return fetchWithCredentials<T>(url, options, true);
       } catch {
         refreshRetryCount = 0;
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        throw new Error("请重新登录");
+        throw new Error("请重新登录 (401)");
       }
     }
 

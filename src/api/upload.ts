@@ -7,7 +7,7 @@
  * 3. 在消息中引用文件路径
  */
 
-import { AUTH_SERVER } from "./client";
+import { AUTH_SERVER, fetchWithCredentials } from "./client";
 
 // 统一的文件类型配置
 export const ACCEPTED_FILE_TYPES = [
@@ -49,7 +49,7 @@ export const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
 
 export interface UploadFileResponse {
   success: boolean;
-  path: string;      // 虚拟路径，如 "/uploads/abc123.pdf"
+  path: string;      // 虚拟路径，格式: "/uploads/{user_id}/{filename}"
   filename: string;  // 原始文件名
   size: number;      // 文件大小（字节）
   message: string;
@@ -92,7 +92,7 @@ export async function uploadFile(
         try {
           const response: UploadFileResponse = JSON.parse(xhr.responseText);
           resolve(response);
-        } catch (error) {
+        } catch {
           reject(new Error("解析响应失败"));
         }
       } else {
@@ -114,6 +114,13 @@ export async function uploadFile(
     });
 
     xhr.open("POST", `${AUTH_SERVER}/api/upload`);
+
+    // 添加 Bearer Token 认证（XHR 不走 fetchInterceptor，需要手动添加）
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
+
     xhr.send(formData);
   });
 }
@@ -121,29 +128,24 @@ export async function uploadFile(
 /**
  * 删除已上传的文件
  *
- * @param path 文件虚拟路径，如 "/uploads/abc123.pdf"
+ * @param path 文件虚拟路径，格式: "/uploads/{user_id}/{filename}"
  * @returns 删除结果
  */
 export async function deleteUploadedFile(path: string): Promise<{ success: boolean; message: string }> {
-  // 从路径中提取文件名
-  const filename = path.split("/").pop();
-  if (!filename) {
+  // 路径格式: /uploads/{user_id}/{filename}
+  const parts = path.split("/").filter(Boolean);
+  // parts: ["uploads", "{user_id}", "{filename}"]
+  if (parts.length < 3 || parts[0] !== "uploads") {
     throw new Error("无效的文件路径");
   }
+  const userId = parts[1];
+  const filename = parts[2];
 
-  const response = await fetch(`${AUTH_SERVER}/api/uploads/${filename}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: "删除失败" }));
-    throw new Error(error.detail || `删除失败: ${response.statusText}`);
-  }
-
-  return await response.json();
+  // 使用 fetchWithCredentials 调用 API（自动添加 Bearer Token + 401 自动刷新重试）
+  return fetchWithCredentials<{ success: boolean; message: string }>(
+    `${AUTH_SERVER}/api/uploads/${userId}/${filename}`,
+    { method: "DELETE" },
+  );
 }
 
 /**

@@ -13,6 +13,26 @@ import type { User } from "@/types/auth";
 
 const TOKEN_KEY = "auth_token";
 
+/**
+ * 客户端 JWT 过期预检
+ * 解析 JWT payload 的 exp 字段，判断 Token 是否已过期
+ * 避免向服务端发送无效 Token 产生 401 错误
+ */
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    if (!payload.exp) return false; // 无 exp 字段，无法判断，交给服务端验证
+    // exp 是秒级 Unix 时间戳，留 30 秒缓冲
+    return Date.now() >= (payload.exp - 30) * 1000;
+  } catch {
+    // 解析失败，视为过期
+    return true;
+  }
+}
+
 // Token 存储工具函数
 function saveTokenToStorage(token: string): void {
   if (typeof window !== "undefined") {
@@ -65,7 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        // 有 token，设置并验证
+        // 客户端预检：Token 已过期则直接清除，不发网络请求
+        if (isTokenExpired(storedToken)) {
+          console.debug("[Auth] Token 已过期（客户端预检），跳过网络验证");
+          setUser(null);
+          setToken(null);
+          clearTokenFromStorage();
+          return;
+        }
+
+        // 有 token 且未过期，设置并验证
         setToken(storedToken);
 
         // 尝试获取用户信息（使用 Bearer Token）

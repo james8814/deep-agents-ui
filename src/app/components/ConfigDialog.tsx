@@ -57,9 +57,16 @@ export function ConfigDialog({
     setConnectionStatus("testing");
     setConnectionError("");
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
       const testClient = new Client({
         apiUrl: deploymentUrl,
-        // 使用 Cookie 认证，不需要 API Key
+        onRequest: (_url: URL, init: RequestInit) => {
+          const headers = new Headers(init.headers as HeadersInit);
+          if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+          }
+          return { ...init, headers };
+        },
       });
       await testClient.assistants.search({ limit: 1 });
       setConnectionStatus("ok");

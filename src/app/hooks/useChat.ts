@@ -46,6 +46,26 @@ export function useChat({
   const [threadId, setThreadId] = useQueryState("threadId");
   const client = useClient();
 
+  // 智能错误处理：区分认证/网络错误和未知错误
+  const handleStreamError = useCallback((error: unknown) => {
+    const msg = error instanceof Error ? error.message : String(error);
+    const isAuthError = /401|403|unauthorized|forbidden/i.test(msg);
+    const isNetworkError = /failed to fetch|network\s*error|abort|timeout|ECONNREFUSED|ERR_CONNECTION/i.test(msg);
+
+    if (isAuthError) {
+      // 认证错误由 AuthContext 统一处理，降级为 debug 日志
+      console.debug("[useChat] 认证错误（由 AuthContext 处理）:", msg);
+    } else if (isNetworkError) {
+      // 网络错误会自动重连，降级为 debug 日志
+      console.debug("[useChat] 网络错误（将自动重连）:", msg);
+    } else {
+      // 未知错误保留 error 级别
+      console.error("[useChat] Stream 错误:", error);
+    }
+    // 无论何种错误都刷新 thread 列表
+    onHistoryRevalidate?.();
+  }, [onHistoryRevalidate]);
+
   const stream = useStream<StateType>({
     assistantId: activeAssistant?.assistant_id || "",
     client: client ?? undefined,
@@ -57,7 +77,7 @@ export function useChat({
     fetchStateHistory: true,
     // Revalidate thread list when stream finishes, errors, or creates new thread
     onFinish: onHistoryRevalidate,
-    onError: onHistoryRevalidate,
+    onError: handleStreamError,
     onCreated: onHistoryRevalidate,
   });
 
