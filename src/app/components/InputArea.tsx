@@ -155,7 +155,7 @@ export const InputArea = React.memo<InputAreaProps>(
       }
     }, [state.isExpandable, inputExpanded, onExpandedChange]);
 
-    const handleSubmitClick = useCallback(() => {
+    const _handleSubmitClick = useCallback(() => {
       if (isLoading) {
         onStop();
       } else if (state.canSubmit) {

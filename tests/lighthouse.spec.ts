@@ -88,11 +88,11 @@ test.describe('Lighthouse Audits', () => {
   });
 
   test('should have minimal layout shifts', async ({ page }) => {
-    let clsValue = 0;
+    
 
-    const observer = await page.evaluateHandle(() => {
+    const _observer = await page.evaluateHandle(() => {
       let cls = 0;
-      const observer = new PerformanceObserver((list) => {
+      const _observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (!(entry as any).hadRecentInput) {
             cls += (entry as any).value;

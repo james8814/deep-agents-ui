@@ -196,7 +196,7 @@ export const MessageListEnhanced = React.memo<{
   const processedMessages = useMemo(() => {
     return messages.map((msg) => {
       let content = "";
-      let toolCalls: ToolCall[] = [];
+      const toolCalls: ToolCall[] = [];
 
       if (typeof msg.content === "string") {
         content = msg.content;

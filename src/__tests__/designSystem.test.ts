@@ -6,7 +6,7 @@
 import {
   designTokens,
   getTokens,
-  type ThemeMode,
+  type ThemeMode as _ThemeMode,
 } from '@/lib/designTokens';
 import {
   lightModeColors,
@@ -451,7 +451,7 @@ describe('Accessibility', () => {
     const lightText = '#1A1816';
     expect(lightBg).not.toBe(lightText);
 
-    const darkBg = '#0A0A12';
+    const _darkBg = '#0A0A12';
     const darkText = 'rgba(255, 255, 255, 0.95)';
     // Dark text should contain white/light values
     expect(darkText).toContain('255');

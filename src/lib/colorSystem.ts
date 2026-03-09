@@ -3,7 +3,7 @@
  * Maps design tokens to CSS variables and utility classes
  */
 
-import { designTokens, type ThemeMode } from './designTokens';
+import { designTokens } from './designTokens';
 
 /**
  * CSS Variables mapping for light mode

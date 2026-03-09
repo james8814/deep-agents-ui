@@ -296,7 +296,7 @@ describe('OPDCATimeline Component', () => {
         />
       );
 
-      const checkmarks = container.querySelectorAll(':contains("✓")');
+      const _checkmarks = container.querySelectorAll(':contains("✓")');
       // Check if checkmarks are rendered (specific count may vary)
       expect(container.textContent).toContain('✓');
     });

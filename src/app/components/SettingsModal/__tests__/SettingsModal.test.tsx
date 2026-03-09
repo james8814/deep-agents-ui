@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { SettingsModal } from '../SettingsModal';
@@ -39,7 +39,7 @@ Object.defineProperty(window, 'localStorage', {
 /**
  * Test wrapper component for useSettings hook
  */
-const TestWrapper = ({
+const _TestWrapper = ({
   isOpen,
   onOpenChange,
 }: {
@@ -178,7 +178,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should switch to notifications tab', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -203,7 +203,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should switch to shortcuts tab', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -228,7 +228,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should switch to about tab', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -275,7 +275,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should toggle theme selection', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -307,7 +307,7 @@ describe('SettingsModal Component', () => {
 
   describe('Notification Settings', () => {
     test('should render notification toggles', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -332,7 +332,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should toggle main notification switch', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -366,7 +366,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should disable sub-toggles when main toggle is off', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -406,7 +406,7 @@ describe('SettingsModal Component', () => {
 
   describe('Keyboard Shortcuts', () => {
     test('should render shortcuts list', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -431,7 +431,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should search shortcuts', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -464,7 +464,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should copy shortcut to clipboard', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
       const mockClipboard = {
         writeText: jest.fn().mockResolvedValue(undefined),
       };
@@ -505,7 +505,7 @@ describe('SettingsModal Component', () => {
 
   describe('About Section', () => {
     test('should display version info in about tab', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -530,7 +530,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should show check for updates button', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -561,7 +561,7 @@ describe('SettingsModal Component', () => {
 
   describe('Modal Actions', () => {
     test('should call onCancel when cancel button is clicked', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -584,7 +584,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should call onSave when save button is clicked', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -609,7 +609,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should close modal when close button is clicked', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -671,7 +671,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should have keyboard navigation support', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -700,7 +700,7 @@ describe('SettingsModal Component', () => {
 
   describe('Integration', () => {
     test('should persist settings to localStorage', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       render(
         <SettingsModal
@@ -725,7 +725,7 @@ describe('SettingsModal Component', () => {
     });
 
     test('should handle multiple save operations', async () => {
-      const user = userEvent.setup();
+      const _user = userEvent.setup();
 
       const { rerender } = render(
         <SettingsModal

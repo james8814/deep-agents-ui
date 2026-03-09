@@ -123,13 +123,13 @@ test.describe('Browser Compatibility', () => {
         const modernJsSupported = await page.evaluate(() => {
           try {
             // Test arrow functions
-            const arrow = () => true;
+            const _arrow = () => true;
             // Test template literals
-            const template = `test`;
+            const _template = `test`;
             // Test destructuring
             const { a } = { a: 1 };
             // Test async/await
-            const asyncFunc = async () => true;
+            const _asyncFunc = async () => true;
             return true;
           } catch {
             return false;
