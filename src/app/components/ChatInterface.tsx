@@ -148,10 +148,10 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   // SubAgent list - transform and sort by start time
   const subagentList = useMemo(() => {
-    if (!stream.subagents) return [];
-    const list = Array.from(stream.subagents.values()).map(transformSubagentData);
+    if (!stream || !(stream as any).subagents) return [];
+    const list = Array.from((stream as any).subagents.values()).map(transformSubagentData);
     return sortSubAgentsByTime(list);
-  }, [stream.subagents, stream.isLoading, stream.error]);
+  }, [stream, (stream as any)?.isLoading, (stream as any)?.error]);
 
   // Connection status
   const isConnected = !stream.error;

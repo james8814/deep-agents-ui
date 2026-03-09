@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useStream, type UseDeepAgentStreamOptions } from "@langchain/langgraph-sdk/react";
+import { useStream } from "@langchain/langgraph-sdk/react";
 import {
   type Message,
   type Assistant,
@@ -95,19 +95,13 @@ export function useChat({
   const stream = useStream<StateType>({
     assistantId: activeAssistant?.assistant_id || "",
     client: client ?? undefined,
-    reconnectOnMount: true,
     threadId: threadId ?? null,
     onThreadId: setThreadId,
-    defaultHeaders: { "x-auth-scheme": "langsmith" },
-    // Enable SubAgent filtering for real-time event display
-    filterSubagentMessages: true,
-    // Enable fetching state history when switching to existing threads
-    fetchStateHistory: true,
     // Revalidate thread list when stream finishes, errors, or creates new thread
     onFinish: onHistoryRevalidate,
     onError: handleStreamError,
     onCreated: onHistoryRevalidate,
-  } as UseDeepAgentStreamOptions<StateType>);
+  });
 
   const sendMessage = useCallback(
     (content: MultimodalContent) => {

@@ -8,7 +8,7 @@ import {
   Zap,
   CheckCircle,
   Repeat2,
-  CircleProgress,
+  Circle,
 } from "lucide-react";
 
 type OPDCAStage = "observe" | "plan" | "do" | "check" | "adapt" | "idle";
@@ -92,7 +92,7 @@ const stageConfig: Record<OPDCAStage, {
   idle: {
     label: "Idle",
     description: "Waiting for user input or next action",
-    icon: <CircleProgress className="h-4 w-4" />,
+    icon: <Circle className="h-4 w-4" />,
     color: "bg-gray-500",
     bgColor: "bg-gray-500/10",
     textColor: "text-gray-600 dark:text-gray-400",

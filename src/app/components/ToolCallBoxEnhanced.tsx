@@ -209,7 +209,7 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
             "disabled:cursor-default"
           )}
-          aria-expanded={isExpanded && hasContent}
+          aria-expanded={isExpanded && hasContent ? true : false}
           aria-controls={`tool-content-${toolCall.id}`}
         >
           <div className="flex w-full items-center justify-between gap-3">

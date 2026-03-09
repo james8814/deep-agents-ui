@@ -7,7 +7,11 @@
  * - 错误状态支持
  * - 文本截断功能
  */
-import type { SubagentStatus } from "@langchain/langgraph-sdk/react";
+
+/**
+ * SubAgent 执行状态
+ */
+export type SubagentStatus = "pending" | "running" | "success" | "error";
 
 /**
  * 工具调用展示数据
@@ -143,5 +147,3 @@ export function sortSubAgentsByTime(
   });
 }
 
-// 重新导出类型，方便使用
-export type { SubagentStatus };

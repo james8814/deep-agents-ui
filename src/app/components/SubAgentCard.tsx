@@ -197,7 +197,7 @@ export const SubAgentCard: React.FC<SubAgentCardProps> = ({
     switch (subagent.status) {
       case "running":
         return "border-l-primary/50";
-      case "complete":
+      case "success":
         return "border-l-green-500/50";
       case "error":
         return "border-l-destructive/50";

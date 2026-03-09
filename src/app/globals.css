@@ -135,7 +135,7 @@
 
     /* Spacing (Base 4px grid) */
     --space-0: 0;
-    --space-0.5: 2px;
+    --space-half: 2px;
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;

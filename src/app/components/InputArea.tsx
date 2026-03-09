@@ -23,7 +23,7 @@ interface InputAreaProps {
   input: string;
   onInputChange: (value: string) => void;
   attachedFiles: UploadedFile[];
-  onFilesChange: (files: UploadedFile[]) => void;
+  onFilesChange: (files: UploadedFile[] | ((prev: UploadedFile[]) => UploadedFile[])) => void;
   onSubmit: (e?: FormEvent) => void;
   onStop: () => void;
   isLoading: boolean;
