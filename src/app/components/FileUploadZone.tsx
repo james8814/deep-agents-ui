@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useRef, useCallback, useState } from "react";
-import { Paperclip, Loader2 } from "lucide-react";
+import { Paperclip, Loader2 as _Loader2 } from "lucide-react";
 import { FileChip, FileChipData } from "./FileChip";
 import { cn } from "@/lib/utils";
 import {
   uploadFile,
   deleteUploadedFile,
   isAllowedFileType,
-  formatFileSize,
+  formatFileSize as _formatFileSize,
   ACCEPTED_FILE_TYPES,
   type UploadFileResponse,
 } from "@/api/upload";

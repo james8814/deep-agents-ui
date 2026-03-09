@@ -2,19 +2,16 @@
 
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Sender, Attachments } from "@ant-design/x";
-import { Button } from "antd";
-import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType, X as _X, AlertCircle as _AlertCircle } from "lucide-react";
+import { Button, message, Modal } from "antd";
+import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType, Loader2 } from "lucide-react";
 import {
   uploadFile,
-  uploadFiles as _uploadFiles,
   deleteUploadedFile,
   constructMessageWithFiles,
-  formatFileSize as _formatFileSize,
+  formatFileSize,
   isAllowedFileType,
   ACCEPTED_FILE_TYPES,
-  type UploadFileResponse as _UploadFileResponse,
 } from "@/api/upload";
-import { cn as _cn } from "@/lib/utils";
 
 // 支持的内容块类型（简化：现在只发送文本消息）
 export type MultimodalContent = string;
@@ -126,13 +123,18 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
     const handleFileSelect = useCallback(async (selectedFiles: File[]) => {
       // 验证文件类型
       const validFiles: File[] = [];
+      const invalidFiles: string[] = [];
       for (const file of selectedFiles) {
         if (!isAllowedFileType(file.name)) {
-          // 显示错误提示（可以改进为 toast 通知）
-          console.warn(`不支持的文件类型: ${file.name}`);
+          invalidFiles.push(file.name);
           continue;
         }
         validFiles.push(file);
+      }
+
+      // 显示不支持文件类型的错误提示
+      if (invalidFiles.length > 0) {
+        message.warning(`不支持的文件类型: ${invalidFiles.join(", ")}`);
       }
 
       if (validFiles.length === 0) return;
@@ -214,15 +216,25 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
 
       // 如果文件已成功上传，需要用户确认并调用后端删除
       if (fileToRemove?.status === "success" && fileToRemove.path) {
-        const confirmed = window.confirm(`确定要删除文件 "${fileToRemove.name}" 吗？\n此操作将同时删除服务器上的文件。`);
-        if (!confirmed) return;
-
-        try {
-          await deleteUploadedFile(fileToRemove.path);
-        } catch (err) {
-          console.error("删除文件失败:", err);
-          // 即使后端删除失败，也从前端状态移除
-        }
+        Modal.confirm({
+          title: "删除文件",
+          content: `确定要删除文件 "${fileToRemove.name}" 吗？\n此操作将同时删除服务器上的文件。`,
+          okText: "删除",
+          okButtonProps: { danger: true },
+          cancelText: "取消",
+          onOk: async () => {
+            if (!fileToRemove.path) return;
+            try {
+              await deleteUploadedFile(fileToRemove.path);
+              // 从前端状态移除
+              setFiles((prev) => prev.filter((f) => f.uid !== uid));
+            } catch (err) {
+              console.error("删除文件失败:", err);
+              message.error("删除文件失败");
+            }
+          },
+        });
+        return;
       }
 
       setFiles((prev) => prev.filter((f) => f.uid !== uid));
@@ -244,7 +256,7 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
           ? `上传中 ${f.progress}%`
           : f.status === "error"
             ? f.error || "上传失败"
-            : _formatFileSize(f.size || 0),
+            : formatFileSize(f.size || 0),
       }));
 
       return (
@@ -275,7 +287,7 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
             </span>
             {hasUploadingFiles && (
               <span className="text-xs text-warning flex items-center gap-1">
-                <span className="animate-spin">⏳</span>
+                <Loader2 size={14} className="animate-spin" />
                 上传中...
               </span>
             )}

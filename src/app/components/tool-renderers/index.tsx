@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, Terminal, FileEdit, Globe } from "lucide-react";
+import { Search, Terminal, FileEdit, Globe, Image as ImageIcon } from "lucide-react";
 
 interface ToolRendererProps {
   name: string;
@@ -178,6 +178,15 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
     <div className="flex items-center gap-2 py-1">
       <span className="text-sm">
         Delegating to: <span className="font-medium">{String(args.subagent_type || args.agent_type || "sub-agent")}</span>
+      </span>
+    </div>
+  ),
+
+  view_image: (args) => (
+    <div className="flex items-center gap-2 py-1">
+      <ImageIcon size={14} className="flex-shrink-0 text-blue-500" />
+      <span className="text-sm">
+        Viewing image: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.file_path || args.path || "image")}</code>
       </span>
     </div>
   ),

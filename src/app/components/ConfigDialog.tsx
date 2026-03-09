@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { StandaloneConfig, getConfig } from "@/lib/config";
+import { StandaloneConfig, getConfig as _getConfig } from "@/lib/config";
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Client } from "@langchain/langgraph-sdk";

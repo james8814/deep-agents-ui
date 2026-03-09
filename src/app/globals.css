@@ -16,42 +16,163 @@
   }
 
   :root {
+    /* ================================================================
+     * DESIGN SYSTEM TOKENS (Liquid Iris v5.26)
+     * These are managed by ThemeContext provider
+     * ================================================================ */
+
+    /* Brand Colors */
+    --brand-gradient: linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899);
+    --brand-gradient-subtle: linear-gradient(135deg,
+      rgba(6,182,212,0.15),
+      rgba(139,92,246,0.15));
+
+    /* Primary Colors (Light Mode - Purple) */
+    --color-primary: #7C3AED;
+    --color-primary-hover: #6D28D9;
+    --color-primary-active: #5B21B6;
+    --color-primary-subtle: #F5F3FF;
+
+    /* Surfaces (Light Mode) */
+    --surface-base: #FFFFFF;
+    --surface-raised: #FAFAF9;
+    --surface-card: #FFFFFF;
+    --surface-sidebar: #F5F5F4;
+    --surface-overlay: rgba(0, 0, 0, 0.5);
+
+    /* Text (Light Mode) */
+    --text-primary: #1A1816;
+    --text-secondary: #5C5650;
+    --text-tertiary: #8A8580;
+    --text-disabled: #A9A59F;
+    --text-on-primary: #FFFFFF;
+
+    /* Borders (Light Mode) */
+    --border-subtle: rgba(0, 0, 0, 0.04);
+    --border-default: rgba(0, 0, 0, 0.08);
+    --border-strong: rgba(0, 0, 0, 0.14);
+    --border-focus: #7C3AED;
+
+    /* Status Colors (Light Mode) */
+    --color-success: #22C55E;
+    --color-success-bg: #F0FDF4;
+    --color-warning: #F59E0B;
+    --color-warning-bg: #FFFBEB;
+    --color-error: #EF4444;
+    --color-error-bg: #FEF2F2;
+    --color-info: #7C3AED;
+    --color-info-bg: #F5F3FF;
+
+    /* OPDCA Stage Colors */
+    --opdca-observe: #06B6D4;
+    --opdca-plan: #6366F1;
+    --opdca-do: #10B981;
+    --opdca-check: #F59E0B;
+    --opdca-adapt: #EC4899;
+
+    /* SubAgent Colors */
+    --agent-research: #06B6D4;
+    --agent-analysis: #6366F1;
+    --agent-design: #EC4899;
+    --agent-writing: #F59E0B;
+    --agent-document: #10B981;
+    --agent-reflection: #8B5CF6;
+
+    /* Shadows (Light Mode) */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+    /* Motion */
+    --duration-instant: 50ms;
+    --duration-fast: 100ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+    --duration-slower: 500ms;
+
+    --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+    --ease-in: cubic-bezier(0.42, 0, 1.0, 1.0);
+    --ease-out: cubic-bezier(0, 0, 0.58, 1.0);
+    --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1.0);
+
+    /* Z-Index */
+    --z-base: 0;
+    --z-raised: 1;
+    --z-dropdown: 10;
+    --z-sticky: 20;
+    --z-overlay: 30;
+    --z-modal: 40;
+    --z-popover: 50;
+    --z-toast: 60;
+    --z-max: 9999;
+
+    /* Typography */
+    --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", "Noto Sans SC",
+                  system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.8125rem;
+    --font-size-base: 0.875rem;
+    --font-size-md: 0.9375rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.125rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+
+    --line-height-tight: 1.33;
+    --line-height-snug: 1.5;
+    --line-height-normal: 1.57;
+    --line-height-relaxed: 1.7;
+    --line-height-loose: 1.8;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Spacing (Base 4px grid) */
+    --space-0: 0;
+    --space-0.5: 2px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* Border Radius */
+    --radius-none: 0;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+    --radius-full: 9999px;
+
+    /* ================================================================
+     * LEGACY COMPATIBILITY VARIABLES (Deprecated)
+     * These are maintained for backwards compatibility
+     * ================================================================ */
+
     /* App-specific color variables */
-    --color-primary: #1c3c3c;
     --color-user-message: #076699;
     --color-user-message-bg: #e8f4f8;
     --color-avatar-bg: #e8ebeb;
     --color-secondary: #1c3c3c;
-    --color-success: #10b981;
-    --color-warning: #f59e0b;
-    --color-error: #ef4444;
     --color-background: #f9f9f9;
     --color-subagent-hover: #bbc4c4;
     --color-surface: #f9fafb;
     --color-border: #e5e7eb;
     --color-border-light: #f3f4f6;
-    --color-text-primary: #111827;
-    --color-text-secondary: #6b7280;
-    --color-text-tertiary: #9ca3af;
     --color-file-button: #ffffff;
     --color-file-button-hover: #e5e7eb;
-
-    /* Dark theme colors */
-    --color-primary-dark: #2dd4bf;
-    --color-user-message-dark: #076699;
-    --color-avatar-bg-dark: #bcb2fd;
-    --color-secondary-dark: #2dd4bf;
-    --color-success-dark: #34d399;
-    --color-warning-dark: #fbbf24;
-    --color-error-dark: #f87171;
-    --color-background-dark: #0f0f0f;
-    --color-subagent-hover-dark: #d0c9fe;
-    --color-surface-dark: #1a1a1a;
-    --color-border-dark: #2d2d2d;
-    --color-border-light-dark: #232323;
-    --color-text-primary-dark: #f3f4f6;
-    --color-text-secondary-dark: #9ca3af;
-    --color-text-tertiary-dark: #6b7280;
 
     /* Spacing variables */
     --spacing-xs: 0.25rem;
@@ -136,27 +257,128 @@
     --chart-5: 27 87% 67%;
   }
 
+  /* Dark Mode - Deep Space Theme */
+  .dark {
+    /* Primary Colors (Dark Mode - Purple) */
+    --color-primary: #8B5CF6;
+    --color-primary-hover: #A78BFA;
+    --color-primary-active: #7C3AED;
+    --color-primary-subtle: rgba(139, 92, 246, 0.15);
+
+    /* Surfaces (Dark Mode) */
+    --surface-base: #0A0A12;
+    --surface-raised: #12121E;
+    --surface-card: #1A1A2E;
+    --surface-sidebar: #12121E;
+    --surface-overlay: rgba(0, 0, 0, 0.7);
+
+    /* Text (Dark Mode) */
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.70);
+    --text-tertiary: rgba(255, 255, 255, 0.50);
+    --text-disabled: rgba(255, 255, 255, 0.30);
+    --text-on-primary: #FFFFFF;
+
+    /* Borders (Dark Mode) */
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --border-focus: #8B5CF6;
+
+    /* Status Colors (Dark Mode) */
+    --color-success: #10B981;
+    --color-success-bg: rgba(16, 185, 129, 0.10);
+    --color-warning: #FBBF24;
+    --color-warning-bg: rgba(251, 191, 36, 0.10);
+    --color-error: #F87171;
+    --color-error-bg: rgba(248, 113, 113, 0.10);
+    --color-info: #A78BFA;
+    --color-info-bg: rgba(139, 92, 246, 0.10);
+
+    /* Shadows (Dark Mode - Reduced) */
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+
+    /* Legacy Compatibility */
+    --color-user-message: #065a8a;
+    --color-user-message-bg: #2d2d2d;
+    --color-avatar-bg: #1c3c3c;
+    --color-secondary: #bbc4c4;
+    --color-background: #0A0A12;
+    --color-subagent-hover: #1e3f3f;
+    --color-surface: #1A1A2E;
+    --color-border: #12121E;
+    --color-border-light: #353535;
+    --color-text-primary: rgba(255, 255, 255, 0.95);
+    --color-text-secondary: rgba(255, 255, 255, 0.70);
+    --color-text-tertiary: rgba(255, 255, 255, 0.50);
+    --color-file-button: #1A1A2E;
+    --color-file-button-hover: #12121E;
+  }
+
   @media (prefers-color-scheme: dark) {
     :root {
+      /* Primary Colors (Dark Mode - Purple) */
+      --color-primary: #8B5CF6;
+      --color-primary-hover: #A78BFA;
+      --color-primary-active: #7C3AED;
+      --color-primary-subtle: rgba(139, 92, 246, 0.15);
+
+      /* Surfaces (Dark Mode) */
+      --surface-base: #0A0A12;
+      --surface-raised: #12121E;
+      --surface-card: #1A1A2E;
+      --surface-sidebar: #12121E;
+      --surface-overlay: rgba(0, 0, 0, 0.7);
+
+      /* Text (Dark Mode) */
+      --text-primary: rgba(255, 255, 255, 0.95);
+      --text-secondary: rgba(255, 255, 255, 0.70);
+      --text-tertiary: rgba(255, 255, 255, 0.50);
+      --text-disabled: rgba(255, 255, 255, 0.30);
+      --text-on-primary: #FFFFFF;
+
+      /* Borders (Dark Mode) */
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-default: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --border-focus: #8B5CF6;
+
+      /* Status Colors (Dark Mode) */
+      --color-success: #10B981;
+      --color-success-bg: rgba(16, 185, 129, 0.10);
+      --color-warning: #FBBF24;
+      --color-warning-bg: rgba(251, 191, 36, 0.10);
+      --color-error: #F87171;
+      --color-error-bg: rgba(248, 113, 113, 0.10);
+      --color-info: #A78BFA;
+      --color-info-bg: rgba(139, 92, 246, 0.10);
+
+      /* Shadows (Dark Mode - Reduced) */
+      --shadow-xs: none;
+      --shadow-sm: none;
+      --shadow-md: none;
+      --shadow-lg: none;
+      --shadow-xl: none;
+
       /* App-specific color variables */
-      --color-primary: #1c3c3c;
       --color-user-message: #065a8a;
       --color-user-message-bg: #2d2d2d;
       --color-avatar-bg: #1c3c3c;
       --color-secondary: #bbc4c4;
-      --color-success: #34d399;
-      --color-warning: #fbbf24;
-      --color-error: #f87171;
-      --color-background: #202020;
+      --color-background: #0A0A12;
       --color-subagent-hover: #1e3f3f;
-      --color-surface: #2a2a2a;
-      --color-border: #404040;
+      --color-surface: #1A1A2E;
+      --color-border: #12121E;
       --color-border-light: #353535;
-      --color-text-primary: #f3f4f6;
-      --color-text-secondary: #9ca3af;
-      --color-text-tertiary: #6b7280;
-      --color-file-button: #2a2a2a;
-      --color-file-button-hover: #353535;
+      --color-text-primary: rgba(255, 255, 255, 0.95);
+      --color-text-secondary: rgba(255, 255, 255, 0.70);
+      --color-text-tertiary: rgba(255, 255, 255, 0.50);
+      --color-file-button: #1A1A2E;
+      --color-file-button-hover: #12121E;
 
       /* Tailwind/Radix UI component variables for dark mode */
       --radius: 0.5rem;
@@ -392,4 +614,151 @@ button {
   font-weight: 600;
   text-decoration: line-through;
   text-decoration-color: #f85149;
+}
+
+/* Welcome Page Input Wrap Styles */
+.welcome-input-wrap {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface);
+  border-radius: 0.5rem;
+  border: 2px solid var(--color-border);
+  padding: 1rem;
+  transition: all 150ms ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.welcome-input-wrap:focus-within {
+  border-color: #7c6bf0;
+  box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.15), 0 8px 24px rgba(124, 107, 240, 0.1);
+}
+
+.welcome-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  resize: none;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  min-height: 56px;
+  max-height: 120px;
+  font-family: inherit;
+}
+
+.welcome-input::placeholder {
+  color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .welcome-input-wrap {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .welcome-input-wrap:focus-within {
+    border-color: #7c6bf0;
+    box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.2), 0 8px 24px rgba(124, 107, 240, 0.15);
+  }
+
+  .welcome-input {
+    color: var(--color-text-primary);
+  }
+}
+
+/* Welcome Page Hint Button Styles */
+.welcome-hint {
+  padding: 1rem 1.5rem;
+  background: var(--color-surface);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 150ms ease;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.welcome-hint svg {
+  width: 16px;
+  height: 16px;
+  color: #7c6bf0;
+}
+
+.welcome-hint:hover {
+  background: linear-gradient(135deg, rgba(124, 107, 240, 0.15), rgba(56, 189, 248, 0.1));
+  color: var(--color-text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(124, 107, 240, 0.2);
+}
+
+.welcome-hint .hot-tag {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  .welcome-hint {
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .welcome-hint:hover {
+    background: linear-gradient(135deg, rgba(124, 107, 240, 0.2), rgba(56, 189, 248, 0.15));
+    color: var(--color-text-primary);
+    box-shadow: 0 4px 16px rgba(124, 107, 240, 0.3);
+  }
+
+  .welcome-hint svg {
+    color: #7c6bf0;
+  }
+}
+
+/* Toast Undo Button Styles */
+.toast.undo {
+  cursor: pointer;
+}
+
+.toast.undo:hover {
+  text-decoration: underline;
+}
+
+.toast-undo-btn {
+  margin-left: auto;
+  background: #7c6bf0;
+  color: #fff;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.toast-undo-btn:hover {
+  background: #6b59d9;
+  opacity: 0.9;
+}
+
+.toast-undo-btn:active {
+  transform: scale(0.95);
 }

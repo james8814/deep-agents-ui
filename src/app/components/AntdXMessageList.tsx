@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { Bubble } from "@ant-design/x";
+import { MessageCircle } from "lucide-react";
 import type { Message } from "@langchain/langgraph-sdk";
 import {
   convertMessagesToBubbles,
@@ -69,12 +70,25 @@ export const AntdXMessageList = React.memo<AntdXMessageListProps>(
       [bubbleItems, isLoading, interrupt, stream, onResumeInterrupt]
     );
 
+    // 空状态
+    const showEmptyState = bubbleItems.length === 0 && !isLoading;
+
     return (
-      <Bubble.List
-        items={bubbleItems}
-        role={roleConfig}
-        autoScroll
-      />
+      <>
+        {showEmptyState && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <MessageCircle className="h-12 w-12 text-muted-foreground/30" />
+            <p className="mt-4 text-sm text-muted-foreground">
+              开始对话，向 AI 助手提问
+            </p>
+          </div>
+        )}
+        <Bubble.List
+          items={bubbleItems}
+          role={roleConfig}
+          autoScroll
+        />
+      </>
     );
   }
 );

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Check, X, Pencil } from "lucide-react";
 import type { ActionRequest, ReviewConfig } from "@/app/types/types";
-import { cn } from "@/lib/utils";
+import { cn as _cn } from "@/lib/utils";
 
 interface ToolApprovalInterruptProps {
   actionRequest: ActionRequest;

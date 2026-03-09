@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useStream } from "@langchain/langgraph-sdk/react";
+import { useStream, type UseDeepAgentStreamOptions } from "@langchain/langgraph-sdk/react";
 import {
   type Message,
   type Assistant,
@@ -19,7 +19,7 @@ export type MultimodalContent = string | ContentBlock[];
 import { v4 as uuidv4 } from "uuid";
 import type { UseStreamThread } from "@langchain/langgraph-sdk/react";
 import type { TodoItem } from "@/app/types/types";
-import { useClient } from "@/providers/ClientProvider";
+import { useClient, useClientToken } from "@/providers/ClientProvider";
 import { useQueryState } from "nuqs";
 
 export type StateType = {
@@ -45,6 +45,29 @@ export function useChat({
 }) {
   const [threadId, setThreadId] = useQueryState("threadId");
   const client = useClient();
+  const token = useClientToken();
+
+  // 辅助函数：将 token 添加到 config.configurable
+  // 供后端 AuthMiddleware 读取，实现用户身份验证
+  const getConfigWithToken = (baseConfig?: Record<string, unknown>) => {
+    // 无 token 时直接返回原配置，避免不必要的对象分配
+    if (!token) {
+      return baseConfig;
+    }
+
+    const config = baseConfig ? { ...baseConfig } : {};
+    const configurable = config.configurable
+      ? { ...config.configurable as Record<string, unknown> }
+      : {};
+
+    // 将 token 放入 configurable 中，供后端 AuthMiddleware 读取
+    configurable.access_token = token;
+
+    return {
+      ...config,
+      configurable,
+    };
+  };
 
   // 智能错误处理：区分认证/网络错误和未知错误
   const handleStreamError = useCallback((error: unknown) => {
@@ -76,13 +99,15 @@ export function useChat({
     threadId: threadId ?? null,
     onThreadId: setThreadId,
     defaultHeaders: { "x-auth-scheme": "langsmith" },
+    // Enable SubAgent filtering for real-time event display
+    filterSubagentMessages: true,
     // Enable fetching state history when switching to existing threads
     fetchStateHistory: true,
     // Revalidate thread list when stream finishes, errors, or creates new thread
     onFinish: onHistoryRevalidate,
     onError: handleStreamError,
     onCreated: onHistoryRevalidate,
-  });
+  } as UseDeepAgentStreamOptions<StateType>);
 
   const sendMessage = useCallback(
     (content: MultimodalContent) => {
@@ -96,13 +121,13 @@ export function useChat({
           optimisticValues: (prev) => ({
             messages: [...(prev.messages ?? []), newMessage],
           }),
-          config: { ...(activeAssistant?.config ?? {}), recursion_limit: 200 },
+          config: getConfigWithToken(activeAssistant?.config as Record<string, unknown> ?? { recursion_limit: 200 }),
         }
       );
       // Update thread list immediately when sending a message
       onHistoryRevalidate?.();
     },
-    [stream, activeAssistant?.config, onHistoryRevalidate]
+    [stream, activeAssistant?.config, onHistoryRevalidate, token]
   );
 
   const runSingleStep = useCallback(
@@ -117,7 +142,7 @@ export function useChat({
           ...(optimisticMessages
             ? { optimisticValues: { messages: optimisticMessages } }
             : {}),
-          config: activeAssistant?.config,
+          config: getConfigWithToken(activeAssistant?.config as Record<string, unknown>),
           checkpoint: checkpoint,
           ...(isRerunningSubagent
             ? { interruptAfter: ["tools"] }
@@ -126,11 +151,11 @@ export function useChat({
       } else {
         stream.submit(
           { messages },
-          { config: activeAssistant?.config, interruptBefore: ["tools"] }
+          { config: getConfigWithToken(activeAssistant?.config as Record<string, unknown>), interruptBefore: ["tools"] }
         );
       }
     },
-    [stream, activeAssistant?.config]
+    [stream, activeAssistant?.config, token]
   );
 
   const setFiles = useCallback(
@@ -146,10 +171,10 @@ export function useChat({
   const continueStream = useCallback(
     (hasTaskToolCall?: boolean) => {
       stream.submit(undefined, {
-        config: {
-          ...(activeAssistant?.config || {}),
+        config: getConfigWithToken({
+          ...(activeAssistant?.config as Record<string, unknown> || {}),
           recursion_limit: 200,
-        },
+        } as Record<string, unknown>),
         ...(hasTaskToolCall
           ? { interruptAfter: ["tools"] }
           : { interruptBefore: ["tools"] }),
@@ -157,7 +182,7 @@ export function useChat({
       // Update thread list when continuing stream
       onHistoryRevalidate?.();
     },
-    [stream, activeAssistant?.config, onHistoryRevalidate]
+    [stream, activeAssistant?.config, onHistoryRevalidate, token]
   );
 
   const markCurrentThreadAsResolved = useCallback(() => {
@@ -200,11 +225,11 @@ export function useChat({
         optimisticValues: (prev) => ({
           messages: [...(prev.messages ?? []), newMessage],
         }),
-        config: { ...(activeAssistant?.config ?? {}), recursion_limit: 200 },
+        config: getConfigWithToken(activeAssistant?.config as Record<string, unknown> ?? { recursion_limit: 200 }),
       }
     );
     onHistoryRevalidate?.();
-  }, [stream, activeAssistant?.config, onHistoryRevalidate]);
+  }, [stream, activeAssistant?.config, onHistoryRevalidate, token]);
 
   return {
     stream,

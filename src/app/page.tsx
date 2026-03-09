@@ -52,63 +52,40 @@ function HomePageInner({
   const [assistant, setAssistant] = useState<Assistant | null>(null);
 
   const fetchAssistant = useCallback(async () => {
-    const isUUID =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        config.assistantId
-      );
+    const assistantId = config.assistantId;
+    if (!assistantId) {
+      console.warn("No assistantId configured");
+      return;
+    }
+
+    // 判断是否为 UUID 格式（Saved Assistant）
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assistantId);
 
     if (isUUID) {
-      // We should try to fetch the assistant directly with this UUID
+      // UUID 格式：尝试获取保存的 Assistant（Saved Assistant 场景）
       try {
-        const data = await client.assistants.get(config.assistantId);
+        const data = await client.assistants.get(assistantId);
         setAssistant(data);
-      } catch (error) {
-        console.error("Failed to fetch assistant:", error);
-        setAssistant({
-          assistant_id: config.assistantId,
-          graph_id: config.assistantId,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          config: {},
-          metadata: {},
-          version: 1,
-          name: "Assistant",
-          context: {},
-        });
-      }
-    } else {
-      try {
-        // We should try to list out the assistants for this graph, and then use the default one.
-        // TODO: Paginate this search, but 100 should be enough for graph name
-        const assistants = await client.assistants.search({
-          graphId: config.assistantId,
-          limit: 100,
-        });
-        const defaultAssistant = assistants.find(
-          (assistant) => assistant.metadata?.["created_by"] === "system"
-        );
-        if (defaultAssistant === undefined) {
-          throw new Error("No default assistant found");
-        }
-        setAssistant(defaultAssistant);
-      } catch (error) {
-        console.error(
-          "Failed to find default assistant from graph_id: try setting the assistant_id directly:",
-          error
-        );
-        setAssistant({
-          assistant_id: config.assistantId,
-          graph_id: config.assistantId,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          config: {},
-          metadata: {},
-          version: 1,
-          name: config.assistantId,
-          context: {},
-        });
+        return;
+      } catch {
+        // 助手不存在，使用 Assistant Reference
+        console.warn("Assistant not found, using reference");
       }
     }
+
+    // Graph name 格式：直接创建 Assistant Reference（无需搜索 API！）
+    // LangGraph Server 会自动解析 graph name 并创建临时的 Assistant
+    setAssistant({
+      assistant_id: assistantId,
+      graph_id: assistantId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      config: {},
+      metadata: {},
+      version: 1,
+      name: assistantId,
+      context: {},
+    });
   }, [client, config.assistantId]);
 
   useEffect(() => {

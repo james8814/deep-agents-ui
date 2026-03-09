@@ -274,7 +274,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                             }
                             // File attachment with filename
                             const filename = (block as { filename?: string }).filename || "File";
-                            const mediaType = (block as { source?: { media_type?: string } }).source?.media_type || "";
+                            const _mediaType = (block as { source?: { media_type?: string } }).source?.media_type || "";
                             const fileExt = filename.split('.').pop()?.toUpperCase() || "FILE";
                             return (
                               <div

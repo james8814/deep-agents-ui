@@ -5,6 +5,7 @@ import { Client } from "@langchain/langgraph-sdk";
 
 interface ClientContextValue {
   client: Client;
+  token: string | null | undefined;
 }
 
 const ClientContext = createContext<ClientContextValue | null>(null);
@@ -53,7 +54,8 @@ export function ClientProvider({
     });
   }, [deploymentUrl]);  // 只依赖 deploymentUrl，token 通过 ref 获取
 
-  const value = useMemo(() => ({ client }), [client]);
+  // 暴露 client 和 token
+  const value = useMemo(() => ({ client, token }), [client, token]);
 
   return (
     <ClientContext.Provider value={value}>{children}</ClientContext.Provider>
@@ -67,4 +69,14 @@ export function useClient(): Client {
     throw new Error("useClient must be used within a ClientProvider");
   }
   return context.client;
+}
+
+// 新增：获取当前 token 的 hook
+export function useClientToken(): string | null | undefined {
+  const context = useContext(ClientContext);
+
+  if (!context) {
+    throw new Error("useClientToken must be used within a ClientProvider");
+  }
+  return context.token;
 }

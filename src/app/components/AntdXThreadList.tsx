@@ -170,7 +170,7 @@ export const AntdXThreadList = React.memo<AntdXThreadListProps>(
     const activeKey = currentThreadId;
 
     // Handle load more for infinite scrolling
-    const handleLoadMore = useCallback(() => {
+    const _handleLoadMore = useCallback(() => {
       if (!isLoadingMore && !isReachingEnd) {
         threads.setSize((size) => size + 1);
       }

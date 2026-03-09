@@ -22,7 +22,7 @@ import { ChatMessage } from "@/app/components/ChatMessage";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import { AntdXMessageList } from "@/app/components/AntdXMessageList";
 import { AntdXSender, type MultimodalContent } from "@/app/components/AntdXSender";
-import { useFeatureFlag } from "@/lib/featureFlags";
+import { useUseAntdX } from "@/lib/featureFlags";
 import type {
   ToolCall,
   ActionRequest,
@@ -37,6 +37,12 @@ import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { useQueryState } from "nuqs";
+import { SubAgentCard, ConnectionStatus } from "./SubAgentCard";
+import {
+  transformSubagentData,
+  sortSubAgentsByTime,
+} from "@/app/types/subagent";
+import { Bot } from "lucide-react";
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
@@ -57,9 +63,9 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [, setContextPanel] = useQueryState("context");
   const [, setContextTab] = useQueryState("contextTab");
 
-  // Feature Flag for Ant Design X migration
-  const useAntdxMessageList = useFeatureFlag("USE_ANTDX_MESSAGE_LIST");
-  const useAntdxSender = useFeatureFlag("USE_ANTDX_SENDER");
+  // Unified Feature Flag for Ant Design X migration
+  // 使用统一的 useUseAntdX() hook，确保 UI 一致性
+  const useAntdX = useUseAntdX();
 
   // File viewing and delivery card state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
@@ -140,6 +146,16 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   // Notify user when interrupt occurs on background tab
   useInterruptNotification(interrupt);
 
+  // SubAgent list - transform and sort by start time
+  const subagentList = useMemo(() => {
+    if (!stream.subagents) return [];
+    const list = Array.from(stream.subagents.values()).map(transformSubagentData);
+    return sortSubAgentsByTime(list);
+  }, [stream.subagents, stream.isLoading, stream.error]);
+
+  // Connection status
+  const isConnected = !stream.error;
+
   // Track file metadata when files change
   useEffect(() => {
     const currentFilePaths = new Set(Object.keys(files));
@@ -210,6 +226,14 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
       // 构造包含文件引用的消息
       const content = constructMessageWithFiles(messageText, uploadedFiles);
+
+      // Analytics: track send
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "message_sent", {
+          message_length: messageText.length,
+          file_count: uploadedFiles.length,
+        });
+      }
 
       sendMessage(content);
       setInput("");
@@ -425,7 +449,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             <div className="flex items-center justify-center p-8">
               <p className="text-muted-foreground">Loading...</p>
             </div>
-          ) : useAntdxMessageList ? (
+          ) : useAntdX ? (
             <AntdXMessageList
               messages={messages}
               isLoading={isLoading}
@@ -501,6 +525,33 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         currentTool={currentExecutionInfo.tool}
       />
 
+      {/* SubAgent Status Panel */}
+      {subagentList.length > 0 ? (
+        <div className="space-y-2 border-t p-4">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <Bot size={14} />
+            SubAgent 执行状态
+            <span className="text-xs font-normal">({subagentList.length})</span>
+          </h3>
+          <ConnectionStatus isConnected={isConnected} isReconnecting={stream.isLoading} />
+          <div className="max-h-[400px] space-y-2 overflow-y-auto">
+            {subagentList.map((sa, idx) => (
+              <SubAgentCard
+                key={sa.id || `sa-${idx}`}
+                subagent={sa}
+                expandedHeight={sa.status === "running" ? 200 : 120}
+              />
+            ))}
+          </div>
+        </div>
+      ) : isLoading ? (
+        // Show subtle hint during loading even without subagents
+        <div className="flex items-center justify-center border-t px-4 py-2 text-xs text-muted-foreground">
+          <Bot size={14} className="mr-2" />
+          暂无子代理活动
+        </div>
+      ) : null}
+
       {/* Interrupt Banner — shows when agent needs human approval */}
       {interrupt && (
         <div className="flex items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
@@ -534,7 +585,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
       {/* Input Panel */}
       <div ref={inputPanelRef} className="flex-shrink-0 bg-background p-4 pt-2">
-        {useAntdxSender ? (
+        {useAntdX ? (
           <AntdXSender
             onSend={(content) => {
               handleSubmitWithContent(content as typeof content);
