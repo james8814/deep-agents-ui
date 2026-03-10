@@ -37,7 +37,7 @@ import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { useQueryState } from "nuqs";
-import { SubAgentCard, ConnectionStatus } from "./SubAgentCard";
+import SubAgentCard from "./SubAgentCard";
 import {
   transformSubagentData,
   sortSubAgentsByTime,
@@ -533,7 +533,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             SubAgent 执行状态
             <span className="text-xs font-normal">({subagentList.length})</span>
           </h3>
-          <ConnectionStatus isConnected={isConnected} isReconnecting={stream.isLoading} />
           <div className="max-h-[400px] space-y-2 overflow-y-auto">
             {subagentList.map((sa, idx) => (
               <SubAgentCard

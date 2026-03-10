@@ -36,5 +36,5 @@ export { ChatMessage } from './ChatMessage';
 export { ThreadList } from './ThreadList';
 export { TasksFilesSidebar } from './TasksFilesSidebar';
 export { Sidebar } from './Sidebar';
-export { SubAgentCard } from './SubAgentCard';
+export { default as SubAgentCard } from './SubAgentCard';
 export { ToolCallBox } from './ToolCallBox';

@@ -1,241 +1,119 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Loader2,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Bot,
-  Wrench,
-  ChevronDown,
-  ChevronRight,
-  AlertTriangle,
-  ExternalLink,
-} from "lucide-react";
-import type { SubAgentDisplayData, ToolCallDisplay } from "@/app/types/subagent";
+import React, { useState } from "react";
+import { ChevronDown, CheckCircle, AlertCircle, Clock, Loader } from "lucide-react";
+import type { SubAgentDisplayData } from "@/app/types/subagent";
 
 interface SubAgentCardProps {
   subagent: SubAgentDisplayData;
-  className?: string;
-  expandedHeight?: number; // 可配置高度
+  expandedHeight?: number;
 }
 
-/**
- * 状态配置映射 (增强版)
- */
-const STATUS_CONFIG: Record<
-  string,
-  {
-    bgClass: string;
-    textClass: string;
-    icon: typeof Clock;
-    label: string;
-  }
-> = {
-  pending: {
-    bgClass: "bg-secondary/50",
-    textClass: "text-secondary-foreground",
-    icon: Clock,
-    label: "等待中",
-  },
-  running: {
-    bgClass: "bg-primary/10",
-    textClass: "text-primary",
-    icon: Loader2,
-    label: "执行中",
-  },
-  complete: {
-    bgClass: "bg-green-500/10",
-    textClass: "text-green-600 dark:text-green-400",
-    icon: CheckCircle,
-    label: "已完成",
-  },
-  error: {
-    bgClass: "bg-destructive/10",
-    textClass: "text-destructive",
-    icon: XCircle,
-    label: "错误",
-  },
+const STATUS_ICONS = {
+  pending: <Clock className="h-4 w-4" />,
+  running: <Loader className="h-4 w-4 animate-spin" />,
+  success: <CheckCircle className="h-4 w-4" />,
+  error: <AlertCircle className="h-4 w-4" />,
 };
 
-/**
- * SubAgent 状态徽章
- */
-function StatusBadge({ status }: { status: string }) {
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
-  const { bgClass, textClass, icon: Icon, label } = config;
+const STATUS_COLORS = {
+  pending: "text-muted-foreground",
+  running: "text-primary animate-pulse",
+  success: "text-green-500",
+  error: "text-red-500",
+};
 
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${bgClass} ${textClass}`}
-    >
-      {status === "running" && <Icon className="animate-spin" size={12} />}
-      {status !== "running" && <Icon size={12} />}
-      {label}
-    </span>
-  );
-}
+const STATUS_LABELS = {
+  pending: "Pending",
+  running: "Running",
+  success: "Complete",
+  error: "Error",
+};
 
-/**
- * 单个工具调用展示 (增强版: 支持展开/收起)
- */
-function ToolCallItem({
-  toolCall,
-  maxArgLength = 150,
-}: {
-  toolCall: ToolCallDisplay;
-  maxArgLength?: number;
-}) {
+const SubAgentCard: React.FC<SubAgentCardProps> = ({ subagent, expandedHeight = 120 }) => {
   const [expanded, setExpanded] = useState(false);
+  const statusColor = STATUS_COLORS[subagent.status];
+  const statusLabel = STATUS_LABELS[subagent.status];
 
-  const { display: argsDisplay, truncated } = useMemo(() => {
-    try {
-      const jsonStr = JSON.stringify(toolCall.args, null, 0);
-      if (jsonStr.length <= maxArgLength) {
-        return { display: jsonStr, truncated: false };
-      }
-      return {
-        display: expanded ? jsonStr : jsonStr.slice(0, maxArgLength) + "...",
-        truncated: true,
-      };
-    } catch {
-      return { display: "[无法序列化]", truncated: false };
-    }
-  }, [toolCall.args, maxArgLength, expanded]);
+  const elapsedTime = subagent.startedAt
+    ? Math.round(((new Date().getTime() - subagent.startedAt.getTime()) / 1000))
+    : 0;
 
   return (
-    <div className="flex items-start gap-2 border-b border-border/30 py-2 last:border-0">
-      <Wrench size={14} className="mt-0.5 flex-shrink-0 text-muted-foreground" />
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium">{toolCall.name}</div>
-        <div className="max-w-full truncate font-mono text-xs text-muted-foreground">
-          {argsDisplay}
-        </div>
-        {truncated && (
-          <Button
-            variant="link"
-            size="sm"
-            className="h-auto p-0 text-xs"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? (
-              <>
-                <ChevronRight size={12} className="mr-1" />
-                收起
-              </>
-            ) : (
-              <>
-                <ChevronDown size={12} className="mr-1" />
-                展开 ({JSON.stringify(toolCall.args).length} 字符)
-              </>
-            )}
-          </Button>
-        )}
-        {toolCall.result && (
-          <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-            → {toolCall.result}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/**
- * 错误信息展示
- */
-function ErrorDisplay({ error }: { error?: string }) {
-  const [showDetail, setShowDetail] = useState(false);
-
-  if (!error) return null;
-
-  return (
-    <div className="mt-2 rounded-md bg-destructive/10 p-2">
-      <div className="flex items-start gap-2">
-        <AlertTriangle
-          size={14}
-          className="mt-0.5 flex-shrink-0 text-destructive"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-medium text-destructive">执行出错</div>
-          <div
-            className={`mt-1 text-xs text-destructive/80 ${
-              showDetail ? "whitespace-pre-wrap break-all" : "line-clamp-2"
-            }`}
-          >
-            {error}
-          </div>
-          {error.length > 100 && (
-            <Button
-              variant="link"
-              size="sm"
-              className="h-auto p-0 text-xs text-destructive"
-              onClick={() => setShowDetail(!showDetail)}
-            >
-              <ExternalLink size={12} className="mr-1" />
-              {showDetail ? "收起详情" : "查看详情"}
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * SubAgent 卡片组件 (使用现有 UI 组件)
- */
-export const SubAgentCard: React.FC<SubAgentCardProps> = ({
-  subagent,
-  className,
-  expandedHeight = 160,
-}) => {
-  const borderColor = useMemo(() => {
-    switch (subagent.status) {
-      case "running":
-        return "border-l-primary/50";
-      case "success":
-        return "border-l-green-500/50";
-      case "error":
-        return "border-l-destructive/50";
-      default:
-        return "border-l-border";
-    }
-  }, [subagent.status]);
-
-  const hasToolCalls = subagent.toolCalls && subagent.toolCalls.length > 0;
-  const hasError = subagent.status === "error" && subagent.error;
-
-  return (
-    <div
-      className={`rounded-lg border border-border bg-card ${borderColor} ${className}`}
-    >
+    <div className="overflow-hidden rounded-md border border-border bg-muted/30">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Bot size={16} className="text-muted-foreground" />
-          <span className="text-sm font-medium">{subagent.name}</span>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-2.5 text-left transition-colors hover:bg-muted/50"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className={`flex items-center ${statusColor}`}>
+              {STATUS_ICONS[subagent.status]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm truncate">{subagent.name}</div>
+              <div className={`text-xs ${statusColor}`}>{statusLabel}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {elapsedTime > 0 && (
+              <span className="text-xs text-muted-foreground">{elapsedTime}s</span>
+            )}
+            {subagent.toolCalls?.length > 0 && (
+              <span className="text-xs font-medium text-muted-foreground">
+                {subagent.toolCalls.length} tools
+              </span>
+            )}
+            <ChevronDown
+              className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
+                expanded ? "rotate-180" : ""
+              }`}
+            />
+          </div>
         </div>
-        <StatusBadge status={subagent.status} />
-      </div>
+      </button>
 
-      {/* Content */}
-      {(hasToolCalls || hasError) && (
-        <div className="px-4 py-2">
-          {hasError && <ErrorDisplay error={subagent.error} />}
-          {hasToolCalls && (
-            <ScrollArea className={`h-[${expandedHeight}px]`}>
-              {subagent.toolCalls.map((tc, idx) => (
-                <ToolCallItem key={tc.id || `tc-${idx}`} toolCall={tc} />
-              ))}
-            </ScrollArea>
+      {/* Expanded Content */}
+      {expanded && (
+        <div
+          className="border-t border-border p-2.5 space-y-2 bg-muted/20 overflow-y-auto"
+          style={{ maxHeight: `${expandedHeight}px` }}
+        >
+          {/* Tool Calls Section */}
+          {subagent.toolCalls?.length > 0 && (
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground mb-1">Tools</div>
+              <div className="space-y-1">
+                {subagent.toolCalls.map((call, idx) => (
+                  <div key={idx} className="rounded bg-background p-1.5 text-xs">
+                    <div className="font-medium text-primary mb-0.5">{call.name}</div>
+                    {call.args && Object.keys(call.args).length > 0 && (
+                      <div className="text-muted-foreground truncate">
+                        {JSON.stringify(call.args).substring(0, 100)}...
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
-          {subagent.result && !hasError && (
-            <div className="mt-2 rounded-md bg-muted/50 p-2">
-              <div className="line-clamp-3 text-xs text-muted-foreground">
+
+          {/* Error Section */}
+          {subagent.error && (
+            <div className="rounded bg-red-500/10 p-1.5">
+              <div className="text-xs font-medium text-red-600 mb-0.5">Error</div>
+              <div className="text-xs text-red-600 break-words">
+                {subagent.error}
+              </div>
+            </div>
+          )}
+
+          {/* Result Section */}
+          {subagent.result && (
+            <div className="rounded bg-green-500/10 p-1.5">
+              <div className="text-xs font-medium text-green-600 mb-0.5">Result</div>
+              <div className="text-xs text-green-600 break-words line-clamp-3">
                 {subagent.result}
               </div>
             </div>
@@ -248,31 +126,4 @@ export const SubAgentCard: React.FC<SubAgentCardProps> = ({
 
 SubAgentCard.displayName = "SubAgentCard";
 
-/**
- * 连接状态指示器
- */
-export function ConnectionStatus({
-  isConnected,
-  isReconnecting,
-}: {
-  isConnected: boolean;
-  isReconnecting?: boolean;
-}) {
-  if (isConnected) return null;
-
-  return (
-    <div className="flex items-center gap-2 rounded-md bg-yellow-50 px-3 py-2 text-xs text-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-200">
-      {isReconnecting ? (
-        <>
-          <Loader2 className="animate-spin" size={14} />
-          <span>正在重连...</span>
-        </>
-      ) : (
-        <>
-          <AlertTriangle size={14} />
-          <span>连接已断开</span>
-        </>
-      )}
-    </div>
-  );
-}
+export default SubAgentCard;

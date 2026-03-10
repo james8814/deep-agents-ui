@@ -138,7 +138,7 @@ function HomePageInner({
               onClick={() => setContextPanel(contextPanel ? null : "1")}
             >
               <PanelRight className="mr-2 h-4 w-4" />
-              Context
+              任务工作台
             </Button>
             <Button
               variant="default"

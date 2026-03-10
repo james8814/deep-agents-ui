@@ -116,7 +116,7 @@ export const RiskConfirmationAlert: React.FC<RiskConfirmationAlertProps> = ({
             onClick={handleReject}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "处理中..." : "拒绝"}
+            {isSubmitting ? "处理中..." : "拒绝执行"}
           </Button>
           <Button
             onClick={handleConfirm}

@@ -319,12 +319,12 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                   {copied ? (
                     <>
                       <Check size={12} className="text-success" />
-                      <span>Copied</span>
+                      <span>已复制到剪贴板</span>
                     </>
                   ) : (
                     <>
                       <Copy size={12} />
-                      <span>Copy</span>
+                      <span>复制</span>
                     </>
                   )}
                 </button>
@@ -340,7 +340,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <RefreshCw size={12} />
-                Regenerate
+                重新生成回复
               </button>
             </div>
           )}

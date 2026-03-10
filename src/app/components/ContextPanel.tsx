@@ -23,13 +23,14 @@ import { cn } from "@/lib/utils";
 import { useChatContext } from "@/providers/ChatProvider";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
+import SubAgentPanel from "@/app/components/SubAgentPanel";
 import type { TodoItem, FileItem, FileMetadata, FileSortBy } from "@/app/types/types";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useQueryState } from "nuqs";
 import { extractFileContent } from "@/app/utils/utils";
 
-type Tab = "tasks" | "files";
+type Tab = "tasks" | "files" | "subagents";
 
 interface ContextPanelProps {
   onClose: () => void;
@@ -37,7 +38,7 @@ interface ContextPanelProps {
 }
 
 export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab }) => {
-  const { todos, files, setFiles, isLoading, interrupt } = useChatContext();
+  const { todos, files, setFiles, isLoading, interrupt, subagents } = useChatContext();
   const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tasks");
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
@@ -175,7 +176,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="text-sm font-semibold">Context</h2>
+        <h2 className="text-sm font-semibold">任务工作台</h2>
         <Button
           variant="ghost"
           size="icon"
@@ -222,6 +223,18 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab
             </span>
           )}
         </button>
+        <button
+          onClick={() => setActiveTab("subagents")}
+          className={cn(
+            "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
+            activeTab === "subagents"
+              ? "border-b-2 border-primary text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <span className="text-sm">🤖</span>
+          子代理
+        </button>
         {activeTab === "files" && (
           <Button
             variant="ghost"
@@ -257,6 +270,9 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab
             threadId={threadId}
             files={files}
           />
+        )}
+        {activeTab === "subagents" && (
+          <SubAgentPanel subagents={subagents} />
         )}
         {activeTab === "files" && viewingFile && (
           <InlineFileViewer

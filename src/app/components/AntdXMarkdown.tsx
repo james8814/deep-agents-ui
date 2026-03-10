@@ -80,12 +80,12 @@ const CodeBlockWrapper = memo(function CodeBlockWrapper({
         {copied ? (
           <>
             <Check size={12} className="text-green-400" />
-            <span>Copied</span>
+            <span>已复制到剪贴板</span>
           </>
         ) : (
           <>
             <Copy size={12} />
-            <span>Copy</span>
+            <span>复制</span>
           </>
         )}
       </button>

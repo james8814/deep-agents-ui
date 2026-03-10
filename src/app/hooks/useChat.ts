@@ -26,6 +26,7 @@ export type StateType = {
   messages: Message[];
   todos: TodoItem[];
   files: Record<string, string>;
+  subagents?: Record<string, any>;
   email?: {
     id?: string;
     subject?: string;
@@ -101,6 +102,9 @@ export function useChat({
     onFinish: onHistoryRevalidate,
     onError: handleStreamError,
     onCreated: onHistoryRevalidate,
+    fetchStateHistory: true,
+    // Enable SubAgent message filtering to stream SubAgent execution logs to frontend
+    filterSubagentMessages: true,
   });
 
   const sendMessage = useCallback(
@@ -229,6 +233,7 @@ export function useChat({
     stream,
     todos: stream.values.todos ?? [],
     files: stream.values.files ?? {},
+    subagents: stream.values.subagents ?? {},
     email: stream.values.email,
     ui: stream.values.ui,
     setFiles,

@@ -29,7 +29,7 @@ const TOOL_CONFIG: Record<string, {
   // 默认配置（兼容其他可能的 HIL 工具）
   default: {
     approveLabel: "批准",
-    rejectLabel: "拒绝",
+    rejectLabel: "拒绝执行",
     feedbackLabel: "您的回复",
     feedbackPlaceholder: "请输入您的反馈...",
     description: "操作确认",
