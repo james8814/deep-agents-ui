@@ -11,7 +11,7 @@ export const BubbleMarkdown = React.memo<BubbleMarkdownProps>(({ content }) => {
   if (!content) return null;
 
   return (
-    <div className="prose prose-sm max-w-none dark:prose-invert">
+    <div className="prose prose-sm dark:prose-invert max-w-none">
       <AntdXMarkdown content={content} />
     </div>
   );

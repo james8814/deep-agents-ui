@@ -12,13 +12,16 @@ interface InterruptActionsProps {
 }
 
 // 工具特定的按钮文案配置
-const TOOL_CONFIG: Record<string, {
-  approveLabel: string;
-  rejectLabel: string;
-  feedbackLabel: string;
-  feedbackPlaceholder: string;
-  description: string;
-}> = {
+const TOOL_CONFIG: Record<
+  string,
+  {
+    approveLabel: string;
+    rejectLabel: string;
+    feedbackLabel: string;
+    feedbackPlaceholder: string;
+    description: string;
+  }
+> = {
   submit_deliverable: {
     approveLabel: "验收通过",
     rejectLabel: "需要修改",
@@ -80,7 +83,7 @@ export const InterruptActions = React.memo<InterruptActionsProps>(
       <div className="mt-3 space-y-3">
         {/* 工具描述标签 */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded bg-primary/10 px-2 py-0.5 text-primary">
+          <span className="bg-primary/10 rounded px-2 py-0.5 text-primary">
             {config.description}
           </span>
           <span>等待您的确认</span>

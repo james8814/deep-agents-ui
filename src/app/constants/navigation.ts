@@ -10,16 +10,16 @@
  */
 export const MAIN_NAV_ITEMS = [
   {
-    id: 'chat',
-    label: '对话',
-    href: '/',
-    iconName: 'message-circle' as const,
+    id: "chat",
+    label: "对话",
+    href: "/",
+    iconName: "message-circle" as const,
   },
   {
-    id: 'files',
-    label: '文件',
-    href: '/files',
-    iconName: 'file-text' as const,
+    id: "files",
+    label: "文件",
+    href: "/files",
+    iconName: "file-text" as const,
   },
 ] as const;
 
@@ -29,22 +29,22 @@ export const MAIN_NAV_ITEMS = [
  */
 export const USER_MENU_ITEMS = [
   {
-    id: 'profile',
-    label: '个人资料',
-    href: '/profile',
-    icon: 'user',
+    id: "profile",
+    label: "个人资料",
+    href: "/profile",
+    icon: "user",
   },
   {
-    id: 'settings',
-    label: '设置',
-    href: '/settings',
-    icon: 'settings',
+    id: "settings",
+    label: "设置",
+    href: "/settings",
+    icon: "settings",
   },
   {
-    id: 'help',
-    label: '帮助',
-    href: '/help',
-    icon: 'help-circle',
+    id: "help",
+    label: "帮助",
+    href: "/help",
+    icon: "help-circle",
   },
 ];
 
@@ -53,19 +53,19 @@ export const USER_MENU_ITEMS = [
  */
 export const KEYBOARD_SHORTCUTS = {
   TOGGLE_SIDEBAR: {
-    mac: '⌘ + /',
-    windows: 'Ctrl + /',
-    description: '切换侧边栏',
+    mac: "⌘ + /",
+    windows: "Ctrl + /",
+    description: "切换侧边栏",
   },
   NEW_CHAT: {
-    mac: '⌘ + N',
-    windows: 'Ctrl + N',
-    description: '新建对话',
+    mac: "⌘ + N",
+    windows: "Ctrl + N",
+    description: "新建对话",
   },
   SEND_MESSAGE: {
-    mac: '⌘ + Enter',
-    windows: 'Ctrl + Enter',
-    description: '发送消息',
+    mac: "⌘ + Enter",
+    windows: "Ctrl + Enter",
+    description: "发送消息",
   },
 };
 
@@ -75,7 +75,8 @@ export const KEYBOARD_SHORTCUTS = {
 export function getKeyboardShortcutLabel(
   shortcutKey: keyof typeof KEYBOARD_SHORTCUTS
 ): string {
-  const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
+  const isMac =
+    typeof navigator !== "undefined" && /Mac/i.test(navigator.platform);
   const shortcut = KEYBOARD_SHORTCUTS[shortcutKey];
   return isMac ? shortcut.mac : shortcut.windows;
 }

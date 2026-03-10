@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useMemo, useCallback, useState, useEffect, useRef } from "react";
+import React, {
+  useMemo,
+  useCallback,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { Conversations } from "@ant-design/x";
 import type { ConversationsProps } from "@ant-design/x";
 import { isToday, isYesterday, subDays } from "date-fns";
@@ -74,7 +80,10 @@ function LoadingState() {
   return (
     <div className="space-y-2 p-4">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-16 w-full" />
+        <Skeleton
+          key={i}
+          className="h-16 w-full"
+        />
       ))}
     </div>
   );
@@ -125,8 +134,7 @@ export const AntdXThreadList = React.memo<AntdXThreadListProps>(
     const isLoadingMore =
       threads.size > 0 && threads.data?.[threads.size - 1] == null;
     const isEmpty = threads.data?.at(0)?.length === 0;
-    const isReachingEnd =
-      isEmpty || (threads.data?.at(-1)?.length ?? 0) < 20;
+    const isReachingEnd = isEmpty || (threads.data?.at(-1)?.length ?? 0) < 20;
 
     const interruptedCount = useMemo(() => {
       return flattened.filter((t) => t.status === "interrupted").length;
@@ -207,10 +215,16 @@ export const AntdXThreadList = React.memo<AntdXThreadListProps>(
                 <SelectGroup>
                   <SelectLabel>Active</SelectLabel>
                   <SelectItem value="idle">
-                    <StatusFilterItem status="idle" label="Idle" />
+                    <StatusFilterItem
+                      status="idle"
+                      label="Idle"
+                    />
                   </SelectItem>
                   <SelectItem value="busy">
-                    <StatusFilterItem status="busy" label="Busy" />
+                    <StatusFilterItem
+                      status="busy"
+                      label="Busy"
+                    />
                   </SelectItem>
                 </SelectGroup>
                 <SelectSeparator />
@@ -224,7 +238,10 @@ export const AntdXThreadList = React.memo<AntdXThreadListProps>(
                     />
                   </SelectItem>
                   <SelectItem value="error">
-                    <StatusFilterItem status="error" label="Error" />
+                    <StatusFilterItem
+                      status="error"
+                      label="Error"
+                    />
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>

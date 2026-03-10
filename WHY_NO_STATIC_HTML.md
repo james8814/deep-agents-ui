@@ -2,7 +2,7 @@
 
 ## 问题分析
 
-您提出的问题很有道理:"为什么我还是没看到 5.26 的 html?" 
+您提出的问题很有道理:"为什么我还是没看到 5.26 的 html?"
 
 答案是:**v5.26 的 HTML 确实存在，但不是传统的静态 HTML 文件，而是 Next.js RSC (React Server Component) 格式。**
 
@@ -20,13 +20,13 @@
 
 ### 2. 为什么这样设计？
 
-| 因素 | 传统 HTML | RSC 模式 |
-|------|-----------|---------|
+| 因素     | 传统 HTML   | RSC 模式 |
+| -------- | ----------- | -------- |
 | 文件大小 | 通常 500KB+ | 50-100KB |
-| CSS 加载 | 同步阻塞 | 异步加载 |
-| 交互性 | 需要重建 | 动态更新 |
-| SEO | 适合 | 也适合 |
-| 开发速度 | 慢 | 快 |
+| CSS 加载 | 同步阻塞    | 异步加载 |
+| 交互性   | 需要重建    | 动态更新 |
+| SEO      | 适合        | 也适合   |
+| 开发速度 | 慢          | 快       |
 
 ### 3. HTML 文件在哪里？
 
@@ -47,6 +47,7 @@
 ## v5.26 设计系统在哪里？
 
 ### ✅ CSS 设计系统 (80+ 变量)
+
 ```
 src/app/globals.css        ← 所有 CSS 变量定义
   ├── Tailwind Core (20)
@@ -54,6 +55,7 @@ src/app/globals.css        ← 所有 CSS 变量定义
 ```
 
 ### ✅ React 组件代码
+
 ```
 src/app/components/
   ├── ChatInterface.tsx    ← 使用 v5.26 设计
@@ -63,9 +65,10 @@ src/app/components/
 ```
 
 ### ✅ Tailwind 类名
+
 ```
 <div class="bg-background">           ← Tailwind 类
-<!-- 
+<!--
   解析为:
   background: hsl(var(--background))
   = hsl(0 0% 100%)
@@ -74,6 +77,7 @@ src/app/components/
 ```
 
 ### ❌ 传统静态 HTML
+
 ```
 不存在单独的 v5.26.html 文件
 ```
@@ -93,6 +97,7 @@ open http://localhost:3000/login
 ```
 
 您会看到:
+
 - ✅ 白色背景
 - ✅ 紫色登录按钮 (#7C3AED)
 - ✅ 简洁的设计
@@ -104,6 +109,7 @@ grep -A 80 ":root {" src/app/globals.css
 ```
 
 输出:
+
 ```css
 --background: 0 0% 100%;           ← 白色
 --foreground: 20 14.3% 4.1%;       ← 深灰
@@ -118,6 +124,7 @@ cat src/app/\(auth\)/login/page.tsx
 ```
 
 看到:
+
 ```tsx
 <div className="flex min-h-screen items-center justify-center bg-background p-4">
   <div className="w-full max-w-md space-y-6 rounded-xl border border-border bg-card p-8 shadow-sm">
@@ -142,6 +149,7 @@ V5.26_DESIGN_DEMO.html
 **是的，完成了！**
 
 ✅ v5.26 设计系统已完全集成:
+
 - CSS 变量系统 (80+ 变量)
 - React 组件使用这些变量
 - Tailwind 类名映射到 CSS 变量
@@ -149,6 +157,7 @@ V5.26_DESIGN_DEMO.html
 - 运行时正确渲染
 
 ❌ 但没有单独的"v5.26.html"文件供您下载
+
 - 这是因为 Next.js 16 使用 RSC 架构
 - HTML 在浏览器运行时才完全渲染
 
@@ -157,6 +166,7 @@ V5.26_DESIGN_DEMO.html
 ## 理解 Next.js RSC 流程
 
 ### 传统方式 (旧的静态生成)
+
 ```
 1. 构建时: Compile → 生成完整的 static.html
 2. 部署: 上传 static.html 文件
@@ -164,10 +174,11 @@ V5.26_DESIGN_DEMO.html
 ```
 
 ### Next.js RSC 方式 (现代)
+
 ```
 1. 构建时: Compile → 生成 RSC 组件树 (.next/server/)
 2. 部署: 上传 Next.js 服务器 + JS 文件
-3. 浏览器: 
+3. 浏览器:
    a. 请求 /login
    b. 服务器返回初始 HTML (只有结构)
    c. JavaScript 加载并执行
@@ -180,6 +191,7 @@ V5.26_DESIGN_DEMO.html
 ## v5.26 CSS 变量的完整列表
 
 ### Tailwind Core (20 个)
+
 ```css
 --background, --foreground          ← 背景和文字
 --card, --card-foreground
@@ -193,6 +205,7 @@ V5.26_DESIGN_DEMO.html
 ```
 
 ### v5.26 Custom (60+ 个)
+
 ```css
 /* 品牌色 */
 --brand-gradient
@@ -225,13 +238,13 @@ V5.26_DESIGN_DEMO.html
 
 ## 总结
 
-| 方面 | 状态 |
-|------|------|
-| CSS 设计系统 | ✅ 完整定义 |
-| React 组件 | ✅ 使用设计系统 |
-| Tailwind 映射 | ✅ 正确配置 |
-| 构建验证 | ✅ 0 错误 |
-| 运行验证 | ✅ HTTP 200 |
+| 方面               | 状态                     |
+| ------------------ | ------------------------ |
+| CSS 设计系统       | ✅ 完整定义              |
+| React 组件         | ✅ 使用设计系统          |
+| Tailwind 映射      | ✅ 正确配置              |
+| 构建验证           | ✅ 0 错误                |
+| 运行验证           | ✅ HTTP 200              |
 | **静态 HTML 文件** | ❌ **不存在 (RSC 架构)** |
 
 ---
@@ -246,6 +259,7 @@ V5.26_DESIGN_DEMO.html
 - 新方式: 运行时动态渲染 (Next.js RSC)
 
 这是现代 Web 开发的标准做法，提供更好的:
+
 - 性能 (代码分割)
 - 开发体验 (热更新)
 - SEO (服务端优化)

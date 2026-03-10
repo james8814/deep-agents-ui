@@ -176,7 +176,11 @@ export function extractFileContent(rawContent: unknown): string {
   if (typeof rawContent === "string") {
     return rawContent;
   }
-  if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
+  if (
+    typeof rawContent === "object" &&
+    rawContent !== null &&
+    "content" in rawContent
+  ) {
     const content = (rawContent as { content: unknown }).content;
     if (Array.isArray(content)) {
       return content.join("\n");

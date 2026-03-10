@@ -43,12 +43,28 @@ interface ToolCallBoxEnhancedProps {
 
 // Tool-specific risk assessment
 const TOOL_RISK_MAP: Record<string, RiskBadgeConfig> = {
-  "read_file": { level: "low", label: "Read-only" },
-  "write_file": { level: "high", label: "Write Risk", description: "Modifies files" },
-  "delete_file": { level: "critical", label: "Delete Risk", description: "Removes files" },
-  "execute_command": { level: "critical", label: "Execute Risk", description: "Runs system commands" },
-  "search_web": { level: "low", label: "Safe" },
-  "api_call": { level: "medium", label: "API Call", description: "External API request" },
+  read_file: { level: "low", label: "Read-only" },
+  write_file: {
+    level: "high",
+    label: "Write Risk",
+    description: "Modifies files",
+  },
+  delete_file: {
+    level: "critical",
+    label: "Delete Risk",
+    description: "Removes files",
+  },
+  execute_command: {
+    level: "critical",
+    label: "Execute Risk",
+    description: "Runs system commands",
+  },
+  search_web: { level: "low", label: "Safe" },
+  api_call: {
+    level: "medium",
+    label: "API Call",
+    description: "External API request",
+  },
 };
 
 const getRiskLevel = (toolName: string): RiskBadgeConfig => {
@@ -114,7 +130,10 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
     }, [toolCall]);
 
     const risk = useMemo(
-      () => riskLevel ? { level: riskLevel } as RiskBadgeConfig : getRiskLevel(name),
+      () =>
+        riskLevel
+          ? ({ level: riskLevel } as RiskBadgeConfig)
+          : getRiskLevel(name),
       [name, riskLevel]
     );
 
@@ -191,10 +210,10 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
         className={cn(
           "w-full overflow-hidden rounded-lg border transition-all duration-200",
           status === "interrupted"
-            ? "border-warning/50 bg-warning/5 ring-2 ring-warning/20"
+            ? "border-warning/50 bg-warning/5 ring-warning/20 ring-2"
             : isExpanded && hasContent
-              ? "border-border bg-accent/30"
-              : "border-border/50 hover:border-border hover:bg-accent/10"
+            ? "border-border bg-accent/30"
+            : "border-border/50 hover:border-border hover:bg-accent/10"
         )}
         role="region"
         aria-label={`Tool call: ${name}`}
@@ -225,7 +244,7 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
             {risk && (
               <div
                 className={cn(
-                  "flex-shrink-0 flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+                  "flex flex-shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
                   getRiskColor(risk.level)
                 )}
                 title={risk.description}
@@ -244,8 +263,8 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
                     : `${(executionTime / 1000).toFixed(1)}s`}
                 </span>
               )}
-              {hasContent && (
-                isExpanded ? (
+              {hasContent &&
+                (isExpanded ? (
                   <ChevronUp
                     size={16}
                     className="flex-shrink-0 text-muted-foreground"
@@ -255,8 +274,7 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
                     size={16}
                     className="flex-shrink-0 text-muted-foreground"
                   />
-                )
-              )}
+                ))}
             </div>
           </div>
         </Button>
@@ -310,7 +328,10 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
                         </button>
                       )}
                     </div>
-                    <ToolArgsRenderer name={name} args={args} />
+                    <ToolArgsRenderer
+                      name={name}
+                      args={args}
+                    />
                   </div>
                 )}
 
@@ -319,7 +340,9 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
                     <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Result
                     </h4>
-                    {name === "view_image" && typeof result === "object" && result !== null ? (
+                    {name === "view_image" &&
+                    typeof result === "object" &&
+                    result !== null ? (
                       <ViewImageResult result={result} />
                     ) : (
                       <div className="overflow-x-auto rounded-sm border border-border bg-muted/40">

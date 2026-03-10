@@ -3,6 +3,7 @@
 ## 🚀 Quick Start
 
 ### Installation
+
 1. Copy components to `src/app/components/`
 2. Copy tests to `src/app/components/__tests__/`
 3. Copy types to `src/app/components/types/`
@@ -10,6 +11,7 @@
 5. Import and use!
 
 ### Import Statements
+
 ```typescript
 // Input Area
 import { InputArea } from "@/app/components/InputArea";
@@ -21,7 +23,7 @@ import { ToolCallBoxEnhanced } from "@/app/components/ToolCallBoxEnhanced";
 import {
   MessageListEnhanced,
   CodeBlock,
-  CollapsibleMessage
+  CollapsibleMessage,
 } from "@/app/components/MessageListEnhanced";
 
 // Types
@@ -38,6 +40,7 @@ import type {
 ## 📋 Component Cheat Sheet
 
 ### InputArea
+
 ```typescript
 <InputArea
   input={input}
@@ -58,11 +61,13 @@ import type {
 ```
 
 **Key Props**:
+
 - `executionTime`: number in seconds (auto-formats to ms/s/m)
 - `sendStatus`: "idle" | "sending" | "error"
 - `inputExpanded`: boolean for expand/collapse state
 
 ### ToolCallBoxEnhanced
+
 ```typescript
 <ToolCallBoxEnhanced
   toolCall={toolCall}
@@ -74,12 +79,14 @@ import type {
 ```
 
 **Risk Levels**:
+
 - `"low"` → Green (Read-only)
 - `"medium"` → Yellow (API Call)
 - `"high"` → Orange (Write Risk)
 - `"critical"` → Red (Execute/Delete Risk)
 
 ### MessageListEnhanced
+
 ```typescript
 <MessageListEnhanced
   messages={messages}
@@ -88,6 +95,7 @@ import type {
 ```
 
 **Subcomponents**:
+
 - `CodeBlock` - with copy button & language badge
 - `CollapsibleMessage` - auto-expands >20 lines
 
@@ -95,13 +103,13 @@ import type {
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action | Mode |
-|----------|--------|------|
-| `Enter` | Send message | Compact |
-| `Cmd/Ctrl+Enter` | Send message | Any |
-| `Shift+Enter` | New line | Any |
-| `Tab` | Focus next | Any |
-| `Shift+Tab` | Focus previous | Any |
+| Shortcut         | Action         | Mode    |
+| ---------------- | -------------- | ------- |
+| `Enter`          | Send message   | Compact |
+| `Cmd/Ctrl+Enter` | Send message   | Any     |
+| `Shift+Enter`    | New line       | Any     |
+| `Tab`            | Focus next     | Any     |
+| `Shift+Tab`      | Focus previous | Any     |
 
 ---
 
@@ -145,6 +153,7 @@ npm run test -- --coverage
 ```
 
 **Test Coverage**:
+
 - InputArea: 28 tests, 92% coverage
 - ToolCallBoxEnhanced: 25 tests, 89% coverage
 - Total: 53 tests, 90%+ coverage
@@ -154,15 +163,17 @@ npm run test -- --coverage
 ## 🐛 Troubleshooting
 
 ### Textarea height not updating
+
 ```typescript
 // ✅ Correct: Include input in dependency array
 useEffect(() => {
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
 }, [input]); // ← Important!
 ```
 
 ### Risk badge not showing
+
 ```typescript
 // Check Tailwind config has color definitions
 // tailwind.config.js must include:
@@ -181,6 +192,7 @@ module.exports = {
 ```
 
 ### Copy button not working
+
 ```typescript
 // Check clipboard API is available
 if (navigator.clipboard) {
@@ -189,6 +201,7 @@ if (navigator.clipboard) {
 ```
 
 ### Focus indicators not visible
+
 ```css
 /* ✅ Keep focus-visible styles */
 .focus-visible\:ring-2 {
@@ -196,7 +209,9 @@ if (navigator.clipboard) {
 }
 
 /* ❌ Don't do this */
-* { outline: none; } /* Removes all focus indicators */
+* {
+  outline: none;
+} /* Removes all focus indicators */
 ```
 
 ---
@@ -204,6 +219,7 @@ if (navigator.clipboard) {
 ## 📊 Performance Tips
 
 **Memoization**:
+
 ```typescript
 // ✅ All components use React.memo
 export const InputArea = React.memo<InputAreaProps>(({ ... }) => {
@@ -212,6 +228,7 @@ export const InputArea = React.memo<InputAreaProps>(({ ... }) => {
 ```
 
 **Callbacks**:
+
 ```typescript
 // ✅ Use useCallback for stable references
 const handleSubmit = useCallback(() => {
@@ -220,12 +237,16 @@ const handleSubmit = useCallback(() => {
 ```
 
 **State**:
+
 ```typescript
 // ✅ Use useMemo for computed values
-const state = useMemo(() => ({
-  charCount: input.length,
-  hasContent: input.trim().length > 0,
-}), [input]);
+const state = useMemo(
+  () => ({
+    charCount: input.length,
+    hasContent: input.trim().length > 0,
+  }),
+  [input]
+);
 ```
 
 ---
@@ -272,9 +293,9 @@ export const useEnhancedMessageList = useFeatureFlag("ENHANCED_MESSAGE_LIST");
 
 // Usage
 if (useEnhancedInputArea) {
-  <InputArea {...props} />
+  <InputArea {...props} />;
 } else {
-  <OldInputArea {...props} />
+  <OldInputArea {...props} />;
 }
 ```
 
@@ -291,8 +312,12 @@ type RiskLevel = "low" | "medium" | "high" | "critical";
 type ToolStatus = "pending" | "completed" | "error" | "interrupted";
 
 // Component props
-interface InputAreaProps { /* ... */ }
-interface ToolCallBoxEnhancedProps { /* ... */ }
+interface InputAreaProps {
+  /* ... */
+}
+interface ToolCallBoxEnhancedProps {
+  /* ... */
+}
 
 // Risk badge
 interface RiskBadgeConfig {
@@ -316,12 +341,13 @@ interface ToolCall {
 ## 🚨 Common Pitfalls
 
 ### ❌ Don't
+
 ```typescript
 // ❌ Passing new objects as props
 <InputArea
   {...props}
   onInputChange={() => {}} // Creates new function each render!
-/>
+/>;
 
 // ❌ Missing dependencies
 const handleSubmit = useCallback(() => {
@@ -335,6 +361,7 @@ if (condition) {
 ```
 
 ### ✅ Do
+
 ```typescript
 // ✅ Use useCallback for stable references
 const handleInputChange = useCallback((value: string) => {
@@ -358,15 +385,18 @@ if (condition) {
 ## 📞 Support
 
 ### Documentation Files
+
 - **Full Guide**: `DAY3_IMPLEMENTATION_GUIDE.md`
 - **Delivery Summary**: `DAY3_DELIVERY_SUMMARY.md`
 - **This Card**: `DAY3_QUICK_REFERENCE.md`
 
 ### Test Examples
+
 - **InputArea Tests**: `src/app/components/__tests__/InputArea.test.tsx`
 - **ToolCallBox Tests**: `src/app/components/__tests__/ToolCallBoxEnhanced.test.tsx`
 
 ### Type Definitions
+
 - **All Types**: `src/app/components/types/enhanced-components.types.ts`
 
 ---

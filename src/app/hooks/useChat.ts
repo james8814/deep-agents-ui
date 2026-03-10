@@ -13,7 +13,11 @@ import {
 export type ContentBlock =
   | { type: "text"; text: string }
   | { type: "image_url"; image_url: { url: string } }
-  | { type: "file"; source: { type: "base64"; media_type: string; data: string }; filename?: string };
+  | {
+      type: "file";
+      source: { type: "base64"; media_type: string; data: string };
+      filename?: string;
+    };
 
 export type MultimodalContent = string | ContentBlock[];
 import { v4 as uuidv4 } from "uuid";
@@ -58,7 +62,7 @@ export function useChat({
 
     const config = baseConfig ? { ...baseConfig } : {};
     const configurable = config.configurable
-      ? { ...config.configurable as Record<string, unknown> }
+      ? { ...(config.configurable as Record<string, unknown>) }
       : {};
 
     // 将 token 放入 configurable 中，供后端 AuthMiddleware 读取
@@ -71,27 +75,36 @@ export function useChat({
   };
 
   // 智能错误处理：区分认证/网络错误和未知错误
-  const handleStreamError = useCallback((error: unknown) => {
-    const msg = error instanceof Error ? error.message : String(error);
-    const isAuthError = /401|403|unauthorized|forbidden/i.test(msg);
-    const isNetworkError = /failed to fetch|network\s*error|abort|timeout|ECONNREFUSED|ERR_CONNECTION/i.test(msg);
+  const handleStreamError = useCallback(
+    (error: unknown) => {
+      const msg = error instanceof Error ? error.message : String(error);
+      const isAuthError = /401|403|unauthorized|forbidden/i.test(msg);
+      const isNetworkError =
+        /failed to fetch|network\s*error|abort|timeout|ECONNREFUSED|ERR_CONNECTION/i.test(
+          msg
+        );
 
-    if (isAuthError) {
-      // 认证错误由 AuthContext 统一处理，降级为 debug 日志
-      console.debug("[useChat] 认证错误（由 AuthContext 处理）:", msg);
-    } else if (isNetworkError) {
-      // 网络错误会自动重连，降级为 debug 日志
-      console.debug("[useChat] 网络错误（将自动重连）:", msg);
-    } else if (/BlockingError|internal error occurred/i.test(msg)) {
-      // 服务端 BlockingError：后端存在同步阻塞 I/O 操作，需后端排查
-      console.warn("[useChat] 服务端内部错误（BlockingError），请检查后端日志:", msg);
-    } else {
-      // 未知错误保留 error 级别
-      console.error("[useChat] Stream 错误:", error);
-    }
-    // 无论何种错误都刷新 thread 列表
-    onHistoryRevalidate?.();
-  }, [onHistoryRevalidate]);
+      if (isAuthError) {
+        // 认证错误由 AuthContext 统一处理，降级为 debug 日志
+        console.debug("[useChat] 认证错误（由 AuthContext 处理）:", msg);
+      } else if (isNetworkError) {
+        // 网络错误会自动重连，降级为 debug 日志
+        console.debug("[useChat] 网络错误（将自动重连）:", msg);
+      } else if (/BlockingError|internal error occurred/i.test(msg)) {
+        // 服务端 BlockingError：后端存在同步阻塞 I/O 操作，需后端排查
+        console.warn(
+          "[useChat] 服务端内部错误（BlockingError），请检查后端日志:",
+          msg
+        );
+      } else {
+        // 未知错误保留 error 级别
+        console.error("[useChat] Stream 错误:", error);
+      }
+      // 无论何种错误都刷新 thread 列表
+      onHistoryRevalidate?.();
+    },
+    [onHistoryRevalidate]
+  );
 
   const stream = useStream<StateType>({
     assistantId: activeAssistant?.assistant_id || "",
@@ -103,8 +116,6 @@ export function useChat({
     onError: handleStreamError,
     onCreated: onHistoryRevalidate,
     fetchStateHistory: true,
-    // Enable SubAgent message filtering to stream SubAgent execution logs to frontend
-    filterSubagentMessages: true,
   });
 
   const sendMessage = useCallback(
@@ -112,14 +123,22 @@ export function useChat({
       // Cast content to any to support extended content types (file blocks)
       // The SDK's MessageContent type only supports text and image_url,
       // but the backend may support additional types like file blocks
-      const newMessage: Message = { id: uuidv4(), type: "human", content: content as Message["content"] };
+      const newMessage: Message = {
+        id: uuidv4(),
+        type: "human",
+        content: content as Message["content"],
+      };
       stream.submit(
         { messages: [newMessage] },
         {
           optimisticValues: (prev) => ({
             messages: [...(prev.messages ?? []), newMessage],
           }),
-          config: getConfigWithToken(activeAssistant?.config as Record<string, unknown> ?? { recursion_limit: 200 }),
+          config: getConfigWithToken(
+            (activeAssistant?.config as Record<string, unknown>) ?? {
+              recursion_limit: 200,
+            }
+          ),
         }
       );
       // Update thread list immediately when sending a message
@@ -140,7 +159,9 @@ export function useChat({
           ...(optimisticMessages
             ? { optimisticValues: { messages: optimisticMessages } }
             : {}),
-          config: getConfigWithToken(activeAssistant?.config as Record<string, unknown>),
+          config: getConfigWithToken(
+            activeAssistant?.config as Record<string, unknown>
+          ),
           checkpoint: checkpoint,
           ...(isRerunningSubagent
             ? { interruptAfter: ["tools"] }
@@ -149,7 +170,12 @@ export function useChat({
       } else {
         stream.submit(
           { messages },
-          { config: getConfigWithToken(activeAssistant?.config as Record<string, unknown>), interruptBefore: ["tools"] }
+          {
+            config: getConfigWithToken(
+              activeAssistant?.config as Record<string, unknown>
+            ),
+            interruptBefore: ["tools"],
+          }
         );
       }
     },
@@ -170,7 +196,7 @@ export function useChat({
     (hasTaskToolCall?: boolean) => {
       stream.submit(undefined, {
         config: getConfigWithToken({
-          ...(activeAssistant?.config as Record<string, unknown> || {}),
+          ...((activeAssistant?.config as Record<string, unknown>) || {}),
           recursion_limit: 200,
         } as Record<string, unknown>),
         ...(hasTaskToolCall
@@ -204,14 +230,15 @@ export function useChat({
 
   const regenerateLastMessage = useCallback(() => {
     // Find the last human message to re-submit
-    const lastHumanIdx = [...stream.messages].reverse().findIndex(m => m.type === "human");
+    const lastHumanIdx = [...stream.messages]
+      .reverse()
+      .findIndex((m) => m.type === "human");
     if (lastHumanIdx === -1) return;
 
     const actualIdx = stream.messages.length - 1 - lastHumanIdx;
     const lastHuman = stream.messages[actualIdx];
-    const content = typeof lastHuman.content === "string"
-      ? lastHuman.content
-      : "";
+    const content =
+      typeof lastHuman.content === "string" ? lastHuman.content : "";
 
     if (!content) return;
 
@@ -223,7 +250,11 @@ export function useChat({
         optimisticValues: (prev) => ({
           messages: [...(prev.messages ?? []), newMessage],
         }),
-        config: getConfigWithToken(activeAssistant?.config as Record<string, unknown> ?? { recursion_limit: 200 }),
+        config: getConfigWithToken(
+          (activeAssistant?.config as Record<string, unknown>) ?? {
+            recursion_limit: 200,
+          }
+        ),
       }
     );
     onHistoryRevalidate?.();

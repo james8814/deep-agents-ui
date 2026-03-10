@@ -5,12 +5,12 @@
  * Coverage: >80% (25+ test cases)
  */
 
-import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
-import { SettingsModal } from '../SettingsModal';
-import { useSettings } from '../useSettings';
+import React from "react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import "@testing-library/jest-dom";
+import { SettingsModal } from "../SettingsModal";
+import { useSettings } from "../useSettings";
 
 /**
  * Mock localStorage
@@ -32,7 +32,7 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
@@ -54,7 +54,7 @@ const _TestWrapper = ({
   />
 );
 
-describe('SettingsModal Component', () => {
+describe("SettingsModal Component", () => {
   let mockOnOpenChange: jest.Mock;
   let mockOnSave: jest.Mock;
   let mockOnCancel: jest.Mock;
@@ -77,8 +77,8 @@ describe('SettingsModal Component', () => {
   // Rendering Tests
   // ============================================================================
 
-  describe('Rendering', () => {
-    test('should not render when closed', () => {
+  describe("Rendering", () => {
+    test("should not render when closed", () => {
       render(
         <SettingsModal
           isOpen={false}
@@ -88,10 +88,10 @@ describe('SettingsModal Component', () => {
         />
       );
 
-      expect(screen.queryByText('Settings')).not.toBeInTheDocument();
+      expect(screen.queryByText("Settings")).not.toBeInTheDocument();
     });
 
-    test('should render when open', async () => {
+    test("should render when open", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -102,11 +102,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Settings')).toBeInTheDocument();
+        expect(screen.getByText("Settings")).toBeInTheDocument();
       });
     });
 
-    test('should render all tabs', async () => {
+    test("should render all tabs", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -117,14 +117,20 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByRole('tab', { name: /appearance/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /notifications/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /shortcuts/i })).toBeInTheDocument();
-        expect(screen.getByRole('tab', { name: /about/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("tab", { name: /appearance/i })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("tab", { name: /notifications/i })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("tab", { name: /shortcuts/i })
+        ).toBeInTheDocument();
+        expect(screen.getByRole("tab", { name: /about/i })).toBeInTheDocument();
       });
     });
 
-    test('should render close button', async () => {
+    test("should render close button", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -135,11 +141,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Close settings')).toBeInTheDocument();
+        expect(screen.getByLabelText("Close settings")).toBeInTheDocument();
       });
     });
 
-    test('should render save and cancel buttons', async () => {
+    test("should render save and cancel buttons", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -150,8 +156,8 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Cancel')).toBeInTheDocument();
-        expect(screen.getByText('Save Changes')).toBeInTheDocument();
+        expect(screen.getByText("Cancel")).toBeInTheDocument();
+        expect(screen.getByText("Save Changes")).toBeInTheDocument();
       });
     });
   });
@@ -160,8 +166,8 @@ describe('SettingsModal Component', () => {
   // Tab Navigation Tests
   // ============================================================================
 
-  describe('Tab Navigation', () => {
-    test('should show appearance tab by default', async () => {
+  describe("Tab Navigation", () => {
+    test("should show appearance tab by default", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -172,12 +178,12 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const appearanceTab = screen.getByRole('tab', { name: /appearance/i });
-        expect(appearanceTab).toHaveAttribute('aria-selected', 'true');
+        const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
+        expect(appearanceTab).toHaveAttribute("aria-selected", "true");
       });
     });
 
-    test('should switch to notifications tab', async () => {
+    test("should switch to notifications tab", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -190,19 +196,23 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+        const notificationsTab = screen.getByRole("tab", {
+          name: /notifications/i,
+        });
         expect(notificationsTab).toBeInTheDocument();
       });
 
-      const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+      const notificationsTab = screen.getByRole("tab", {
+        name: /notifications/i,
+      });
       await user.click(notificationsTab);
 
       await waitFor(() => {
-        expect(notificationsTab).toHaveAttribute('aria-selected', 'true');
+        expect(notificationsTab).toHaveAttribute("aria-selected", "true");
       });
     });
 
-    test('should switch to shortcuts tab', async () => {
+    test("should switch to shortcuts tab", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -215,19 +225,19 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+        const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
         expect(shortcutsTab).toBeInTheDocument();
       });
 
-      const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+      const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
       await user.click(shortcutsTab);
 
       await waitFor(() => {
-        expect(shortcutsTab).toHaveAttribute('aria-selected', 'true');
+        expect(shortcutsTab).toHaveAttribute("aria-selected", "true");
       });
     });
 
-    test('should switch to about tab', async () => {
+    test("should switch to about tab", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -240,15 +250,15 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const aboutTab = screen.getByRole('tab', { name: /about/i });
+        const aboutTab = screen.getByRole("tab", { name: /about/i });
         expect(aboutTab).toBeInTheDocument();
       });
 
-      const aboutTab = screen.getByRole('tab', { name: /about/i });
+      const aboutTab = screen.getByRole("tab", { name: /about/i });
       await user.click(aboutTab);
 
       await waitFor(() => {
-        expect(aboutTab).toHaveAttribute('aria-selected', 'true');
+        expect(aboutTab).toHaveAttribute("aria-selected", "true");
       });
     });
   });
@@ -257,8 +267,8 @@ describe('SettingsModal Component', () => {
   // Theme Toggle Tests
   // ============================================================================
 
-  describe('Theme Toggle', () => {
-    test('should render theme toggle buttons in appearance tab', async () => {
+  describe("Theme Toggle", () => {
+    test("should render theme toggle buttons in appearance tab", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -269,12 +279,12 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByLabelText('light theme')).toBeInTheDocument();
-        expect(screen.getByLabelText('dark theme')).toBeInTheDocument();
+        expect(screen.getByLabelText("light theme")).toBeInTheDocument();
+        expect(screen.getByLabelText("dark theme")).toBeInTheDocument();
       });
     });
 
-    test('should toggle theme selection', async () => {
+    test("should toggle theme selection", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -287,16 +297,16 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const lightThemeBtn = screen.getByLabelText('light theme');
+        const lightThemeBtn = screen.getByLabelText("light theme");
         expect(lightThemeBtn).toBeInTheDocument();
       });
 
-      const lightThemeBtn = screen.getByLabelText('light theme');
+      const lightThemeBtn = screen.getByLabelText("light theme");
       await user.click(lightThemeBtn);
 
       // Check that the button is selected
       await waitFor(() => {
-        expect(lightThemeBtn).toHaveAttribute('aria-pressed', 'true');
+        expect(lightThemeBtn).toHaveAttribute("aria-pressed", "true");
       });
     });
   });
@@ -305,8 +315,8 @@ describe('SettingsModal Component', () => {
   // Notification Settings Tests
   // ============================================================================
 
-  describe('Notification Settings', () => {
-    test('should render notification toggles', async () => {
+  describe("Notification Settings", () => {
+    test("should render notification toggles", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -319,19 +329,25 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+        const notificationsTab = screen.getByRole("tab", {
+          name: /notifications/i,
+        });
         expect(notificationsTab).toBeInTheDocument();
       });
 
-      const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+      const notificationsTab = screen.getByRole("tab", {
+        name: /notifications/i,
+      });
       await user.click(notificationsTab);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Enable notifications')).toBeInTheDocument();
+        expect(
+          screen.getByLabelText("Enable notifications")
+        ).toBeInTheDocument();
       });
     });
 
-    test('should toggle main notification switch', async () => {
+    test("should toggle main notification switch", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -344,20 +360,28 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+        const notificationsTab = screen.getByRole("tab", {
+          name: /notifications/i,
+        });
         expect(notificationsTab).toBeInTheDocument();
       });
 
-      const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+      const notificationsTab = screen.getByRole("tab", {
+        name: /notifications/i,
+      });
       await user.click(notificationsTab);
 
       await waitFor(() => {
-        const enableNotifications = screen.getByLabelText('Enable notifications') as HTMLInputElement;
+        const enableNotifications = screen.getByLabelText(
+          "Enable notifications"
+        ) as HTMLInputElement;
         expect(enableNotifications).toBeInTheDocument();
         expect(enableNotifications.checked).toBe(true);
       });
 
-      const enableNotifications = screen.getByLabelText('Enable notifications') as HTMLInputElement;
+      const enableNotifications = screen.getByLabelText(
+        "Enable notifications"
+      ) as HTMLInputElement;
       await user.click(enableNotifications);
 
       await waitFor(() => {
@@ -365,7 +389,7 @@ describe('SettingsModal Component', () => {
       });
     });
 
-    test('should disable sub-toggles when main toggle is off', async () => {
+    test("should disable sub-toggles when main toggle is off", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -378,23 +402,31 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+        const notificationsTab = screen.getByRole("tab", {
+          name: /notifications/i,
+        });
         expect(notificationsTab).toBeInTheDocument();
       });
 
-      const notificationsTab = screen.getByRole('tab', { name: /notifications/i });
+      const notificationsTab = screen.getByRole("tab", {
+        name: /notifications/i,
+      });
       await user.click(notificationsTab);
 
       await waitFor(() => {
-        const enableNotifications = screen.getByLabelText('Enable notifications') as HTMLInputElement;
+        const enableNotifications = screen.getByLabelText(
+          "Enable notifications"
+        ) as HTMLInputElement;
         expect(enableNotifications).toBeInTheDocument();
       });
 
-      const enableNotifications = screen.getByLabelText('Enable notifications') as HTMLInputElement;
+      const enableNotifications = screen.getByLabelText(
+        "Enable notifications"
+      ) as HTMLInputElement;
       await user.click(enableNotifications);
 
       await waitFor(() => {
-        const soundToggle = screen.getByLabelText('Sound') as HTMLInputElement;
+        const soundToggle = screen.getByLabelText("Sound") as HTMLInputElement;
         expect(soundToggle.disabled).toBe(true);
       });
     });
@@ -404,8 +436,8 @@ describe('SettingsModal Component', () => {
   // Keyboard Shortcuts Tests
   // ============================================================================
 
-  describe('Keyboard Shortcuts', () => {
-    test('should render shortcuts list', async () => {
+  describe("Keyboard Shortcuts", () => {
+    test("should render shortcuts list", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -418,19 +450,19 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+        const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
         expect(shortcutsTab).toBeInTheDocument();
       });
 
-      const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+      const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
       await user.click(shortcutsTab);
 
       await waitFor(() => {
-        expect(screen.getByText('Send message')).toBeInTheDocument();
+        expect(screen.getByText("Send message")).toBeInTheDocument();
       });
     });
 
-    test('should search shortcuts', async () => {
+    test("should search shortcuts", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -443,27 +475,31 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+        const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
         expect(shortcutsTab).toBeInTheDocument();
       });
 
-      const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+      const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
       await user.click(shortcutsTab);
 
       await waitFor(() => {
-        const searchInput = screen.getByPlaceholderText('Search shortcuts...') as HTMLInputElement;
+        const searchInput = screen.getByPlaceholderText(
+          "Search shortcuts..."
+        ) as HTMLInputElement;
         expect(searchInput).toBeInTheDocument();
       });
 
-      const searchInput = screen.getByPlaceholderText('Search shortcuts...') as HTMLInputElement;
-      await user.type(searchInput, 'send');
+      const searchInput = screen.getByPlaceholderText(
+        "Search shortcuts..."
+      ) as HTMLInputElement;
+      await user.type(searchInput, "send");
 
       await waitFor(() => {
-        expect(screen.getByText('Send message')).toBeInTheDocument();
+        expect(screen.getByText("Send message")).toBeInTheDocument();
       });
     });
 
-    test('should copy shortcut to clipboard', async () => {
+    test("should copy shortcut to clipboard", async () => {
       const _user = userEvent.setup();
       const mockClipboard = {
         writeText: jest.fn().mockResolvedValue(undefined),
@@ -480,15 +516,15 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+        const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
         expect(shortcutsTab).toBeInTheDocument();
       });
 
-      const shortcutsTab = screen.getByRole('tab', { name: /shortcuts/i });
+      const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
       await user.click(shortcutsTab);
 
       await waitFor(() => {
-        expect(screen.getByText('Send message')).toBeInTheDocument();
+        expect(screen.getByText("Send message")).toBeInTheDocument();
       });
 
       const copyButtons = screen.getAllByLabelText(/Copy.*shortcut/i);
@@ -503,8 +539,8 @@ describe('SettingsModal Component', () => {
   // About Section Tests
   // ============================================================================
 
-  describe('About Section', () => {
-    test('should display version info in about tab', async () => {
+  describe("About Section", () => {
+    test("should display version info in about tab", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -517,11 +553,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const aboutTab = screen.getByRole('tab', { name: /about/i });
+        const aboutTab = screen.getByRole("tab", { name: /about/i });
         expect(aboutTab).toBeInTheDocument();
       });
 
-      const aboutTab = screen.getByRole('tab', { name: /about/i });
+      const aboutTab = screen.getByRole("tab", { name: /about/i });
       await user.click(aboutTab);
 
       await waitFor(() => {
@@ -529,7 +565,7 @@ describe('SettingsModal Component', () => {
       });
     });
 
-    test('should show check for updates button', async () => {
+    test("should show check for updates button", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -542,15 +578,15 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const aboutTab = screen.getByRole('tab', { name: /about/i });
+        const aboutTab = screen.getByRole("tab", { name: /about/i });
         expect(aboutTab).toBeInTheDocument();
       });
 
-      const aboutTab = screen.getByRole('tab', { name: /about/i });
+      const aboutTab = screen.getByRole("tab", { name: /about/i });
       await user.click(aboutTab);
 
       await waitFor(() => {
-        expect(screen.getByText('Check for Updates')).toBeInTheDocument();
+        expect(screen.getByText("Check for Updates")).toBeInTheDocument();
       });
     });
   });
@@ -559,8 +595,8 @@ describe('SettingsModal Component', () => {
   // Modal Actions Tests
   // ============================================================================
 
-  describe('Modal Actions', () => {
-    test('should call onCancel when cancel button is clicked', async () => {
+  describe("Modal Actions", () => {
+    test("should call onCancel when cancel button is clicked", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -573,17 +609,17 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const cancelBtn = screen.getByText('Cancel');
+        const cancelBtn = screen.getByText("Cancel");
         expect(cancelBtn).toBeInTheDocument();
       });
 
-      const cancelBtn = screen.getByText('Cancel');
+      const cancelBtn = screen.getByText("Cancel");
       await user.click(cancelBtn);
 
       expect(mockOnCancel).toHaveBeenCalled();
     });
 
-    test('should call onSave when save button is clicked', async () => {
+    test("should call onSave when save button is clicked", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -596,11 +632,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const saveBtn = screen.getByText('Save Changes');
+        const saveBtn = screen.getByText("Save Changes");
         expect(saveBtn).toBeInTheDocument();
       });
 
-      const saveBtn = screen.getByText('Save Changes');
+      const saveBtn = screen.getByText("Save Changes");
       await user.click(saveBtn);
 
       await waitFor(() => {
@@ -608,7 +644,7 @@ describe('SettingsModal Component', () => {
       });
     });
 
-    test('should close modal when close button is clicked', async () => {
+    test("should close modal when close button is clicked", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -621,11 +657,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const closeBtn = screen.getByLabelText('Close settings');
+        const closeBtn = screen.getByLabelText("Close settings");
         expect(closeBtn).toBeInTheDocument();
       });
 
-      const closeBtn = screen.getByLabelText('Close settings');
+      const closeBtn = screen.getByLabelText("Close settings");
       await user.click(closeBtn);
 
       expect(mockOnOpenChange).toHaveBeenCalledWith(false);
@@ -636,8 +672,8 @@ describe('SettingsModal Component', () => {
   // Accessibility Tests
   // ============================================================================
 
-  describe('Accessibility', () => {
-    test('should have proper ARIA attributes', async () => {
+  describe("Accessibility", () => {
+    test("should have proper ARIA attributes", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -648,13 +684,13 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const dialog = screen.getByRole('dialog');
-        expect(dialog).toHaveAttribute('aria-labelledby');
-        expect(dialog).toHaveAttribute('aria-describedby');
+        const dialog = screen.getByRole("dialog");
+        expect(dialog).toHaveAttribute("aria-labelledby");
+        expect(dialog).toHaveAttribute("aria-describedby");
       });
     });
 
-    test('should trap focus within modal', async () => {
+    test("should trap focus within modal", async () => {
       render(
         <SettingsModal
           isOpen={true}
@@ -665,12 +701,12 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const dialog = screen.getByRole('dialog');
+        const dialog = screen.getByRole("dialog");
         expect(dialog).toBeInTheDocument();
       });
     });
 
-    test('should have keyboard navigation support', async () => {
+    test("should have keyboard navigation support", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -683,12 +719,12 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const appearanceTab = screen.getByRole('tab', { name: /appearance/i });
+        const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
         expect(appearanceTab).toBeInTheDocument();
       });
 
       // Test keyboard navigation between tabs
-      const appearanceTab = screen.getByRole('tab', { name: /appearance/i });
+      const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
       appearanceTab.focus();
       expect(document.activeElement).toBe(appearanceTab);
     });
@@ -698,8 +734,8 @@ describe('SettingsModal Component', () => {
   // Integration Tests
   // ============================================================================
 
-  describe('Integration', () => {
-    test('should persist settings to localStorage', async () => {
+  describe("Integration", () => {
+    test("should persist settings to localStorage", async () => {
       const _user = userEvent.setup();
 
       render(
@@ -712,11 +748,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const saveBtn = screen.getByText('Save Changes');
+        const saveBtn = screen.getByText("Save Changes");
         expect(saveBtn).toBeInTheDocument();
       });
 
-      const saveBtn = screen.getByText('Save Changes');
+      const saveBtn = screen.getByText("Save Changes");
       await user.click(saveBtn);
 
       await waitFor(() => {
@@ -724,7 +760,7 @@ describe('SettingsModal Component', () => {
       });
     });
 
-    test('should handle multiple save operations', async () => {
+    test("should handle multiple save operations", async () => {
       const _user = userEvent.setup();
 
       const { rerender } = render(
@@ -737,11 +773,11 @@ describe('SettingsModal Component', () => {
       );
 
       await waitFor(() => {
-        const saveBtn = screen.getByText('Save Changes');
+        const saveBtn = screen.getByText("Save Changes");
         expect(saveBtn).toBeInTheDocument();
       });
 
-      const saveBtn = screen.getByText('Save Changes');
+      const saveBtn = screen.getByText("Save Changes");
       await user.click(saveBtn);
 
       // Simulate second save
@@ -754,7 +790,7 @@ describe('SettingsModal Component', () => {
         />
       );
 
-      const saveBtn2 = screen.getByText('Save Changes');
+      const saveBtn2 = screen.getByText("Save Changes");
       await user.click(saveBtn2);
 
       expect(mockOnSave).toHaveBeenCalledTimes(2);

@@ -20,25 +20,23 @@ interface AmbiguousRequirementDialogProps {
     allow_free_text?: boolean;
     free_text_placeholder?: string;
   };
-  onSubmit: (response: string | { option_id: string; free_text?: string }) => void;
+  onSubmit: (
+    response: string | { option_id: string; free_text?: string }
+  ) => void;
   onCancel: () => void;
 }
 
-export const AmbiguousRequirementDialog: React.FC<AmbiguousRequirementDialogProps> = ({
-  clarificationId,
-  title,
-  description,
-  context,
-  onSubmit,
-  onCancel,
-}) => {
+export const AmbiguousRequirementDialog: React.FC<
+  AmbiguousRequirementDialogProps
+> = ({ clarificationId, title, description, context, onSubmit, onCancel }) => {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [freeText, setFreeText] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const allowFreeText = context.allow_free_text === true;
-  const freeTextPlaceholder = context.free_text_placeholder || "请输入您的其他想法...";
+  const freeTextPlaceholder =
+    context.free_text_placeholder || "请输入您的其他想法...";
 
   const handleSubmit = () => {
     if (!selectedOption) {
@@ -74,7 +72,10 @@ export const AmbiguousRequirementDialog: React.FC<AmbiguousRequirementDialogProp
 
         <div className={styles.optionsSection}>
           {context.options.map((option) => (
-            <div key={option.id} className={styles.optionItem}>
+            <div
+              key={option.id}
+              className={styles.optionItem}
+            >
               <div className={styles.optionHeader}>
                 <input
                   type="radio"
@@ -96,9 +97,7 @@ export const AmbiguousRequirementDialog: React.FC<AmbiguousRequirementDialogProp
                 </label>
               </div>
               {option.explanation && (
-                <p className={styles.optionExplanation}>
-                  {option.explanation}
-                </p>
+                <p className={styles.optionExplanation}>{option.explanation}</p>
               )}
             </div>
           ))}
@@ -106,9 +105,7 @@ export const AmbiguousRequirementDialog: React.FC<AmbiguousRequirementDialogProp
 
         {allowFreeText && selectedOption && (
           <div className={styles.freeTextSection}>
-            <label className={styles.freeTextLabel}>
-              补充说明 (可选)
-            </label>
+            <label className={styles.freeTextLabel}>补充说明 (可选)</label>
             <Textarea
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
@@ -120,11 +117,7 @@ export const AmbiguousRequirementDialog: React.FC<AmbiguousRequirementDialogProp
           </div>
         )}
 
-        {error && (
-          <div className={styles.errorMessage}>
-            {error}
-          </div>
-        )}
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.actionButtons}>
           <Button

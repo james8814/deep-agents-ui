@@ -16,9 +16,7 @@ interface SuggestionApprovalCardProps {
     expected_benefit?: string;
     effort?: string;
   };
-  onSubmit: (
-    response: boolean | { approved: false; feedback: string }
-  ) => void;
+  onSubmit: (response: boolean | { approved: false; feedback: string }) => void;
   onCancel: () => void;
 }
 
@@ -71,9 +69,7 @@ export const SuggestionApprovalCard: React.FC<SuggestionApprovalCardProps> = ({
         </div>
 
         <div className={styles.suggestionCard}>
-          <div className={styles.suggestionText}>
-            {context.suggestion_text}
-          </div>
+          <div className={styles.suggestionText}>{context.suggestion_text}</div>
 
           <div className={styles.detailsContainer}>
             {context.rationale && (
@@ -149,9 +145,7 @@ export const SuggestionApprovalCard: React.FC<SuggestionApprovalCardProps> = ({
                   <ChevronDown
                     size={16}
                     className={`${styles.chevron} ${
-                      expandedSection === "effort"
-                        ? styles.chevronExpanded
-                        : ""
+                      expandedSection === "effort" ? styles.chevronExpanded : ""
                     }`}
                   />
                 </button>
@@ -167,9 +161,7 @@ export const SuggestionApprovalCard: React.FC<SuggestionApprovalCardProps> = ({
 
         {decision === "revise" && (
           <div className={styles.revisionForm}>
-            <label className={styles.feedbackLabel}>
-              您的修改意见
-            </label>
+            <label className={styles.feedbackLabel}>您的修改意见</label>
             <Textarea
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}

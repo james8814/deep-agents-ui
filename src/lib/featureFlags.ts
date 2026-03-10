@@ -82,7 +82,10 @@ export function useUseAntdX(): boolean {
 
     return () => {
       window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("deep-agent-config-change", handleConfigChange);
+      window.removeEventListener(
+        "deep-agent-config-change",
+        handleConfigChange
+      );
     };
   }, []);
 

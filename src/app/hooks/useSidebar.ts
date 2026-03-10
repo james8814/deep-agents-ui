@@ -3,9 +3,9 @@
  * Manages sidebar state and persistence
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface UseSidebarReturn {
   expanded: boolean;
@@ -13,7 +13,7 @@ interface UseSidebarReturn {
   setExpanded: (expanded: boolean) => void;
 }
 
-const SIDEBAR_STORAGE_KEY = 'sidebar-expanded';
+const SIDEBAR_STORAGE_KEY = "sidebar-expanded";
 
 export function useSidebar(): UseSidebarReturn {
   const [expanded, setExpanded] = useState(false);
@@ -23,7 +23,7 @@ export function useSidebar(): UseSidebarReturn {
   useEffect(() => {
     const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
     if (saved !== null) {
-      setExpanded(saved === 'true');
+      setExpanded(saved === "true");
     }
     setIsMounted(true);
   }, []);

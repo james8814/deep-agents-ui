@@ -51,15 +51,19 @@ export default function RegisterPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             注册
           </h1>
-          <p className="text-sm text-muted-foreground">
-            创建新账号以开始使用
-          </p>
+          <p className="text-sm text-muted-foreground">创建新账号以开始使用</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           {error && (
             <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle size={16} className="shrink-0" />
+              <AlertCircle
+                size={16}
+                className="shrink-0"
+              />
               <span>{error}</span>
             </div>
           )}
@@ -122,7 +126,10 @@ export default function RegisterPage() {
           >
             {isLoading ? (
               <>
-                <Loader2 size={16} className="mr-2 animate-spin" />
+                <Loader2
+                  size={16}
+                  className="mr-2 animate-spin"
+                />
                 注册中...
               </>
             ) : (

@@ -21,13 +21,7 @@ interface AntdXMessageListProps {
 }
 
 export const AntdXMessageList = React.memo<AntdXMessageListProps>(
-  ({
-    messages,
-    isLoading,
-    interrupt,
-    stream,
-    onResumeInterrupt,
-  }) => {
+  ({ messages, isLoading, interrupt, stream, onResumeInterrupt }) => {
     const bubbleItems = useMemo(() => {
       // 过滤掉空内容的消息，避免渲染空的气泡
       return convertMessagesToBubbles(messages, isLoading, interrupt).filter(
@@ -44,9 +38,9 @@ export const AntdXMessageList = React.memo<AntdXMessageListProps>(
             <BubbleMarkdown content={content} />
           ),
           footer: (_content: unknown, info: { key?: string | number }) => {
-            const item = bubbleItems.find(
-              (b) => b.key === info.key
-            ) as ConvertedBubbleItem | undefined;
+            const item = bubbleItems.find((b) => b.key === info.key) as
+              | ConvertedBubbleItem
+              | undefined;
             const toolCalls = item?.extraInfo?.toolCalls;
             const isStreaming = item?.extraInfo?.isStreaming;
             if (!toolCalls?.length) return null;

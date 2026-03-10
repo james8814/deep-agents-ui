@@ -110,7 +110,10 @@ function extractToolCalls(message: Message): ToolCall[] {
         return {
           id: String(tcObj.id || `tc-${Date.now()}`),
           name: String(func?.name || tcObj.name || "unknown"),
-          args: (func?.arguments || tcObj.args || {}) as Record<string, unknown>,
+          args: (func?.arguments || tcObj.args || {}) as Record<
+            string,
+            unknown
+          >,
           status: "pending" as const,
         };
       })

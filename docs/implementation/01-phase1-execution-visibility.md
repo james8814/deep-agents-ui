@@ -16,10 +16,12 @@ Transform the agent execution experience from "blank screen with Running..." to 
 ### Problem
 
 When `isLoading === true`, the only feedback is:
+
 ```tsx
 // ChatInterface.tsx — current state
 placeholder={isLoading ? "Running..." : "Write your message..."}
 ```
+
 User has zero insight into what the agent is doing during runs that can last 30+ seconds.
 
 ### New File: `src/app/components/ExecutionStatusBar.tsx`
@@ -72,7 +74,10 @@ export const ExecutionStatusBar = React.memo<ExecutionStatusBarProps>(
 
     return (
       <div className="flex items-center gap-3 border-b border-border bg-accent/50 px-4 py-2 text-sm">
-        <Loader2 size={14} className="animate-spin text-primary" />
+        <Loader2
+          size={14}
+          className="animate-spin text-primary"
+        />
         <div className="flex flex-1 items-center gap-2 truncate">
           <span className="font-medium text-foreground">
             {currentStep || "Running agent"}
@@ -86,7 +91,7 @@ export const ExecutionStatusBar = React.memo<ExecutionStatusBarProps>(
             </>
           )}
         </div>
-        <span className="flex-shrink-0 tabular-nums text-xs text-muted-foreground">
+        <span className="flex-shrink-0 text-xs tabular-nums text-muted-foreground">
           {formatElapsed(elapsed)}
         </span>
       </div>
@@ -203,20 +208,32 @@ const streamingMessage = useMemo(() => {
 **Add streaming indicator after the messages list:**
 
 ```tsx
-{/* After processedMessages.map() and before </> closing */}
+{
+  /* After processedMessages.map() and before </> closing */
+}
 
-{/* Streaming indicator — shows when agent is generating but no content yet */}
-{isLoading && !streamingMessage?.hasContent && processedMessages.length > 0 && (
-  <div className="mt-4 flex items-start gap-2 px-1">
-    <div className="flex items-center gap-1.5 rounded-lg px-3 py-2">
-      <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary/60" />
-      <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary/40"
-            style={{ animationDelay: "0.2s" }} />
-      <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary/20"
-            style={{ animationDelay: "0.4s" }} />
-    </div>
-  </div>
-)}
+{
+  /* Streaming indicator — shows when agent is generating but no content yet */
+}
+{
+  isLoading &&
+    !streamingMessage?.hasContent &&
+    processedMessages.length > 0 && (
+      <div className="mt-4 flex items-start gap-2 px-1">
+        <div className="flex items-center gap-1.5 rounded-lg px-3 py-2">
+          <span className="bg-primary/60 inline-block h-2 w-2 animate-pulse rounded-full" />
+          <span
+            className="bg-primary/40 inline-block h-2 w-2 animate-pulse rounded-full"
+            style={{ animationDelay: "0.2s" }}
+          />
+          <span
+            className="bg-primary/20 inline-block h-2 w-2 animate-pulse rounded-full"
+            style={{ animationDelay: "0.4s" }}
+          />
+        </div>
+      </div>
+    );
+}
 ```
 
 ### Typing Cursor for Streaming Content
@@ -261,7 +278,7 @@ The `ChatMessage` component needs a new prop `isStreaming?: boolean`, set to `tr
   message={data.message}
   toolCalls={data.toolCalls}
   isLoading={isLoading}
-  isStreaming={isLoading && isLastMessage && data.message.type === "ai"}  // NEW
+  isStreaming={isLoading && isLastMessage && data.message.type === "ai"} // NEW
   // ... other props
 />
 ```
@@ -398,13 +415,13 @@ return !inline && match ? (
 
 ## Files Changed Summary
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/app/components/ExecutionStatusBar.tsx` | **NEW** | Status bar component |
-| `src/app/components/ChatInterface.tsx` | MODIFY | Add ExecutionStatusBar, streaming dots, pass `isStreaming` to ChatMessage |
-| `src/app/components/ChatMessage.tsx` | MODIFY | Add copy button, accept `isStreaming` prop |
-| `src/app/components/MarkdownContent.tsx` | MODIFY | Add `isStreaming` cursor, code block copy button |
-| `src/app/utils/utils.ts` | MODIFY | Add `copyToClipboard()` utility |
+| File                                        | Action  | Changes                                                                   |
+| ------------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `src/app/components/ExecutionStatusBar.tsx` | **NEW** | Status bar component                                                      |
+| `src/app/components/ChatInterface.tsx`      | MODIFY  | Add ExecutionStatusBar, streaming dots, pass `isStreaming` to ChatMessage |
+| `src/app/components/ChatMessage.tsx`        | MODIFY  | Add copy button, accept `isStreaming` prop                                |
+| `src/app/components/MarkdownContent.tsx`    | MODIFY  | Add `isStreaming` cursor, code block copy button                          |
+| `src/app/utils/utils.ts`                    | MODIFY  | Add `copyToClipboard()` utility                                           |
 
 ## New Dependencies
 

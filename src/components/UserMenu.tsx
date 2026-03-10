@@ -3,13 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button as _Button } from "@/components/ui/button";
-import {
-  LogOut,
-  User,
-  Settings,
-  ChevronDown,
-  Loader2,
-} from "lucide-react";
+import { LogOut, User, Settings, ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UserMenuProps {
@@ -25,13 +19,13 @@ export function UserMenu({ onSettingsClick }: UserMenuProps) {
   // 点击外部关闭菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-    if (
-      menuRef.current &&
-      !menuRef.current.contains(event.target as Node) &&
-      buttonRef.current &&
-      !buttonRef.current.contains(event.target as Node)
-    ) {
-    setIsOpen(false);
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     };
 
@@ -58,21 +52,21 @@ export function UserMenu({ onSettingsClick }: UserMenuProps) {
           isOpen && "bg-accent"
         )}
       >
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="bg-primary/10 flex h-7 w-7 items-center justify-center rounded-full text-primary">
           <User size={14} />
         </div>
         <span className="font-medium">{user.username}</span>
-        <ChevronDown size={14} className={cn(
-          "transition-transform",
-          isOpen && "rotate-180"
-        )} />
+        <ChevronDown
+          size={14}
+          className={cn("transition-transform", isOpen && "rotate-180")}
+        />
       </button>
 
       {/* 下拉菜单 */}
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-border bg-card shadow-lg z-50"
+          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border border-border bg-card shadow-lg"
         >
           {/* 用户信息 */}
           <div className="border-b border-border px-3 py-2">
@@ -92,7 +86,10 @@ export function UserMenu({ onSettingsClick }: UserMenuProps) {
               }}
               className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
             >
-              <Settings size={14} className="text-muted-foreground" />
+              <Settings
+                size={14}
+                className="text-muted-foreground"
+              />
               <span>设置</span>
             </button>
           )}
@@ -107,7 +104,10 @@ export function UserMenu({ onSettingsClick }: UserMenuProps) {
             className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
           >
             {isLoading ? (
-              <Loader2 size={14} className="animate-spin" />
+              <Loader2
+                size={14}
+                className="animate-spin"
+              />
             ) : (
               <LogOut size={14} />
             )}

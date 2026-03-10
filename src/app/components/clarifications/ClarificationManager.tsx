@@ -41,16 +41,14 @@ export const ClarificationManager: React.FC<ClarificationManagerProps> = ({
       setError("");
       onSubmit(clarification.clarification_id, response);
     } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : "提交失败，请重试";
+      const errorMsg = err instanceof Error ? err.message : "提交失败，请重试";
       setError(errorMsg);
       console.error("[ClarificationManager] Submission error:", err);
     }
   };
 
   const renderComponent = () => {
-    const { clarification_type, title, description, context } =
-      clarification;
+    const { clarification_type, title, description, context } = clarification;
 
     const commonProps = {
       clarificationId: clarification.clarification_id,

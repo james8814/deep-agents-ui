@@ -8,7 +8,7 @@
 
 ```typescript
 // src/app/layout.tsx
-import { ThemeContextProvider } from '@/contexts/ThemeContext';
+import { ThemeContextProvider } from "@/contexts/ThemeContext";
 
 export default function RootLayout({ children }) {
   return (
@@ -26,16 +26,12 @@ export default function RootLayout({ children }) {
 ## Step 2: Add Theme Toggle Button
 
 ```typescript
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from "@/hooks/useTheme";
 
 export function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme();
 
-  return (
-    <button onClick={toggleTheme}>
-      {isDark ? '☀️' : '🌙'}
-    </button>
-  );
+  return <button onClick={toggleTheme}>{isDark ? "☀️" : "🌙"}</button>;
 }
 ```
 
@@ -43,16 +39,18 @@ export function ThemeToggle() {
 
 ```typescript
 // Use CSS variables
-<div style={{
-  color: 'var(--text-primary)',
-  backgroundColor: 'var(--surface-base)',
-  borderColor: 'var(--border-default)',
-}}>
+<div
+  style={{
+    color: "var(--text-primary)",
+    backgroundColor: "var(--surface-base)",
+    borderColor: "var(--border-default)",
+  }}
+>
   Your content
-</div>
+</div>;
 
 // Or use hooks
-const primary = useThemeColor('color-primary');
+const primary = useThemeColor("color-primary");
 ```
 
 ---
@@ -60,20 +58,19 @@ const primary = useThemeColor('color-primary');
 ## Most Common Patterns
 
 ### Pattern 1: Change Text Color
+
 ```typescript
-<p style={{ color: 'var(--text-primary)' }}>
-  This text follows the theme
-</p>
+<p style={{ color: "var(--text-primary)" }}>This text follows the theme</p>
 ```
 
 ### Pattern 2: Change Background
+
 ```typescript
-<div style={{ backgroundColor: 'var(--surface-card)' }}>
-  Card content
-</div>
+<div style={{ backgroundColor: "var(--surface-card)" }}>Card content</div>
 ```
 
 ### Pattern 3: Conditional Styling
+
 ```typescript
 function Component() {
   const { isDark } = useTheme();
@@ -82,23 +79,27 @@ function Component() {
 ```
 
 ### Pattern 4: Status Indicators
+
 ```typescript
 function StatusBadge({ status }) {
   const colorMap = {
-    success: 'var(--color-success)',
-    error: 'var(--color-error)',
-    warning: 'var(--color-warning)',
+    success: "var(--color-success)",
+    error: "var(--color-error)",
+    warning: "var(--color-warning)",
   };
   return <span style={{ color: colorMap[status] }}>Status</span>;
 }
 ```
 
 ### Pattern 5: Animations
+
 ```typescript
-<div style={{
-  transition: 'all var(--duration-normal) var(--ease-default)',
-  color: 'var(--text-primary)',
-}}>
+<div
+  style={{
+    transition: "all var(--duration-normal) var(--ease-default)",
+    color: "var(--text-primary)",
+  }}
+>
   Smooth transitions included!
 </div>
 ```
@@ -108,6 +109,7 @@ function StatusBadge({ status }) {
 ## Available Colors (Most Used)
 
 ### Primary Color
+
 ```css
 var(--color-primary)         /* Main brand color */
 var(--color-primary-hover)   /* Hover state */
@@ -115,6 +117,7 @@ var(--color-primary-active)  /* Active state */
 ```
 
 ### Surfaces (Backgrounds)
+
 ```css
 var(--surface-base)     /* Main background */
 var(--surface-card)     /* Card/container background */
@@ -123,6 +126,7 @@ var(--surface-sidebar)  /* Sidebar background */
 ```
 
 ### Text
+
 ```css
 var(--text-primary)      /* Main text color */
 var(--text-secondary)    /* Subtitle/hint text */
@@ -131,6 +135,7 @@ var(--text-disabled)     /* Disabled state */
 ```
 
 ### Status
+
 ```css
 var(--color-success)   /* Green - Success */
 var(--color-error)     /* Red - Error */
@@ -139,6 +144,7 @@ var(--color-info)      /* Purple - Information */
 ```
 
 ### Borders
+
 ```css
 var(--border-default)   /* Normal border */
 var(--border-subtle)    /* Light border */
@@ -147,6 +153,7 @@ var(--border-focus)     /* Focus ring */
 ```
 
 ### Special Colors
+
 ```css
 var(--opdca-observe)    /* Cyan - Observe stage */
 var(--opdca-plan)       /* Violet - Plan stage */
@@ -171,7 +178,7 @@ var(--agent-reflection) /* Reflection agent */
 const { isDark, mode, toggleTheme, setTheme } = useTheme();
 
 // Get single color
-const primary = useThemeColor('color-primary');
+const primary = useThemeColor("color-primary");
 
 // Get all colors
 const colors = useThemeColors();
@@ -185,7 +192,7 @@ const { systemPreference, useSystemPreference, setUseSystemPreference } =
 
 // Listen for changes
 useThemeListener((isDark, mode) => {
-  console.log('Theme changed to:', mode);
+  console.log("Theme changed to:", mode);
 });
 
 // Responsive design
@@ -203,6 +210,7 @@ const state = useThemeState();
 ## CSS Variables (Complete List)
 
 ### Colors (50+)
+
 ```
 Brand Colors
 --brand-gradient
@@ -266,6 +274,7 @@ Shadows
 ```
 
 ### Typography (8)
+
 ```
 --font-sans              /* Sans font family */
 --font-mono              /* Monospace font */
@@ -279,6 +288,7 @@ Shadows
 ```
 
 ### Spacing (16)
+
 ```
 --space-0       /* 0 */
 --space-0.5     /* 2px */
@@ -295,6 +305,7 @@ Shadows
 ```
 
 ### Motion (9)
+
 ```
 --duration-instant      /* 50ms */
 --duration-fast         /* 100ms */
@@ -308,6 +319,7 @@ Shadows
 ```
 
 ### Other (8)
+
 ```
 --radius-sm             /* 4px */
 --radius-md             /* 6px */
@@ -324,12 +336,14 @@ Shadows
 ## Theme Modes
 
 ### Light Mode (Default)
+
 - Primary: `#7C3AED` (purple-600)
 - Background: `#FFFFFF`
 - Text: `#1A1816` (dark)
 - Shadows: Full 5-level shadow system
 
 ### Dark Mode
+
 - Primary: `#8B5CF6` (purple-500)
 - Background: `#0A0A12` (deep space blue)
 - Text: `rgba(255,255,255,0.95)` (light)
@@ -344,18 +358,21 @@ Shadows
 ## Common Tasks
 
 ### Task 1: Create Themed Button
+
 ```typescript
 function Button({ children }) {
   return (
-    <button style={{
-      backgroundColor: 'var(--color-primary)',
-      color: 'var(--text-on-primary)',
-      padding: 'var(--space-3) var(--space-4)',
-      borderRadius: 'var(--radius-md)',
-      border: 'none',
-      cursor: 'pointer',
-      transition: 'all var(--duration-normal) var(--ease-default)',
-    }}>
+    <button
+      style={{
+        backgroundColor: "var(--color-primary)",
+        color: "var(--text-on-primary)",
+        padding: "var(--space-3) var(--space-4)",
+        borderRadius: "var(--radius-md)",
+        border: "none",
+        cursor: "pointer",
+        transition: "all var(--duration-normal) var(--ease-default)",
+      }}
+    >
       {children}
     </button>
   );
@@ -363,17 +380,20 @@ function Button({ children }) {
 ```
 
 ### Task 2: Create Themed Card
+
 ```typescript
 function Card({ children }) {
   return (
-    <div style={{
-      backgroundColor: 'var(--surface-card)',
-      borderColor: 'var(--border-default)',
-      borderWidth: '1px',
-      borderRadius: 'var(--radius-lg)',
-      padding: 'var(--space-4)',
-      boxShadow: 'var(--shadow-md)',
-    }}>
+    <div
+      style={{
+        backgroundColor: "var(--surface-card)",
+        borderColor: "var(--border-default)",
+        borderWidth: "1px",
+        borderRadius: "var(--radius-lg)",
+        padding: "var(--space-4)",
+        boxShadow: "var(--shadow-md)",
+      }}
+    >
       {children}
     </div>
   );
@@ -381,24 +401,27 @@ function Card({ children }) {
 ```
 
 ### Task 3: Create Status Badge
+
 ```typescript
 function Badge({ type, children }) {
   const colors = {
-    success: { bg: 'var(--color-success-bg)', text: 'var(--color-success)' },
-    error: { bg: 'var(--color-error-bg)', text: 'var(--color-error)' },
-    warning: { bg: 'var(--color-warning-bg)', text: 'var(--color-warning)' },
+    success: { bg: "var(--color-success-bg)", text: "var(--color-success)" },
+    error: { bg: "var(--color-error-bg)", text: "var(--color-error)" },
+    warning: { bg: "var(--color-warning-bg)", text: "var(--color-warning)" },
   };
 
   const { bg, text } = colors[type];
 
   return (
-    <span style={{
-      backgroundColor: bg,
-      color: text,
-      padding: 'var(--space-1) var(--space-2)',
-      borderRadius: 'var(--radius-full)',
-      fontSize: 'var(--font-size-xs)',
-    }}>
+    <span
+      style={{
+        backgroundColor: bg,
+        color: text,
+        padding: "var(--space-1) var(--space-2)",
+        borderRadius: "var(--radius-full)",
+        fontSize: "var(--font-size-xs)",
+      }}
+    >
       {children}
     </span>
   );
@@ -406,8 +429,9 @@ function Badge({ type, children }) {
 ```
 
 ### Task 4: Respond to Theme Changes
+
 ```typescript
-import { useThemeListener } from '@/hooks/useTheme';
+import { useThemeListener } from "@/hooks/useTheme";
 
 function Component() {
   useThemeListener((isDark, mode) => {
@@ -420,18 +444,21 @@ function Component() {
 ```
 
 ### Task 5: Mobile-Responsive Layout
+
 ```typescript
-import { useResponsive } from '@/hooks/useTheme';
+import { useResponsive } from "@/hooks/useTheme";
 
 function ResponsiveLayout() {
   const { isMobile } = useResponsive();
 
   return (
-    <div style={{
-      display: isMobile ? 'flex' : 'grid',
-      flexDirection: isMobile ? 'column' : undefined,
-      gridTemplateColumns: isMobile ? undefined : '1fr 1fr',
-    }}>
+    <div
+      style={{
+        display: isMobile ? "flex" : "grid",
+        flexDirection: isMobile ? "column" : undefined,
+        gridTemplateColumns: isMobile ? undefined : "1fr 1fr",
+      }}
+    >
       <Sidebar />
       <Content />
     </div>
@@ -470,18 +497,23 @@ src/__tests__/
 ## Troubleshooting
 
 ### Q: Colors not changing?
+
 **A**: Make sure you're using `var(--color-name)` not hardcoded hex. Or use `useThemeColor('color-name')`.
 
 ### Q: Theme not persisting?
+
 **A**: Check localStorage is enabled. Keys are `theme-mode` and `theme-mode-use-system`.
 
 ### Q: Dark mode not working?
+
 **A**: Provider must wrap entire app. Check `<ThemeContextProvider>` is in layout.tsx.
 
 ### Q: Hook error?
+
 **A**: Component must be inside ThemeContextProvider. Add provider to root layout.
 
 ### Q: Hydration warning in Next.js?
+
 **A**: Expected and safe. Provider returns null during SSR to prevent mismatches.
 
 ---
@@ -523,6 +555,7 @@ src/__tests__/
 ## Questions?
 
 Refer to **`DESIGN_SYSTEM.md`** for:
+
 - Complete API reference
 - Architecture explanation
 - 5+ code examples
@@ -535,4 +568,3 @@ Refer to **`DESIGN_SYSTEM.md`** for:
 **Status**: ✅ Production Ready
 
 Everything is tested, documented, and ready to use immediately.
-

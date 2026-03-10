@@ -24,16 +24,20 @@
 ### InputArea Component Tests
 
 #### Basic Input Functionality (4 tests)
+
 - [ ] `test: should render textarea with placeholder`
+
   - Verify placeholder text appears
   - Verify textarea is visible
 
 - [ ] `test: should call onInputChange when typing`
+
   - Type each character
   - Verify callback called with correct value
   - Verify accumulation of characters
 
 - [ ] `test: should show character count above 500`
+
   - Input 600 characters
   - Verify count displays as "600"
   - Verify count is only visible >500 chars
@@ -44,18 +48,22 @@
   - Verify clean appearance for short text
 
 #### Expand/Collapse Functionality (4 tests)
+
 - [ ] `test: should toggle expanded state`
+
   - Click expand button
   - Verify state changes
   - Click collapse button
   - Verify state changes back
 
 - [ ] `test: should disable expand button when input is empty`
+
   - Clear input
   - Verify button is disabled
   - Verify visual feedback (opacity, cursor)
 
 - [ ] `test: should enable expand button when input has content`
+
   - Enter text
   - Verify button is enabled
   - Verify button is clickable
@@ -65,18 +73,22 @@
   - Verify correct shortcut for mode (Cmd/Ctrl+Enter or Shift+Enter)
 
 #### Submit Functionality (4 tests)
+
 - [ ] `test: should call onSubmit when send button is clicked`
+
   - Click send button
   - Verify callback executed
   - Verify with different input lengths
 
 - [ ] `test: should call onStop when stop button is clicked`
+
   - Set isLoading={true}
   - Click stop button
   - Verify onStop called
   - Verify button label changes to "Stop"
 
 - [ ] `test: should disable send button when loading`
+
   - Set isLoading={true}
   - Verify button disabled visually
   - Verify button label is "Stop"
@@ -87,22 +99,27 @@
   - Verify button label is "Send"
 
 #### Execution Time Display (5 tests)
+
 - [ ] `test: should display execution time in seconds`
+
   - Pass executionTime={5}
   - Verify displays as "5s"
   - Verify correct formatting
 
 - [ ] `test: should display execution time in milliseconds`
+
   - Pass executionTime={500}
   - Verify displays as "500ms"
   - Verify sub-second precision
 
 - [ ] `test: should display execution time in minutes`
+
   - Pass executionTime={125} (2m 5s)
   - Verify displays as "2m 5s"
   - Verify calculation is correct
 
 - [ ] `test: should show sending status indicator`
+
   - Pass sendStatus="sending"
   - Verify pulse animation appears
   - Verify color is blue
@@ -113,23 +130,28 @@
   - Verify color is red
 
 #### Keyboard Navigation (5 tests)
+
 - [ ] `test: should submit on Cmd/Ctrl+Enter`
+
   - Press Cmd/Ctrl+Enter
   - Verify form submits
   - Verify works in expanded mode
 
 - [ ] `test: should submit on Enter in compact mode`
+
   - Set inputExpanded={false}
   - Press Enter
   - Verify form submits
   - Verify doesn't submit in expanded mode
 
 - [ ] `test: should allow Shift+Enter for newline`
+
   - Press Shift+Enter
   - Verify newline is added
   - Verify form doesn't submit
 
 - [ ] `test: should not submit when disabled`
+
   - Set isDisabled={true}
   - Try keyboard shortcuts
   - Verify nothing happens
@@ -140,12 +162,15 @@
   - Verify focus order is logical
 
 #### Accessibility (3 tests)
+
 - [ ] `test: should have proper ARIA labels`
+
   - Inspect HTML for aria-label attributes
   - Verify labels are descriptive
   - Verify all interactive elements have labels
 
 - [ ] `test: should announce character count to screen readers`
+
   - Check aria-describedby attribute
   - Verify id matches count element
   - Test with screen reader
@@ -161,17 +186,21 @@
 ### ToolCallBoxEnhanced Component Tests
 
 #### Tool Call Display (4 tests)
+
 - [ ] `test: should render tool name`
+
   - Verify name displays correctly
   - Verify name is readable
   - Try with long tool names
 
 - [ ] `test: should render status icon for completed status`
+
   - Set status="completed"
   - Verify green checkmark icon
   - Verify icon is visible and clear
 
 - [ ] `test: should render status icon for pending status`
+
   - Set status="pending"
   - Verify spinning loader icon
   - Verify animation is smooth
@@ -182,31 +211,37 @@
   - Verify icon stands out
 
 #### Risk Badges (6 tests)
+
 - [ ] `test: should display low risk badge for read_file`
+
   - Tool: "read_file"
   - Verify badge shows "Read-only"
   - Verify color is green
   - Verify icon is shield
 
 - [ ] `test: should display high risk badge for write_file`
+
   - Tool: "write_file"
   - Verify badge shows "Write Risk"
   - Verify color is orange
   - Verify icon is alert
 
 - [ ] `test: should display critical risk badge for delete_file`
+
   - Tool: "delete_file"
   - Verify badge shows "Delete Risk"
   - Verify color is red
   - Verify icon is triangle alert
 
 - [ ] `test: should display critical risk badge for execute_command`
+
   - Tool: "execute_command"
   - Verify badge shows "Execute Risk"
   - Verify color is red
   - Verify description tooltip appears on hover
 
 - [ ] `test: should display custom risk level when provided`
+
   - Override with riskLevel="high"
   - Verify custom level is used
   - Verify color matches custom level
@@ -217,12 +252,15 @@
   - Verify description is accurate
 
 #### Execution Time Display (3 tests)
+
 - [ ] `test: should display execution time in milliseconds`
+
   - Pass executionTime={500}
   - Verify displays as "500ms"
   - Verify formatting is correct
 
 - [ ] `test: should display execution time in seconds`
+
   - Pass executionTime={2500}
   - Verify displays as "2.5s"
   - Verify decimal places are correct
@@ -233,18 +271,22 @@
   - Verify layout is clean
 
 #### Expand/Collapse Functionality (4 tests)
+
 - [ ] `test: should expand when clicked`
+
   - Click button
   - Verify content appears
   - Verify animation is smooth
 
 - [ ] `test: should display arguments when expanded`
+
   - Expand with arguments
   - Verify "Arguments" header shows
   - Verify arguments are displayed
   - Verify formatting is correct
 
 - [ ] `test: should display result when expanded`
+
   - Expand with result
   - Verify "Result" header shows
   - Verify result is displayed
@@ -256,18 +298,22 @@
   - Verify no expand/collapse icon shows
 
 #### Copy Functionality (4 tests)
+
 - [ ] `test: should show copy button for arguments`
+
   - Expand with arguments
   - Verify "Copy" button appears
   - Verify button is clickable
 
 - [ ] `test: should copy arguments to clipboard`
+
   - Click copy button
   - Verify clipboard contains JSON
   - Verify JSON formatting is correct
   - Verify proper indentation (2 spaces)
 
 - [ ] `test: should show copied feedback`
+
   - Click copy button
   - Verify "Copied!" text appears
   - Verify feedback lasts ~2 seconds
@@ -279,7 +325,9 @@
   - Verify copy button does not appear
 
 #### Accessibility (2 tests)
+
 - [ ] `test: should have proper ARIA labels`
+
   - Inspect for aria-label
   - Verify labels are descriptive
   - Verify labels work with screen readers
@@ -296,6 +344,7 @@
 ### ChatInterface Integration
 
 #### InputArea Integration
+
 - [ ] Component imports without errors
 - [ ] All props pass through correctly
 - [ ] Textarea resizes properly
@@ -308,6 +357,7 @@
 - [ ] Keyboard shortcuts work correctly
 
 #### ToolCallBoxEnhanced Integration
+
 - [ ] Component imports without errors
 - [ ] Risk badges display for various tools
 - [ ] Execution time displays from metrics
@@ -318,6 +368,7 @@
 - [ ] Expand/collapse smooth animation
 
 #### MessageListEnhanced Integration
+
 - [ ] CodeBlock component renders correctly
 - [ ] Copy button works in message list
 - [ ] Language badge displays for code
@@ -333,6 +384,7 @@
 ### UI/UX Testing
 
 #### Appearance
+
 - [ ] InputArea height increases as text is added
 - [ ] Expand button shows with visual feedback
 - [ ] Send button changes to Stop during loading
@@ -345,6 +397,7 @@
 - [ ] No overlapping elements
 
 #### Interactions
+
 - [ ] Click expand button → textarea grows
 - [ ] Click collapse button → textarea shrinks
 - [ ] Type while expanded → content visible
@@ -355,12 +408,15 @@
 - [ ] Click tool call → expands/collapses smoothly
 
 #### Responsiveness
+
 - [ ] **Desktop (1920×1080)**
+
   - All components render correctly
   - No horizontal scrolling
   - Touch targets are appropriately sized
 
 - [ ] **Tablet (768×1024)**
+
   - InputArea is still usable
   - Tool call boxes fit on screen
   - Risk badges don't overlap text
@@ -374,6 +430,7 @@
 ### Keyboard Navigation Testing
 
 #### Tab Order
+
 - [ ] Starting state has no focus
 - [ ] First Tab focuses upload button
 - [ ] Tab through expand button
@@ -383,6 +440,7 @@
 - [ ] Tab order is logical and visible
 
 #### Keyboard Shortcuts
+
 - [ ] **Ctrl/Cmd+Enter** sends message (all modes)
 - [ ] **Enter** sends message (compact mode only)
 - [ ] **Shift+Enter** adds newline (all modes)
@@ -391,6 +449,7 @@
 - [ ] Shortcuts don't work when disabled
 
 #### Focus Indicators
+
 - [ ] Focus ring visible on all buttons
 - [ ] Focus ring visible on textarea
 - [ ] Focus ring has high contrast
@@ -400,6 +459,7 @@
 ### Accessibility Testing (Screen Readers)
 
 #### NVDA (Windows)
+
 - [ ] Application announces component names
 - [ ] Button labels read correctly
 - [ ] Input fields labeled properly
@@ -410,18 +470,21 @@
 - [ ] Tool call status announced
 
 #### JAWS (Windows)
+
 - [ ] All NVDA checks pass
 - [ ] Headings navigable
 - [ ] Landmarks identifiable
 - [ ] Forms announced correctly
 
 #### VoiceOver (macOS)
+
 - [ ] All NVDA checks pass
 - [ ] Rotor navigation works
 - [ ] Custom actions available
 - [ ] Hints read aloud
 
 #### TalkBack (Android)
+
 - [ ] Components navigable with swipes
 - [ ] Actions available via local context menu
 - [ ] Text readable
@@ -434,6 +497,7 @@
 ### Desktop Browsers
 
 #### Chrome 120+
+
 - [ ] All features work
 - [ ] Performance is good
 - [ ] No console errors
@@ -441,6 +505,7 @@
 - [ ] Responsive design works
 
 #### Firefox 121+
+
 - [ ] All features work
 - [ ] Performance is good
 - [ ] No console errors
@@ -448,6 +513,7 @@
 - [ ] Focus indicators visible
 
 #### Safari 17+
+
 - [ ] All features work
 - [ ] Performance is good
 - [ ] No console errors
@@ -455,6 +521,7 @@
 - [ ] Dark mode works
 
 #### Edge 120+
+
 - [ ] All features work
 - [ ] Performance is good
 - [ ] No console errors
@@ -463,6 +530,7 @@
 ### Mobile Browsers
 
 #### Chrome Mobile (iOS/Android)
+
 - [ ] Touch interactions work
 - [ ] Buttons are tappable (44×44px+)
 - [ ] No layout issues
@@ -470,6 +538,7 @@
 - [ ] Mobile keyboard shortcuts work
 
 #### Safari Mobile (iOS)
+
 - [ ] Touch interactions work
 - [ ] Buttons are tappable
 - [ ] No layout issues
@@ -477,11 +546,13 @@
 - [ ] Clipboard works in iOS 13.2+
 
 #### Firefox Mobile (Android)
+
 - [ ] Touch interactions work
 - [ ] Buttons are tappable
 - [ ] No layout issues
 
 #### Samsung Internet (Android)
+
 - [ ] Touch interactions work
 - [ ] All features functional
 
@@ -490,6 +561,7 @@
 ## Performance Testing
 
 ### Load Time
+
 - [ ] Initial page load < 3 seconds
 - [ ] Component mounting < 100ms
 - [ ] Input typing response < 30ms
@@ -497,12 +569,14 @@
 - [ ] Expand/collapse animation < 200ms
 
 ### Runtime Performance
+
 - [ ] No jank during typing
 - [ ] Smooth animations (60fps)
 - [ ] Memory doesn't leak over time
 - [ ] No excessive re-renders
 
 ### Bundle Size
+
 - [ ] Total bundle size increase < 30KB
 - [ ] Components lazy-loadable
 - [ ] No unused dependencies
@@ -514,12 +588,14 @@
 ### WCAG 2.1 AA Standards
 
 #### Perceivable
+
 - [ ] Text has sufficient color contrast (4.5:1 or 3:1 for large text)
 - [ ] All text is readable in all colors
 - [ ] Icons have text alternatives
 - [ ] Color is not the only means of indicating information
 
 #### Operable
+
 - [ ] All functionality available via keyboard
 - [ ] Focus indicator is visible
 - [ ] Focus order is logical
@@ -527,12 +603,14 @@
 - [ ] Links and buttons have descriptive labels
 
 #### Understandable
+
 - [ ] Error messages are clear
 - [ ] Labels clearly identify form inputs
 - [ ] Instructions are clear and concise
 - [ ] Page has clear structure
 
 #### Robust
+
 - [ ] Valid HTML structure
 - [ ] Proper ARIA attributes
 - [ ] Compatible with assistive technologies
@@ -549,6 +627,7 @@ All text should have at least 4.5:1 contrast ratio:
 - [ ] Link text (if any)
 
 Test with:
+
 - [ ] Web Accessibility Evaluation Tool (WAVE)
 - [ ] Chrome DevTools Lighthouse
 - [ ] axe DevTools browser extension
@@ -609,53 +688,60 @@ Test with:
 ## Sign-off
 
 ### QA Lead Sign-off
+
 - [ ] All tests completed
 - [ ] No critical issues found
 - [ ] All identified issues resolved
 - [ ] Component ready for production
 
-**QA Lead**: ____________________
-**Date**: ____________________
+**QA Lead**: ********\_\_\_\_********
+**Date**: ********\_\_\_\_********
 **Sign-off**: ☐ APPROVED ☐ APPROVED WITH CONDITIONS ☐ REJECTED
 
 ### Development Lead Sign-off
+
 - [ ] Code review completed
 - [ ] All feedback addressed
 - [ ] Ready for merge
 - [ ] Ready for deployment
 
-**Dev Lead**: ____________________
-**Date**: ____________________
+**Dev Lead**: ********\_\_\_\_********
+**Date**: ********\_\_\_\_********
 
 ### Product Manager Sign-off
+
 - [ ] Feature complete
 - [ ] Meets requirements
 - [ ] Ready to ship
 - [ ] Documentation adequate
 
-**PM**: ____________________
-**Date**: ____________________
+**PM**: ********\_\_\_\_********
+**Date**: ********\_\_\_\_********
 
 ---
 
 ## Notes & Issues Found
 
 ### Critical Issues
+
 ```
 None found ✅
 ```
 
 ### Major Issues
+
 ```
 None found ✅
 ```
 
 ### Minor Issues
+
 ```
 None found ✅
 ```
 
 ### Suggestions for Future
+
 ```
 - Add input history/suggestions
 - Add syntax highlighting for code blocks

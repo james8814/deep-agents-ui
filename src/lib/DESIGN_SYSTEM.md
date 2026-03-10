@@ -5,6 +5,7 @@
 This document covers the complete design system implementation for Deep Agents UI, based on the **Liquid Iris Design System (v5.26)**.
 
 The design system provides:
+
 - **Token-based design** with centralized CSS variables
 - **Theme switching** (light/dark mode) with persistence
 - **Type-safe design utilities** in TypeScript
@@ -19,17 +20,18 @@ The design system provides:
 Raw design values organized by category:
 
 ```typescript
-import { designTokens } from '@/lib/designTokens';
+import { designTokens } from "@/lib/designTokens";
 
 // Access tokens
-designTokens.light.primary           // '#7C3AED'
-designTokens.dark.primary            // '#8B5CF6'
-designTokens.typography.fontSizes.lg // '1rem'
-designTokens.spacing['4']             // '16px'
-designTokens.opdca.observe            // '#06B6D4'
+designTokens.light.primary; // '#7C3AED'
+designTokens.dark.primary; // '#8B5CF6'
+designTokens.typography.fontSizes.lg; // '1rem'
+designTokens.spacing["4"]; // '16px'
+designTokens.opdca.observe; // '#06B6D4'
 ```
 
 **Categories:**
+
 - Brand (gradients, color spectrum)
 - Primary Colors (light/dark variants)
 - Surfaces (backgrounds for different contexts)
@@ -52,10 +54,14 @@ designTokens.opdca.observe            // '#06B6D4'
 Maps tokens to CSS variables with theme awareness:
 
 ```typescript
-import { lightModeColors, darkModeColors, getThemeColor } from '@/lib/colorSystem';
+import {
+  lightModeColors,
+  darkModeColors,
+  getThemeColor,
+} from "@/lib/colorSystem";
 
 // Get theme-aware color
-const primaryColor = getThemeColor('color-primary', isDark);
+const primaryColor = getThemeColor("color-primary", isDark);
 
 // Access all colors for a theme
 const colors = isDark ? darkModeColors : lightModeColors;
@@ -66,14 +72,14 @@ const colors = isDark ? darkModeColors : lightModeColors;
 Typography scales and utility classes:
 
 ```typescript
-import { typographySystem, getBodyTextStyle } from '@/lib/typographySystem';
+import { typographySystem, getBodyTextStyle } from "@/lib/typographySystem";
 
 // Get typography scale
 const h1Style = typographySystem.headings.h1;
 // { fontSize: '2rem', fontWeight: 700, lineHeight: 1.33, ... }
 
 // Get body text
-const bodyStyle = getBodyTextStyle('lg');
+const bodyStyle = getBodyTextStyle("lg");
 ```
 
 ### Layer 4: Theme Context (`ThemeContext.tsx`)
@@ -81,15 +87,11 @@ const bodyStyle = getBodyTextStyle('lg');
 Manages theme state and provides global CSS variables:
 
 ```typescript
-'use client';
-import { ThemeContextProvider } from '@/contexts/ThemeContext';
+"use client";
+import { ThemeContextProvider } from "@/contexts/ThemeContext";
 
 export default function RootLayout({ children }) {
-  return (
-    <ThemeContextProvider>
-      {children}
-    </ThemeContextProvider>
-  );
+  return <ThemeContextProvider>{children}</ThemeContextProvider>;
 }
 ```
 
@@ -98,11 +100,11 @@ export default function RootLayout({ children }) {
 React hooks for consuming theme in components:
 
 ```typescript
-import { useTheme, useThemeColor, useThemeColors } from '@/hooks/useTheme';
+import { useTheme, useThemeColor, useThemeColors } from "@/hooks/useTheme";
 
 function MyComponent() {
   const { isDark, toggleTheme } = useTheme();
-  const primaryColor = useThemeColor('color-primary');
+  const primaryColor = useThemeColor("color-primary");
   const allColors = useThemeColors();
 
   return <button onClick={toggleTheme}>Toggle</button>;
@@ -117,9 +119,13 @@ function MyComponent() {
 
 ```typescript
 // src/app/layout.tsx
-import { ThemeContextProvider } from '@/contexts/ThemeContext';
+import { ThemeContextProvider } from "@/contexts/ThemeContext";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html>
       <body>
@@ -135,6 +141,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ### 2. CSS Variables Auto-Applied
 
 The `ThemeContextProvider` automatically:
+
 1. Detects system preference (dark/light)
 2. Loads saved theme from localStorage
 3. Applies CSS variables to `document.documentElement`
@@ -147,25 +154,21 @@ No additional CSS imports needed!
 
 ```typescript
 // Option A: Use hooks
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from "@/hooks/useTheme";
 
 function Component() {
   const { isDark, mode, setTheme } = useTheme();
-  return <button onClick={() => setTheme('dark')}>Dark</button>;
+  return <button onClick={() => setTheme("dark")}>Dark</button>;
 }
 
 // Option B: Use CSS variables
 function Component() {
-  return (
-    <div style={{ color: 'var(--text-primary)' }}>
-      Content
-    </div>
-  );
+  return <div style={{ color: "var(--text-primary)" }}>Content</div>;
 }
 
 // Option C: Use Tailwind classes (with custom config)
 function Component() {
-  return <div className="text-primary bg-surface-base">Content</div>;
+  return <div className="bg-surface-base text-primary">Content</div>;
 }
 ```
 
@@ -182,6 +185,7 @@ const { mode, isDark, setTheme, toggleTheme } = useTheme();
 ```
 
 **Returns:**
+
 - `mode: 'light' | 'dark'` - Current theme
 - `isDark: boolean` - Convenience flag
 - `setTheme(mode)` - Set specific theme
@@ -195,7 +199,7 @@ const { mode, isDark, setTheme, toggleTheme } = useTheme();
 Get theme-aware color by CSS variable name.
 
 ```typescript
-const primary = useThemeColor('color-primary');
+const primary = useThemeColor("color-primary");
 // Light: '#7C3AED', Dark: '#8B5CF6'
 ```
 
@@ -221,7 +225,8 @@ const { isDark, isLight, mode, toggle, setToDark, setToLight } = useThemeMode();
 Manage system preference sync.
 
 ```typescript
-const { systemPreference, useSystemPreference, setUseSystemPreference } = useSystemThemePreference();
+const { systemPreference, useSystemPreference, setUseSystemPreference } =
+  useSystemThemePreference();
 ```
 
 ### `useThemeListener(callback)`
@@ -230,7 +235,7 @@ Listen for theme changes anywhere in app.
 
 ```typescript
 useThemeListener((isDark, mode) => {
-  console.log('Theme changed to:', mode);
+  console.log("Theme changed to:", mode);
 });
 ```
 
@@ -248,8 +253,8 @@ Access typography scales.
 
 ```typescript
 const { heading, body, label, display } = useTypography();
-const h1Style = heading('h1');
-const bodyStyle = body('base');
+const h1Style = heading("h1");
+const bodyStyle = body("base");
 ```
 
 ### `useThemeState()`
@@ -258,8 +263,12 @@ Combined theme state hook.
 
 ```typescript
 const {
-  mode, isDark, colors, toggleTheme,
-  systemPreference, useSystemPreference,
+  mode,
+  isDark,
+  colors,
+  toggleTheme,
+  systemPreference,
+  useSystemPreference,
 } = useThemeState();
 ```
 
@@ -268,7 +277,7 @@ const {
 Simple localStorage hook.
 
 ```typescript
-const [savedValue, setSavedValue] = useLocalStorage('my-key', 'default');
+const [savedValue, setSavedValue] = useLocalStorage("my-key", "default");
 ```
 
 ---
@@ -312,6 +321,7 @@ const [savedValue, setSavedValue] = useLocalStorage('my-key', 'default');
 ### Dark Mode
 
 Same structure, different values:
+
 - `--color-primary: #8B5CF6`
 - `--surface-base: #0A0A12`
 - `--text-primary: rgba(255,255,255,0.95)`
@@ -400,20 +410,16 @@ Same structure, different values:
 ### Pattern 1: Dynamic Styling
 
 ```typescript
-function StatusBadge({ type }: { type: 'success' | 'error' | 'warning' }) {
+function StatusBadge({ type }: { type: "success" | "error" | "warning" }) {
   const colors = useThemeColors();
 
   const colorMap = {
-    success: colors['--color-success'],
-    error: colors['--color-error'],
-    warning: colors['--color-warning'],
+    success: colors["--color-success"],
+    error: colors["--color-error"],
+    warning: colors["--color-warning"],
   };
 
-  return (
-    <span style={{ color: colorMap[type] }}>
-      Status
-    </span>
-  );
+  return <span style={{ color: colorMap[type] }}>Status</span>;
 }
 ```
 
@@ -422,8 +428,8 @@ function StatusBadge({ type }: { type: 'success' | 'error' | 'warning' }) {
 ```typescript
 function Button() {
   const { isDark } = useTheme();
-  const bgColor = useThemeColor('color-primary');
-  const textColor = useThemeColor('text-on-primary');
+  const bgColor = useThemeColor("color-primary");
+  const textColor = useThemeColor("text-on-primary");
 
   return (
     <button
@@ -464,7 +470,7 @@ function ResponsiveLayout() {
   const { isMobile, isTablet, isDesktop } = useResponsive();
 
   return (
-    <div className={isMobile ? 'flex-col' : 'flex-row'}>
+    <div className={isMobile ? "flex-col" : "flex-row"}>
       {isDesktop && <Sidebar />}
       <Content />
     </div>
@@ -475,14 +481,18 @@ function ResponsiveLayout() {
 ### Pattern 5: OPDCA Status Display
 
 ```typescript
-function OPDCAIndicator({ stage }: { stage: 'observe' | 'plan' | 'do' | 'check' | 'adapt' }) {
+function OPDCAIndicator({
+  stage,
+}: {
+  stage: "observe" | "plan" | "do" | "check" | "adapt";
+}) {
   const color = useThemeColor(`opdca-${stage}`);
 
   return (
     <div
       style={{
         backgroundColor: color,
-        borderRadius: 'var(--radius-full)',
+        borderRadius: "var(--radius-full)",
       }}
     />
   );
@@ -494,6 +504,7 @@ function OPDCAIndicator({ stage }: { stage: 'observe' | 'plan' | 'do' | 'check' 
 ## Theme Persistence
 
 Theme is automatically persisted to localStorage under two keys:
+
 - `theme-mode`: Stores 'light' or 'dark'
 - `theme-mode-use-system`: Boolean for OS sync
 
@@ -537,25 +548,21 @@ Old → New mapping:
 ### Updating Components
 
 Before:
+
 ```typescript
 // Old way - hardcoded colors
-<div style={{ color: '#111827' }}>
-  Text
-</div>
+<div style={{ color: "#111827" }}>Text</div>
 ```
 
 After:
+
 ```typescript
 // New way - uses design tokens
-<div style={{ color: 'var(--text-primary)' }}>
-  Text
-</div>
+<div style={{ color: "var(--text-primary)" }}>Text</div>;
 
 // Or with hooks
-const color = useThemeColor('text-primary');
-<div style={{ color }}>
-  Text
-</div>
+const color = useThemeColor("text-primary");
+<div style={{ color }}>Text</div>;
 ```
 
 ---
@@ -566,25 +573,25 @@ const color = useThemeColor('text-primary');
 
 ```typescript
 // In browser console
-localStorage.setItem('theme-mode', 'dark');
+localStorage.setItem("theme-mode", "dark");
 location.reload();
 
 // Check CSS variables
-getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
+getComputedStyle(document.documentElement).getPropertyValue("--color-primary");
 ```
 
 ### Unit Testing
 
 ```typescript
-import { renderHook, act } from '@testing-library/react';
-import { useTheme } from '@/hooks/useTheme';
-import { ThemeContextProvider } from '@/contexts/ThemeContext';
+import { renderHook, act } from "@testing-library/react";
+import { useTheme } from "@/hooks/useTheme";
+import { ThemeContextProvider } from "@/contexts/ThemeContext";
 
 function wrapper({ children }) {
   return <ThemeContextProvider>{children}</ThemeContextProvider>;
 }
 
-test('toggle theme', () => {
+test("toggle theme", () => {
   const { result } = renderHook(() => useTheme(), { wrapper });
 
   expect(result.current.isDark).toBe(false);
@@ -676,4 +683,3 @@ When adding new design tokens:
 - **Typography**: Inter (sans-serif), JetBrains Mono (monospace)
 - **Spacing**: 4px base grid
 - **Motion**: Cubic-bezier easing with duration tokens
-

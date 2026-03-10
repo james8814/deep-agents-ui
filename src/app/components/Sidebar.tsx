@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   MessageCircle,
   FileText,
@@ -11,9 +11,9 @@ import {
   HelpCircle,
   Menu,
   X,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   id: string;
@@ -39,8 +39,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const navItems: NavItem[] = [
-    { id: 'chat', icon: <MessageCircle size={20} />, label: '对话', href: '/' },
-    { id: 'files', icon: <FileText size={20} />, label: '文件', href: '/files' },
+    { id: "chat", icon: <MessageCircle size={20} />, label: "对话", href: "/" },
+    {
+      id: "files",
+      icon: <FileText size={20} />,
+      label: "文件",
+      href: "/files",
+    },
   ];
 
   // Close menu when clicking outside
@@ -57,26 +62,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     };
 
     if (menuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuOpen]);
 
   // Close menu on escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setMenuOpen(false);
       }
     };
 
     if (menuOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
     }
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [menuOpen]);
 
@@ -88,16 +93,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleLogout = async () => {
     try {
       await logout();
-      router.push('/login');
+      router.push("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
   // Determine active navigation item
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/' || pathname === '';
+    if (href === "/") {
+      return pathname === "/" || pathname === "";
     }
     return pathname.startsWith(href);
   };
@@ -107,10 +112,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen bg-primary border-r border-secondary',
-          'flex flex-col items-center gap-3 p-3 transition-all duration-300 z-50',
-          'overflow-y-auto',
-          expanded ? 'w-56' : 'w-16'
+          "fixed left-0 top-0 h-screen border-r border-secondary bg-primary",
+          "z-50 flex flex-col items-center gap-3 p-3 transition-all duration-300",
+          "overflow-y-auto",
+          expanded ? "w-56" : "w-16"
         )}
         role="navigation"
         aria-label="Main navigation"
@@ -119,10 +124,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={onToggle}
           className={cn(
-            'flex items-center justify-center gap-2 px-3 py-2 rounded-md',
-            'bg-gradient-to-br from-cyan-400 to-purple-600 text-white font-bold text-lg',
-            'hover:shadow-lg hover:scale-105 transition-all duration-200',
-            'min-h-10 min-w-10 flex-shrink-0'
+            "flex items-center justify-center gap-2 rounded-md px-3 py-2",
+            "bg-gradient-to-br from-cyan-400 to-purple-600 text-lg font-bold text-white",
+            "transition-all duration-200 hover:scale-105 hover:shadow-lg",
+            "min-h-10 min-w-10 flex-shrink-0"
           )}
           aria-label="Toggle sidebar"
           title="Toggle sidebar expansion"
@@ -133,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation */}
         <nav
-          className="flex flex-col gap-2 mt-4 w-full"
+          className="mt-4 flex w-full flex-col gap-2"
           role="menubar"
         >
           {navItems.map(({ id, icon, label, href }) => {
@@ -143,15 +148,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={id}
                 onClick={() => handleNavClick(href)}
                 className={cn(
-                  'h-10 rounded-md flex items-center justify-center gap-3',
-                  'transition-all duration-200 group',
-                  'px-3 min-w-10 text-sm font-medium',
+                  "flex h-10 items-center justify-center gap-3 rounded-md",
+                  "group transition-all duration-200",
+                  "min-w-10 px-3 text-sm font-medium",
                   active
-                    ? 'bg-gradient-to-r from-purple-500/20 to-cyan-400/10 text-brand-primary'
-                    : 'text-tertiary hover:bg-secondary hover:text-primary'
+                    ? "bg-gradient-to-r from-purple-500/20 to-cyan-400/10 text-brand-primary"
+                    : "text-tertiary hover:bg-secondary hover:text-primary"
                 )}
                 aria-label={label}
-                aria-current={active ? 'page' : undefined}
+                aria-current={active ? "page" : undefined}
                 role="menuitem"
                 title={label}
               >
@@ -171,17 +176,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             ref={buttonRef}
             onClick={() => setMenuOpen(!menuOpen)}
             className={cn(
-              'w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400',
-              'flex items-center justify-center text-white font-semibold text-xs',
-              'hover:shadow-lg hover:scale-110 transition-all duration-200',
-              'mx-auto flex-shrink-0'
+              "h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400",
+              "flex items-center justify-center text-xs font-semibold text-white",
+              "transition-all duration-200 hover:scale-110 hover:shadow-lg",
+              "mx-auto flex-shrink-0"
             )}
             aria-label="User menu"
             aria-expanded={menuOpen}
             aria-haspopup="menu"
-            title={user?.username || 'User'}
+            title={user?.username || "User"}
           >
-            {user?.username?.charAt(0).toUpperCase() || 'U'}
+            {user?.username?.charAt(0).toUpperCase() || "U"}
           </button>
 
           {/* Dropdown Menu */}
@@ -189,21 +194,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div
               ref={menuRef}
               className={cn(
-                'absolute bottom-full left-1/2 -translate-x-1/2 mb-2',
-                'bg-secondary border border-tertiary',
-                'rounded-lg shadow-xl z-200 overflow-hidden',
-                'min-w-max',
-                expanded ? 'w-48' : 'w-56'
+                "absolute bottom-full left-1/2 mb-2 -translate-x-1/2",
+                "border border-tertiary bg-secondary",
+                "z-200 overflow-hidden rounded-lg shadow-xl",
+                "min-w-max",
+                expanded ? "w-48" : "w-56"
               )}
               role="menu"
             >
               {/* User Info Header */}
-              <div className="px-4 py-3 border-b border-tertiary space-y-1">
-                <div className="font-medium text-primary text-sm">
-                  {user?.username || 'User'}
+              <div className="space-y-1 border-b border-tertiary px-4 py-3">
+                <div className="text-sm font-medium text-primary">
+                  {user?.username || "User"}
                 </div>
-                <div className="text-xs text-tertiary truncate max-w-xs">
-                  {user?.email || 'user@example.com'}
+                <div className="max-w-xs truncate text-xs text-tertiary">
+                  {user?.email || "user@example.com"}
                 </div>
               </div>
 
@@ -211,10 +216,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="py-1">
                 <button
                   onClick={() => {
-                    handleNavClick('/profile');
+                    handleNavClick("/profile");
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-primary
-                           hover:bg-tertiary transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-primary
+                           transition-colors hover:bg-tertiary"
                   role="menuitem"
                 >
                   <User size={16} />
@@ -223,10 +228,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 <button
                   onClick={() => {
-                    handleNavClick('/settings');
+                    handleNavClick("/settings");
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-primary
-                           hover:bg-tertiary transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-primary
+                           transition-colors hover:bg-tertiary"
                   role="menuitem"
                 >
                   <Settings size={16} />
@@ -235,22 +240,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 <button
                   onClick={() => {
-                    handleNavClick('/help');
+                    handleNavClick("/help");
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-primary
-                           hover:bg-tertiary transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-primary
+                           transition-colors hover:bg-tertiary"
                   role="menuitem"
                 >
                   <HelpCircle size={16} />
                   <span>帮助</span>
                 </button>
 
-                <div className="border-t border-tertiary my-1" />
+                <div className="my-1 border-t border-tertiary" />
 
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-error
-                           hover:bg-error-secondary transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-error
+                           transition-colors hover:bg-error-secondary"
                   role="menuitem"
                 >
                   <LogOut size={16} />
@@ -274,4 +279,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-Sidebar.displayName = 'Sidebar';
+Sidebar.displayName = "Sidebar";

@@ -59,7 +59,9 @@ export const FileViewDialog = React.memo<{
 }>(({ file, onSaveFile, onClose, editDisabled }) => {
   const [isEditingMode, setIsEditingMode] = useState(file === null);
   const [fileName, setFileName] = useState(String(file?.path || ""));
-  const [fileContent, setFileContent] = useState(extractFileContent(file?.content));
+  const [fileContent, setFileContent] = useState(
+    extractFileContent(file?.content)
+  );
 
   const fileUpdate = useSWRMutation(
     { kind: "files-update", fileName, fileContent },

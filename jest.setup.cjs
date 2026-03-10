@@ -3,7 +3,7 @@
  * 配置全局 mocks 和测试环境
  */
 
-require('@testing-library/jest-dom');
+require("@testing-library/jest-dom");
 
 // Mock localStorage
 const localStorageMock = {
@@ -17,30 +17,30 @@ const localStorageMock = {
   key: jest.fn(),
 };
 
-Object.defineProperty(global, 'localStorage', {
+Object.defineProperty(global, "localStorage", {
   value: localStorageMock,
 });
 
 // Mock window.location
 const locationMock = {
-  href: 'http://localhost:3000',
-  origin: 'http://localhost:3000',
-  pathname: '/',
-  search: '',
-  hash: '',
-  host: 'localhost:3000',
-  hostname: 'localhost',
-  port: '3000',
-  protocol: 'http:',
+  href: "http://localhost:3000",
+  origin: "http://localhost:3000",
+  pathname: "/",
+  search: "",
+  hash: "",
+  host: "localhost:3000",
+  hostname: "localhost",
+  port: "3000",
+  protocol: "http:",
 };
 
-Object.defineProperty(global, 'location', {
+Object.defineProperty(global, "location", {
   value: locationMock,
   writable: true,
 });
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
     matches: false,
@@ -58,7 +58,7 @@ Object.defineProperty(window, 'matchMedia', {
 global.fetch = jest.fn();
 
 // Mock next/navigation
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
@@ -67,21 +67,21 @@ jest.mock('next/navigation', () => ({
     refresh: jest.fn(),
     prefetch: jest.fn(),
   }),
-  usePathname: () => '/',
+  usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 // Mock nuqs
-jest.mock('nuqs', () => ({
+jest.mock("nuqs", () => ({
   useQueryState: jest.fn((key) => [null, jest.fn()]),
 }));
 
 // Mock @langchain/langgraph-sdk
-jest.mock('@langchain/langgraph-sdk', () => ({
+jest.mock("@langchain/langgraph-sdk", () => ({
   __esModule: true,
 }));
 
-jest.mock('@langchain/langgraph-sdk/react', () => ({
+jest.mock("@langchain/langgraph-sdk/react", () => ({
   useStream: jest.fn(() => ({
     submit: jest.fn(),
     stop: jest.fn(),
@@ -95,7 +95,7 @@ jest.mock('@langchain/langgraph-sdk/react', () => ({
 }));
 
 // Mock @/providers/ClientProvider
-jest.mock('@/providers/ClientProvider', () => ({
+jest.mock("@/providers/ClientProvider", () => ({
   useClient: jest.fn(() => ({
     threads: {
       updateState: jest.fn(),
@@ -108,8 +108,8 @@ const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is no longer supported')
+      typeof args[0] === "string" &&
+      args[0].includes("Warning: ReactDOM.render is no longer supported")
     ) {
       return;
     }

@@ -51,6 +51,7 @@ No test framework is configured.
 ```
 
 **Key Points**:
+
 - Two independent services: Auth Server (FastAPI) + LangGraph Server
 - Bearer Token authentication (JWT stored in localStorage)
 - LangGraph Server requires JWT authentication for all API calls
@@ -78,15 +79,15 @@ ClientInitializer (loads fetchInterceptor)
 
 ### Key Auth Files
 
-| File | Purpose |
-|------|---------|
-| `src/contexts/AuthContext.tsx` | Auth state, login/logout, token storage |
-| `src/lib/fetchInterceptor.ts` | Global fetch patch for Bearer Token |
-| `src/providers/ClientProvider.tsx` | LangGraph SDK client with `onRequest` hook |
-| `src/components/AuthGuard.tsx` | Redirect to /login if not authenticated |
-| `src/components/ClientInitializer.tsx` | Loads fetchInterceptor on client |
-| `src/api/auth.ts` | Auth API calls (login, logout, getUserInfo) |
-| `src/api/client.ts` | Base fetch with credentials |
+| File                                   | Purpose                                     |
+| -------------------------------------- | ------------------------------------------- |
+| `src/contexts/AuthContext.tsx`         | Auth state, login/logout, token storage     |
+| `src/lib/fetchInterceptor.ts`          | Global fetch patch for Bearer Token         |
+| `src/providers/ClientProvider.tsx`     | LangGraph SDK client with `onRequest` hook  |
+| `src/components/AuthGuard.tsx`         | Redirect to /login if not authenticated     |
+| `src/components/ClientInitializer.tsx` | Loads fetchInterceptor on client            |
+| `src/api/auth.ts`                      | Auth API calls (login, logout, getUserInfo) |
+| `src/api/client.ts`                    | Base fetch with credentials                 |
 
 ### End-to-End Data Flow
 

@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 import {
   CheckCircle,
   Circle,
@@ -24,7 +30,12 @@ import { useChatContext } from "@/providers/ChatProvider";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import SubAgentPanel from "@/app/components/SubAgentPanel";
-import type { TodoItem, FileItem, FileMetadata, FileSortBy } from "@/app/types/types";
+import type {
+  TodoItem,
+  FileItem,
+  FileMetadata,
+  FileSortBy,
+} from "@/app/types/types";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useQueryState } from "nuqs";
@@ -37,265 +48,274 @@ interface ContextPanelProps {
   initialTab?: Tab;
 }
 
-export const ContextPanel = React.memo<ContextPanelProps>(({ onClose, initialTab }) => {
-  const { todos, files, setFiles, isLoading, interrupt, subagents } = useChatContext();
-  const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tasks");
-  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
-  const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [sortBy, setSortBy] = useState<FileSortBy>("time");
-  const [sortAsc, setSortAsc] = useState(false);
-  const [threadId] = useQueryState("threadId");
+export const ContextPanel = React.memo<ContextPanelProps>(
+  ({ onClose, initialTab }) => {
+    const { todos, files, setFiles, isLoading, interrupt, subagents } =
+      useChatContext();
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tasks");
+    const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+    const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [sortBy, setSortBy] = useState<FileSortBy>("time");
+    const [sortAsc, setSortAsc] = useState(false);
+    const [threadId] = useQueryState("threadId");
 
-  // Track file metadata (creation time, etc.) in local state
-  const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());
+    // Track file metadata (creation time, etc.) in local state
+    const fileMetadataRef = useRef<Map<string, FileMetadata>>(new Map());
 
-  // Reset state when thread changes
-  useEffect(() => {
-    setViewingFile(null);
-    setSelectedFile(null);
-    fileMetadataRef.current = new Map();
-    setRefreshKey((k) => k + 1);
-  }, [threadId]);
-
-  // Switch to initialTab when it changes (e.g., from "查看全部" click)
-  useEffect(() => {
-    if (initialTab) {
-      setActiveTab(initialTab);
-    }
-  }, [initialTab]);
-
-  // Update file metadata when files change
-  useEffect(() => {
-    const currentPaths = new Set(Object.keys(files));
-    const now = Date.now();
-
-    // Add metadata for new files
-    currentPaths.forEach((path) => {
-      if (!fileMetadataRef.current.has(path)) {
-        const rawContent = files[path];
-        const content = extractFileContent(rawContent);
-        const segments = path.split("/");
-        const name = segments[segments.length - 1] || path;
-        const directory = segments.slice(0, -1).join("/") || ".";
-        const extension = name.includes(".") ? name.split(".").pop()?.toLowerCase() || "" : "";
-
-        fileMetadataRef.current.set(path, {
-          path,
-          name,
-          directory,
-          addedAt: now,
-          size: content.length,
-          extension,
-        });
-      } else {
-        // Update size for existing files
-        const rawContent = files[path];
-        const content = extractFileContent(rawContent);
-        const existing = fileMetadataRef.current.get(path)!;
-        fileMetadataRef.current.set(path, {
-          ...existing,
-          size: content.length,
-        });
-      }
-    });
-
-    // Remove metadata for deleted files
-    fileMetadataRef.current.forEach((_, path) => {
-      if (!currentPaths.has(path)) {
-        fileMetadataRef.current.delete(path);
-      }
-    });
-  }, [files]);
-
-  // Get sorted file metadata
-  // Note: 'files' in deps triggers re-sort when files change (updates metadataRef via useEffect)
-  const sortedFileMetadata = useMemo(() => {
-    const metadata = Array.from(fileMetadataRef.current.values());
-    return metadata.sort((a, b) => {
-      if (sortBy === "name") {
-        return sortAsc
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      } else {
-        return sortAsc ? a.addedAt - b.addedAt : b.addedAt - a.addedAt;
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy, sortAsc, files]);
-
-  const hasTasks = todos.length > 0;
-  const fileCount = Object.keys(files).length;
-  const hasFiles = fileCount > 0;
-
-  const groupedTodos = useMemo(
-    () => ({
-      in_progress: todos.filter((t) => t.status === "in_progress"),
-      pending: todos.filter((t) => t.status === "pending"),
-      completed: todos.filter((t) => t.status === "completed"),
-    }),
-    [todos]
-  );
-
-  const handleSaveFile = useCallback(
-    async (fileName: string, content: string) => {
-      await setFiles({ ...files, [fileName]: content });
-      // Update selectedFile with new content immediately
-      setSelectedFile({ path: fileName, content });
-      // Trigger refresh to update file list
+    // Reset state when thread changes
+    useEffect(() => {
+      setViewingFile(null);
+      setSelectedFile(null);
+      fileMetadataRef.current = new Map();
       setRefreshKey((k) => k + 1);
-    },
-    [files, setFiles]
-  );
+    }, [threadId]);
 
-  const handleRefresh = useCallback(() => {
-    setRefreshKey((k) => k + 1);
-  }, []);
+    // Switch to initialTab when it changes (e.g., from "查看全部" click)
+    useEffect(() => {
+      if (initialTab) {
+        setActiveTab(initialTab);
+      }
+    }, [initialTab]);
 
-  // Get fresh file content when selecting a file
-  const handleFileSelect = useCallback(
-    (filePath: string) => {
-      const rawContent = files[filePath];
-      const content = extractFileContent(rawContent);
-      setViewingFile({ path: filePath, content });
-    },
-    [files]
-  );
+    // Update file metadata when files change
+    useEffect(() => {
+      const currentPaths = new Set(Object.keys(files));
+      const now = Date.now();
 
-  const handleExpandFile = useCallback(() => {
-    if (viewingFile) {
-      setSelectedFile(viewingFile);
-    }
-  }, [viewingFile]);
+      // Add metadata for new files
+      currentPaths.forEach((path) => {
+        if (!fileMetadataRef.current.has(path)) {
+          const rawContent = files[path];
+          const content = extractFileContent(rawContent);
+          const segments = path.split("/");
+          const name = segments[segments.length - 1] || path;
+          const directory = segments.slice(0, -1).join("/") || ".";
+          const extension = name.includes(".")
+            ? name.split(".").pop()?.toLowerCase() || ""
+            : "";
 
-  const handleBackToFileList = useCallback(() => {
-    setViewingFile(null);
-  }, []);
+          fileMetadataRef.current.set(path, {
+            path,
+            name,
+            directory,
+            addedAt: now,
+            size: content.length,
+            extension,
+          });
+        } else {
+          // Update size for existing files
+          const rawContent = files[path];
+          const content = extractFileContent(rawContent);
+          const existing = fileMetadataRef.current.get(path)!;
+          fileMetadataRef.current.set(path, {
+            ...existing,
+            size: content.length,
+          });
+        }
+      });
 
-  return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="text-sm font-semibold">任务工作台</h2>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={onClose}
-        >
-          <PanelRightClose size={14} />
-        </Button>
-      </div>
+      // Remove metadata for deleted files
+      fileMetadataRef.current.forEach((_, path) => {
+        if (!currentPaths.has(path)) {
+          fileMetadataRef.current.delete(path);
+        }
+      });
+    }, [files]);
 
-      {/* Tab Switcher */}
-      <div className="flex border-b border-border">
-        <button
-          onClick={() => setActiveTab("tasks")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
-            activeTab === "tasks"
-              ? "border-b-2 border-primary text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <ListTodo size={14} />
-          Tasks
-          {hasTasks && (
-            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
-              {todos.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab("files")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
-            activeTab === "files"
-              ? "border-b-2 border-primary text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <FileText size={14} />
-          Files
-          {hasFiles && (
-            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
-              {fileCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab("subagents")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
-            activeTab === "subagents"
-              ? "border-b-2 border-primary text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          <span className="text-sm">🤖</span>
-          子代理
-        </button>
-        {activeTab === "files" && (
+    // Get sorted file metadata
+    // Note: 'files' in deps triggers re-sort when files change (updates metadataRef via useEffect)
+    const sortedFileMetadata = useMemo(() => {
+      const metadata = Array.from(fileMetadataRef.current.values());
+      return metadata.sort((a, b) => {
+        if (sortBy === "name") {
+          return sortAsc
+            ? a.name.localeCompare(b.name)
+            : b.name.localeCompare(a.name);
+        } else {
+          return sortAsc ? a.addedAt - b.addedAt : b.addedAt - a.addedAt;
+        }
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sortBy, sortAsc, files]);
+
+    const hasTasks = todos.length > 0;
+    const fileCount = Object.keys(files).length;
+    const hasFiles = fileCount > 0;
+
+    const groupedTodos = useMemo(
+      () => ({
+        in_progress: todos.filter((t) => t.status === "in_progress"),
+        pending: todos.filter((t) => t.status === "pending"),
+        completed: todos.filter((t) => t.status === "completed"),
+      }),
+      [todos]
+    );
+
+    const handleSaveFile = useCallback(
+      async (fileName: string, content: string) => {
+        await setFiles({ ...files, [fileName]: content });
+        // Update selectedFile with new content immediately
+        setSelectedFile({ path: fileName, content });
+        // Trigger refresh to update file list
+        setRefreshKey((k) => k + 1);
+      },
+      [files, setFiles]
+    );
+
+    const handleRefresh = useCallback(() => {
+      setRefreshKey((k) => k + 1);
+    }, []);
+
+    // Get fresh file content when selecting a file
+    const handleFileSelect = useCallback(
+      (filePath: string) => {
+        const rawContent = files[filePath];
+        const content = extractFileContent(rawContent);
+        setViewingFile({ path: filePath, content });
+      },
+      [files]
+    );
+
+    const handleExpandFile = useCallback(() => {
+      if (viewingFile) {
+        setSelectedFile(viewingFile);
+      }
+    }, [viewingFile]);
+
+    const handleBackToFileList = useCallback(() => {
+      setViewingFile(null);
+    }, []);
+
+    return (
+      <div className="flex h-full flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold">任务工作台</h2>
           <Button
             variant="ghost"
             size="icon"
             className="h-7 w-7"
-            onClick={handleRefresh}
-            title="Refresh file list"
+            onClick={onClose}
           >
-            <RefreshCw size={14} />
+            <PanelRightClose size={14} />
           </Button>
-        )}
-      </div>
+        </div>
 
-      {/* Content */}
-      <ScrollArea className="flex-1" key={refreshKey}>
-        {activeTab === "tasks" && (
-          <TasksTab groupedTodos={groupedTodos} hasTasks={hasTasks} />
-        )}
-        {activeTab === "files" && !viewingFile && (
-          <FilesTab
-            onFileSelect={handleFileSelect}
-            sortedMetadata={sortedFileMetadata}
-            sortBy={sortBy}
-            sortAsc={sortAsc}
-            onSortChange={(newSortBy) => {
-              if (newSortBy === sortBy) {
-                setSortAsc(!sortAsc);
-              } else {
-                setSortBy(newSortBy);
-                setSortAsc(false);
-              }
-            }}
-            threadId={threadId}
-            files={files}
-          />
-        )}
-        {activeTab === "subagents" && (
-          <SubAgentPanel subagents={subagents} />
-        )}
-        {activeTab === "files" && viewingFile && (
-          <InlineFileViewer
-            file={viewingFile}
-            onBack={handleBackToFileList}
-            onExpand={handleExpandFile}
+        {/* Tab Switcher */}
+        <div className="flex border-b border-border">
+          <button
+            onClick={() => setActiveTab("tasks")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
+              activeTab === "tasks"
+                ? "border-b-2 border-primary text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <ListTodo size={14} />
+            Tasks
+            {hasTasks && (
+              <span className="bg-primary/10 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
+                {todos.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("files")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
+              activeTab === "files"
+                ? "border-b-2 border-primary text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <FileText size={14} />
+            Files
+            {hasFiles && (
+              <span className="bg-primary/10 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
+                {fileCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("subagents")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
+              activeTab === "subagents"
+                ? "border-b-2 border-primary text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <span className="text-sm">🤖</span>
+            子代理
+          </button>
+          {activeTab === "files" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={handleRefresh}
+              title="Refresh file list"
+            >
+              <RefreshCw size={14} />
+            </Button>
+          )}
+        </div>
+
+        {/* Content */}
+        <ScrollArea
+          className="flex-1"
+          key={refreshKey}
+        >
+          {activeTab === "tasks" && (
+            <TasksTab
+              groupedTodos={groupedTodos}
+              hasTasks={hasTasks}
+            />
+          )}
+          {activeTab === "files" && !viewingFile && (
+            <FilesTab
+              onFileSelect={handleFileSelect}
+              sortedMetadata={sortedFileMetadata}
+              sortBy={sortBy}
+              sortAsc={sortAsc}
+              onSortChange={(newSortBy) => {
+                if (newSortBy === sortBy) {
+                  setSortAsc(!sortAsc);
+                } else {
+                  setSortBy(newSortBy);
+                  setSortAsc(false);
+                }
+              }}
+              threadId={threadId}
+              files={files}
+            />
+          )}
+          {activeTab === "subagents" && <SubAgentPanel subagents={subagents} />}
+          {activeTab === "files" && viewingFile && (
+            <InlineFileViewer
+              file={viewingFile}
+              onBack={handleBackToFileList}
+              onExpand={handleExpandFile}
+              editDisabled={isLoading === true || interrupt !== undefined}
+            />
+          )}
+        </ScrollArea>
+
+        {/* File Dialog — remains modal for editing */}
+        {selectedFile && (
+          <FileViewDialog
+            file={selectedFile}
+            onSaveFile={handleSaveFile}
+            onClose={() => setSelectedFile(null)}
             editDisabled={isLoading === true || interrupt !== undefined}
           />
         )}
-      </ScrollArea>
-
-      {/* File Dialog — remains modal for editing */}
-      {selectedFile && (
-        <FileViewDialog
-          file={selectedFile}
-          onSaveFile={handleSaveFile}
-          onClose={() => setSelectedFile(null)}
-          editDisabled={isLoading === true || interrupt !== undefined}
-        />
-      )}
-    </div>
-  );
-});
+      </div>
+    );
+  }
+);
 
 ContextPanel.displayName = "ContextPanel";
 
@@ -304,11 +324,26 @@ ContextPanel.displayName = "ContextPanel";
 function getStatusIcon(status: TodoItem["status"]) {
   switch (status) {
     case "completed":
-      return <CheckCircle size={14} className="text-success/80" />;
+      return (
+        <CheckCircle
+          size={14}
+          className="text-success/80"
+        />
+      );
     case "in_progress":
-      return <Clock size={14} className="text-warning/80 animate-pulse" />;
+      return (
+        <Clock
+          size={14}
+          className="text-warning/80 animate-pulse"
+        />
+      );
     default:
-      return <Circle size={14} className="text-tertiary/70" />;
+      return (
+        <Circle
+          size={14}
+          className="text-tertiary/70"
+        />
+      );
   }
 }
 
@@ -328,7 +363,10 @@ function TasksTab({
   if (!hasTasks) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <ListTodo size={24} className="mb-2 text-muted-foreground/50" />
+        <ListTodo
+          size={24}
+          className="mb-2 text-muted-foreground/50"
+        />
         <p className="text-xs text-muted-foreground">No tasks yet</p>
         <p className="mt-1 text-xs text-muted-foreground/60">
           Tasks will appear here as the agent works
@@ -342,7 +380,10 @@ function TasksTab({
       {Object.entries(groupedTodos)
         .filter(([, items]) => items.length > 0)
         .map(([status, items]) => (
-          <div key={status} className="mb-4 last:mb-0">
+          <div
+            key={status}
+            className="mb-4 last:mb-0"
+          >
             <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {GROUP_LABELS[status] || status}
             </h3>
@@ -386,35 +427,46 @@ function FilesTab({
 }) {
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
 
-  const handleCopyUrl = useCallback((e: React.MouseEvent, path: string) => {
-    e.stopPropagation();
-    if (threadId) {
-      const shareUrl = `${window.location.origin}/threads/${threadId}/files/${encodeURIComponent(path)}`;
-      navigator.clipboard.writeText(shareUrl);
-      setCopiedPath(path);
-      setTimeout(() => setCopiedPath(null), 2000);
-    }
-  }, [threadId]);
+  const handleCopyUrl = useCallback(
+    (e: React.MouseEvent, path: string) => {
+      e.stopPropagation();
+      if (threadId) {
+        const shareUrl = `${
+          window.location.origin
+        }/threads/${threadId}/files/${encodeURIComponent(path)}`;
+        navigator.clipboard.writeText(shareUrl);
+        setCopiedPath(path);
+        setTimeout(() => setCopiedPath(null), 2000);
+      }
+    },
+    [threadId]
+  );
 
-  const handleDownload = useCallback((e: React.MouseEvent, path: string) => {
-    e.stopPropagation();
-    const rawContent = files[path];
-    const content = extractFileContent(rawContent);
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = path.split("/").pop() || path;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [files]);
+  const handleDownload = useCallback(
+    (e: React.MouseEvent, path: string) => {
+      e.stopPropagation();
+      const rawContent = files[path];
+      const content = extractFileContent(rawContent);
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = path.split("/").pop() || path;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+    [files]
+  );
 
   if (sortedMetadata.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <FileText size={24} className="mb-2 text-muted-foreground/50" />
+        <FileText
+          size={24}
+          className="mb-2 text-muted-foreground/50"
+        />
         <p className="text-xs text-muted-foreground">No files yet</p>
         <p className="mt-1 text-xs text-muted-foreground/60">
           Files will appear here as the agent creates them
@@ -438,9 +490,8 @@ function FilesTab({
           )}
         >
           Time
-          {sortBy === "time" && (
-            sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />
-          )}
+          {sortBy === "time" &&
+            (sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />)}
         </button>
         <button
           onClick={() => onSortChange("name")}
@@ -452,9 +503,8 @@ function FilesTab({
           )}
         >
           Name
-          {sortBy === "name" && (
-            sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />
-          )}
+          {sortBy === "name" &&
+            (sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />)}
         </button>
       </div>
 
@@ -473,7 +523,7 @@ function FilesTab({
               }}
               role="button"
               tabIndex={0}
-              className="group flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="group flex w-full cursor-pointer items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <FileText
                 size={16}
@@ -496,30 +546,39 @@ function FilesTab({
                 </div>
               </div>
               {/* Action buttons */}
-              <div className="flex flex-shrink-0 items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                 {/* Download button */}
                 <button
                   type="button"
                   onClick={(e) => handleDownload(e, meta.path)}
-                  className="rounded-sm hover:bg-muted-foreground/20 p-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  className="rounded-sm p-1 hover:bg-muted-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label="Download file"
                   title="Download"
                 >
-                  <Download size={14} className="text-muted-foreground" />
+                  <Download
+                    size={14}
+                    className="text-muted-foreground"
+                  />
                 </button>
                 {/* Copy share URL button */}
                 {threadId && (
                   <button
                     type="button"
                     onClick={(e) => handleCopyUrl(e, meta.path)}
-                    className="rounded-sm hover:bg-muted-foreground/20 p-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    className="rounded-sm p-1 hover:bg-muted-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     aria-label="Copy share URL"
                     title="Copy share URL"
                   >
                     {copiedPath === meta.path ? (
-                      <Check size={14} className="text-success" />
+                      <Check
+                        size={14}
+                        className="text-success"
+                      />
                     ) : (
-                      <Copy size={14} className="text-muted-foreground" />
+                      <Copy
+                        size={14}
+                        className="text-muted-foreground"
+                      />
                     )}
                   </button>
                 )}
@@ -618,23 +677,26 @@ function InlineFileViewer({
   const fileName = file.path.split("/").pop() || file.path;
 
   return (
-    <div className="flex h-full flex-col min-h-0">
+    <div className="flex h-full min-h-0 flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-2 border-b border-border px-3 py-2">
         <button
           onClick={onBack}
-          className="text-muted-foreground hover:text-foreground flex-shrink-0"
+          className="flex-shrink-0 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft size={14} />
         </button>
-        <span className="flex-1 min-w-0 truncate text-xs font-medium" title={file.path}>
+        <span
+          className="min-w-0 flex-1 truncate text-xs font-medium"
+          title={file.path}
+        >
           {fileName}
         </span>
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-1">
           <button
             onClick={onExpand}
             disabled={editDisabled}
-            className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
             title="Open in editor"
           >
             <Pencil size={12} />
@@ -644,7 +706,7 @@ function InlineFileViewer({
       </div>
 
       {/* Content - scrollable within ScrollArea */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-2">
+      <div className="min-h-0 flex-1 overflow-y-auto p-2">
         {isMarkdown ? (
           <div className="rounded-md p-2">
             <MarkdownContent content={file.content} />

@@ -13,10 +13,12 @@ This document outlines the design for file upload, sharing, referencing, and del
 ### 1. File Upload in User Input
 
 **Supported File Types:**
+
 - Images: PNG, JPEG, GIF, WebP
 - Documents: TXT, MD, PDF, DOCX, CSV (passed directly to LLM, no parsing)
 
 **UI Design:**
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ [📎] [Type message...]                                    [Send] │
@@ -24,6 +26,7 @@ This document outlines the design for file upload, sharing, referencing, and del
 ```
 
 After file selection:
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ ┌──────────────┐                                                │
@@ -34,6 +37,7 @@ After file selection:
 ```
 
 **Implementation:**
+
 - Add upload button (📎 icon) to input toolbar
 - Convert files to base64
 - Use LangChain multimodal content blocks:
@@ -59,6 +63,7 @@ Each file has a shareable URL that users can copy.
 ```
 
 **Implementation:**
+
 - File URL format: `{baseUrl}/threads/{threadId}/files/{filePath}`
 - Copy button copies the URL to clipboard
 - URL points to file content (can be viewed in browser or downloaded)
@@ -80,6 +85,7 @@ When user references a file (via @file syntax or file picker), show a reference 
 ```
 
 **Implementation:**
+
 - Add file picker dropdown in input
 - Display file reference as clickable chip
 - Clicking opens FileViewDialog
@@ -116,10 +122,12 @@ Reference: Manus-style delivery display
 ```
 
 **"查看全部" Interaction:**
+
 - Clicking "查看全部" opens the **ContextPanel Files tab**
 - Shows complete file list with sorting and management capabilities
 
 **Display Rules:**
+
 1. Show only when task completes (`isLoading === false`)
 2. Display last 3 files created by agent
 3. Last file gets a preview card with:
@@ -128,6 +136,7 @@ Reference: Manus-style delivery display
    - "查看完整文件" button to open FileViewDialog
 
 **Detection Logic:**
+
 ```typescript
 // Show delivery cards when:
 // 1. isLoading transitions from true to false
@@ -157,6 +166,7 @@ const lastThreeFiles = useMemo(() => {
 ### 5. Click to Open File Viewer
 
 **Design:**
+
 - Existing `FileViewDialog` component is reused
 - All file preview cards and chips are clickable
 - Opens modal viewer (60vw × 80vh)
@@ -212,6 +222,7 @@ src/app/components/
 ## Implementation Phases
 
 ### Phase 1: File Upload in Input
+
 1. Create `FileUploadZone.tsx` component
 2. Add upload button to `ChatInterface.tsx`
 3. Convert files to base64
@@ -219,17 +230,20 @@ src/app/components/
 5. Update `useChat.ts` to handle multimodal messages
 
 ### Phase 2: File Sharing URL
+
 1. Generate shareable URLs for files
 2. Add copy button to file chips
 3. Implement copy-to-clipboard functionality
 
 ### Phase 3: File Reference in Chat
+
 1. Create `FileChip.tsx` component
 2. Add file picker in input area
 3. Render file references in messages
 4. Wire click to FileViewDialog
 
 ### Phase 4: Delivery Preview Cards
+
 1. Create `DeliveryCard.tsx` component
 2. Create `FilePreviewCard.tsx` component
 3. Detect task completion in ChatMessage
@@ -240,20 +254,23 @@ src/app/components/
 ## Backend Integration Notes
 
 ### Existing Backend Support
+
 - `upload_files()` API exists in BackendProtocol
 - `FilesystemBackend`, `StoreBackend`, `CompositeBackend` support file uploads
 - `StateBackend` (default) returns "not supported yet" for uploads
 
 ### Multimodal Message Format
+
 ```typescript
 // LangChain content block format
 type ContentBlock =
   | { type: "text"; text: string }
   | { type: "image_url"; image_url: { url: string } }
-  | { type: "file"; data?: string; url?: string; mimeType?: string }
+  | { type: "file"; data?: string; url?: string; mimeType?: string };
 ```
 
 ### Delivery Detection
+
 - LangGraph signals completion via `isLoading === false`
 - Files in `stream.values.files` are agent-created deliverables
 - No explicit "delivery" marker needed - UI infers from state

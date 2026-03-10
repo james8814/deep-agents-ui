@@ -38,13 +38,33 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
     const statusIcon = (() => {
       switch (subAgent.status) {
         case "active":
-          return <Loader2 size={14} className="animate-spin text-primary" />;
+          return (
+            <Loader2
+              size={14}
+              className="animate-spin text-primary"
+            />
+          );
         case "completed":
-          return <CheckCircle size={14} className="text-success/80" />;
+          return (
+            <CheckCircle
+              size={14}
+              className="text-success/80"
+            />
+          );
         case "error":
-          return <XCircle size={14} className="text-destructive" />;
+          return (
+            <XCircle
+              size={14}
+              className="text-destructive"
+            />
+          );
         default:
-          return <Clock size={14} className="text-muted-foreground" />;
+          return (
+            <Clock
+              size={14}
+              className="text-muted-foreground"
+            />
+          );
       }
     })();
 
@@ -68,8 +88,8 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
           subAgent.status === "active"
             ? "border-primary/30 bg-primary/5 dark:border-primary/40 dark:bg-primary/10"
             : subAgent.status === "error"
-              ? "border-destructive/30 bg-destructive/5 dark:border-destructive/40 dark:bg-destructive/10"
-              : "border-border bg-card"
+            ? "border-destructive/30 bg-destructive/5 dark:border-destructive/40 dark:bg-destructive/10"
+            : "border-border bg-card"
         )}
       >
         <Button
@@ -86,11 +106,7 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">{statusText}</span>
-            {isExpanded ? (
-              <ChevronUp size={14} />
-            ) : (
-              <ChevronDown size={14} />
-            )}
+            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </div>
         </Button>
       </div>

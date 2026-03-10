@@ -47,13 +47,22 @@ export const SubAgentThoughtChain = React.memo<SubAgentThoughtChainProps>(
           blink: isProcessing,
         };
       });
-    }, [subAgents, isLoading, expandedSubAgentId, onToggleExpand, useAntdxMarkdown]);
+    }, [
+      subAgents,
+      isLoading,
+      expandedSubAgentId,
+      onToggleExpand,
+      useAntdxMarkdown,
+    ]);
 
     if (!items.length) return null;
 
     return (
       <div className="w-full">
-        <ThoughtChain items={items} line="dashed" />
+        <ThoughtChain
+          items={items}
+          line="dashed"
+        />
       </div>
     );
   }
@@ -68,7 +77,10 @@ SubAgentThoughtChain.displayName = "SubAgentThoughtChain";
 function mapSubAgentStatus(
   status: SubAgent["status"]
 ): "loading" | "success" | "error" | "abort" {
-  const map: Record<SubAgent["status"], "loading" | "success" | "error" | "abort"> = {
+  const map: Record<
+    SubAgent["status"],
+    "loading" | "success" | "error" | "abort"
+  > = {
     pending: "loading",
     active: "loading",
     completed: "success",
@@ -113,8 +125,7 @@ function SubAgentContent({
     [subAgent.input]
   );
   const outputContent = useMemo(
-    () =>
-      subAgent.output ? extractContent(subAgent.output) : "",
+    () => (subAgent.output ? extractContent(subAgent.output) : ""),
     [subAgent.output]
   );
 
@@ -125,7 +136,7 @@ function SubAgentContent({
         <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
           Input
         </h4>
-        <div className="rounded-md border border-border bg-surface p-3">
+        <div className="bg-surface rounded-md border border-border p-3">
           {useAntdxMarkdown ? (
             <AntdXMarkdown content={inputContent} />
           ) : (

@@ -99,7 +99,8 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
         className={cn(
           "w-full overflow-hidden rounded-lg border-none shadow-none outline-none transition-colors duration-200 hover:bg-accent",
           isExpanded && hasContent && "bg-accent",
-          status === "interrupted" && "ring-2 ring-warning/50 ring-offset-1 ring-offset-background"
+          status === "interrupted" &&
+            "ring-warning/50 ring-2 ring-offset-1 ring-offset-background"
         )}
       >
         <Button
@@ -162,7 +163,10 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
                     <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Arguments
                     </h4>
-                    <ToolArgsRenderer name={name} args={args} />
+                    <ToolArgsRenderer
+                      name={name}
+                      args={args}
+                    />
                   </div>
                 )}
                 {result && (
@@ -170,7 +174,9 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
                     <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Result
                     </h4>
-                    {name === "view_image" && typeof result === "object" && result !== null ? (
+                    {name === "view_image" &&
+                    typeof result === "object" &&
+                    result !== null ? (
                       <ViewImageResult result={result} />
                     ) : (
                       <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-all rounded-sm border border-border bg-muted/40 p-2 font-mono text-xs leading-7 text-foreground">

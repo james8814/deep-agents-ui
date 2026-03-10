@@ -3,6 +3,7 @@
 ## Component Visual Hierarchy
 
 ### Desktop View (1920×1080)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  ✓ view_image                                          ▲    │  ← Tool header
@@ -37,6 +38,7 @@
 ```
 
 ### Mobile View (375×667)
+
 ```
 ┌──────────────────────────┐
 │ ✓ view_image        ▲    │  ← Tool header
@@ -66,6 +68,7 @@
 ```
 
 ### Tablet View (768×1024)
+
 ```
 ┌─────────────────────────────────────────────┐
 │ ✓ view_image                            ▲   │  ← Tool header
@@ -95,6 +98,7 @@
 ## Component States
 
 ### 1. Loading State
+
 ```
 ┌────────────────────────────┐
 │  ┌──────────────────────┐  │
@@ -113,6 +117,7 @@
 ```
 
 ### 2. Success State
+
 ```
 ┌────────────────────────────┐
 │  ┌──────────────────────┐  │
@@ -131,6 +136,7 @@
 ```
 
 ### 3. Error State
+
 ```
 ┌────────────────────────────┐
 │  ┌──────────────────────┐  │
@@ -150,6 +156,7 @@
 ```
 
 ### 4. No Data State
+
 ```
 ┌────────────────────────────┐
 │  ┌──────────────────────┐  │
@@ -165,6 +172,7 @@
 ## Color Scheme
 
 ### Light Mode
+
 ```
 Component               | Color Class      | Actual Color
 ─────────────────────────────────────────────────────────
@@ -179,6 +187,7 @@ Icon Color              | text-blue-500    | #3b82f6 (medium blue)
 ```
 
 ### Dark Mode
+
 ```
 Component               | Color Class      | Actual Color
 ─────────────────────────────────────────────────────────
@@ -241,6 +250,7 @@ Icon Color              | text-blue-500    | #60a5fa (light blue)
 ### Download Button
 
 **Default State**:
+
 ```
 ┌──────────────────┐
 │  ⬇ Download      │
@@ -248,6 +258,7 @@ Icon Color              | text-blue-500    | #60a5fa (light blue)
 ```
 
 **Hover State** (cursor: pointer):
+
 ```
 ┌──────────────────┐  ← Background lightens
 │  ⬇ Download      │
@@ -255,6 +266,7 @@ Icon Color              | text-blue-500    | #60a5fa (light blue)
 ```
 
 **Disabled State** (image error):
+
 ```
 ┌──────────────────┐
 │  ⬇ Download      │  ← Grayed out, cursor: not-allowed
@@ -262,6 +274,7 @@ Icon Color              | text-blue-500    | #60a5fa (light blue)
 ```
 
 **Focus State** (keyboard):
+
 ```
 ┏━━━━━━━━━━━━━━━━━━┓
 ┃  ⬇ Download      ┃  ← Focus ring outline
@@ -273,6 +286,7 @@ Icon Color              | text-blue-500    | #60a5fa (light blue)
 ## Typography
 
 ### File Path
+
 ```
 Size:     xs (0.75rem / 12px)
 Family:   font-mono (Fira Code, monospace)
@@ -282,6 +296,7 @@ Example:  /workspace/projects/screenshot.png
 ```
 
 ### MIME Type Badge
+
 ```
 Size:     xs (0.75rem / 12px)
 Weight:   font-medium (600)
@@ -290,6 +305,7 @@ Example:  image/png
 ```
 
 ### Dimensions
+
 ```
 Size:     xs (0.75rem / 12px)
 Color:    text-muted-foreground
@@ -297,6 +313,7 @@ Example:  1920 × 1080px
 ```
 
 ### Error Message
+
 ```
 Size:     sm (0.875rem / 14px)
 Weight:   normal
@@ -309,6 +326,7 @@ Example:  Failed to load image
 ## Animations
 
 ### Image Load Spinner
+
 ```
 Animation: animate-spin
 Duration:  1000ms
@@ -318,6 +336,7 @@ Fades:     Removed when image loads
 ```
 
 ### Image Fade-in
+
 ```
 Transition: opacity 300ms ease-in-out
 From:       opacity-0 (transparent)
@@ -330,6 +349,7 @@ Trigger:    onLoad event
 ## Responsive Behavior Examples
 
 ### When Image is Very Wide (e.g., 4000px width)
+
 ```
 Original image: 4000 × 1000px
 ─────────────────────────────────────────
@@ -351,6 +371,7 @@ Height limited to 300px max
 ```
 
 ### When Image is Very Tall (e.g., 500 × 2000px)
+
 ```
 Original image: 500 × 2000px
 ─────────────────────────────
@@ -394,6 +415,7 @@ When on Download Button:
 ## Touch Interactions
 
 ### Mobile Device (Touch)
+
 ```
 Single Tap on Image:
 ├─ (Current) No action - future: full-screen view
@@ -414,6 +436,7 @@ Swipe on Image:
 ## Accessibility Features
 
 ### Screen Reader Announcements
+
 ```
 When component loads:
 ├─ "Image result"
@@ -432,6 +455,7 @@ When error occurs:
 ```
 
 ### Keyboard Focus Indicators
+
 ```
 Focus Ring Style:
 ├─ Ring color: --ring (defined in CSS variables)
@@ -451,6 +475,7 @@ Visible Order:
 ### Image Load Progress
 
 **Phase 1: Mounting**
+
 ```
 Time: 0-10ms
 State: isLoading = true, hasError = false
@@ -458,6 +483,7 @@ Display: Spinner overlay
 ```
 
 **Phase 2: Decoding**
+
 ```
 Time: 10-100ms (depends on image size)
 State: isLoading = true, hasError = false
@@ -465,6 +491,7 @@ Display: Spinner + transparent image underneath
 ```
 
 **Phase 3: Display**
+
 ```
 Time: 100-110ms
 State: isLoading = false, hasError = false
@@ -476,6 +503,7 @@ Display: Visible image, spinner removed
 ## Component Size Analysis
 
 ### Bundle Impact
+
 ```
 ViewImageResult.tsx: ~6KB gzipped
 Test file:          ~12KB (dev only)
@@ -494,6 +522,7 @@ Zero new external dependencies!
 ## Browser DevTools Tips
 
 ### Inspecting the Component
+
 ```
 In DevTools Elements panel:
 
@@ -510,6 +539,7 @@ In DevTools Elements panel:
 ```
 
 ### Testing Dark Mode in DevTools
+
 ```
 Console command to toggle dark mode:
 document.documentElement.classList.toggle('dark')

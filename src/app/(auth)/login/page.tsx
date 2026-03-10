@@ -43,10 +43,16 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           {error && (
             <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertCircle size={16} className="shrink-0" />
+              <AlertCircle
+                size={16}
+                className="shrink-0"
+              />
               <span>{error}</span>
             </div>
           )}
@@ -82,7 +88,10 @@ export default function LoginPage() {
           >
             {isLoading ? (
               <>
-                <Loader2 size={16} className="mr-2 animate-spin" />
+                <Loader2
+                  size={16}
+                  className="mr-2 animate-spin"
+                />
                 登录中...
               </>
             ) : (

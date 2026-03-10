@@ -107,10 +107,11 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
       );
     }
 
-    const isDarkMode = theme === "dark" ||
+    const isDarkMode =
+      theme === "dark" ||
       (theme === "system" &&
-       typeof window !== "undefined" &&
-       window.matchMedia("(prefers-color-scheme: dark)").matches);
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
 
     return (
       <DropdownMenu>
@@ -120,10 +121,7 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
             size={variant === "icon" ? "icon" : "sm"}
             aria-label="Toggle theme"
             title="Switch theme"
-            className={cn(
-              "h-9 transition-colors",
-              variant === "icon" && "w-9"
-            )}
+            className={cn("h-9 transition-colors", variant === "icon" && "w-9")}
           >
             {isDarkMode ? (
               <Moon className="h-4 w-4" />
@@ -135,8 +133,8 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
                 {theme === "system"
                   ? "Auto"
                   : theme === "dark"
-                    ? "Dark"
-                    : "Light"}
+                  ? "Dark"
+                  : "Light"}
               </span>
             )}
             <span className="sr-only">Toggle theme menu</span>
@@ -150,7 +148,7 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
           <DropdownMenuItem
             onClick={() => handleThemeChange("light")}
             className={cn(
-              "flex items-center gap-2 cursor-pointer",
+              "flex cursor-pointer items-center gap-2",
               theme === "light" && "bg-accent"
             )}
           >
@@ -163,7 +161,7 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
           <DropdownMenuItem
             onClick={() => handleThemeChange("dark")}
             className={cn(
-              "flex items-center gap-2 cursor-pointer",
+              "flex cursor-pointer items-center gap-2",
               theme === "dark" && "bg-accent"
             )}
           >
@@ -173,11 +171,11 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
               <span className="ml-auto text-xs font-semibold">✓</span>
             )}
           </DropdownMenuItem>
-          <div className="border-t border-border my-1" />
+          <div className="my-1 border-t border-border" />
           <DropdownMenuItem
             onClick={() => handleThemeChange("system")}
             className={cn(
-              "flex items-center gap-2 cursor-pointer",
+              "flex cursor-pointer items-center gap-2",
               theme === "system" && "bg-accent"
             )}
           >

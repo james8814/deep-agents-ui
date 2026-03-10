@@ -5,13 +5,13 @@
 
 ## Document Index
 
-| Document | Content | Priority |
-|----------|---------|----------|
-| [00-overview.md](./00-overview.md) | This file — conventions, architecture, dependencies |
-| [01-phase1-execution-visibility.md](./01-phase1-execution-visibility.md) | P0: Status bar, streaming display, copy button |
-| [02-phase2-layout-restructure.md](./02-phase2-layout-restructure.md) | P1: Context panel, interrupt UX, sub-agent progress |
+| Document                                                                       | Content                                                                    | Priority |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | -------- |
+| [00-overview.md](./00-overview.md)                                             | This file — conventions, architecture, dependencies                        |
+| [01-phase1-execution-visibility.md](./01-phase1-execution-visibility.md)       | P0: Status bar, streaming display, copy button                             |
+| [02-phase2-layout-restructure.md](./02-phase2-layout-restructure.md)           | P1: Context panel, interrupt UX, sub-agent progress                        |
 | [03-phase3-interaction-enhancement.md](./03-phase3-interaction-enhancement.md) | P2: Message actions, tool renderers, inline file viewer, connection status |
-| [04-phase4-experience-polish.md](./04-phase4-experience-polish.md) | P3: Diff view, theme, shortcuts, thread search, input enhancements |
+| [04-phase4-experience-polish.md](./04-phase4-experience-polish.md)             | P3: Diff view, theme, shortcuts, thread search, input enhancements         |
 
 ## Architecture Context
 
@@ -138,7 +138,7 @@ MyComponent.displayName = "MyComponent";
 
 // 3. cn() utility for conditional class merging
 import { cn } from "@/lib/utils";
-<div className={cn("base-classes", isActive && "active-classes")} />
+<div className={cn("base-classes", isActive && "active-classes")} />;
 
 // 4. Lucide icons (NOT heroicons, NOT @radix-ui/react-icons)
 import { IconName } from "lucide-react";
@@ -184,4 +184,5 @@ main
 ```
 
 Phases can be worked on in parallel by different developers, except:
+
 - Phase 2 (P1-1: Context Panel) must be completed before Phase 3 (P2-3: Inline File Viewer)

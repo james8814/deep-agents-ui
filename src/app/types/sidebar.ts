@@ -20,7 +20,7 @@ export interface SidebarProps {
 
 export interface UserMenuState {
   open: boolean;
-  position: 'top' | 'bottom';
+  position: "top" | "bottom";
 }
 
 export interface NavigationState {

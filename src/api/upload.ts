@@ -40,9 +40,29 @@ export const ACCEPTED_FILE_TYPES = [
   "text/x-python",
   "application/x-python",
   // 其他扩展名
-  ".md", ".txt", ".pdf", ".csv", ".json", ".js", ".ts", ".jsx", ".tsx", ".py",
-  ".html", ".css", ".svg", ".docx", ".pptx", ".xlsx", ".yaml", ".yml", ".sql",
-  ".zip", ".tar", ".gz", ".rar"
+  ".md",
+  ".txt",
+  ".pdf",
+  ".csv",
+  ".json",
+  ".js",
+  ".ts",
+  ".jsx",
+  ".tsx",
+  ".py",
+  ".html",
+  ".css",
+  ".svg",
+  ".docx",
+  ".pptx",
+  ".xlsx",
+  ".yaml",
+  ".yml",
+  ".sql",
+  ".zip",
+  ".tar",
+  ".gz",
+  ".rar",
 ].join(",");
 
 // 最大文件大小：100MB
@@ -50,9 +70,9 @@ export const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;
 
 export interface UploadFileResponse {
   success: boolean;
-  path: string;      // 虚拟路径，格式: "/uploads/{user_id}/{filename}"
-  filename: string;  // 原始文件名
-  size: number;      // 文件大小（字节）
+  path: string; // 虚拟路径，格式: "/uploads/{user_id}/{filename}"
+  filename: string; // 原始文件名
+  size: number; // 文件大小（字节）
   message: string;
 }
 
@@ -117,7 +137,8 @@ export async function uploadFile(
     xhr.open("POST", `${AUTH_SERVER}/api/upload`);
 
     // 添加 Bearer Token 认证（XHR 不走 fetchInterceptor，需要手动添加）
-    const token = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
     if (token) {
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     }
@@ -132,7 +153,9 @@ export async function uploadFile(
  * @param path 文件虚拟路径，格式: "/uploads/{user_id}/{filename}"
  * @returns 删除结果
  */
-export async function deleteUploadedFile(path: string): Promise<{ success: boolean; message: string }> {
+export async function deleteUploadedFile(
+  path: string
+): Promise<{ success: boolean; message: string }> {
   // 路径格式: /uploads/{user_id}/{filename}
   const parts = path.split("/").filter(Boolean);
   // parts: ["uploads", "{user_id}", "{filename}"]
@@ -145,7 +168,7 @@ export async function deleteUploadedFile(path: string): Promise<{ success: boole
   // 使用 fetchWithCredentials 调用 API（自动添加 Bearer Token + 401 自动刷新重试）
   return fetchWithCredentials<{ success: boolean; message: string }>(
     `${AUTH_SERVER}/api/uploads/${userId}/${filename}`,
-    { method: "DELETE" },
+    { method: "DELETE" }
   );
 }
 
@@ -176,70 +199,70 @@ export async function uploadFiles(
  * 获取文件类型描述
  */
 export function getFileTypeDescription(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
 
   const typeMap: Record<string, string> = {
-    'pdf': 'PDF文档',
-    'txt': '文本文件',
-    'md': 'Markdown文档',
-    'csv': 'CSV数据',
-    'json': 'JSON文件',
-    'yaml': 'YAML文件',
-    'yml': 'YAML文件',
-    'py': 'Python代码',
-    'js': 'JavaScript代码',
-    'ts': 'TypeScript代码',
-    'jsx': 'React组件',
-    'tsx': 'React组件',
-    'html': 'HTML文档',
-    'css': '样式表',
-    'sql': 'SQL脚本',
-    'png': 'PNG图片',
-    'jpg': 'JPEG图片',
-    'jpeg': 'JPEG图片',
-    'gif': 'GIF图片',
-    'webp': 'WebP图片',
-    'svg': 'SVG矢量图',
-    'zip': 'ZIP压缩包',
-    'tar': 'TAR归档',
-    'gz': 'GZIP压缩',
-    'rar': 'RAR压缩包',
-    'docx': 'Word文档',
-    'pptx': 'PowerPoint演示',
-    'xlsx': 'Excel表格',
+    pdf: "PDF文档",
+    txt: "文本文件",
+    md: "Markdown文档",
+    csv: "CSV数据",
+    json: "JSON文件",
+    yaml: "YAML文件",
+    yml: "YAML文件",
+    py: "Python代码",
+    js: "JavaScript代码",
+    ts: "TypeScript代码",
+    jsx: "React组件",
+    tsx: "React组件",
+    html: "HTML文档",
+    css: "样式表",
+    sql: "SQL脚本",
+    png: "PNG图片",
+    jpg: "JPEG图片",
+    jpeg: "JPEG图片",
+    gif: "GIF图片",
+    webp: "WebP图片",
+    svg: "SVG矢量图",
+    zip: "ZIP压缩包",
+    tar: "TAR归档",
+    gz: "GZIP压缩",
+    rar: "RAR压缩包",
+    docx: "Word文档",
+    pptx: "PowerPoint演示",
+    xlsx: "Excel表格",
   };
 
-  return typeMap[ext] || '文件';
+  return typeMap[ext] || "文件";
 }
 
 /**
  * 获取文件类型提示（给 LLM 的建议）
  */
 export function getFileTypeHint(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
 
   const hints: Record<string, string> = {
-    'pdf': '使用 read_file 提取文本内容',
-    'txt': '使用 read_file 直接读取',
-    'md': '使用 read_file 读取 Markdown',
-    'csv': '使用 read_file 或 pandas 分析数据',
-    'json': '使用 read_file 解析 JSON 数据',
-    'yaml': '使用 read_file 解析配置',
-    'yml': '使用 read_file 解析配置',
-    'py': '使用 read_file 读取代码',
-    'js': '使用 read_file 读取代码',
-    'ts': '使用 read_file 读取代码',
-    'sql': '使用 read_file 读取 SQL 脚本',
-    'png': '使用 execute + tesseract OCR 识别文字（如需）',
-    'jpg': '使用 execute + tesseract OCR 识别文字（如需）',
-    'jpeg': '使用 execute + tesseract OCR 识别文字（如需）',
-    'zip': '使用 execute + unzip 解压后查看',
-    'docx': '使用 read_file 提取文本内容',
-    'pptx': '使用 read_file 提取内容',
-    'xlsx': '使用 read_file 或 pandas 读取表格数据',
+    pdf: "使用 read_file 提取文本内容",
+    txt: "使用 read_file 直接读取",
+    md: "使用 read_file 读取 Markdown",
+    csv: "使用 read_file 或 pandas 分析数据",
+    json: "使用 read_file 解析 JSON 数据",
+    yaml: "使用 read_file 解析配置",
+    yml: "使用 read_file 解析配置",
+    py: "使用 read_file 读取代码",
+    js: "使用 read_file 读取代码",
+    ts: "使用 read_file 读取代码",
+    sql: "使用 read_file 读取 SQL 脚本",
+    png: "使用 execute + tesseract OCR 识别文字（如需）",
+    jpg: "使用 execute + tesseract OCR 识别文字（如需）",
+    jpeg: "使用 execute + tesseract OCR 识别文字（如需）",
+    zip: "使用 execute + unzip 解压后查看",
+    docx: "使用 read_file 提取文本内容",
+    pptx: "使用 read_file 提取内容",
+    xlsx: "使用 read_file 或 pandas 读取表格数据",
   };
 
-  return hints[ext] || '使用 read_file 读取';
+  return hints[ext] || "使用 read_file 读取";
 }
 
 /**
@@ -283,14 +306,37 @@ export function constructMessageWithFiles(
  */
 export function isAllowedFileType(filename: string): boolean {
   const allowedExtensions = [
-    '.txt', '.pdf', '.csv', '.json', '.md', '.yaml', '.yml',
-    '.py', '.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.sql',
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
-    '.zip', '.tar', '.gz', '.rar',
-    '.docx', '.pptx', '.xlsx',
+    ".txt",
+    ".pdf",
+    ".csv",
+    ".json",
+    ".md",
+    ".yaml",
+    ".yml",
+    ".py",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".html",
+    ".css",
+    ".sql",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".rar",
+    ".docx",
+    ".pptx",
+    ".xlsx",
   ];
 
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
   return allowedExtensions.includes(`.${ext}`);
 }
 

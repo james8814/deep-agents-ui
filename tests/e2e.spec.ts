@@ -19,14 +19,14 @@ const TEST_CONFIG = {
 
 // Simple base64url encoder (works in Node.js and browser)
 function base64UrlEncode(str: string): string {
-  return btoa(str)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 // Helper function to generate a JWT token with custom expiry
-function generateJWT(payload: Record<string, unknown>, expiresInSeconds: number): string {
+function generateJWT(
+  payload: Record<string, unknown>,
+  expiresInSeconds: number
+): string {
   const header = { alg: "HS256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
 
@@ -58,7 +58,10 @@ async function setAuthToken(page: Page, token: string): Promise<void> {
 }
 
 // Helper to set config in localStorage
-async function setConfig(page: Page, config: { deploymentUrl: string; assistantId: string }): Promise<void> {
+async function setConfig(
+  page: Page,
+  config: { deploymentUrl: string; assistantId: string }
+): Promise<void> {
   await page.evaluate((c) => {
     localStorage.setItem("deep-agent-config-v2", JSON.stringify(c));
   }, config);
@@ -106,12 +109,17 @@ test.describe("Scenario A: No Token Access", () => {
 
     // Verify no console errors related to authentication
     const authRelatedErrors = consoleErrors.filter(
-      (err) => err.includes("401") || err.includes("Unauthorized") || err.includes("auth")
+      (err) =>
+        err.includes("401") ||
+        err.includes("Unauthorized") ||
+        err.includes("auth")
     );
     expect(authRelatedErrors).toHaveLength(0);
   });
 
-  test("should show config dialog when accessing without setup", async ({ page }) => {
+  test("should show config dialog when accessing without setup", async ({
+    page,
+  }) => {
     await clearAuthStorage(page);
 
     // Navigate to home page
@@ -132,7 +140,9 @@ test.describe("Scenario A: No Token Access", () => {
 });
 
 test.describe("Scenario B: Expired Token", () => {
-  test("should clear expired token on client-side without network 401", async ({ page }) => {
+  test("should clear expired token on client-side without network 401", async ({
+    page,
+  }) => {
     // Clear storage first
     await clearAuthStorage(page);
 
@@ -161,7 +171,9 @@ test.describe("Scenario B: Expired Token", () => {
     expect(url.includes("/login")).toBe(true);
 
     // Verify token was cleared from localStorage
-    const storedToken = await page.evaluate(() => localStorage.getItem("auth_token"));
+    const storedToken = await page.evaluate(() =>
+      localStorage.getItem("auth_token")
+    );
     expect(storedToken).toBeNull();
   });
 
@@ -203,7 +215,10 @@ test.describe("Scenario C: Normal Login", () => {
     await clearAuthStorage(page);
 
     // Set valid token (expires in 1 hour)
-    const validToken = generateJWT({ sub: "test-user", username: "testuser" }, 3600);
+    const validToken = generateJWT(
+      { sub: "test-user", username: "testuser" },
+      3600
+    );
     await setAuthToken(page, validToken);
 
     // Set valid config
@@ -229,7 +244,9 @@ test.describe("Scenario C: Normal Login", () => {
 
     // Check for BlockingError in console
     const blockingErrors = consoleErrors.filter(
-      (err) => err.toLowerCase().includes("blockerror") || err.includes("BlockingError")
+      (err) =>
+        err.toLowerCase().includes("blockerror") ||
+        err.includes("BlockingError")
     );
 
     // There should be no BlockingError for normal login
@@ -259,7 +276,14 @@ test.describe("Scenario C: Normal Login", () => {
 
     // Check if fetchInterceptor is applied
     const interceptorStatus = await page.evaluate(() => {
-      return (window as unknown as { fetchInterceptorStatus?: { isApplied: boolean; isEnabled: () => boolean } }).fetchInterceptorStatus;
+      return (
+        window as unknown as {
+          fetchInterceptorStatus?: {
+            isApplied: boolean;
+            isEnabled: () => boolean;
+          };
+        }
+      ).fetchInterceptorStatus;
     });
 
     // fetchInterceptor should be applied
@@ -271,7 +295,9 @@ test.describe("Scenario C: Normal Login", () => {
 });
 
 test.describe("Scenario D: With threadId Refresh", () => {
-  test("should refresh page with threadId without BlockingError", async ({ page }) => {
+  test("should refresh page with threadId without BlockingError", async ({
+    page,
+  }) => {
     await clearAuthStorage(page);
 
     // Set valid token
@@ -301,8 +327,8 @@ test.describe("Scenario D: With threadId Refresh", () => {
     await page.waitForTimeout(1000);
 
     // Check for BlockingError
-    const blockingErrors = consoleErrors.filter(
-      (err) => err.toLowerCase().includes("blockerror")
+    const blockingErrors = consoleErrors.filter((err) =>
+      err.toLowerCase().includes("blockerror")
     );
 
     expect(blockingErrors).toHaveLength(0);
@@ -312,7 +338,9 @@ test.describe("Scenario D: With threadId Refresh", () => {
     expect(url).toContain("threadId");
   });
 
-  test("should handle threadId with valid token correctly", async ({ page }) => {
+  test("should handle threadId with valid token correctly", async ({
+    page,
+  }) => {
     await clearAuthStorage(page);
 
     const validToken = generateJWT({ sub: "user" }, 3600);
@@ -341,7 +369,9 @@ test.describe("Scenario D: With threadId Refresh", () => {
 });
 
 test.describe("fetchInterceptor Integration Tests", () => {
-  test("should intercept fetch and add Authorization header", async ({ page }) => {
+  test("should intercept fetch and add Authorization header", async ({
+    page,
+  }) => {
     await clearAuthStorage(page);
 
     // Set valid token
@@ -355,7 +385,10 @@ test.describe("fetchInterceptor Integration Tests", () => {
     // Test that fetchInterceptor is working by checking if it's applied
     const status = await page.evaluate(() => {
       const win = window as unknown as {
-        fetchInterceptorStatus?: { isApplied: boolean; isEnabled: () => boolean };
+        fetchInterceptorStatus?: {
+          isApplied: boolean;
+          isEnabled: () => boolean;
+        };
       };
       return win.fetchInterceptorStatus;
     });
@@ -397,9 +430,9 @@ test.describe("Configuration Dialog Tests", () => {
 
     expect(
       url.includes("/login") ||
-      bodyText?.includes("Configure") ||
-      bodyText?.includes("Welcome") ||
-      bodyText?.includes("Configuration")
+        bodyText?.includes("Configure") ||
+        bodyText?.includes("Welcome") ||
+        bodyText?.includes("Configuration")
     ).toBe(true);
   });
 
@@ -418,7 +451,9 @@ test.describe("Configuration Dialog Tests", () => {
     const assistantIdInput = page.locator('input[id="assistantId"]');
 
     // Check if inputs are visible
-    const isConfigVisible = await deploymentUrlInput.isVisible().catch(() => false);
+    const isConfigVisible = await deploymentUrlInput
+      .isVisible()
+      .catch(() => false);
 
     if (isConfigVisible) {
       await deploymentUrlInput.fill(TEST_CONFIG.deploymentUrl);

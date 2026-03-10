@@ -5,29 +5,29 @@
  * Handles theme, notifications, and user preferences
  */
 
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 import type {
   UserSettings,
   NotificationSettings,
   Theme,
   SettingsModalState,
-} from './settingsTypes';
+} from "./settingsTypes";
 
 /**
  * Default user settings
  */
 const DEFAULT_SETTINGS: UserSettings = {
-  theme: 'dark',
-  themePreference: 'system',
+  theme: "dark",
+  themePreference: "system",
   notifications: {
     enabled: true,
     soundEnabled: true,
     desktopEnabled: true,
     emailEnabled: false,
   },
-  language: 'en',
+  language: "en",
   autoSave: true,
 };
 
@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: UserSettings = {
  */
 const DEFAULT_STATE: SettingsModalState = {
   isOpen: false,
-  activeTab: 'appearance',
+  activeTab: "appearance",
   isDirty: false,
   isSaving: false,
 };
@@ -44,8 +44,8 @@ const DEFAULT_STATE: SettingsModalState = {
 /**
  * Storage key for persisting settings
  */
-const SETTINGS_STORAGE_KEY = 'pmagent-settings';
-const THEME_STORAGE_KEY = 'pmagent-theme';
+const SETTINGS_STORAGE_KEY = "pmagent-settings";
+const THEME_STORAGE_KEY = "pmagent-theme";
 
 /**
  * useSettings hook
@@ -78,7 +78,7 @@ export const useSettings = () => {
    * Load settings from localStorage on mount
    */
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     try {
       const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -86,19 +86,19 @@ export const useSettings = () => {
 
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<UserSettings>;
-        setSettings(prev => ({ ...prev, ...parsed }));
+        setSettings((prev) => ({ ...prev, ...parsed }));
       }
 
       if (storedTheme) {
         const theme = storedTheme as Theme;
-        setSettings(prev => ({ ...prev, theme }));
+        setSettings((prev) => ({ ...prev, theme }));
         applyTheme(theme);
       } else {
         // Apply default theme
         applyTheme(DEFAULT_SETTINGS.theme);
       }
     } catch (error) {
-      console.warn('Failed to load settings from localStorage:', error);
+      console.warn("Failed to load settings from localStorage:", error);
     }
 
     setIsHydrated(true);
@@ -108,17 +108,17 @@ export const useSettings = () => {
    * Apply theme to document
    */
   const applyTheme = useCallback((theme: Theme) => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const html = document.documentElement;
-    const isDark = theme === 'dark';
+    const isDark = theme === "dark";
 
     if (isDark) {
-      html.classList.add('dark');
-      html.classList.remove('light');
+      html.classList.add("dark");
+      html.classList.remove("light");
     } else {
-      html.classList.add('light');
-      html.classList.remove('dark');
+      html.classList.add("light");
+      html.classList.remove("dark");
     }
 
     // Set color scheme CSS variable
@@ -129,9 +129,9 @@ export const useSettings = () => {
    * Update user settings
    */
   const updateSettings = useCallback((partial: Partial<UserSettings>) => {
-    setSettings(prev => {
+    setSettings((prev) => {
       const updated = { ...prev, ...partial };
-      setState(prev => ({ ...prev, isDirty: true }));
+      setState((prev) => ({ ...prev, isDirty: true }));
       return updated;
     });
   }, []);
@@ -141,11 +141,11 @@ export const useSettings = () => {
    */
   const updateNotifications = useCallback(
     (partial: Partial<NotificationSettings>) => {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
         notifications: { ...prev.notifications, ...partial },
       }));
-      setState(prev => ({ ...prev, isDirty: true }));
+      setState((prev) => ({ ...prev, isDirty: true }));
     },
     []
   );
@@ -156,7 +156,7 @@ export const useSettings = () => {
   const saveSettings = useCallback(async () => {
     if (!isHydrated) return;
 
-    setState(prev => ({ ...prev, isSaving: true }));
+    setState((prev) => ({ ...prev, isSaving: true }));
 
     try {
       // Apply theme immediately
@@ -167,16 +167,16 @@ export const useSettings = () => {
       localStorage.setItem(THEME_STORAGE_KEY, settings.theme);
 
       // Simulate async save operation
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isDirty: false,
         isSaving: false,
       }));
     } catch (error) {
-      console.error('Failed to save settings:', error);
-      setState(prev => ({ ...prev, isSaving: false }));
+      console.error("Failed to save settings:", error);
+      setState((prev) => ({ ...prev, isSaving: false }));
       throw error;
     }
   }, [settings, applyTheme, isHydrated]);
@@ -189,30 +189,27 @@ export const useSettings = () => {
     localStorage.removeItem(SETTINGS_STORAGE_KEY);
     localStorage.removeItem(THEME_STORAGE_KEY);
     applyTheme(DEFAULT_SETTINGS.theme);
-    setState(prev => ({ ...prev, isDirty: false }));
+    setState((prev) => ({ ...prev, isDirty: false }));
   }, [applyTheme]);
 
   /**
    * Toggle settings modal
    */
   const toggleModal = useCallback((open: boolean) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isOpen: open,
       // Reset to first tab when closing
-      activeTab: open ? prev.activeTab : 'appearance',
+      activeTab: open ? prev.activeTab : "appearance",
     }));
   }, []);
 
   /**
    * Switch active tab
    */
-  const switchTab = useCallback(
-    (tab: SettingsModalState['activeTab']) => {
-      setState(prev => ({ ...prev, activeTab: tab }));
-    },
-    []
-  );
+  const switchTab = useCallback((tab: SettingsModalState["activeTab"]) => {
+    setState((prev) => ({ ...prev, activeTab: tab }));
+  }, []);
 
   return {
     settings,

@@ -5,7 +5,9 @@
 
 // 仅在浏览器环境执行
 if (typeof window === "undefined") {
-  throw new Error("fetchInterceptor must only be imported in browser environment");
+  throw new Error(
+    "fetchInterceptor must only be imported in browser environment"
+  );
 }
 
 import { TOKEN_KEY } from "@/lib/constants";
@@ -66,8 +68,8 @@ try {
       input instanceof Request
         ? input.url
         : input instanceof URL
-          ? input.href
-          : input.toString();
+        ? input.href
+        : input.toString();
 
     // 只对 LangGraph API 请求添加 Authorization header
     if (shouldAddAuthHeader(urlString)) {
@@ -90,7 +92,9 @@ try {
 
       // 401/403 仅记录日志，认证状态由 AuthContext + AuthGuard 统一管理
       if (response.status === 401 || response.status === 403) {
-        console.debug(`[fetchInterceptor] 收到 ${response.status}，由 AuthContext 处理`);
+        console.debug(
+          `[fetchInterceptor] 收到 ${response.status}，由 AuthContext 处理`
+        );
       }
 
       return response;
@@ -112,9 +116,7 @@ export const fetchInterceptorStatus = {
   isApplied: isPatchApplied,
   isEnabled: () => {
     if (!isPatchApplied) {
-      console.warn(
-        "[fetchInterceptor] 未启用，请检查是否存在 fetch 冲突"
-      );
+      console.warn("[fetchInterceptor] 未启用，请检查是否存在 fetch 冲突");
     }
     return isPatchApplied;
   },
@@ -122,7 +124,8 @@ export const fetchInterceptorStatus = {
 
 // 暴露到 window 以便调试和测试
 if (typeof window !== "undefined") {
-  (window as unknown as Record<string, unknown>).fetchInterceptorStatus = fetchInterceptorStatus;
+  (window as unknown as Record<string, unknown>).fetchInterceptorStatus =
+    fetchInterceptorStatus;
 }
 
 export default fetchInterceptorStatus;

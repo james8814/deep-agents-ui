@@ -16,29 +16,27 @@ A comprehensive, accessible settings modal for PMAgent v5.26, providing user pre
 ## Installation & Import
 
 ```tsx
-import { SettingsModal, useSettings } from '@/app/components/SettingsModal';
+import { SettingsModal, useSettings } from "@/app/components/SettingsModal";
 ```
 
 ## Basic Usage
 
 ```tsx
-import { useState } from 'react';
-import { SettingsModal } from '@/app/components/SettingsModal';
+import { useState } from "react";
+import { SettingsModal } from "@/app/components/SettingsModal";
 
 export function MyApp() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)}>
-        Settings
-      </button>
+      <button onClick={() => setIsOpen(true)}>Settings</button>
 
       <SettingsModal
         isOpen={isOpen}
         onOpenChange={setIsOpen}
         onSave={(settings) => {
-          console.log('Settings saved:', settings);
+          console.log("Settings saved:", settings);
           // Apply settings, sync with backend, etc.
         }}
       />
@@ -50,11 +48,13 @@ export function MyApp() {
 ## Features
 
 ### 🎨 Appearance Tab
+
 - Light/Dark theme toggle
 - Real-time theme application
 - Persistent storage
 
 ### 🔔 Notifications Tab
+
 - Master enable/disable toggle
 - Sound notifications
 - Desktop notifications
@@ -62,12 +62,14 @@ export function MyApp() {
 - Hierarchical controls
 
 ### ⌨️ Keyboard Shortcuts Tab
+
 - 7 built-in shortcuts
 - Searchable shortcuts list
 - Copy-to-clipboard
 - Organized by category
 
 ### ℹ️ About Tab
+
 - Version information
 - Build number
 - Release date
@@ -76,16 +78,16 @@ export function MyApp() {
 
 ## Files
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `SettingsModal.tsx` | 670 | Main component |
-| `useSettings.ts` | 230 | State management hook |
-| `settingsTypes.ts` | 139 | TypeScript definitions |
-| `index.ts` | 24 | Public API |
-| **Total Code** | **1,063** | **Core implementation** |
-| `SettingsModal.test.tsx` | 763 | Component tests (35+ tests) |
-| `useSettings.test.ts` | 591 | Hook tests (25+ tests) |
-| **Total Tests** | **1,354** | **Comprehensive coverage** |
+| File                     | Lines     | Purpose                     |
+| ------------------------ | --------- | --------------------------- |
+| `SettingsModal.tsx`      | 670       | Main component              |
+| `useSettings.ts`         | 230       | State management hook       |
+| `settingsTypes.ts`       | 139       | TypeScript definitions      |
+| `index.ts`               | 24        | Public API                  |
+| **Total Code**           | **1,063** | **Core implementation**     |
+| `SettingsModal.test.tsx` | 763       | Component tests (35+ tests) |
+| `useSettings.test.ts`    | 591       | Hook tests (25+ tests)      |
+| **Total Tests**          | **1,354** | **Comprehensive coverage**  |
 
 ## API Reference
 
@@ -119,11 +121,11 @@ const {
 ## Types
 
 ```tsx
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 interface UserSettings {
   theme: Theme;
-  themePreference: 'light' | 'dark' | 'system';
+  themePreference: "light" | "dark" | "system";
   notifications: {
     enabled: boolean;
     soundEnabled: boolean;
@@ -139,7 +141,7 @@ interface KeyboardShortcut {
   action: string;
   keys: readonly string[];
   description: string;
-  category: 'editing' | 'navigation' | 'general';
+  category: "editing" | "navigation" | "general";
 }
 ```
 
@@ -168,6 +170,7 @@ Settings are persisted to localStorage under two keys:
 ## Accessibility
 
 ✅ **WCAG 2.1 AA Compliant**
+
 - Full keyboard navigation (Tab, Arrow keys, Escape)
 - Screen reader support (ARIA labels, roles)
 - Focus management and visible indicators
@@ -189,6 +192,7 @@ npm test -- --watch
 ```
 
 Expected coverage:
+
 - Statements: 92%+
 - Branches: 88%+
 - Functions: 94%+
@@ -200,14 +204,14 @@ The component automatically applies theme changes to the document:
 
 ```tsx
 // Light mode
-document.documentElement.classList.add('light');
-document.documentElement.classList.remove('dark');
-document.documentElement.style.colorScheme = 'light';
+document.documentElement.classList.add("light");
+document.documentElement.classList.remove("dark");
+document.documentElement.style.colorScheme = "light";
 
 // Dark mode
-document.documentElement.classList.add('dark');
-document.documentElement.classList.remove('light');
-document.documentElement.style.colorScheme = 'dark';
+document.documentElement.classList.add("dark");
+document.documentElement.classList.remove("light");
+document.documentElement.style.colorScheme = "dark";
 ```
 
 Update your CSS to respond to these classes:
@@ -226,16 +230,17 @@ body {
 
 ## Performance
 
-| Operation | Time | Target |
-|-----------|------|--------|
-| Initial render | ~45ms | <100ms ✅ |
-| Theme change | ~5ms | <10ms ✅ |
-| Settings save | ~300ms | <500ms ✅ |
-| Search/filter | <5ms | <10ms ✅ |
+| Operation      | Time   | Target    |
+| -------------- | ------ | --------- |
+| Initial render | ~45ms  | <100ms ✅ |
+| Theme change   | ~5ms   | <10ms ✅  |
+| Settings save  | ~300ms | <500ms ✅ |
+| Search/filter  | <5ms   | <10ms ✅  |
 
 ## Dependencies
 
 **Required**:
+
 - React 18.2+
 - TypeScript 5+
 - @radix-ui/react-dialog
@@ -243,6 +248,7 @@ body {
 - Tailwind CSS
 
 **Development**:
+
 - Jest
 - @testing-library/react
 - @testing-library/user-event
@@ -252,7 +258,7 @@ body {
 ### With Theme Context
 
 ```tsx
-import { SettingsModal, useSettings } from '@/app/components/SettingsModal';
+import { SettingsModal, useSettings } from "@/app/components/SettingsModal";
 
 export function ThemeProvider({ children }) {
   const { settings } = useSettings();
@@ -271,13 +277,13 @@ export function ThemeProvider({ children }) {
 const handleSave = async (settings: UserSettings) => {
   // Save to localStorage (automatic)
   // + Sync with backend
-  const response = await fetch('/api/settings', {
-    method: 'POST',
+  const response = await fetch("/api/settings", {
+    method: "POST",
     body: JSON.stringify(settings),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to save settings');
+    throw new Error("Failed to save settings");
   }
 };
 
@@ -285,18 +291,18 @@ const handleSave = async (settings: UserSettings) => {
   isOpen={isOpen}
   onOpenChange={setIsOpen}
   onSave={handleSave}
-/>
+/>;
 ```
 
 ### With Global Settings Button
 
 ```tsx
 // src/app/layout.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { SettingsModal } from '@/app/components/SettingsModal';
-import { Settings } from 'lucide-react';
+import { useState } from "react";
+import { SettingsModal } from "@/app/components/SettingsModal";
+import { Settings } from "lucide-react";
 
 export default function RootLayout({ children }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -331,21 +337,25 @@ export default function RootLayout({ children }) {
 ## Troubleshooting
 
 **Modal not opening?**
+
 - Check `isOpen` prop is connected to state
 - Check browser console for errors
 - Verify Dialog component is rendering (check DevTools)
 
 **Theme not persisting?**
+
 - Check localStorage is enabled
 - Verify `saveSettings()` is being called
 - Check browser console for storage errors
 
 **Settings not saving?**
+
 - Check `onSave` callback is implemented
 - Check network requests in DevTools
 - Verify no storage quota issues
 
 **Accessibility issues?**
+
 - Use browser accessibility inspector
 - Check ARIA attributes in DevTools
 - Test with keyboard only (no mouse)
@@ -354,6 +364,7 @@ export default function RootLayout({ children }) {
 ## Documentation
 
 See `SETTINGS_MODAL_IMPLEMENTATION.md` for:
+
 - Complete API reference
 - Integration guide
 - Accessibility details

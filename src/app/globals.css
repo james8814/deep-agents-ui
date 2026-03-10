@@ -44,75 +44,79 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-
     /* ================================================================
      * DESIGN SYSTEM TOKENS (Liquid Iris v5.26)
      * These are managed by ThemeContext provider
      * ================================================================ */
 
     /* Brand Colors */
-    --brand-gradient: linear-gradient(135deg, #06B6D4, #8B5CF6, #EC4899);
-    --brand-gradient-subtle: linear-gradient(135deg,
-      rgba(6,182,212,0.15),
-      rgba(139,92,246,0.15));
+    --brand-gradient: linear-gradient(135deg, #06b6d4, #8b5cf6, #ec4899);
+    --brand-gradient-subtle: linear-gradient(
+      135deg,
+      rgba(6, 182, 212, 0.15),
+      rgba(139, 92, 246, 0.15)
+    );
 
     /* Primary Colors (Light Mode - Purple) */
-    --color-primary: #7C3AED;
-    --color-primary-hover: #6D28D9;
-    --color-primary-active: #5B21B6;
-    --color-primary-subtle: #F5F3FF;
+    --color-primary: #7c3aed;
+    --color-primary-hover: #6d28d9;
+    --color-primary-active: #5b21b6;
+    --color-primary-subtle: #f5f3ff;
 
     /* Surfaces (Light Mode) */
-    --surface-base: #FFFFFF;
-    --surface-raised: #FAFAF9;
-    --surface-card: #FFFFFF;
-    --surface-sidebar: #F5F5F4;
+    --surface-base: #ffffff;
+    --surface-raised: #fafaf9;
+    --surface-card: #ffffff;
+    --surface-sidebar: #f5f5f4;
     --surface-overlay: rgba(0, 0, 0, 0.5);
 
     /* Text (Light Mode) */
-    --text-primary: #1A1816;
-    --text-secondary: #5C5650;
-    --text-tertiary: #8A8580;
-    --text-disabled: #A9A59F;
-    --text-on-primary: #FFFFFF;
+    --text-primary: #1a1816;
+    --text-secondary: #5c5650;
+    --text-tertiary: #8a8580;
+    --text-disabled: #a9a59f;
+    --text-on-primary: #ffffff;
 
     /* Borders (Light Mode) */
     --border-subtle: rgba(0, 0, 0, 0.04);
     --border-default: rgba(0, 0, 0, 0.08);
     --border-strong: rgba(0, 0, 0, 0.14);
-    --border-focus: #7C3AED;
+    --border-focus: #7c3aed;
 
     /* Status Colors (Light Mode) */
-    --color-success: #22C55E;
-    --color-success-bg: #F0FDF4;
-    --color-warning: #F59E0B;
-    --color-warning-bg: #FFFBEB;
-    --color-error: #EF4444;
-    --color-error-bg: #FEF2F2;
-    --color-info: #7C3AED;
-    --color-info-bg: #F5F3FF;
+    --color-success: #22c55e;
+    --color-success-bg: #f0fdf4;
+    --color-warning: #f59e0b;
+    --color-warning-bg: #fffbeb;
+    --color-error: #ef4444;
+    --color-error-bg: #fef2f2;
+    --color-info: #7c3aed;
+    --color-info-bg: #f5f3ff;
 
     /* OPDCA Stage Colors */
-    --opdca-observe: #06B6D4;
-    --opdca-plan: #6366F1;
-    --opdca-do: #10B981;
-    --opdca-check: #F59E0B;
-    --opdca-adapt: #EC4899;
+    --opdca-observe: #06b6d4;
+    --opdca-plan: #6366f1;
+    --opdca-do: #10b981;
+    --opdca-check: #f59e0b;
+    --opdca-adapt: #ec4899;
 
     /* SubAgent Colors */
-    --agent-research: #06B6D4;
-    --agent-analysis: #6366F1;
-    --agent-design: #EC4899;
-    --agent-writing: #F59E0B;
-    --agent-document: #10B981;
-    --agent-reflection: #8B5CF6;
+    --agent-research: #06b6d4;
+    --agent-analysis: #6366f1;
+    --agent-design: #ec4899;
+    --agent-writing: #f59e0b;
+    --agent-document: #10b981;
+    --agent-reflection: #8b5cf6;
 
     /* Shadows (Light Mode) */
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+      0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08),
+      0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.04);
 
     /* Motion */
     --duration-instant: 50ms;
@@ -121,10 +125,10 @@
     --duration-slow: 300ms;
     --duration-slower: 500ms;
 
-    --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1.0);
-    --ease-in: cubic-bezier(0.42, 0, 1.0, 1.0);
-    --ease-out: cubic-bezier(0, 0, 0.58, 1.0);
-    --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1.0);
+    --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-in: cubic-bezier(0.42, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.58, 1);
+    --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
 
     /* Z-Index */
     --z-base: 0;
@@ -139,7 +143,7 @@
 
     /* Typography */
     --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", "Noto Sans SC",
-                  system-ui, -apple-system, sans-serif;
+      system-ui, -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
 
     --font-size-xs: 0.75rem;
@@ -289,40 +293,40 @@
   /* Dark Mode - Deep Space Theme */
   .dark {
     /* Primary Colors (Dark Mode - Purple) */
-    --color-primary: #8B5CF6;
-    --color-primary-hover: #A78BFA;
-    --color-primary-active: #7C3AED;
+    --color-primary: #8b5cf6;
+    --color-primary-hover: #a78bfa;
+    --color-primary-active: #7c3aed;
     --color-primary-subtle: rgba(139, 92, 246, 0.15);
 
     /* Surfaces (Dark Mode) */
-    --surface-base: #0A0A12;
-    --surface-raised: #12121E;
-    --surface-card: #1A1A2E;
-    --surface-sidebar: #12121E;
+    --surface-base: #0a0a12;
+    --surface-raised: #12121e;
+    --surface-card: #1a1a2e;
+    --surface-sidebar: #12121e;
     --surface-overlay: rgba(0, 0, 0, 0.7);
 
     /* Text (Dark Mode) */
     --text-primary: rgba(255, 255, 255, 0.95);
-    --text-secondary: rgba(255, 255, 255, 0.70);
-    --text-tertiary: rgba(255, 255, 255, 0.50);
-    --text-disabled: rgba(255, 255, 255, 0.30);
-    --text-on-primary: #FFFFFF;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-tertiary: rgba(255, 255, 255, 0.5);
+    --text-disabled: rgba(255, 255, 255, 0.3);
+    --text-on-primary: #ffffff;
 
     /* Borders (Dark Mode) */
     --border-subtle: rgba(255, 255, 255, 0.04);
     --border-default: rgba(255, 255, 255, 0.08);
     --border-strong: rgba(255, 255, 255, 0.14);
-    --border-focus: #8B5CF6;
+    --border-focus: #8b5cf6;
 
     /* Status Colors (Dark Mode) */
-    --color-success: #10B981;
-    --color-success-bg: rgba(16, 185, 129, 0.10);
-    --color-warning: #FBBF24;
-    --color-warning-bg: rgba(251, 191, 36, 0.10);
-    --color-error: #F87171;
-    --color-error-bg: rgba(248, 113, 113, 0.10);
-    --color-info: #A78BFA;
-    --color-info-bg: rgba(139, 92, 246, 0.10);
+    --color-success: #10b981;
+    --color-success-bg: rgba(16, 185, 129, 0.1);
+    --color-warning: #fbbf24;
+    --color-warning-bg: rgba(251, 191, 36, 0.1);
+    --color-error: #f87171;
+    --color-error-bg: rgba(248, 113, 113, 0.1);
+    --color-info: #a78bfa;
+    --color-info-bg: rgba(139, 92, 246, 0.1);
 
     /* Shadows (Dark Mode - Reduced) */
     --shadow-xs: none;
@@ -336,16 +340,16 @@
     --color-user-message-bg: #2d2d2d;
     --color-avatar-bg: #1c3c3c;
     --color-secondary: #bbc4c4;
-    --color-background: #0A0A12;
+    --color-background: #0a0a12;
     --color-subagent-hover: #1e3f3f;
-    --color-surface: #1A1A2E;
-    --color-border: #12121E;
+    --color-surface: #1a1a2e;
+    --color-border: #12121e;
     --color-border-light: #353535;
     --color-text-primary: rgba(255, 255, 255, 0.95);
-    --color-text-secondary: rgba(255, 255, 255, 0.70);
-    --color-text-tertiary: rgba(255, 255, 255, 0.50);
-    --color-file-button: #1A1A2E;
-    --color-file-button-hover: #12121E;
+    --color-text-secondary: rgba(255, 255, 255, 0.7);
+    --color-text-tertiary: rgba(255, 255, 255, 0.5);
+    --color-file-button: #1a1a2e;
+    --color-file-button-hover: #12121e;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -371,40 +375,40 @@
       --input: 217.2 32.6% 17.5%;
       --ring: 262 80% 50%;
       /* Primary Colors (Dark Mode - Purple) */
-      --color-primary: #8B5CF6;
-      --color-primary-hover: #A78BFA;
-      --color-primary-active: #7C3AED;
+      --color-primary: #8b5cf6;
+      --color-primary-hover: #a78bfa;
+      --color-primary-active: #7c3aed;
       --color-primary-subtle: rgba(139, 92, 246, 0.15);
 
       /* Surfaces (Dark Mode) */
-      --surface-base: #0A0A12;
-      --surface-raised: #12121E;
-      --surface-card: #1A1A2E;
-      --surface-sidebar: #12121E;
+      --surface-base: #0a0a12;
+      --surface-raised: #12121e;
+      --surface-card: #1a1a2e;
+      --surface-sidebar: #12121e;
       --surface-overlay: rgba(0, 0, 0, 0.7);
 
       /* Text (Dark Mode) */
       --text-primary: rgba(255, 255, 255, 0.95);
-      --text-secondary: rgba(255, 255, 255, 0.70);
-      --text-tertiary: rgba(255, 255, 255, 0.50);
-      --text-disabled: rgba(255, 255, 255, 0.30);
-      --text-on-primary: #FFFFFF;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-tertiary: rgba(255, 255, 255, 0.5);
+      --text-disabled: rgba(255, 255, 255, 0.3);
+      --text-on-primary: #ffffff;
 
       /* Borders (Dark Mode) */
       --border-subtle: rgba(255, 255, 255, 0.04);
       --border-default: rgba(255, 255, 255, 0.08);
       --border-strong: rgba(255, 255, 255, 0.14);
-      --border-focus: #8B5CF6;
+      --border-focus: #8b5cf6;
 
       /* Status Colors (Dark Mode) */
-      --color-success: #10B981;
-      --color-success-bg: rgba(16, 185, 129, 0.10);
-      --color-warning: #FBBF24;
-      --color-warning-bg: rgba(251, 191, 36, 0.10);
-      --color-error: #F87171;
-      --color-error-bg: rgba(248, 113, 113, 0.10);
-      --color-info: #A78BFA;
-      --color-info-bg: rgba(139, 92, 246, 0.10);
+      --color-success: #10b981;
+      --color-success-bg: rgba(16, 185, 129, 0.1);
+      --color-warning: #fbbf24;
+      --color-warning-bg: rgba(251, 191, 36, 0.1);
+      --color-error: #f87171;
+      --color-error-bg: rgba(248, 113, 113, 0.1);
+      --color-info: #a78bfa;
+      --color-info-bg: rgba(139, 92, 246, 0.1);
 
       /* Shadows (Dark Mode - Reduced) */
       --shadow-xs: none;
@@ -418,16 +422,16 @@
       --color-user-message-bg: #2d2d2d;
       --color-avatar-bg: #1c3c3c;
       --color-secondary: #bbc4c4;
-      --color-background: #0A0A12;
+      --color-background: #0a0a12;
       --color-subagent-hover: #1e3f3f;
-      --color-surface: #1A1A2E;
-      --color-border: #12121E;
+      --color-surface: #1a1a2e;
+      --color-border: #12121e;
       --color-border-light: #353535;
       --color-text-primary: rgba(255, 255, 255, 0.95);
-      --color-text-secondary: rgba(255, 255, 255, 0.70);
-      --color-text-tertiary: rgba(255, 255, 255, 0.50);
-      --color-file-button: #1A1A2E;
-      --color-file-button-hover: #12121E;
+      --color-text-secondary: rgba(255, 255, 255, 0.7);
+      --color-text-tertiary: rgba(255, 255, 255, 0.5);
+      --color-file-button: #1a1a2e;
+      --color-file-button-hover: #12121e;
 
       /* Tailwind/Radix UI component variables for dark mode */
       --radius: 0.5rem;
@@ -680,7 +684,8 @@ button {
 
 .welcome-input-wrap:focus-within {
   border-color: #7c6bf0;
-  box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.15), 0 8px 24px rgba(124, 107, 240, 0.1);
+  box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.15),
+    0 8px 24px rgba(124, 107, 240, 0.1);
 }
 
 .welcome-input {
@@ -710,7 +715,8 @@ button {
 
   .welcome-input-wrap:focus-within {
     border-color: #7c6bf0;
-    box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.2), 0 8px 24px rgba(124, 107, 240, 0.15);
+    box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.2),
+      0 8px 24px rgba(124, 107, 240, 0.15);
   }
 
   .welcome-input {
@@ -745,7 +751,11 @@ button {
 }
 
 .welcome-hint:hover {
-  background: linear-gradient(135deg, rgba(124, 107, 240, 0.15), rgba(56, 189, 248, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(124, 107, 240, 0.15),
+    rgba(56, 189, 248, 0.1)
+  );
   color: var(--color-text-primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(124, 107, 240, 0.2);
@@ -772,7 +782,11 @@ button {
   }
 
   .welcome-hint:hover {
-    background: linear-gradient(135deg, rgba(124, 107, 240, 0.2), rgba(56, 189, 248, 0.15));
+    background: linear-gradient(
+      135deg,
+      rgba(124, 107, 240, 0.2),
+      rgba(56, 189, 248, 0.15)
+    );
     color: var(--color-text-primary);
     box-shadow: 0 4px 16px rgba(124, 107, 240, 0.3);
   }

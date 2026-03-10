@@ -59,7 +59,9 @@ export const DiffViewer = React.memo<DiffViewerProps>(
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-muted/30 px-3 py-2">
           {fileName && (
-            <span className="font-mono text-xs text-muted-foreground">{fileName}</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {fileName}
+            </span>
           )}
           <div className="flex gap-3 text-xs">
             <span className="text-green-600">+{stats.added}</span>
@@ -71,7 +73,10 @@ export const DiffViewer = React.memo<DiffViewerProps>(
         <div className="overflow-x-auto">
           <pre className="m-0 text-xs leading-5">
             {changes.map((change, i) => (
-              <DiffBlock key={i} change={change} />
+              <DiffBlock
+                key={i}
+                change={change}
+              />
             ))}
           </pre>
         </div>
@@ -94,8 +99,10 @@ function DiffBlock({ change }: { change: Change }) {
           key={i}
           className={cn(
             "px-3 py-0",
-            change.added && "bg-green-50 text-green-800 dark:bg-green-950/30 dark:text-green-300",
-            change.removed && "bg-red-50 text-red-800 dark:bg-red-950/30 dark:text-red-300",
+            change.added &&
+              "bg-green-50 text-green-800 dark:bg-green-950/30 dark:text-green-300",
+            change.removed &&
+              "bg-red-50 text-red-800 dark:bg-red-950/30 dark:text-red-300",
             !change.added && !change.removed && "text-foreground"
           )}
         >
@@ -200,11 +207,25 @@ yarn add next-themes
 ```tsx
 import { ThemeProvider } from "next-themes";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <html
+      lang="en"
+      suppressHydrationWarning
+    >
+      <body
+        className={inter.className}
+        suppressHydrationWarning
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+        >
           <NuqsAdapter>{children}</NuqsAdapter>
           <Toaster />
         </ThemeProvider>
@@ -251,7 +272,7 @@ export function ThemeToggle() {
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 // In the header, near the Settings button:
-<ThemeToggle />
+<ThemeToggle />;
 ```
 
 **CSS verification:** Audit `src/app/globals.css` to ensure dark theme CSS variables are defined. The project uses Tailwind + CSS variables, so verify entries like:
@@ -400,7 +421,10 @@ const searchFiltered = useMemo(() => {
 // UI — add search input in the header:
 <div className="px-4 pt-2">
   <div className="relative">
-    <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+    <Search
+      size={14}
+      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+    />
     <input
       type="text"
       value={searchQuery}
@@ -409,7 +433,7 @@ const searchFiltered = useMemo(() => {
       className="w-full rounded-md border border-border bg-background py-1.5 pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
     />
   </div>
-</div>
+</div>;
 ```
 
 ### 4.4.2: Thread Delete
@@ -438,26 +462,34 @@ const searchFiltered = useMemo(() => {
 **Delete handler:**
 
 ```tsx
-const handleDeleteThread = useCallback(async (threadId: string) => {
-  if (!confirm("Delete this thread? This action cannot be undone.")) return;
-  try {
-    const config = getConfig();
-    if (!config) return;
-    const apiKey = config.langsmithApiKey || process.env.NEXT_PUBLIC_LANGSMITH_API_KEY || "";
-    const client = new Client({
-      apiUrl: config.deploymentUrl,
-      defaultHeaders: apiKey ? { "X-Api-Key": apiKey, "x-auth-scheme": "langsmith" } : { "x-auth-scheme": "langsmith" },
-    });
-    await client.threads.delete(threadId);
-    threads.mutate();  // Revalidate the list
-    // If the deleted thread was active, clear the selection
-    if (currentThreadId === threadId) {
-      onThreadSelect("");  // Or set threadId to null
+const handleDeleteThread = useCallback(
+  async (threadId: string) => {
+    if (!confirm("Delete this thread? This action cannot be undone.")) return;
+    try {
+      const config = getConfig();
+      if (!config) return;
+      const apiKey =
+        config.langsmithApiKey ||
+        process.env.NEXT_PUBLIC_LANGSMITH_API_KEY ||
+        "";
+      const client = new Client({
+        apiUrl: config.deploymentUrl,
+        defaultHeaders: apiKey
+          ? { "X-Api-Key": apiKey, "x-auth-scheme": "langsmith" }
+          : { "x-auth-scheme": "langsmith" },
+      });
+      await client.threads.delete(threadId);
+      threads.mutate(); // Revalidate the list
+      // If the deleted thread was active, clear the selection
+      if (currentThreadId === threadId) {
+        onThreadSelect(""); // Or set threadId to null
+      }
+    } catch (e) {
+      console.error("Failed to delete thread:", e);
     }
-  } catch (e) {
-    console.error("Failed to delete thread:", e);
-  }
-}, [threads, currentThreadId, onThreadSelect]);
+  },
+  [threads, currentThreadId, onThreadSelect]
+);
 ```
 
 ### Acceptance Criteria
@@ -519,11 +551,13 @@ Show a subtle hint below the textarea:
 
 ```tsx
 // Show character count when input exceeds threshold:
-{input.length > 500 && (
-  <span className="text-[10px] tabular-nums text-muted-foreground/50">
-    {input.length.toLocaleString()} chars
-  </span>
-)}
+{
+  input.length > 500 && (
+    <span className="text-[10px] tabular-nums text-muted-foreground/50">
+      {input.length.toLocaleString()} chars
+    </span>
+  );
+}
 ```
 
 ### Acceptance Criteria
@@ -537,21 +571,21 @@ Show a subtle hint below the textarea:
 
 ## Files Changed Summary
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/app/components/ChatInterface.tsx` | MODIFY | Interrupt-aware input, hints, character counter |
-| `src/app/components/DiffViewer.tsx` | **PENDING** | Line-by-line diff component |
-| `src/components/ui/theme-toggle.tsx` | **PENDING** | Theme toggle button |
-| `src/app/hooks/useKeyboardShortcuts.ts` | **PENDING** | Keyboard shortcut handler |
-| `src/app/layout.tsx` | **PENDING** | Add ThemeProvider |
-| `src/app/page.tsx` | **PENDING** | Add theme toggle, register shortcuts |
-| `src/app/components/ThreadList.tsx` | **PENDING** | Add search, delete functionality |
-| `src/app/components/FileViewDialog.tsx` | **PENDING** | Add diff tab |
+| File                                    | Action      | Changes                                         |
+| --------------------------------------- | ----------- | ----------------------------------------------- |
+| `src/app/components/ChatInterface.tsx`  | MODIFY      | Interrupt-aware input, hints, character counter |
+| `src/app/components/DiffViewer.tsx`     | **PENDING** | Line-by-line diff component                     |
+| `src/components/ui/theme-toggle.tsx`    | **PENDING** | Theme toggle button                             |
+| `src/app/hooks/useKeyboardShortcuts.ts` | **PENDING** | Keyboard shortcut handler                       |
+| `src/app/layout.tsx`                    | **PENDING** | Add ThemeProvider                               |
+| `src/app/page.tsx`                      | **PENDING** | Add theme toggle, register shortcuts            |
+| `src/app/components/ThreadList.tsx`     | **PENDING** | Add search, delete functionality                |
+| `src/app/components/FileViewDialog.tsx` | **PENDING** | Add diff tab                                    |
 
 ## New Dependencies
 
-| Package | Purpose | Status |
-|---------|---------|--------|
+| Package       | Purpose                          | Status      |
+| ------------- | -------------------------------- | ----------- |
 | `next-themes` | Theme toggle (light/dark/system) | **PENDING** |
 
 All other functionality uses existing packages (`diff` is already installed).

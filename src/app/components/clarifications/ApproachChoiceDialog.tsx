@@ -36,9 +36,7 @@ export const ApproachChoiceDialog: React.FC<ApproachChoiceDialogProps> = ({
   const [expandedId, setExpandedId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const selectedApproach = context.approaches.find(
-    (a) => a.id === selectedId
-  );
+  const selectedApproach = context.approaches.find((a) => a.id === selectedId);
 
   const handleSubmit = () => {
     if (!selectedId) return;
@@ -83,12 +81,18 @@ export const ApproachChoiceDialog: React.FC<ApproachChoiceDialogProps> = ({
               {(approach.pros?.length || approach.cons?.length) && (
                 <div className={styles.approachPreview}>
                   {approach.pros?.slice(0, 1).map((pro, idx) => (
-                    <div key={`pro-${idx}`} className={styles.proItem}>
+                    <div
+                      key={`pro-${idx}`}
+                      className={styles.proItem}
+                    >
                       ✓ {pro}
                     </div>
                   ))}
                   {approach.cons?.slice(0, 1).map((con, idx) => (
-                    <div key={`con-${idx}`} className={styles.conItem}>
+                    <div
+                      key={`con-${idx}`}
+                      className={styles.conItem}
+                    >
                       ✗ {con}
                     </div>
                   ))}
@@ -123,7 +127,10 @@ export const ApproachChoiceDialog: React.FC<ApproachChoiceDialogProps> = ({
                     <h4 className={styles.detailTitle}>优势</h4>
                     <ul className={styles.detailList}>
                       {selectedApproach.pros.map((pro, idx) => (
-                        <li key={`pro-${idx}`} className={styles.proItem}>
+                        <li
+                          key={`pro-${idx}`}
+                          className={styles.proItem}
+                        >
                           ✓ {pro}
                         </li>
                       ))}
@@ -136,7 +143,10 @@ export const ApproachChoiceDialog: React.FC<ApproachChoiceDialogProps> = ({
                     <h4 className={styles.detailTitle}>劣势</h4>
                     <ul className={styles.detailList}>
                       {selectedApproach.cons.map((con, idx) => (
-                        <li key={`con-${idx}`} className={styles.conItem}>
+                        <li
+                          key={`con-${idx}`}
+                          className={styles.conItem}
+                        >
                           ✗ {con}
                         </li>
                       ))}

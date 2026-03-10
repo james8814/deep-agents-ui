@@ -9,7 +9,7 @@ import {
   BookOpen,
   Zap,
   MessageSquare,
-  GitBranch
+  GitBranch,
 } from "lucide-react";
 
 interface WelcomeScreenProps {
@@ -91,18 +91,18 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
         >
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
+            <div className="bg-primary/5 absolute -right-40 -top-40 h-80 w-80 rounded-full blur-3xl" />
+            <div className="bg-primary/5 absolute -bottom-40 -left-40 h-80 w-80 rounded-full blur-3xl" />
+            <div className="absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
           </div>
 
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
             {/* Logo/Brand Section */}
-            <div className="mb-8 inline-block fade-in-scale">
+            <div className="fade-in-scale mb-8 inline-block">
               <div className="floating relative">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg">
-                  <Sparkles className="h-8 w-8 text-primary-foreground" />
+                  <Sparkles className="text-primary-foreground h-8 w-8" />
                 </div>
               </div>
             </div>
@@ -128,10 +128,12 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
             {/* Description */}
             <div className="slide-in-up mb-10 space-y-3 text-muted-foreground">
               <p>
-                Transform your product ideas into structured documentation with AI assistance.
+                Transform your product ideas into structured documentation with
+                AI assistance.
               </p>
               <p className="text-sm">
-                Leverage OPDCA workflow with Human-in-the-Loop checkpoints for better outcomes.
+                Leverage OPDCA workflow with Human-in-the-Loop checkpoints for
+                better outcomes.
               </p>
             </div>
 
@@ -145,7 +147,7 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    <div className="border-primary-foreground h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
                     Connecting...
                   </>
                 ) : (
@@ -166,17 +168,19 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
                 <div
                   key={action.title}
                   className={cn(
-                    "rounded-lg border border-border/50 bg-card/50 p-4 text-left transition-all hover:border-primary/30 hover:bg-card/80 hover:shadow-md",
-                    "hover:translate-y-[-2px] cursor-pointer group"
+                    "hover:border-primary/30 rounded-lg border border-border/50 bg-card/50 p-4 text-left transition-all hover:bg-card/80 hover:shadow-md",
+                    "group cursor-pointer hover:translate-y-[-2px]"
                   )}
                   style={{
                     animationDelay: `${index * 100}ms`,
                   }}
                 >
-                  <div className="mb-2 inline-flex rounded-lg bg-primary/10 p-2 text-primary transition-all group-hover:bg-primary/20">
+                  <div className="bg-primary/10 group-hover:bg-primary/20 mb-2 inline-flex rounded-lg p-2 text-primary transition-all">
                     {action.icon}
                   </div>
-                  <h3 className="font-semibold text-foreground">{action.title}</h3>
+                  <h3 className="font-semibold text-foreground">
+                    {action.title}
+                  </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {action.description}
                   </p>
@@ -192,7 +196,7 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
                   href="https://github.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-muted-foreground transition-colors"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   GitHub
                 </a>
@@ -201,7 +205,7 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
                   href="https://docs.example.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-muted-foreground transition-colors"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   Docs
                 </a>
@@ -210,7 +214,7 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
                   href="https://support.example.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-muted-foreground transition-colors"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   Support
                 </a>

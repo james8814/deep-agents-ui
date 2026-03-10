@@ -44,23 +44,21 @@ src/app/components/SettingsModal/
 ### Basic Usage
 
 ```tsx
-import { useState } from 'react';
-import { SettingsModal } from '@/app/components/SettingsModal';
+import { useState } from "react";
+import { SettingsModal } from "@/app/components/SettingsModal";
 
 export function MyComponent() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)}>
-        Settings
-      </button>
+      <button onClick={() => setIsOpen(true)}>Settings</button>
 
       <SettingsModal
         isOpen={isOpen}
         onOpenChange={setIsOpen}
-        onSave={(settings) => console.log('Settings saved:', settings)}
-        onCancel={() => console.log('Cancelled')}
+        onSave={(settings) => console.log("Settings saved:", settings)}
+        onCancel={() => console.log("Cancelled")}
       />
     </>
   );
@@ -70,16 +68,11 @@ export function MyComponent() {
 ### Using the Hook
 
 ```tsx
-import { useSettings } from '@/app/components/SettingsModal';
+import { useSettings } from "@/app/components/SettingsModal";
 
 export function SettingsPage() {
-  const {
-    settings,
-    state,
-    updateSettings,
-    saveSettings,
-    resetSettings,
-  } = useSettings();
+  const { settings, state, updateSettings, saveSettings, resetSettings } =
+    useSettings();
 
   return (
     <div>
@@ -98,8 +91,8 @@ export function SettingsPage() {
 
 ```typescript
 interface SettingsModalProps {
-  readonly isOpen: boolean;              // Modal visibility
-  readonly onOpenChange: (open: boolean) => void;  // Open/close handler
+  readonly isOpen: boolean; // Modal visibility
+  readonly onOpenChange: (open: boolean) => void; // Open/close handler
   readonly onSave?: (settings: UserSettings) => void | Promise<void>;
   readonly onCancel?: () => void;
 }
@@ -107,12 +100,12 @@ interface SettingsModalProps {
 
 **Parameters**:
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `isOpen` | `boolean` | ✅ | Controls modal visibility |
-| `onOpenChange` | `function` | ✅ | Called when modal open state changes |
-| `onSave` | `function` | ❌ | Callback when user saves settings |
-| `onCancel` | `function` | ❌ | Callback when user cancels |
+| Prop           | Type       | Required | Description                          |
+| -------------- | ---------- | -------- | ------------------------------------ |
+| `isOpen`       | `boolean`  | ✅       | Controls modal visibility            |
+| `onOpenChange` | `function` | ✅       | Called when modal open state changes |
+| `onSave`       | `function` | ❌       | Callback when user saves settings    |
+| `onCancel`     | `function` | ❌       | Callback when user cancels           |
 
 ---
 
@@ -141,7 +134,7 @@ interface SettingsModalProps {
 Updates user settings without saving to localStorage.
 
 ```typescript
-updateSettings({ theme: 'light', language: 'fr' });
+updateSettings({ theme: "light", language: "fr" });
 ```
 
 #### `updateNotifications(partial)`
@@ -173,7 +166,7 @@ resetSettings();
 Opens/closes the settings modal.
 
 ```typescript
-toggleModal(true);  // Open
+toggleModal(true); // Open
 toggleModal(false); // Close
 ```
 
@@ -182,7 +175,7 @@ toggleModal(false); // Close
 Switches the active tab.
 
 ```typescript
-switchTab('notifications');  // Options: 'appearance' | 'notifications' | 'shortcuts' | 'about'
+switchTab("notifications"); // Options: 'appearance' | 'notifications' | 'shortcuts' | 'about'
 ```
 
 ---
@@ -192,21 +185,21 @@ switchTab('notifications');  // Options: 'appearance' | 'notifications' | 'short
 ### Light Mode
 
 ```css
---bg: #FFFFFF;
---t1: #1A1A1A;
+--bg: #ffffff;
+--t1: #1a1a1a;
 --t2: #666666;
 --t3: #999999;
---border: #E5E5E5;
+--border: #e5e5e5;
 ```
 
 ### Dark Mode (Default)
 
 ```css
---bg: #0A0A12;
---t1: #F5F5F7;
---t2: #BDBDBD;
+--bg: #0a0a12;
+--t1: #f5f5f7;
+--t2: #bdbdbd;
 --t3: #808080;
---border: #2A2A3E;
+--border: #2a2a3e;
 ```
 
 ### Applying Theme
@@ -223,15 +216,15 @@ Theme is automatically applied when:
 
 The modal includes 7 built-in shortcuts with search functionality:
 
-| Action | Keys | Category |
-|--------|------|----------|
-| Send message | `Cmd/Ctrl + Enter` | Editing |
-| New line | `Shift + Enter` | Editing |
-| Clear input | `Escape` | Editing |
+| Action        | Keys                   | Category   |
+| ------------- | ---------------------- | ---------- |
+| Send message  | `Cmd/Ctrl + Enter`     | Editing    |
+| New line      | `Shift + Enter`        | Editing    |
+| Clear input   | `Escape`               | Editing    |
 | Open settings | `Cmd/Ctrl + Shift + S` | Navigation |
-| New chat | `Cmd/Ctrl + N` | Navigation |
-| Focus input | `Cmd/Ctrl + L` | Navigation |
-| Close modal | `Escape` | General |
+| New chat      | `Cmd/Ctrl + N`         | Navigation |
+| Focus input   | `Cmd/Ctrl + L`         | Navigation |
+| Close modal   | `Escape`               | General    |
 
 ---
 
@@ -241,12 +234,12 @@ The modal includes 7 built-in shortcuts with search functionality:
 
 ```typescript
 // Theme selection
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 // User settings state
 interface UserSettings {
   theme: Theme;
-  themePreference: 'light' | 'dark' | 'system';
+  themePreference: "light" | "dark" | "system";
   notifications: NotificationSettings;
   language: string;
   autoSave: boolean;
@@ -263,7 +256,7 @@ interface NotificationSettings {
 // Modal state
 interface SettingsModalState {
   isOpen: boolean;
-  activeTab: 'appearance' | 'notifications' | 'shortcuts' | 'about';
+  activeTab: "appearance" | "notifications" | "shortcuts" | "about";
   isDirty: boolean;
   isSaving: boolean;
 }
@@ -274,7 +267,7 @@ interface KeyboardShortcut {
   action: string;
   keys: readonly string[];
   description: string;
-  category: 'editing' | 'navigation' | 'general';
+  category: "editing" | "navigation" | "general";
 }
 ```
 
@@ -286,10 +279,10 @@ See `settingsTypes.ts` for complete type definitions.
 
 The component uses localStorage for persistence:
 
-| Key | Value | Example |
-|-----|-------|---------|
-| `pmagent-settings` | Full settings JSON | `{"theme":"light",...}` |
-| `pmagent-theme` | Theme only (string) | `"dark"` |
+| Key                | Value               | Example                 |
+| ------------------ | ------------------- | ----------------------- |
+| `pmagent-settings` | Full settings JSON  | `{"theme":"light",...}` |
+| `pmagent-theme`    | Theme only (string) | `"dark"`                |
 
 ### Storage Structure
 
@@ -316,12 +309,14 @@ The component uses localStorage for persistence:
 ### WCAG 2.1 AA Compliance
 
 ✅ **Keyboard Navigation**
+
 - Full Tab navigation between controls
 - Escape key closes modal
 - Enter/Space activates buttons
 - Arrow keys for theme selection
 
 ✅ **Screen Reader Support**
+
 - Semantic HTML with proper `role` attributes
 - `aria-labelledby`, `aria-describedby` on dialog
 - `aria-selected` on tabs
@@ -330,12 +325,14 @@ The component uses localStorage for persistence:
 - Proper heading hierarchy
 
 ✅ **Visual Accessibility**
+
 - Color contrast ≥ 4.5:1 (WCAG AA)
 - Focus visible indicators (2px ring)
 - No color-only information
 - Readable font sizes (12px minimum)
 
 ✅ **Motor Accessibility**
+
 - Click targets ≥ 44×44px
 - No reliance on hover-only interactions
 - Smooth focus management
@@ -358,6 +355,7 @@ npm run test:contrast
 ### Test Coverage
 
 - **Component tests**: 35+ test cases covering:
+
   - Rendering and visibility
   - Tab navigation
   - Theme toggling
@@ -407,9 +405,9 @@ Lines        : 93% ( 270/290 )
 
 ```tsx
 // src/app/layout.tsx
-'use client';
+"use client";
 
-import { SettingsModal } from '@/app/components/SettingsModal';
+import { SettingsModal } from "@/app/components/SettingsModal";
 
 export default function RootLayout({ children }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -432,7 +430,7 @@ export default function RootLayout({ children }) {
 
 ```tsx
 // src/contexts/ThemeContext.tsx
-import { useSettings } from '@/app/components/SettingsModal';
+import { useSettings } from "@/app/components/SettingsModal";
 
 export function ThemeProvider({ children }) {
   const { settings, updateSettings } = useSettings();
@@ -449,7 +447,7 @@ export function ThemeProvider({ children }) {
 
 ```tsx
 // src/app/components/ChatInterface.tsx
-import { SettingsModal } from '@/app/components/SettingsModal';
+import { SettingsModal } from "@/app/components/SettingsModal";
 
 export function ChatInterface() {
   const [showSettings, setShowSettings] = useState(false);
@@ -481,6 +479,7 @@ export function ChatInterface() {
 **Problem**: Modal not visible even when `isOpen={true}`
 
 **Solution**:
+
 1. Check that `isOpen` prop is correctly bound to state
 2. Verify parent component is rendering (use React DevTools)
 3. Check Z-index (modal uses `z-50`)
@@ -490,6 +489,7 @@ export function ChatInterface() {
 **Problem**: Theme doesn't survive page reload
 
 **Solution**:
+
 1. Check browser localStorage is enabled
 2. Verify `saveSettings()` is called
 3. Check browser console for storage errors
@@ -499,6 +499,7 @@ export function ChatInterface() {
 **Problem**: Screen reader not announcing modal
 
 **Solution**:
+
 1. Verify modal has `aria-labelledby` pointing to title
 2. Check that `<Dialog.Content>` is rendered
 3. Use browser accessibility inspector to verify tree
@@ -508,8 +509,9 @@ export function ChatInterface() {
 **Problem**: Classes not applied (looks wrong)
 
 **Solution**:
+
 1. Verify Tailwind CSS is configured correctly
-2. Check that design tokens (azune-*) are in tailwind.config.ts
+2. Check that design tokens (azune-\*) are in tailwind.config.ts
 3. Clear Next.js cache: `rm -rf .next`
 
 ---
@@ -595,12 +597,14 @@ export function ChatInterface() {
 ### When Using SettingsModal
 
 ✅ **Do**:
+
 - Wrap in try-catch when calling `saveSettings()`
 - Check `isHydrated` before rendering dependent UI
 - Memoize callback handlers
 - Use `readonly` in type definitions
 
 ❌ **Don't**:
+
 - Don't call `saveSettings()` in render method
 - Don't store sensitive data in localStorage
 - Don't modify `settings` object directly
@@ -609,17 +613,19 @@ export function ChatInterface() {
 ### Code Examples
 
 **Correct Pattern**:
+
 ```tsx
 const handleSettingChange = useCallback(() => {
-  updateSettings({ theme: 'light' });
+  updateSettings({ theme: "light" });
 }, [updateSettings]);
 ```
 
 **Incorrect Pattern**:
+
 ```tsx
 // ❌ Creates new function on every render
 const handleSettingChange = () => {
-  updateSettings({ theme: 'light' });
+  updateSettings({ theme: "light" });
 };
 ```
 

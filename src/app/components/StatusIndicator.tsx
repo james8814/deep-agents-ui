@@ -43,12 +43,15 @@ interface StatusIndicatorProps {
   showLabel?: boolean;
 }
 
-const statusConfig: Record<Status, {
-  bgColor: string;
-  dotColor: string;
-  label: string;
-  icon: string;
-}> = {
+const statusConfig: Record<
+  Status,
+  {
+    bgColor: string;
+    dotColor: string;
+    label: string;
+    icon: string;
+  }
+> = {
   connected: {
     bgColor: "bg-green-500/10",
     dotColor: "bg-green-500",
@@ -154,8 +157,8 @@ export const StatusIndicator = React.memo<StatusIndicatorProps>(
                 status === "connecting"
                   ? "spin 1s linear infinite"
                   : pulse
-                    ? "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
-                    : undefined,
+                  ? "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+                  : undefined,
             }}
           />
         </div>
@@ -184,7 +187,10 @@ export const StatusIndicator = React.memo<StatusIndicatorProps>(
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div role="status" aria-label={`Status: ${label || config.label}`}>
+              <div
+                role="status"
+                aria-label={`Status: ${label || config.label}`}
+              >
                 {content}
               </div>
             </TooltipTrigger>
@@ -197,7 +203,10 @@ export const StatusIndicator = React.memo<StatusIndicatorProps>(
     }
 
     return (
-      <div role="status" aria-label={`Status: ${label || config.label}`}>
+      <div
+        role="status"
+        aria-label={`Status: ${label || config.label}`}
+      >
         {content}
       </div>
     );

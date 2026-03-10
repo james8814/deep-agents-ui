@@ -38,7 +38,9 @@ export function saveConfig(config: StandaloneConfig): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
   // Dispatch custom event to notify same-tab listeners
-  window.dispatchEvent(new CustomEvent("deep-agent-config-change", { detail: config }));
+  window.dispatchEvent(
+    new CustomEvent("deep-agent-config-change", { detail: config })
+  );
 }
 
 export function getDefaultConfig(): StandaloneConfig {

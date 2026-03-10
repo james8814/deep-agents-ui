@@ -3,7 +3,17 @@ export interface ToolCall {
   name: string;
   args: Record<string, unknown>;
   result?: string;
-  status: "pending" | "completed" | "error" | "interrupted";
+  status:
+    | "pending"
+    | "completed"
+    | "error"
+    | "interrupted"
+    | "ok"
+    | "cancelled"
+    | "timeout";
+  // Phase 2.5 P2-1: Cancellation and Timeout support
+  cancellation_reason?: string; // user_request, timeout, etc.
+  timeout_seconds?: number; // Duration that caused timeout
 }
 
 export interface SubAgent {
@@ -66,3 +76,51 @@ export interface ToolApprovalInterruptData {
   action_requests: ActionRequest[];
   review_configs?: ReviewConfig[];
 }
+
+// Phase 2.5 P2-3: File Coordination - Attachment Summary
+export interface AttachmentSummary {
+  path: string; // File path
+  size_bytes: number; // File size in bytes
+  mime_type: string; // Content type (e.g., "application/pdf")
+  hash_sha256?: string; // SHA256 hash for integrity checking
+  preview_url?: string; // URL for preview
+  download_url?: string; // URL for download
+}
+
+// Phase 2.5 P2-2: Schema Versioning
+export interface MessageWithSchema {
+  schema_version?: string; // Current version (e.g., "2.1")
+  content: any;
+  attachments?: AttachmentSummary[];
+}
+
+// Schema version compatibility checker
+export const isSchemaVersionCompatible = (
+  messageVersion?: string,
+  minSupportedVersion = "2.0"
+): boolean => {
+  if (!messageVersion) return true; // Legacy messages are compatible
+
+  const [msgMajor, msgMinor = "0"] = messageVersion.split(".");
+  const [minMajor, minMinor = "0"] = minSupportedVersion.split(".");
+
+  const msgNum = parseInt(`${msgMajor}${msgMinor}`);
+  const minNum = parseInt(`${minMajor}${minMinor}`);
+
+  return msgNum >= minNum;
+};
+
+// Degrade message if schema version incompatible
+export const degradeMessageIfNeeded = (
+  message: any,
+  currentVersion = "2.1"
+): string => {
+  const version = message.schema_version;
+  if (!isSchemaVersionCompatible(version)) {
+    // Return text representation for unknown versions
+    return typeof message.content === "string"
+      ? message.content
+      : JSON.stringify(message.content);
+  }
+  return message.content;
+};

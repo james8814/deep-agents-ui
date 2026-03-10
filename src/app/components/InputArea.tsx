@@ -9,13 +9,7 @@ import React, {
   useEffect,
 } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Square,
-  ArrowUp,
-  Maximize2,
-  Minimize2,
-  Clock,
-} from "lucide-react";
+import { Square, ArrowUp, Maximize2, Minimize2, Clock } from "lucide-react";
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +17,9 @@ interface InputAreaProps {
   input: string;
   onInputChange: (value: string) => void;
   attachedFiles: UploadedFile[];
-  onFilesChange: (files: UploadedFile[] | ((prev: UploadedFile[]) => UploadedFile[])) => void;
+  onFilesChange: (
+    files: UploadedFile[] | ((prev: UploadedFile[]) => UploadedFile[])
+  ) => void;
   onSubmit: (e?: FormEvent) => void;
   onStop: () => void;
   isLoading: boolean;
@@ -165,15 +161,24 @@ export const InputArea = React.memo<InputAreaProps>(
 
     // Determine button state
     const buttonVariant = isLoading ? "destructive" : "default";
-    const buttonDisabled = !isLoading && (!state.canSubmit || sendStatus === "error");
+    const buttonDisabled =
+      !isLoading && (!state.canSubmit || sendStatus === "error");
     const buttonLabel = isLoading ? "Stop" : "Send";
     const buttonIcon = isLoading ? (
-      <Square size={12} className="mr-1" />
+      <Square
+        size={12}
+        className="mr-1"
+      />
     ) : (
-      <ArrowUp size={14} className="mr-1" />
+      <ArrowUp
+        size={14}
+        className="mr-1"
+      />
     );
 
-    const formatExecutionTime = (seconds: number | undefined | null): string => {
+    const formatExecutionTime = (
+      seconds: number | undefined | null
+    ): string => {
       if (!seconds) return "";
       if (seconds < 60) return `${seconds}s`;
       const mins = Math.floor(seconds / 60);
@@ -187,7 +192,10 @@ export const InputArea = React.memo<InputAreaProps>(
           "mx-auto flex w-full max-w-[1024px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-200 ease-out"
         )}
       >
-        <form onSubmit={onSubmit} className="flex flex-col">
+        <form
+          onSubmit={onSubmit}
+          className="flex flex-col"
+        >
           {/* File Upload Zone */}
           <FileUploadZone
             files={attachedFiles}
@@ -197,12 +205,7 @@ export const InputArea = React.memo<InputAreaProps>(
           />
 
           {/* Textarea with focus indication */}
-          <div
-            className={cn(
-              "transition-colors",
-              isFocused && "bg-accent/30"
-            )}
-          >
+          <div className={cn("transition-colors", isFocused && "bg-accent/30")}>
             <textarea
               ref={textareaRef}
               name="message"
@@ -215,8 +218,8 @@ export const InputArea = React.memo<InputAreaProps>(
                 isLoading
                   ? "Running..."
                   : isDisabled
-                    ? "Agent is waiting for approval above ↑"
-                    : "Write your message... (Cmd/Ctrl+Enter or Shift+Enter for newline)"
+                  ? "Agent is waiting for approval above ↑"
+                  : "Write your message... (Cmd/Ctrl+Enter or Shift+Enter for newline)"
               }
               disabled={isDisabled}
               className={cn(
@@ -227,7 +230,9 @@ export const InputArea = React.memo<InputAreaProps>(
               )}
               rows={1}
               aria-label="Message input"
-              aria-describedby={state.charCount > 500 ? "char-count" : undefined}
+              aria-describedby={
+                state.charCount > 500 ? "char-count" : undefined
+              }
             />
           </div>
 
@@ -247,7 +252,7 @@ export const InputArea = React.memo<InputAreaProps>(
                 className={cn(
                   "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-all",
                   "hover:bg-accent hover:text-foreground",
-                  "disabled:opacity-30 disabled:cursor-not-allowed",
+                  "disabled:cursor-not-allowed disabled:opacity-30",
                   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   inputExpanded && "bg-accent text-foreground"
                 )}

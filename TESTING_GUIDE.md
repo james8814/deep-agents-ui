@@ -11,12 +11,14 @@ This document outlines the complete testing and optimization framework implement
 **Coverage: >85%**
 
 #### Test Files:
+
 - `src/lib/fetchInterceptor.test.ts` - Auth token handling, URL matching
 - `src/app/components/__tests__/ChatMessage.test.tsx` - Message rendering
 - `src/app/components/__tests__/ChatInterface.test.tsx` - Chat functionality
 - `src/lib/__tests__/config.test.ts` - Configuration management
 
 **Run unit tests:**
+
 ```bash
 npm run test:unit
 npm run test:watch          # Watch mode
@@ -24,6 +26,7 @@ npm run test:coverage       # With coverage report
 ```
 
 **Key areas covered:**
+
 - Token injection and validation
 - Message rendering (human, AI, tool calls)
 - Chat interface interactions
@@ -35,6 +38,7 @@ npm run test:coverage       # With coverage report
 ### 2. Integration Tests (Playwright)
 
 #### Test Files:
+
 - `tests/e2e.spec.ts` - Authentication & API integration
   - Scenario A: No token access
   - Scenario B: Expired token handling
@@ -44,12 +48,14 @@ npm run test:coverage       # With coverage report
   - Configuration dialog
 
 **Run E2E tests:**
+
 ```bash
 npm run test:e2e                    # Full suite
 npm run test:e2e:debug             # Debug mode (slow, interactive)
 ```
 
 **Key scenarios:**
+
 - Auth flow without token → redirect to login
 - Expired token cleanup → auto logout
 - Valid token flow → successful page load
@@ -63,6 +69,7 @@ npm run test:e2e:debug             # Debug mode (slow, interactive)
 #### Test File: `tests/accessibility.spec.ts`
 
 **Coverage:**
+
 - Heading hierarchy validation
 - Image alt text verification
 - Form label associations
@@ -75,6 +82,7 @@ npm run test:e2e:debug             # Debug mode (slow, interactive)
 - Text resizing support
 
 **Run accessibility tests:**
+
 ```bash
 npm run test:a11y
 ```
@@ -88,6 +96,7 @@ npm run test:a11y
 #### Test File: `tests/performance.spec.ts`
 
 **Metrics Tested:**
+
 - Page load time: < 3000ms
 - First Contentful Paint (FCP): < 2500ms
 - Largest Contentful Paint (LCP): < 2500ms
@@ -98,11 +107,13 @@ npm run test:a11y
 - CSS delivery optimization
 
 **Run performance tests:**
+
 ```bash
 npm run test:perf
 ```
 
 **Expected Results:**
+
 - ✓ Load time: 1.5-2.5s
 - ✓ FCP: 1.0-1.8s
 - ✓ LCP: 1.5-2.2s
@@ -116,6 +127,7 @@ npm run test:perf
 #### Test File: `tests/responsive.spec.ts`
 
 **Breakpoints Tested:**
+
 1. Mobile Small: 320x568 (iPhone SE)
 2. Mobile: 375x667 (iPhone 12)
 3. Mobile Large: 412x915 (Android)
@@ -124,6 +136,7 @@ npm run test:perf
 6. Desktop: 1920x1080 (Full HD)
 
 **Tests:**
+
 - Layout shifts detection
 - Content overflow checking
 - Touch-friendly element sizing (44x44px minimum)
@@ -134,6 +147,7 @@ npm run test:perf
 - Fixed width container detection
 
 **Run responsive tests:**
+
 ```bash
 npm run test:responsive
 ```
@@ -145,11 +159,13 @@ npm run test:responsive
 #### Test File: `tests/browser-compat.spec.ts`
 
 **Browsers Tested:**
+
 - Chromium (Chrome/Edge)
 - Firefox
 - WebKit (Safari)
 
 **Tests per browser:**
+
 - Page load and rendering
 - Layout consistency
 - Flexbox support
@@ -162,6 +178,7 @@ npm run test:responsive
 - localStorage support
 
 **Run compatibility tests:**
+
 ```bash
 npm run test:compat
 ```
@@ -173,6 +190,7 @@ npm run test:compat
 #### Test File: `tests/lighthouse.spec.ts`
 
 **Audited Metrics:**
+
 - Accessibility score
 - Performance score
 - Best Practices compliance
@@ -184,6 +202,7 @@ npm run test:compat
 - Font loading efficiency
 
 **Expected Scores:**
+
 - Accessibility: ≥ 90
 - Performance: ≥ 80
 - Best Practices: ≥ 90
@@ -194,12 +213,14 @@ npm run test:compat
 ## Running All Tests
 
 ### Complete Test Suite:
+
 ```bash
 npm run test:all              # Unit + E2E
 npm run test                  # Default (Jest)
 ```
 
 ### Combined Coverage:
+
 ```bash
 npm run test:unit
 npm run test:a11y
@@ -215,14 +236,15 @@ npm run test:e2e
 
 ### Coverage Targets:
 
-| Area | Target | Status |
-|------|--------|--------|
-| Statements | > 85% | ✓ Achieved |
-| Branches | > 80% | ✓ Achieved |
-| Functions | > 85% | ✓ Achieved |
-| Lines | > 85% | ✓ Achieved |
+| Area       | Target | Status     |
+| ---------- | ------ | ---------- |
+| Statements | > 85%  | ✓ Achieved |
+| Branches   | > 80%  | ✓ Achieved |
+| Functions  | > 85%  | ✓ Achieved |
+| Lines      | > 85%  | ✓ Achieved |
 
 ### Generate Coverage:
+
 ```bash
 npm run test:coverage
 ```
@@ -238,11 +260,13 @@ Report location: `./coverage/index.html`
 **Target:** < 1MB gzipped
 
 **Current Status:** ✓ Optimized
+
 - JavaScript: ~450KB (gzipped)
 - CSS: ~80KB (gzipped)
 - Total: ~530KB (gzipped)
 
 **Optimization techniques:**
+
 1. Code splitting (Next.js automatic)
 2. Tree shaking (ESM modules)
 3. Image optimization (next/image)
@@ -252,6 +276,7 @@ Report location: `./coverage/index.html`
 ### Load Time Optimization
 
 **Techniques implemented:**
+
 1. ✓ Async/defer script loading
 2. ✓ CSS-in-JS elimination (Tailwind)
 3. ✓ Dynamic imports for heavy components
@@ -262,6 +287,7 @@ Report location: `./coverage/index.html`
 ### Rendering Performance
 
 **Optimization techniques:**
+
 1. ✓ React.memo for component memoization
 2. ✓ useCallback for stable function references
 3. ✓ useMemo for expensive computations
@@ -283,24 +309,28 @@ Report location: `./coverage/index.html`
 ### Key Implementations
 
 1. **Semantic HTML**
+
    - Proper heading hierarchy (h1 → h2 → h3)
    - Form labels with associated inputs
    - List structures for navigation
    - Main content landmarks
 
 2. **Keyboard Navigation**
+
    - Tab order follows visual flow
    - Focus indicators visible (outline or box-shadow)
    - Escape key closes modals
    - Enter/Space activates buttons
 
 3. **Screen Reader Support**
+
    - aria-label for icon-only buttons
    - aria-live regions for dynamic updates
    - ARIA roles for custom components
    - Skip links for main content
 
 4. **Color & Contrast**
+
    - Text contrast ratio ≥ 4.5:1 (normal)
    - Text contrast ratio ≥ 3:1 (large)
    - No color-only information
@@ -316,16 +346,16 @@ Report location: `./coverage/index.html`
 
 ## Browser Compatibility Matrix
 
-| Feature | Chrome | Firefox | Safari | Edge |
-|---------|--------|---------|--------|------|
-| ES2020+ | ✓ | ✓ | ✓ | ✓ |
-| Flexbox | ✓ | ✓ | ✓ | ✓ |
-| Grid | ✓ | ✓ | ✓ | ✓ |
-| CSS Variables | ✓ | ✓ | ✓ | ✓ |
-| Fetch API | ✓ | ✓ | ✓ | ✓ |
-| WebSocket | ✓ | ✓ | ✓ | ✓ |
-| localStorage | ✓ | ✓ | ✓ | ✓ |
-| Transforms | ✓ | ✓ | ✓ | ✓ |
+| Feature       | Chrome | Firefox | Safari | Edge |
+| ------------- | ------ | ------- | ------ | ---- |
+| ES2020+       | ✓      | ✓       | ✓      | ✓    |
+| Flexbox       | ✓      | ✓       | ✓      | ✓    |
+| Grid          | ✓      | ✓       | ✓      | ✓    |
+| CSS Variables | ✓      | ✓       | ✓      | ✓    |
+| Fetch API     | ✓      | ✓       | ✓      | ✓    |
+| WebSocket     | ✓      | ✓       | ✓      | ✓    |
+| localStorage  | ✓      | ✓       | ✓      | ✓    |
+| Transforms    | ✓      | ✓       | ✓      | ✓    |
 
 ---
 
@@ -333,19 +363,19 @@ Report location: `./coverage/index.html`
 
 ### Core Web Vitals
 
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| LCP | < 2.5s | 1.8s | ✓ Good |
-| FID/INP | < 100ms | 45ms | ✓ Excellent |
-| CLS | < 0.1 | 0.03 | ✓ Excellent |
+| Metric  | Target  | Current | Status      |
+| ------- | ------- | ------- | ----------- |
+| LCP     | < 2.5s  | 1.8s    | ✓ Good      |
+| FID/INP | < 100ms | 45ms    | ✓ Excellent |
+| CLS     | < 0.1   | 0.03    | ✓ Excellent |
 
 ### Load Performance
 
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| FCP | < 2.5s | 1.2s | ✓ Excellent |
-| DOM Ready | < 2.5s | 1.5s | ✓ Excellent |
-| Full Load | < 3.0s | 2.2s | ✓ Excellent |
+| Metric    | Target | Current | Status      |
+| --------- | ------ | ------- | ----------- |
+| FCP       | < 2.5s | 1.2s    | ✓ Excellent |
+| DOM Ready | < 2.5s | 1.5s    | ✓ Excellent |
+| Full Load | < 3.0s | 2.2s    | ✓ Excellent |
 
 ---
 
@@ -354,12 +384,14 @@ Report location: `./coverage/index.html`
 ### Test Failures
 
 **E2E tests timeout:**
+
 ```bash
 # Increase timeout
 npx playwright test --timeout=30000
 ```
 
 **Coverage not meeting targets:**
+
 ```bash
 # Generate coverage report to identify gaps
 npm run test:coverage
@@ -367,6 +399,7 @@ npm run test:coverage
 ```
 
 **Flaky tests:**
+
 ```bash
 # Rerun with debug output
 npx playwright test --debug
@@ -375,12 +408,14 @@ npx playwright test --debug
 ### Performance Issues
 
 **Slow page load:**
+
 1. Check bundle size: `npm run build && npm run start`
 2. Analyze in DevTools Lighthouse
 3. Check network waterfall in DevTools Network tab
 4. Profile with DevTools Performance tab
 
 **Memory leaks:**
+
 1. Open DevTools Memory tab
 2. Take heap snapshot
 3. Perform navigation
@@ -405,7 +440,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm install
       - run: npm run test:unit
       - run: npm run test:a11y
@@ -439,12 +474,14 @@ jobs:
 ## Resources
 
 ### Documentation
+
 - [Jest Docs](https://jestjs.io/)
 - [Playwright Docs](https://playwright.dev/)
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [Web.dev Performance Guide](https://web.dev/performance/)
 
 ### Testing Best Practices
+
 - Write tests from user perspective
 - Keep tests isolated and deterministic
 - Use descriptive test names

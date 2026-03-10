@@ -52,7 +52,11 @@ interface AuthContextType {
   hasChecked: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -70,7 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       try {
         // DEV MODE: Auto-login with demo user
-        if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+        if (
+          typeof window !== "undefined" &&
+          process.env.NODE_ENV === "development"
+        ) {
           const demoToken = "demo_token_dev_mode";
           const demoUser: User = {
             id: "demo_user_dev",
@@ -102,14 +109,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userInfo = await authApi.getUserInfo(storedToken);
         setUser(userInfo);
       } catch (error) {
-        const isAuthError = error instanceof HttpError &&
+        const isAuthError =
+          error instanceof HttpError &&
           (error.statusCode === 401 || error.statusCode === 403);
         if (isAuthError) {
           setUser(null);
           setToken(null);
           clearTokenFromStorage();
         } else {
-          console.warn('[Auth] Network error during auth check:', error);
+          console.warn("[Auth] Network error during auth check:", error);
           setUser(null);
         }
       } finally {

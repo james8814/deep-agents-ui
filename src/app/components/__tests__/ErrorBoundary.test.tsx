@@ -3,14 +3,18 @@
  * Tests for error handling, recovery, and accessibility
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ErrorBoundary, useErrorHandler } from '../ErrorBoundary';
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { ErrorBoundary, useErrorHandler } from "../ErrorBoundary";
 
 // Mock UI components
-jest.mock('@/components/ui/button', () => ({
+jest.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, variant, ...props }: any) => (
-    <button onClick={onClick} disabled={disabled} {...props}>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      {...props}
+    >
       {children}
     </button>
   ),
@@ -19,7 +23,7 @@ jest.mock('@/components/ui/button', () => ({
 // Component that throws error
 const ErrorComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {
-    throw new Error('Test error message');
+    throw new Error("Test error message");
   }
   return <div>No error</div>;
 };
@@ -33,24 +37,24 @@ const ComponentWithErrorHandler = ({
   const handleError = useErrorHandler();
 
   if (shouldError) {
-    handleError('Manual error triggered');
+    handleError("Manual error triggered");
   }
 
   return <div>No error</div>;
 };
 
-describe('ErrorBoundary Component', () => {
+describe("ErrorBoundary Component", () => {
   beforeEach(() => {
     // Suppress console.error in tests
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  describe('Error Catching', () => {
-    it('should catch errors from child components', () => {
+  describe("Error Catching", () => {
+    it("should catch errors from child components", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
@@ -58,21 +62,23 @@ describe('ErrorBoundary Component', () => {
       );
 
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
-      expect(screen.getByText('Test error message')).toBeInTheDocument();
+      expect(screen.getByText("Test error message")).toBeInTheDocument();
     });
 
-    it('should not show error UI when no error occurs', () => {
+    it("should not show error UI when no error occurs", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={false} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByText('No error')).toBeInTheDocument();
-      expect(screen.queryByText(/Something went wrong/i)).not.toBeInTheDocument();
+      expect(screen.getByText("No error")).toBeInTheDocument();
+      expect(
+        screen.queryByText(/Something went wrong/i)
+      ).not.toBeInTheDocument();
     });
 
-    it('should call onError callback when error occurs', () => {
+    it("should call onError callback when error occurs", () => {
       const onError = jest.fn();
 
       render(
@@ -88,19 +94,19 @@ describe('ErrorBoundary Component', () => {
       );
     });
 
-    it('should display error message from thrown error', () => {
+    it("should display error message from thrown error", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByText('Test error message')).toBeInTheDocument();
+      expect(screen.getByText("Test error message")).toBeInTheDocument();
     });
   });
 
-  describe('Error Recovery', () => {
-    it('should recover from error when trying again', async () => {
+  describe("Error Recovery", () => {
+    it("should recover from error when trying again", async () => {
       const { rerender } = render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
@@ -117,17 +123,17 @@ describe('ErrorBoundary Component', () => {
       );
 
       // Click "Try Again" button
-      const tryAgainButton = screen.getByRole('button', { name: /Try Again/i });
+      const tryAgainButton = screen.getByRole("button", { name: /Try Again/i });
       fireEvent.click(tryAgainButton);
 
       await waitFor(() => {
-        expect(screen.getByText('No error')).toBeInTheDocument();
+        expect(screen.getByText("No error")).toBeInTheDocument();
       });
     });
 
-    it('should reset error state when resetKeys change', () => {
+    it("should reset error state when resetKeys change", () => {
       const { rerender } = render(
-        <ErrorBoundary resetKeys={['key1']}>
+        <ErrorBoundary resetKeys={["key1"]}>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
@@ -136,16 +142,16 @@ describe('ErrorBoundary Component', () => {
 
       // Change resetKeys to trigger reset
       rerender(
-        <ErrorBoundary resetKeys={['key2']}>
+        <ErrorBoundary resetKeys={["key2"]}>
           <ErrorComponent shouldThrow={false} />
         </ErrorBoundary>
       );
 
       // Should reset and show normal content
-      expect(screen.getByText('No error')).toBeInTheDocument();
+      expect(screen.getByText("No error")).toBeInTheDocument();
     });
 
-    it('should reset on props change when resetOnPropsChange is true', () => {
+    it("should reset on props change when resetOnPropsChange is true", () => {
       const { rerender } = render(
         <ErrorBoundary resetOnPropsChange>
           <ErrorComponent shouldThrow={true} />
@@ -160,12 +166,12 @@ describe('ErrorBoundary Component', () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText('No error')).toBeInTheDocument();
+      expect(screen.getByText("No error")).toBeInTheDocument();
     });
   });
 
-  describe('Fallback UI', () => {
-    it('should render custom fallback UI', () => {
+  describe("Fallback UI", () => {
+    it("should render custom fallback UI", () => {
       const customFallback = <div>Custom error fallback</div>;
 
       render(
@@ -174,10 +180,10 @@ describe('ErrorBoundary Component', () => {
         </ErrorBoundary>
       );
 
-      expect(screen.getByText('Custom error fallback')).toBeInTheDocument();
+      expect(screen.getByText("Custom error fallback")).toBeInTheDocument();
     });
 
-    it('should display default fallback when none provided', () => {
+    it("should display default fallback when none provided", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
@@ -185,12 +191,14 @@ describe('ErrorBoundary Component', () => {
       );
 
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Try Again/i })
+      ).toBeInTheDocument();
     });
   });
 
-  describe('Error Levels', () => {
-    it('should render page-level error with full screen', () => {
+  describe("Error Levels", () => {
+    it("should render page-level error with full screen", () => {
       const { container } = render(
         <ErrorBoundary level="page">
           <ErrorComponent shouldThrow={true} />
@@ -198,10 +206,10 @@ describe('ErrorBoundary Component', () => {
       );
 
       const errorDiv = container.querySelector('[role="alert"]');
-      expect(errorDiv).toHaveClass('h-screen');
+      expect(errorDiv).toHaveClass("h-screen");
     });
 
-    it('should render section-level error with rounded border', () => {
+    it("should render section-level error with rounded border", () => {
       const { container } = render(
         <ErrorBoundary level="section">
           <ErrorComponent shouldThrow={true} />
@@ -209,10 +217,10 @@ describe('ErrorBoundary Component', () => {
       );
 
       const errorDiv = container.querySelector('[role="alert"]');
-      expect(errorDiv).toHaveClass('rounded-lg');
+      expect(errorDiv).toHaveClass("rounded-lg");
     });
 
-    it('should render inline-level error with minimal styling', () => {
+    it("should render inline-level error with minimal styling", () => {
       const { container } = render(
         <ErrorBoundary level="inline">
           <ErrorComponent shouldThrow={true} />
@@ -224,10 +232,10 @@ describe('ErrorBoundary Component', () => {
     });
   });
 
-  describe('Development vs Production', () => {
-    it('should show stack trace in development', () => {
+  describe("Development vs Production", () => {
+    it("should show stack trace in development", () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      process.env.NODE_ENV = "development";
 
       render(
         <ErrorBoundary>
@@ -241,9 +249,9 @@ describe('ErrorBoundary Component', () => {
       process.env.NODE_ENV = originalEnv;
     });
 
-    it('should show error ID in production', () => {
+    it("should show error ID in production", () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      process.env.NODE_ENV = "production";
 
       render(
         <ErrorBoundary>
@@ -257,117 +265,123 @@ describe('ErrorBoundary Component', () => {
     });
   });
 
-  describe('Accessibility', () => {
-    it('should have alert role for accessibility', () => {
+  describe("Accessibility", () => {
+    it("should have alert role for accessibility", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toBeInTheDocument();
     });
 
-    it('should have aria-live=assertive for urgent announcements', () => {
+    it("should have aria-live=assertive for urgent announcements", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const alert = screen.getByRole('alert');
-      expect(alert).toHaveAttribute('aria-live', 'assertive');
+      const alert = screen.getByRole("alert");
+      expect(alert).toHaveAttribute("aria-live", "assertive");
     });
 
-    it('should have aria-atomic=true for complete message', () => {
+    it("should have aria-atomic=true for complete message", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const alert = screen.getByRole('alert');
-      expect(alert).toHaveAttribute('aria-atomic', 'true');
+      const alert = screen.getByRole("alert");
+      expect(alert).toHaveAttribute("aria-atomic", "true");
     });
 
-    it('should have proper heading hierarchy', () => {
+    it("should have proper heading hierarchy", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const heading = screen.getByRole('heading');
+      const heading = screen.getByRole("heading");
       expect(heading).toBeInTheDocument();
-      expect(heading.textContent).toContain('Something went wrong');
+      expect(heading.textContent).toContain("Something went wrong");
     });
 
-    it('should have accessible buttons', () => {
+    it("should have accessible buttons", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
+      const buttons = screen.getAllByRole("button");
+      buttons.forEach((button) => {
         expect(button).toHaveAccessibleName();
       });
     });
 
-    it('should have accessible links', () => {
+    it("should have accessible links", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const links = screen.getAllByRole('link');
-      links.forEach(link => {
+      const links = screen.getAllByRole("link");
+      links.forEach((link) => {
         expect(link).toHaveAccessibleName();
       });
     });
   });
 
-  describe('Actions', () => {
-    it('should have Try Again button', () => {
+  describe("Actions", () => {
+    it("should have Try Again button", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Try Again/i })
+      ).toBeInTheDocument();
     });
 
-    it('should have Reload Page button on page level', () => {
+    it("should have Reload Page button on page level", () => {
       render(
         <ErrorBoundary level="page">
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByRole('button', { name: /Reload Page/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Reload Page/i })
+      ).toBeInTheDocument();
     });
 
-    it('should have Go Home link', () => {
+    it("should have Go Home link", () => {
       render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByRole('link', { name: /Go Home/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /Go Home/i })
+      ).toBeInTheDocument();
     });
 
-    it('should execute Try Again action', async () => {
+    it("should execute Try Again action", async () => {
       const { rerender } = render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
         </ErrorBoundary>
       );
 
-      const tryAgainButton = screen.getByRole('button', { name: /Try Again/i });
+      const tryAgainButton = screen.getByRole("button", { name: /Try Again/i });
       fireEvent.click(tryAgainButton);
 
       rerender(
@@ -377,13 +391,13 @@ describe('ErrorBoundary Component', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('No error')).toBeInTheDocument();
+        expect(screen.getByText("No error")).toBeInTheDocument();
       });
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle errors without message', () => {
+  describe("Edge Cases", () => {
+    it("should handle errors without message", () => {
       const ThrowUnknownError = () => {
         throw new Error();
       };
@@ -397,7 +411,7 @@ describe('ErrorBoundary Component', () => {
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
     });
 
-    it('should handle multiple error boundaries', () => {
+    it("should handle multiple error boundaries", () => {
       render(
         <ErrorBoundary level="page">
           <div>
@@ -412,7 +426,7 @@ describe('ErrorBoundary Component', () => {
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
     });
 
-    it('should handle rapid error state changes', () => {
+    it("should handle rapid error state changes", () => {
       const { rerender } = render(
         <ErrorBoundary>
           <ErrorComponent shouldThrow={true} />
@@ -435,8 +449,8 @@ describe('ErrorBoundary Component', () => {
     });
   });
 
-  describe('useErrorHandler Hook', () => {
-    it('should throw error from hook', () => {
+  describe("useErrorHandler Hook", () => {
+    it("should throw error from hook", () => {
       render(
         <ErrorBoundary>
           <ComponentWithErrorHandler shouldError={true} />
@@ -446,14 +460,14 @@ describe('ErrorBoundary Component', () => {
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
     });
 
-    it('should handle string errors', () => {
+    it("should handle string errors", () => {
       render(
         <ErrorBoundary>
           <ComponentWithErrorHandler shouldError={true} />
         </ErrorBoundary>
       );
 
-      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toBeInTheDocument();
     });
   });
 });

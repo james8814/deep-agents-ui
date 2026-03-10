@@ -48,7 +48,10 @@ interface LoadingSpinnerProps {
   centered?: boolean;
 }
 
-const sizeConfig: Record<Size, { spinner: string; dots: string; text: string }> = {
+const sizeConfig: Record<
+  Size,
+  { spinner: string; dots: string; text: string }
+> = {
   sm: { spinner: "h-4 w-4", dots: "h-2 w-2", text: "text-xs" },
   md: { spinner: "h-8 w-8", dots: "h-3 w-3", text: "text-sm" },
   lg: { spinner: "h-12 w-12", dots: "h-4 w-4", text: "text-base" },
@@ -118,11 +121,7 @@ export const LoadingSpinner = React.memo<LoadingSpinnerProps>(
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className={cn(
-                  "rounded-full",
-                  sizeClass.dots,
-                  "animate-pulse"
-                )}
+                className={cn("rounded-full", sizeClass.dots, "animate-pulse")}
                 style={{
                   backgroundColor: color,
                   animationDelay: `${i * 0.15}s`,
@@ -135,10 +134,7 @@ export const LoadingSpinner = React.memo<LoadingSpinnerProps>(
         {/* Pulse Variant */}
         {variant === "pulse" && (
           <div
-            className={cn(
-              "rounded-full animate-pulse",
-              sizeClass.spinner
-            )}
+            className={cn("animate-pulse rounded-full", sizeClass.spinner)}
             style={{ backgroundColor: color }}
           />
         )}
@@ -147,7 +143,7 @@ export const LoadingSpinner = React.memo<LoadingSpinnerProps>(
         {variant === "skeleton" && (
           <div
             className={cn(
-              "rounded-lg bg-muted animate-pulse",
+              "animate-pulse rounded-lg bg-muted",
               sizeClass.spinner
             )}
           />
@@ -240,12 +236,7 @@ export const SkeletonLoader = React.memo<SkeletonLoaderProps>(
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
-            className={cn(
-              "animate-pulse bg-muted",
-              height,
-              width,
-              rounded
-            )}
+            className={cn("animate-pulse bg-muted", height, width, rounded)}
           />
         ))}
       </div>

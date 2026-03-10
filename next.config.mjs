@@ -10,11 +10,7 @@ const nextConfig = {
     "rc-util",
   ],
   experimental: {
-    optimizePackageImports: [
-      "antd",
-      "@ant-design/x",
-      "@ant-design/x-markdown",
-    ],
+    optimizePackageImports: ["antd", "@ant-design/x", "@ant-design/x-markdown"],
   },
 };
 

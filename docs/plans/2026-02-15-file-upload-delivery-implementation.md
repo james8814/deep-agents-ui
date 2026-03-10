@@ -13,6 +13,7 @@
 ## Task 1: Create FileChip Component
 
 **Files:**
+
 - Create: `src/app/components/FileChip.tsx`
 
 **Step 1: Create FileChip component**
@@ -43,8 +44,14 @@ interface FileChipProps {
 
 const getFileIcon = (type: string) => {
   if (type.startsWith("image/")) return Image;
-  if (type.includes("spreadsheet") || type.includes("csv")) return FileSpreadsheet;
-  if (type.includes("json") || type.includes("javascript") || type.includes("typescript")) return FileCode;
+  if (type.includes("spreadsheet") || type.includes("csv"))
+    return FileSpreadsheet;
+  if (
+    type.includes("json") ||
+    type.includes("javascript") ||
+    type.includes("typescript")
+  )
+    return FileCode;
   return FileText;
 };
 
@@ -55,45 +62,47 @@ const formatFileSize = (bytes?: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-export const FileChip = React.memo<FileChipProps>(({
-  file,
-  onRemove,
-  onClick,
-  showRemove = true,
-  className,
-}) => {
-  const Icon = getFileIcon(file.type);
-  const sizeText = formatFileSize(file.size);
+export const FileChip = React.memo<FileChipProps>(
+  ({ file, onRemove, onClick, showRemove = true, className }) => {
+    const Icon = getFileIcon(file.type);
+    const sizeText = formatFileSize(file.size);
 
-  return (
-    <div
-      className={cn(
-        "inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-sm",
-        onClick && "cursor-pointer hover:bg-muted transition-colors",
-        className
-      )}
-      onClick={onClick}
-    >
-      <Icon size={14} className="text-muted-foreground flex-shrink-0" />
-      <span className="truncate max-w-[200px]">{file.name}</span>
-      {sizeText && (
-        <span className="text-muted-foreground text-xs">{sizeText}</span>
-      )}
-      {showRemove && onRemove && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5"
-        >
-          <X size={12} className="text-muted-foreground" />
-        </button>
-      )}
-    </div>
-  );
-});
+    return (
+      <div
+        className={cn(
+          "inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-sm",
+          onClick && "cursor-pointer transition-colors hover:bg-muted",
+          className
+        )}
+        onClick={onClick}
+      >
+        <Icon
+          size={14}
+          className="flex-shrink-0 text-muted-foreground"
+        />
+        <span className="max-w-[200px] truncate">{file.name}</span>
+        {sizeText && (
+          <span className="text-xs text-muted-foreground">{sizeText}</span>
+        )}
+        {showRemove && onRemove && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            className="ml-1 rounded-sm p-0.5 hover:bg-muted-foreground/20"
+          >
+            <X
+              size={12}
+              className="text-muted-foreground"
+            />
+          </button>
+        )}
+      </div>
+    );
+  }
+);
 
 FileChip.displayName = "FileChip";
 ```
@@ -114,6 +123,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/FileChip.tsx && g
 ## Task 2: Create FileUploadZone Component
 
 **Files:**
+
 - Create: `src/app/components/FileUploadZone.tsx`
 - Modify: `src/app/components/ChatInterface.tsx`
 
@@ -150,105 +160,106 @@ const ACCEPTED_TYPES = [
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export const FileUploadZone = React.memo<FileUploadZoneProps>(({
-  files,
-  onFilesChange,
-  disabled = false,
-  className,
-}) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
+export const FileUploadZone = React.memo<FileUploadZoneProps>(
+  ({ files, onFilesChange, disabled = false, className }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [error, setError] = useState<string | null>(null);
 
-  const handleButtonClick = useCallback(() => {
-    inputRef.current?.click();
-  }, []);
+    const handleButtonClick = useCallback(() => {
+      inputRef.current?.click();
+    }, []);
 
-  const convertToBase64 = (file: globalThis.File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
+    const convertToBase64 = (file: globalThis.File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
 
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    setError(null);
+    const handleFileChange = useCallback(
+      async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(e.target.files || []);
+        setError(null);
 
-    if (selectedFiles.length === 0) return;
+        if (selectedFiles.length === 0) return;
 
-    // Validate files
-    for (const file of selectedFiles) {
-      if (file.size > MAX_FILE_SIZE) {
-        setError(`File "${file.name}" is too large. Max size is 10MB.`);
-        return;
-      }
-    }
+        // Validate files
+        for (const file of selectedFiles) {
+          if (file.size > MAX_FILE_SIZE) {
+            setError(`File "${file.name}" is too large. Max size is 10MB.`);
+            return;
+          }
+        }
 
-    // Convert files to base64
-    const newFiles: FileChipData[] = await Promise.all(
-      selectedFiles.map(async (file) => {
-        const base64 = await convertToBase64(file);
-        return {
-          id: `${file.name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          type: file.type || "application/octet-stream",
-          size: file.size,
-          data: base64,
-        };
-      })
+        // Convert files to base64
+        const newFiles: FileChipData[] = await Promise.all(
+          selectedFiles.map(async (file) => {
+            const base64 = await convertToBase64(file);
+            return {
+              id: `${file.name}-${Date.now()}-${Math.random()
+                .toString(36)
+                .substr(2, 9)}`,
+              name: file.name,
+              type: file.type || "application/octet-stream",
+              size: file.size,
+              data: base64,
+            };
+          })
+        );
+
+        onFilesChange([...files, ...newFiles]);
+
+        // Reset input
+        if (inputRef.current) {
+          inputRef.current.value = "";
+        }
+      },
+      [files, onFilesChange]
     );
 
-    onFilesChange([...files, ...newFiles]);
+    const handleRemoveFile = useCallback(
+      (fileId: string) => {
+        onFilesChange(files.filter((f) => f.id !== fileId));
+      },
+      [files, onFilesChange]
+    );
 
-    // Reset input
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-  }, [files, onFilesChange]);
+    return (
+      <div className={cn("flex flex-col gap-2", className)}>
+        {/* Hidden file input */}
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          accept={ACCEPTED_TYPES.join(",")}
+          onChange={handleFileChange}
+          className="hidden"
+          disabled={disabled}
+        />
 
-  const handleRemoveFile = useCallback((fileId: string) => {
-    onFilesChange(files.filter(f => f.id !== fileId));
-  }, [files, onFilesChange]);
+        {/* Uploaded files display */}
+        {files.length > 0 && (
+          <div className="flex flex-wrap gap-2 px-4 pt-3">
+            {files.map((file) => (
+              <FileChip
+                key={file.id}
+                file={file}
+                onRemove={() => handleRemoveFile(file.id)}
+              />
+            ))}
+          </div>
+        )}
 
-  return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      {/* Hidden file input */}
-      <input
-        ref={inputRef}
-        type="file"
-        multiple
-        accept={ACCEPTED_TYPES.join(",")}
-        onChange={handleFileChange}
-        className="hidden"
-        disabled={disabled}
-      />
+        {/* Error message */}
+        {error && <div className="px-4 text-xs text-destructive">{error}</div>}
 
-      {/* Uploaded files display */}
-      {files.length > 0 && (
-        <div className="flex flex-wrap gap-2 px-4 pt-3">
-          {files.map((file) => (
-            <FileChip
-              key={file.id}
-              file={file}
-              onRemove={() => handleRemoveFile(file.id)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Error message */}
-      {error && (
-        <div className="px-4 text-xs text-destructive">
-          {error}
-        </div>
-      )}
-
-      {/* Upload button - rendered by parent */}
-    </div>
-  );
-});
+        {/* Upload button - rendered by parent */}
+      </div>
+    );
+  }
+);
 
 FileUploadZone.displayName = "FileUploadZone";
 
@@ -264,7 +275,7 @@ export const UploadButton = React.memo<{
     className={cn(
       "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
       "hover:bg-accent hover:text-foreground",
-      "disabled:opacity-30 disabled:cursor-not-allowed"
+      "disabled:cursor-not-allowed disabled:opacity-30"
     )}
     title="Attach file"
   >
@@ -291,6 +302,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/FileUploadZone.ts
 ## Task 3: Integrate File Upload into ChatInterface
 
 **Files:**
+
 - Modify: `src/app/components/ChatInterface.tsx`
 - Modify: `src/app/hooks/useChat.ts`
 
@@ -321,7 +333,15 @@ const handleSubmit = useCallback(
     if (!messageText || isLoading || submitDisabled) return;
 
     // Build content - text + file blocks
-    const content: string | Array<{ type: string; text?: string; image_url?: { url: string }; data?: string; mimeType?: string }> =
+    const content:
+      | string
+      | Array<{
+          type: string;
+          text?: string;
+          image_url?: { url: string };
+          data?: string;
+          mimeType?: string;
+        }> =
       attachedFiles.length > 0
         ? [
             { type: "text", text: messageText },
@@ -355,11 +375,21 @@ Modify `sendMessage` in useChat.ts:
 
 ```typescript
 const sendMessage = useCallback(
-  (content: string | Array<{ type: string; text?: string; image_url?: { url: string }; data?: string; mimeType?: string }>) => {
+  (
+    content:
+      | string
+      | Array<{
+          type: string;
+          text?: string;
+          image_url?: { url: string };
+          data?: string;
+          mimeType?: string;
+        }>
+  ) => {
     const newMessage: Message = {
       id: uuidv4(),
       type: "human",
-      content
+      content,
     };
     stream.submit(
       { messages: [newMessage] },
@@ -427,6 +457,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/ChatInterface.tsx
 ## Task 4: Create DeliveryCard Component
 
 **Files:**
+
 - Create: `src/app/components/DeliveryCard.tsx`
 
 **Step 1: Create DeliveryCard component**
@@ -435,7 +466,14 @@ cd /root/projects/deep-agents-ui && git add src/app/components/ChatInterface.tsx
 "use client";
 
 import React, { useMemo } from "react";
-import { FileText, FileCode, FileSpreadsheet, Image, ChevronRight, Clock } from "lucide-react";
+import {
+  FileText,
+  FileCode,
+  FileSpreadsheet,
+  Image,
+  ChevronRight,
+  Clock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FileMetadata } from "@/app/types/types";
 
@@ -456,7 +494,8 @@ const getFileIcon = (extension: string) => {
   const ext = extension.toLowerCase();
   if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext)) return Image;
   if (["csv", "xlsx", "xls"].includes(ext)) return FileSpreadsheet;
-  if (["js", "ts", "jsx", "tsx", "py", "json", "yaml", "yml"].includes(ext)) return FileCode;
+  if (["js", "ts", "jsx", "tsx", "py", "json", "yaml", "yml"].includes(ext))
+    return FileCode;
   return FileText;
 };
 
@@ -495,14 +534,29 @@ const FilePreview = React.memo<{
   onView: () => void;
 }>(({ file, onView }) => {
   const ext = getFileExtension(file.path);
-  const isTextFile = ["md", "txt", "json", "csv", "js", "ts", "py", "yaml", "yml", "html", "css"].includes(ext);
+  const isTextFile = [
+    "md",
+    "txt",
+    "json",
+    "csv",
+    "js",
+    "ts",
+    "py",
+    "yaml",
+    "yml",
+    "html",
+    "css",
+  ].includes(ext);
   const isImage = ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext);
 
   const previewContent = useMemo(() => {
     if (isImage) {
       return (
-        <div className="flex items-center justify-center h-32 bg-muted/30 rounded-lg">
-          <Image size={32} className="text-muted-foreground" />
+        <div className="flex h-32 items-center justify-center rounded-lg bg-muted/30">
+          <Image
+            size={32}
+            className="text-muted-foreground"
+          />
         </div>
       );
     }
@@ -510,7 +564,7 @@ const FilePreview = React.memo<{
     if (isTextFile) {
       const lines = file.content.split("\n").slice(0, 12);
       return (
-        <pre className="text-xs text-muted-foreground overflow-hidden whitespace-pre-wrap break-all line-clamp-12">
+        <pre className="line-clamp-12 overflow-hidden whitespace-pre-wrap break-all text-xs text-muted-foreground">
           {lines.join("\n")}
           {file.content.split("\n").length > 12 && "\n..."}
         </pre>
@@ -518,28 +572,36 @@ const FilePreview = React.memo<{
     }
 
     return (
-      <div className="flex items-center justify-center h-24 bg-muted/30 rounded-lg">
-        <FileText size={32} className="text-muted-foreground" />
+      <div className="flex h-24 items-center justify-center rounded-lg bg-muted/30">
+        <FileText
+          size={32}
+          className="text-muted-foreground"
+        />
       </div>
     );
   }, [file.content, isTextFile, isImage]);
 
   return (
-    <div className="mt-3 border border-border/50 rounded-lg overflow-hidden bg-background/50">
+    <div className="mt-3 overflow-hidden rounded-lg border border-border/50 bg-background/50">
       {/* Preview header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-muted/20">
-        <FileText size={14} className="text-muted-foreground" />
-        <span className="text-sm font-medium truncate flex-1">{getFileName(file.path)}</span>
-        <span className="text-xs text-muted-foreground">{formatFileSize(file.content)}</span>
+      <div className="flex items-center gap-2 border-b border-border/50 bg-muted/20 px-3 py-2">
+        <FileText
+          size={14}
+          className="text-muted-foreground"
+        />
+        <span className="flex-1 truncate text-sm font-medium">
+          {getFileName(file.path)}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {formatFileSize(file.content)}
+        </span>
       </div>
 
       {/* Preview content */}
-      <div className="p-3 max-h-48 overflow-hidden">
-        {previewContent}
-      </div>
+      <div className="max-h-48 overflow-hidden p-3">{previewContent}</div>
 
       {/* View full file button */}
-      <div className="px-3 py-2 border-t border-border/50 bg-muted/10">
+      <div className="border-t border-border/50 bg-muted/10 px-3 py-2">
         <button
           onClick={onView}
           className="flex items-center gap-1 text-xs text-primary hover:underline"
@@ -554,71 +616,80 @@ const FilePreview = React.memo<{
 
 FilePreview.displayName = "FilePreview";
 
-export const DeliveryCard = React.memo<DeliveryCardProps>(({
-  files,
-  onViewFile,
-  onViewAll,
-  className,
-}) => {
-  if (files.length === 0) return null;
+export const DeliveryCard = React.memo<DeliveryCardProps>(
+  ({ files, onViewFile, onViewAll, className }) => {
+    if (files.length === 0) return null;
 
-  const displayFiles = files.slice(0, 3);
-  const lastFile = displayFiles[displayFiles.length - 1];
-  const otherFiles = displayFiles.slice(0, -1);
+    const displayFiles = files.slice(0, 3);
+    const lastFile = displayFiles[displayFiles.length - 1];
+    const otherFiles = displayFiles.slice(0, -1);
 
-  return (
-    <div className={cn("mt-4 p-4 rounded-xl border border-border/50 bg-muted/20", className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-base">📦</span>
-          <span className="text-sm font-medium">交付文件</span>
-          <span className="text-xs text-muted-foreground">({files.length})</span>
+    return (
+      <div
+        className={cn(
+          "mt-4 rounded-xl border border-border/50 bg-muted/20 p-4",
+          className
+        )}
+      >
+        {/* Header */}
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base">📦</span>
+            <span className="text-sm font-medium">交付文件</span>
+            <span className="text-xs text-muted-foreground">
+              ({files.length})
+            </span>
+          </div>
+          {onViewAll && files.length > 0 && (
+            <button
+              onClick={onViewAll}
+              className="flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              查看全部
+              <ChevronRight size={12} />
+            </button>
+          )}
         </div>
-        {onViewAll && files.length > 0 && (
-          <button
-            onClick={onViewAll}
-            className="flex items-center gap-1 text-xs text-primary hover:underline"
-          >
-            查看全部
-            <ChevronRight size={12} />
-          </button>
+
+        {/* Other files (not the last one) */}
+        {otherFiles.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {otherFiles.map((file) => {
+              const Icon = getFileIcon(getFileExtension(file.path));
+              return (
+                <button
+                  key={file.path}
+                  onClick={() => onViewFile(file.path)}
+                  className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-3 py-2 transition-colors hover:bg-muted"
+                >
+                  <Icon
+                    size={14}
+                    className="text-muted-foreground"
+                  />
+                  <span className="max-w-[150px] truncate text-sm">
+                    {getFileName(file.path)}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock size={10} />
+                    {formatRelativeTime(file.metadata?.addedAt)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Last file with preview */}
+        {lastFile && (
+          <FilePreview
+            file={lastFile}
+            onView={() => onViewFile(lastFile.path)}
+          />
         )}
       </div>
-
-      {/* Other files (not the last one) */}
-      {otherFiles.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {otherFiles.map((file) => {
-            const Icon = getFileIcon(getFileExtension(file.path));
-            return (
-              <button
-                key={file.path}
-                onClick={() => onViewFile(file.path)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-background hover:bg-muted transition-colors"
-              >
-                <Icon size={14} className="text-muted-foreground" />
-                <span className="text-sm truncate max-w-[150px]">{getFileName(file.path)}</span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock size={10} />
-                  {formatRelativeTime(file.metadata?.addedAt)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Last file with preview */}
-      {lastFile && (
-        <FilePreview
-          file={lastFile}
-          onView={() => onViewFile(lastFile.path)}
-        />
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
 
 DeliveryCard.displayName = "DeliveryCard";
 ```
@@ -639,6 +710,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/DeliveryCard.tsx 
 ## Task 5: Integrate DeliveryCard into ChatMessage
 
 **Files:**
+
 - Modify: `src/app/components/ChatMessage.tsx`
 
 **Step 1: Read current ChatMessage.tsx to understand structure**
@@ -666,18 +738,25 @@ interface ChatMessageProps {
 Find the end of the component's return statement, before the closing div, add:
 
 ```typescript
-{/* Delivery cards - show after AI message when task completes */}
-{isLastAiMessage && showDeliveryCards && files && Object.keys(files).length > 0 && (
-  <DeliveryCard
-    files={Object.entries(files).map(([path, content]) => ({
-      path,
-      content,
-      metadata: fileMetadata?.get(path),
-    }))}
-    onViewFile={onViewFile || (() => {})}
-    onViewAll={onViewAllFiles}
-  />
-)}
+{
+  /* Delivery cards - show after AI message when task completes */
+}
+{
+  isLastAiMessage &&
+    showDeliveryCards &&
+    files &&
+    Object.keys(files).length > 0 && (
+      <DeliveryCard
+        files={Object.entries(files).map(([path, content]) => ({
+          path,
+          content,
+          metadata: fileMetadata?.get(path),
+        }))}
+        onViewFile={onViewFile || (() => {})}
+        onViewAll={onViewAllFiles}
+      />
+    );
+}
 ```
 
 **Step 4: Verify build succeeds**
@@ -696,6 +775,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/ChatMessage.tsx &
 ## Task 6: Wire Delivery Detection in ChatInterface
 
 **Files:**
+
 - Modify: `src/app/components/ChatInterface.tsx`
 - Modify: `src/providers/ChatProvider.tsx`
 
@@ -706,7 +786,9 @@ Add state and logic to track when files were added:
 ```typescript
 // Add to ChatInterface
 const prevFilesRef = useRef<Record<string, string>>({});
-const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(new Map());
+const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(
+  new Map()
+);
 
 // Update file metadata when files change
 useEffect(() => {
@@ -768,13 +850,17 @@ const lastProcessedIndex = processedMessages.length - 1;
   graphId={assistant?.graph_id}
   isLastAiMessage={isLastMessage && data.message.type === "ai"}
   onRegenerate={regenerateLastMessage}
-  onEditAndResend={data.message.type === "human" ? handleEditAndResend : undefined}
+  onEditAndResend={
+    data.message.type === "human" ? handleEditAndResend : undefined
+  }
   // New props for delivery cards
   files={isLastMessage ? files : undefined}
   fileMetadata={fileMetadata}
   onViewFile={handleViewFile}
   onViewAllFiles={handleViewAllFiles}
-  showDeliveryCards={isLastMessage && showDelivery && data.message.type === "ai"}
+  showDeliveryCards={
+    isLastMessage && showDelivery && data.message.type === "ai"
+  }
 />
 ```
 
@@ -806,13 +892,15 @@ const handleViewAllFiles = useCallback(() => {
 import { FileViewDialog } from "./FileViewDialog";
 
 // Add in JSX, after the input panel
-{viewingFile && files[viewingFile] && (
-  <FileViewDialog
-    filePath={viewingFile}
-    content={files[viewingFile]}
-    onClose={() => setViewingFile(null)}
-  />
-)}
+{
+  viewingFile && files[viewingFile] && (
+    <FileViewDialog
+      filePath={viewingFile}
+      content={files[viewingFile]}
+      onClose={() => setViewingFile(null)}
+    />
+  );
+}
 ```
 
 **Step 6: Verify build succeeds**
@@ -831,6 +919,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/ChatInterface.tsx
 ## Task 7: Add File Sharing URL Feature
 
 **Files:**
+
 - Modify: `src/app/components/FileChip.tsx`
 - Modify: `src/app/components/ContextPanel.tsx`
 
@@ -840,7 +929,15 @@ Update FileChip to support copying shareable URL:
 
 ```typescript
 // Add Copy icon import
-import { X, FileText, Image, FileSpreadsheet, FileCode, Copy, Check } from "lucide-react";
+import {
+  X,
+  FileText,
+  Image,
+  FileSpreadsheet,
+  FileCode,
+  Copy,
+  Check,
+} from "lucide-react";
 
 // Add to FileChipProps
 interface FileChipProps {
@@ -855,30 +952,41 @@ interface FileChipProps {
 // Add copy state and handler inside component
 const [copied, setCopied] = useState(false);
 
-const handleCopyUrl = useCallback((e: React.MouseEvent) => {
-  e.stopPropagation();
-  if (file.shareUrl) {
-    navigator.clipboard.writeText(file.shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-}, [file.shareUrl]);
+const handleCopyUrl = useCallback(
+  (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (file.shareUrl) {
+      navigator.clipboard.writeText(file.shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  },
+  [file.shareUrl]
+);
 
 // Add copy button in JSX (after size text, before remove button)
-{file.shareUrl && (
-  <button
-    type="button"
-    onClick={handleCopyUrl}
-    className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5"
-    title="Copy share URL"
-  >
-    {copied ? (
-      <Check size={12} className="text-success" />
-    ) : (
-      <Copy size={12} className="text-muted-foreground" />
-    )}
-  </button>
-)}
+{
+  file.shareUrl && (
+    <button
+      type="button"
+      onClick={handleCopyUrl}
+      className="ml-1 rounded-sm p-0.5 hover:bg-muted-foreground/20"
+      title="Copy share URL"
+    >
+      {copied ? (
+        <Check
+          size={12}
+          className="text-success"
+        />
+      ) : (
+        <Copy
+          size={12}
+          className="text-muted-foreground"
+        />
+      )}
+    </button>
+  );
+}
 ```
 
 **Step 2: Generate share URLs in FileUploadZone**
@@ -913,10 +1021,12 @@ In ContextPanel's FilesTab, add a copy button for each file:
 <button
   onClick={(e) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/threads/${threadId}/files/${encodeURIComponent(filePath)}`;
+    const shareUrl = `${
+      window.location.origin
+    }/threads/${threadId}/files/${encodeURIComponent(filePath)}`;
     navigator.clipboard.writeText(shareUrl);
   }}
-  className="p-1 rounded hover:bg-muted"
+  className="rounded p-1 hover:bg-muted"
   title="Copy share URL"
 >
   <Copy size={12} />
@@ -939,6 +1049,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/FileChip.tsx src/
 ## Task 8: Render File References in User Messages
 
 **Files:**
+
 - Modify: `src/app/components/ChatMessage.tsx`
 
 **Step 1: Add file reference rendering in human messages**
@@ -947,48 +1058,69 @@ In ChatMessage, when rendering human message content, check for multimodal block
 
 ```typescript
 // Helper to check if content is multimodal
-const isMultimodalContent = (content: unknown): content is Array<{ type: string; text?: string; image_url?: { url: string } }> => {
+const isMultimodalContent = (
+  content: unknown
+): content is Array<{
+  type: string;
+  text?: string;
+  image_url?: { url: string };
+}> => {
   return Array.isArray(content);
 };
 
 // Inside message rendering
-{message.type === "human" && (
-  <>
-    {isMultimodalContent(message.content) ? (
-      <div className="space-y-2">
-        {/* Text part */}
-        {message.content.filter(b => b.type === "text").map((block, i) => (
-          <div key={i} className="whitespace-pre-wrap">
-            {block.text}
-          </div>
-        ))}
-        {/* File reference chips */}
-        <div className="flex flex-wrap gap-2 mt-2">
-          {message.content.filter(b => b.type === "image_url" || b.type === "file").map((block, i) => {
-            if (block.type === "image_url") {
-              return (
-                <div key={i} className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-muted/50">
-                  <Image size={14} />
-                  <span className="text-sm">Image attachment</span>
-                </div>
-              );
-            }
-            return (
-              <div key={i} className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-muted/50">
-                <FileText size={14} />
-                <span className="text-sm">File attachment</span>
+{
+  message.type === "human" && (
+    <>
+      {isMultimodalContent(message.content) ? (
+        <div className="space-y-2">
+          {/* Text part */}
+          {message.content
+            .filter((b) => b.type === "text")
+            .map((block, i) => (
+              <div
+                key={i}
+                className="whitespace-pre-wrap"
+              >
+                {block.text}
               </div>
-            );
-          })}
+            ))}
+          {/* File reference chips */}
+          <div className="mt-2 flex flex-wrap gap-2">
+            {message.content
+              .filter((b) => b.type === "image_url" || b.type === "file")
+              .map((block, i) => {
+                if (block.type === "image_url") {
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 rounded border border-border bg-muted/50 px-2 py-1"
+                    >
+                      <Image size={14} />
+                      <span className="text-sm">Image attachment</span>
+                    </div>
+                  );
+                }
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 rounded border border-border bg-muted/50 px-2 py-1"
+                  >
+                    <FileText size={14} />
+                    <span className="text-sm">File attachment</span>
+                  </div>
+                );
+              })}
+          </div>
         </div>
-      </div>
-    ) : (
-      <div className="whitespace-pre-wrap">
-        {extractStringFromMessageContent(message)}
-      </div>
-    )}
-  </>
-)}
+      ) : (
+        <div className="whitespace-pre-wrap">
+          {extractStringFromMessageContent(message)}
+        </div>
+      )}
+    </>
+  );
+}
 ```
 
 **Step 2: Verify build succeeds**
@@ -1007,6 +1139,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/ChatMessage.tsx &
 ## Task 9: Final Integration and Testing
 
 **Files:**
+
 - Test entire flow manually
 
 **Step 1: Start dev server**
@@ -1014,6 +1147,7 @@ cd /root/projects/deep-agents-ui && git add src/app/components/ChatMessage.tsx &
 Run: `cd /root/projects/deep-agents-ui && yarn dev`
 
 **Step 2: Test file upload**
+
 - Click upload button in input area
 - Select an image file
 - Verify file chip appears
@@ -1021,6 +1155,7 @@ Run: `cd /root/projects/deep-agents-ui && yarn dev`
 - Verify file reference shows in message
 
 **Step 3: Test delivery cards**
+
 - Run an agent task that creates files
 - Wait for task to complete
 - Verify delivery card appears after AI message
@@ -1029,6 +1164,7 @@ Run: `cd /root/projects/deep-agents-ui && yarn dev`
 - Click file to open FileViewDialog
 
 **Step 4: Test file sharing**
+
 - Click copy button on file chip
 - Verify URL is copied to clipboard
 
@@ -1044,14 +1180,14 @@ cd /root/projects/deep-agents-ui && git add -A && git commit -m "feat(v2): compl
 
 ## Summary
 
-| Task | Description | Files |
-|------|-------------|-------|
-| 1 | FileChip component | `FileChip.tsx` |
-| 2 | FileUploadZone component | `FileUploadZone.tsx` |
-| 3 | Integrate upload into ChatInterface | `ChatInterface.tsx`, `useChat.ts` |
-| 4 | DeliveryCard component | `DeliveryCard.tsx` |
-| 5 | Integrate DeliveryCard into ChatMessage | `ChatMessage.tsx` |
-| 6 | Wire delivery detection | `ChatInterface.tsx` |
-| 7 | File sharing URL | `FileChip.tsx`, `ContextPanel.tsx` |
-| 8 | File references in messages | `ChatMessage.tsx` |
-| 9 | Final integration testing | Manual testing |
+| Task | Description                             | Files                              |
+| ---- | --------------------------------------- | ---------------------------------- |
+| 1    | FileChip component                      | `FileChip.tsx`                     |
+| 2    | FileUploadZone component                | `FileUploadZone.tsx`               |
+| 3    | Integrate upload into ChatInterface     | `ChatInterface.tsx`, `useChat.ts`  |
+| 4    | DeliveryCard component                  | `DeliveryCard.tsx`                 |
+| 5    | Integrate DeliveryCard into ChatMessage | `ChatMessage.tsx`                  |
+| 6    | Wire delivery detection                 | `ChatInterface.tsx`                |
+| 7    | File sharing URL                        | `FileChip.tsx`, `ContextPanel.tsx` |
+| 8    | File references in messages             | `ChatMessage.tsx`                  |
+| 9    | Final integration testing               | Manual testing                     |

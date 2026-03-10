@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { Search, Terminal, FileEdit, Globe, Image as ImageIcon } from "lucide-react";
+import {
+  Search,
+  Terminal,
+  FileEdit,
+  Globe,
+  Image as ImageIcon,
+} from "lucide-react";
 
 interface ToolRendererProps {
   name: string;
@@ -22,12 +28,21 @@ export function ToolArgsRenderer({ name, args }: ToolRendererProps) {
 
 // --- Registry ---
 
-const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.ReactNode> = {
+const TOOL_RENDERERS: Record<
+  string,
+  (args: Record<string, unknown>) => React.ReactNode
+> = {
   web_search: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <Search size={14} className="flex-shrink-0 text-blue-500" />
+      <Search
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Searching: <span className="font-medium">"{String(args.query || args.search_query || "")}"</span>
+        Searching:{" "}
+        <span className="font-medium">
+          "{String(args.query || args.search_query || "")}"
+        </span>
       </span>
     </div>
   ),
@@ -63,9 +78,15 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
     return (
       <div className="space-y-1">
         <div className="flex items-center gap-2 py-1">
-          <FileEdit size={14} className="flex-shrink-0 text-amber-500" />
+          <FileEdit
+            size={14}
+            className="flex-shrink-0 text-amber-500"
+          />
           <span className="text-sm">
-            Writing to: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.file_path || args.path || args.filename || "")}</code>
+            Writing to:{" "}
+            <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+              {String(args.file_path || args.path || args.filename || "")}
+            </code>
           </span>
         </div>
         {content && (
@@ -85,9 +106,15 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
 
   read_file: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <FileEdit size={14} className="flex-shrink-0 text-blue-500" />
+      <FileEdit
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Reading: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.file_path || args.path || args.filename || "")}</code>
+        Reading:{" "}
+        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+          {String(args.file_path || args.path || args.filename || "")}
+        </code>
       </span>
     </div>
   ),
@@ -97,9 +124,15 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
     return (
       <div className="space-y-1">
         <div className="flex items-center gap-2 py-1">
-          <FileEdit size={14} className="flex-shrink-0 text-amber-500" />
+          <FileEdit
+            size={14}
+            className="flex-shrink-0 text-amber-500"
+          />
           <span className="text-sm">
-            Editing: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.file_path || args.path || "")}</code>
+            Editing:{" "}
+            <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+              {String(args.file_path || args.path || "")}
+            </code>
           </span>
         </div>
         {newText && (
@@ -119,52 +152,94 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
 
   ls: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <FileEdit size={14} className="flex-shrink-0 text-blue-500" />
+      <FileEdit
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Listing: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.path || args.dir_path || ".")}</code>
+        Listing:{" "}
+        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+          {String(args.path || args.dir_path || ".")}
+        </code>
       </span>
     </div>
   ),
 
   glob: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <FileEdit size={14} className="flex-shrink-0 text-blue-500" />
+      <FileEdit
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Glob pattern: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.pattern || "")}</code>
+        Glob pattern:{" "}
+        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+          {String(args.pattern || "")}
+        </code>
       </span>
     </div>
   ),
 
   grep: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <Search size={14} className="flex-shrink-0 text-purple-500" />
+      <Search
+        size={14}
+        className="text-purple-500 flex-shrink-0"
+      />
       <span className="text-sm">
-        Searching for: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.pattern || "")}</code>
+        Searching for:{" "}
+        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+          {String(args.pattern || "")}
+        </code>
       </span>
     </div>
   ),
 
   browse: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <Globe size={14} className="flex-shrink-0 text-purple-500" />
+      <Globe
+        size={14}
+        className="text-purple-500 flex-shrink-0"
+      />
       <span className="text-sm">
-        Browsing: <a href={String(args.url || "")} target="_blank" rel="noopener noreferrer" className="text-primary underline">{String(args.url || "")}</a>
+        Browsing:{" "}
+        <a
+          href={String(args.url || "")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline"
+        >
+          {String(args.url || "")}
+        </a>
       </span>
     </div>
   ),
 
   fetch_webpage: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <Globe size={14} className="flex-shrink-0 text-purple-500" />
+      <Globe
+        size={14}
+        className="text-purple-500 flex-shrink-0"
+      />
       <span className="text-sm">
-        Fetching: <a href={String(args.url || "")} target="_blank" rel="noopener noreferrer" className="text-primary underline">{String(args.url || "")}</a>
+        Fetching:{" "}
+        <a
+          href={String(args.url || "")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline"
+        >
+          {String(args.url || "")}
+        </a>
       </span>
     </div>
   ),
 
   think: (args) => (
     <div className="rounded-md border border-border bg-muted/30 p-3">
-      <span className="text-xs font-medium text-muted-foreground">Thinking...</span>
+      <span className="text-xs font-medium text-muted-foreground">
+        Thinking...
+      </span>
     </div>
   ),
 
@@ -177,16 +252,25 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
   task: (args) => (
     <div className="flex items-center gap-2 py-1">
       <span className="text-sm">
-        Delegating to: <span className="font-medium">{String(args.subagent_type || args.agent_type || "sub-agent")}</span>
+        Delegating to:{" "}
+        <span className="font-medium">
+          {String(args.subagent_type || args.agent_type || "sub-agent")}
+        </span>
       </span>
     </div>
   ),
 
   view_image: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <ImageIcon size={14} className="flex-shrink-0 text-blue-500" />
+      <ImageIcon
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Viewing image: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.file_path || args.path || "image")}</code>
+        Viewing image:{" "}
+        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+          {String(args.file_path || args.path || "image")}
+        </code>
       </span>
     </div>
   ),
@@ -202,7 +286,9 @@ function DefaultRenderer({ args }: { args: Record<string, unknown> }) {
     if (strValue.length < 100) {
       return (
         <div className="flex items-center gap-2 py-1 text-sm">
-          <span className="font-mono text-xs text-muted-foreground">{key}:</span>
+          <span className="font-mono text-xs text-muted-foreground">
+            {key}:
+          </span>
           <span className="truncate">{strValue}</span>
         </div>
       );

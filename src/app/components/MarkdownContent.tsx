@@ -20,7 +20,10 @@ interface CodeBlockProps {
   children: string;
 }
 
-const CodeBlock = memo(function CodeBlock({ language, children }: CodeBlockProps) {
+const CodeBlock = memo(function CodeBlock({
+  language,
+  children,
+}: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -38,7 +41,10 @@ const CodeBlock = memo(function CodeBlock({ language, children }: CodeBlockProps
       >
         {copied ? (
           <>
-            <Check size={12} className="text-green-400" />
+            <Check
+              size={12}
+              className="text-green-400"
+            />
             <span>已复制到剪贴板</span>
           </>
         ) : (
@@ -100,9 +106,7 @@ export const MarkdownContent = React.memo<MarkdownContentProps>(
               const match = /language-(\w+)/.exec(className || "");
 
               return !inline && match ? (
-                <CodeBlock language={match[1]}>
-                  {String(children)}
-                </CodeBlock>
+                <CodeBlock language={match[1]}>{String(children)}</CodeBlock>
               ) : (
                 <code
                   className="bg-surface rounded-sm px-1 py-0.5 font-mono text-[0.9em]"

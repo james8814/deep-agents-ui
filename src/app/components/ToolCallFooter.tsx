@@ -23,10 +23,10 @@ interface ToolCallFooterProps {
  */
 function mapToolCallStatus(status: ToolCall["status"]): ThoughtChainItemStatus {
   const map: Record<string, ThoughtChainItemStatus> = {
-    pending: "loading",      // pending -> loading
-    completed: "success",    // completed -> success
-    interrupted: "loading",  // interrupted -> loading (waiting for user action)
-    error: "error",          // error -> error
+    pending: "loading", // pending -> loading
+    completed: "success", // completed -> success
+    interrupted: "loading", // interrupted -> loading (waiting for user action)
+    error: "error", // error -> error
   };
   return map[status] || "loading";
 }
@@ -41,7 +41,10 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
       collapsible: tc.status === "completed",
       content: (
         <div className="space-y-2">
-          <ToolArgsRenderer name={tc.name} args={tc.args} />
+          <ToolArgsRenderer
+            name={tc.name}
+            args={tc.args}
+          />
           {tc.result && (
             <div className="rounded bg-muted p-2 text-xs">
               <pre className="whitespace-pre-wrap">{tc.result}</pre>
@@ -73,7 +76,10 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
 
     return (
       <div className="mt-3 border-t border-border pt-3">
-        <ThoughtChain items={items} line="dashed" />
+        <ThoughtChain
+          items={items}
+          line="dashed"
+        />
       </div>
     );
   }

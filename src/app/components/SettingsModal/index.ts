@@ -4,8 +4,8 @@
  * Public API exports for the SettingsModal component
  */
 
-export { SettingsModal, default } from './SettingsModal';
-export { useSettings, default as useSettingsHook } from './useSettings';
+export { SettingsModal, default } from "./SettingsModal";
+export { useSettings, default as useSettingsHook } from "./useSettings";
 export type {
   Theme,
   ThemePreference,
@@ -21,4 +21,4 @@ export type {
   KeyboardShortcutsProps,
   AboutSectionProps,
   SettingsChangeEvent,
-} from './settingsTypes';
+} from "./settingsTypes";

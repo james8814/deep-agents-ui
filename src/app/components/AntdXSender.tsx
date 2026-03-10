@@ -3,7 +3,15 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Sender, Attachments } from "@ant-design/x";
 import { Button, message, Modal } from "antd";
-import { Square, ArrowUp, Paperclip, FileText, FileImage, FileType, Loader2 } from "lucide-react";
+import {
+  Square,
+  ArrowUp,
+  Paperclip,
+  FileText,
+  FileImage,
+  FileType,
+  Loader2,
+} from "lucide-react";
 import {
   uploadFile,
   deleteUploadedFile,
@@ -36,8 +44,8 @@ interface UploadFileItem {
   thumbUrl?: string;
   status: UploadStatus;
   progress: number; // 0-100
-  path?: string;    // 上传成功后返回的路径
-  error?: string;   // 错误信息
+  path?: string; // 上传成功后返回的路径
+  error?: string; // 错误信息
 }
 
 // 文件类型图标映射
@@ -57,16 +65,16 @@ const generateFileThumbnail = (filename: string, mimeType: string): string => {
   const bgColor = mimeType.startsWith("image/")
     ? "#e8f5e9"
     : mimeType === "application/pdf"
-      ? "#ffebee"
-      : mimeType.includes("wordprocessingml")
-        ? "#e3f2fd"
-        : mimeType.includes("presentationml")
-          ? "#fff8e1"
-          : mimeType.includes("spreadsheetml")
-            ? "#e8f5e9"
-            : mimeType.includes("text") || mimeType.includes("markdown")
-              ? "#fff3e0"
-              : "#f3f4f6";
+    ? "#ffebee"
+    : mimeType.includes("wordprocessingml")
+    ? "#e3f2fd"
+    : mimeType.includes("presentationml")
+    ? "#fff8e1"
+    : mimeType.includes("spreadsheetml")
+    ? "#e8f5e9"
+    : mimeType.includes("text") || mimeType.includes("markdown")
+    ? "#fff3e0"
+    : "#f3f4f6";
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
@@ -101,8 +109,9 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
 
       // 收集成功上传的文件
       const uploadedFiles = files
-        .filter((f): f is UploadFileItem & { status: "success"; path: string } =>
-          f.status === "success" && !!f.path
+        .filter(
+          (f): f is UploadFileItem & { status: "success"; path: string } =>
+            f.status === "success" && !!f.path
         )
         .map((f) => ({
           path: f.path,
@@ -145,7 +154,9 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
         name: file.name,
         type: file.type,
         size: file.size,
-        thumbUrl: file.type.startsWith("image/") ? undefined : generateFileThumbnail(file.name, file.type),
+        thumbUrl: file.type.startsWith("image/")
+          ? undefined
+          : generateFileThumbnail(file.name, file.type),
         status: "pending",
         progress: 0,
       }));
@@ -163,7 +174,9 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
           reader.onload = () => {
             setFiles((prev) =>
               prev.map((f) =>
-                f.uid === item.uid ? { ...f, thumbUrl: reader.result as string } : f
+                f.uid === item.uid
+                  ? { ...f, thumbUrl: reader.result as string }
+                  : f
               )
             );
           };
@@ -172,7 +185,9 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
 
         // 更新为上传中状态
         setFiles((prev) =>
-          prev.map((f) => (f.uid === item.uid ? { ...f, status: "uploading" } : f))
+          prev.map((f) =>
+            f.uid === item.uid ? { ...f, status: "uploading" } : f
+          )
         );
 
         try {
@@ -210,35 +225,38 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
     }, []);
 
     // 移除文件
-    const handleRemoveFile = useCallback(async (uid: string) => {
-      // 找到要删除的文件
-      const fileToRemove = files.find(f => f.uid === uid);
+    const handleRemoveFile = useCallback(
+      async (uid: string) => {
+        // 找到要删除的文件
+        const fileToRemove = files.find((f) => f.uid === uid);
 
-      // 如果文件已成功上传，需要用户确认并调用后端删除
-      if (fileToRemove?.status === "success" && fileToRemove.path) {
-        Modal.confirm({
-          title: "删除文件",
-          content: `确定要删除文件 "${fileToRemove.name}" 吗？\n此操作将同时删除服务器上的文件。`,
-          okText: "删除",
-          okButtonProps: { danger: true },
-          cancelText: "取消",
-          onOk: async () => {
-            if (!fileToRemove.path) return;
-            try {
-              await deleteUploadedFile(fileToRemove.path);
-              // 从前端状态移除
-              setFiles((prev) => prev.filter((f) => f.uid !== uid));
-            } catch (err) {
-              console.error("删除文件失败:", err);
-              message.error("删除文件失败");
-            }
-          },
-        });
-        return;
-      }
+        // 如果文件已成功上传，需要用户确认并调用后端删除
+        if (fileToRemove?.status === "success" && fileToRemove.path) {
+          Modal.confirm({
+            title: "删除文件",
+            content: `确定要删除文件 "${fileToRemove.name}" 吗？\n此操作将同时删除服务器上的文件。`,
+            okText: "删除",
+            okButtonProps: { danger: true },
+            cancelText: "取消",
+            onOk: async () => {
+              if (!fileToRemove.path) return;
+              try {
+                await deleteUploadedFile(fileToRemove.path);
+                // 从前端状态移除
+                setFiles((prev) => prev.filter((f) => f.uid !== uid));
+              } catch (err) {
+                console.error("删除文件失败:", err);
+                message.error("删除文件失败");
+              }
+            },
+          });
+          return;
+        }
 
-      setFiles((prev) => prev.filter((f) => f.uid !== uid));
-    }, [files]);
+        setFiles((prev) => prev.filter((f) => f.uid !== uid));
+      },
+      [files]
+    );
 
     // Sender header - 使用 Attachments 组件展示已上传文件
     const header = useMemo(() => {
@@ -252,15 +270,20 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
         size: f.size,
         thumbUrl: f.thumbUrl,
         // 自定义状态显示
-        description: f.status === "uploading"
-          ? `上传中 ${f.progress}%`
-          : f.status === "error"
+        description:
+          f.status === "uploading"
+            ? `上传中 ${f.progress}%`
+            : f.status === "error"
             ? f.error || "上传失败"
             : formatFileSize(f.size || 0),
       }));
 
       return (
-        <Sender.Header title={`附件 (${files.filter(f => f.status === "success").length}/${files.length})`}>
+        <Sender.Header
+          title={`附件 (${files.filter((f) => f.status === "success").length}/${
+            files.length
+          })`}
+        >
           <Attachments
             items={attachmentItems}
             onRemove={(file) => handleRemoveFile(file.uid)}
@@ -286,8 +309,11 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
               Shift+Enter
             </span>
             {hasUploadingFiles && (
-              <span className="text-xs text-warning flex items-center gap-1">
-                <Loader2 size={14} className="animate-spin" />
+              <span className="flex items-center gap-1 text-xs text-warning">
+                <Loader2
+                  size={14}
+                  className="animate-spin"
+                />
                 上传中...
               </span>
             )}
@@ -361,8 +387,8 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
             interrupt
               ? "Agent is waiting for approval above ↑"
               : loading
-                ? "Running..."
-                : placeholder
+              ? "Running..."
+              : placeholder
           }
           header={header}
           footer={footer}

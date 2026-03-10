@@ -208,7 +208,11 @@ export interface AnalyticsEvent {
 }
 
 export interface InputAnalytics extends AnalyticsEvent {
-  name: "input_expand_toggled" | "input_focused" | "message_sent" | "message_cancelled";
+  name:
+    | "input_expand_toggled"
+    | "input_focused"
+    | "message_sent"
+    | "message_cancelled";
 }
 
 export interface ToolAnalytics extends AnalyticsEvent {

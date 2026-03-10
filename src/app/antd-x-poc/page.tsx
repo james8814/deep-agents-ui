@@ -13,7 +13,8 @@ const DUMMY_ITEMS = [
   {
     key: "2",
     role: "ai" as const,
-    content: "Hi! I received your message. This is a POC for Ant Design X integration.",
+    content:
+      "Hi! I received your message. This is a POC for Ant Design X integration.",
   },
 ];
 
@@ -59,7 +60,10 @@ export default function AntdXPocPage() {
             placeholder="Type a message..."
             footer={
               <div className="flex justify-end p-2">
-                <Button type="primary" size="small">
+                <Button
+                  type="primary"
+                  size="small"
+                >
                   Send
                 </Button>
               </div>

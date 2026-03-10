@@ -184,8 +184,14 @@ describe("ViewImageResult Component", () => {
       const img = screen.getByAltText("Image result") as HTMLImageElement;
 
       // Mock image dimensions
-      Object.defineProperty(img, "naturalWidth", { value: 800, writable: false });
-      Object.defineProperty(img, "naturalHeight", { value: 600, writable: false });
+      Object.defineProperty(img, "naturalWidth", {
+        value: 800,
+        writable: false,
+      });
+      Object.defineProperty(img, "naturalHeight", {
+        value: 600,
+        writable: false,
+      });
 
       fireEvent.load(img);
 
@@ -331,7 +337,9 @@ describe("ViewImageResult Component", () => {
       fireEvent.error(img);
 
       await waitFor(() => {
-        expect(screen.getByText(/image data may be corrupted/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/image data may be corrupted/)
+        ).toBeInTheDocument();
       });
     });
 
@@ -343,7 +351,9 @@ describe("ViewImageResult Component", () => {
 
       render(<ViewImageResult result={result} />);
 
-      expect(screen.getByText(/No image data found in result/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/No image data found in result/)
+      ).toBeInTheDocument();
     });
 
     it("should handle missing MIME type gracefully", async () => {
@@ -440,7 +450,8 @@ describe("ViewImageResult Component", () => {
 
   describe("Edge Cases", () => {
     it("should handle very long file paths", () => {
-      const longPath = "/very/long/path/that/might/exceed/normal/display/width/image.png";
+      const longPath =
+        "/very/long/path/that/might/exceed/normal/display/width/image.png";
       const result = {
         image_data: MOCK_BASE64_PNG,
         file_path: longPath,
@@ -455,7 +466,12 @@ describe("ViewImageResult Component", () => {
     });
 
     it("should handle different MIME types", () => {
-      const mimeTypes = ["image/jpeg", "image/gif", "image/webp", "image/svg+xml"];
+      const mimeTypes = [
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+        "image/svg+xml",
+      ];
 
       mimeTypes.forEach((mimeType) => {
         const result = {

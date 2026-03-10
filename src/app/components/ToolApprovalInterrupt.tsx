@@ -296,7 +296,11 @@ export function ToolApprovalInterrupt({
               disabled={isLoading}
             >
               <Check size={14} />
-              {isLoading ? "Sending..." : approveFeedback.trim() ? "Approve & Send" : "Approve"}
+              {isLoading
+                ? "Sending..."
+                : approveFeedback.trim()
+                ? "Approve & Send"
+                : "Approve"}
             </Button>
           </>
         ) : (

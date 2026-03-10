@@ -8,12 +8,12 @@
 /**
  * Theme type definition
  */
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 /**
  * Theme preference for system detection
  */
-export type ThemePreference = 'light' | 'dark' | 'system';
+export type ThemePreference = "light" | "dark" | "system";
 
 /**
  * Notification settings interface
@@ -33,7 +33,7 @@ export interface KeyboardShortcut {
   readonly action: string;
   readonly keys: readonly string[];
   readonly description: string;
-  readonly category: 'editing' | 'navigation' | 'general';
+  readonly category: "editing" | "navigation" | "general";
 }
 
 /**
@@ -52,7 +52,7 @@ export interface UserSettings {
  */
 export interface SettingsModalState {
   readonly isOpen: boolean;
-  readonly activeTab: 'appearance' | 'notifications' | 'shortcuts' | 'about';
+  readonly activeTab: "appearance" | "notifications" | "shortcuts" | "about";
   readonly isDirty: boolean;
   readonly isSaving: boolean;
 }
@@ -64,11 +64,13 @@ export interface SettingsContextValue {
   readonly settings: UserSettings;
   readonly state: SettingsModalState;
   readonly updateSettings: (partial: Partial<UserSettings>) => void;
-  readonly updateNotifications: (partial: Partial<NotificationSettings>) => void;
+  readonly updateNotifications: (
+    partial: Partial<NotificationSettings>
+  ) => void;
   readonly saveSettings: () => Promise<void>;
   readonly resetSettings: () => void;
   readonly toggleModal: (open: boolean) => void;
-  readonly switchTab: (tab: SettingsModalState['activeTab']) => void;
+  readonly switchTab: (tab: SettingsModalState["activeTab"]) => void;
 }
 
 /**
@@ -133,7 +135,7 @@ export interface AboutSectionProps {
  * Settings change event
  */
 export interface SettingsChangeEvent {
-  readonly type: 'theme' | 'notifications' | 'language' | 'auto-save';
+  readonly type: "theme" | "notifications" | "language" | "auto-save";
   readonly value: unknown;
   readonly timestamp: Date;
 }

@@ -77,11 +77,14 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
   const fileCount = Object.keys(files).length;
   const hasFiles = fileCount > 0;
 
-  const groupedTodos = useMemo(() => ({
-    in_progress: todos.filter((t) => t.status === "in_progress"),
-    pending: todos.filter((t) => t.status === "pending"),
-    completed: todos.filter((t) => t.status === "completed"),
-  }), [todos]);
+  const groupedTodos = useMemo(
+    () => ({
+      in_progress: todos.filter((t) => t.status === "in_progress"),
+      pending: todos.filter((t) => t.status === "pending"),
+      completed: todos.filter((t) => t.status === "completed"),
+    }),
+    [todos]
+  );
 
   const handleSaveFile = useCallback(
     async (fileName: string, content: string) => {
@@ -96,7 +99,12 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold">Context</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={onClose}
+        >
           <PanelRightClose size={14} />
         </Button>
       </div>
@@ -115,7 +123,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
           <ListTodo size={14} />
           Tasks
           {hasTasks && (
-            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
+            <span className="bg-primary/10 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
               {todos.length}
             </span>
           )}
@@ -132,7 +140,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
           <FileText size={14} />
           Files
           {hasFiles && (
-            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
+            <span className="bg-primary/10 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
               {fileCount}
             </span>
           )}
@@ -142,7 +150,10 @@ export const ContextPanel = React.memo<ContextPanelProps>(({ onClose }) => {
       {/* Content */}
       <ScrollArea className="flex-1">
         {activeTab === "tasks" && (
-          <TasksTab groupedTodos={groupedTodos} hasTasks={hasTasks} />
+          <TasksTab
+            groupedTodos={groupedTodos}
+            hasTasks={hasTasks}
+          />
         )}
         {activeTab === "files" && (
           <FilesTab
@@ -172,11 +183,26 @@ ContextPanel.displayName = "ContextPanel";
 function getStatusIcon(status: TodoItem["status"]) {
   switch (status) {
     case "completed":
-      return <CheckCircle size={14} className="text-success/80" />;
+      return (
+        <CheckCircle
+          size={14}
+          className="text-success/80"
+        />
+      );
     case "in_progress":
-      return <Clock size={14} className="text-warning/80 animate-pulse" />;
+      return (
+        <Clock
+          size={14}
+          className="text-warning/80 animate-pulse"
+        />
+      );
     default:
-      return <Circle size={14} className="text-tertiary/70" />;
+      return (
+        <Circle
+          size={14}
+          className="text-tertiary/70"
+        />
+      );
   }
 }
 
@@ -196,7 +222,10 @@ function TasksTab({
   if (!hasTasks) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <ListTodo size={24} className="mb-2 text-muted-foreground/50" />
+        <ListTodo
+          size={24}
+          className="mb-2 text-muted-foreground/50"
+        />
         <p className="text-xs text-muted-foreground">No tasks yet</p>
         <p className="mt-1 text-xs text-muted-foreground/60">
           Tasks will appear here as the agent works
@@ -210,7 +239,10 @@ function TasksTab({
       {Object.entries(groupedTodos)
         .filter(([, items]) => items.length > 0)
         .map(([status, items]) => (
-          <div key={status} className="mb-4 last:mb-0">
+          <div
+            key={status}
+            className="mb-4 last:mb-0"
+          >
             <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {GROUP_LABELS[status] || status}
             </h3>
@@ -247,7 +279,10 @@ function FilesTab({
   if (fileEntries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <FileText size={24} className="mb-2 text-muted-foreground/50" />
+        <FileText
+          size={24}
+          className="mb-2 text-muted-foreground/50"
+        />
         <p className="text-xs text-muted-foreground">No files yet</p>
         <p className="mt-1 text-xs text-muted-foreground/60">
           Files will appear here as the agent creates them
@@ -262,7 +297,9 @@ function FilesTab({
         {fileEntries.map((filePath) => {
           const rawContent = files[filePath];
           const fileContent =
-            typeof rawContent === "object" && rawContent !== null && "content" in rawContent
+            typeof rawContent === "object" &&
+            rawContent !== null &&
+            "content" in rawContent
               ? String((rawContent as { content: unknown }).content || "")
               : String(rawContent || "");
 
@@ -271,10 +308,15 @@ function FilesTab({
           return (
             <button
               key={filePath}
-              onClick={() => onFileSelect({ path: filePath, content: fileContent })}
+              onClick={() =>
+                onFileSelect({ path: filePath, content: fileContent })
+              }
               className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent"
             >
-              <FileText size={14} className="flex-shrink-0 text-muted-foreground" />
+              <FileText
+                size={14}
+                className="flex-shrink-0 text-muted-foreground"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{filePath}</div>
                 <div className="truncate text-xs text-muted-foreground">
@@ -397,13 +439,18 @@ Auto-open the context panel when tasks or files first appear:
 
 ```tsx
 // page.tsx — add auto-show effect
-useEffect(() => {
-  // Auto-show context panel on first task/file appearance
-  // (only if it hasn't been explicitly closed)
-  if (!contextPanel && (todos.length > 0 || Object.keys(files).length > 0)) {
-    setContextPanel("1");
-  }
-}, [/* trigger on first appearance — needs careful implementation */]);
+useEffect(
+  () => {
+    // Auto-show context panel on first task/file appearance
+    // (only if it hasn't been explicitly closed)
+    if (!contextPanel && (todos.length > 0 || Object.keys(files).length > 0)) {
+      setContextPanel("1");
+    }
+  },
+  [
+    /* trigger on first appearance — needs careful implementation */
+  ]
+);
 ```
 
 Note: This requires `todos` and `files` to be accessible at the `page.tsx` level, which they will be after lifting `ChatProvider` up (Option A above).
@@ -434,31 +481,36 @@ When the agent needs human approval, the approval UI is buried inside the last t
 ```tsx
 // ChatInterface.tsx — add between ExecutionStatusBar and input area
 
-{interrupt && (
-  <div className="flex items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
-    <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
-      <AlertCircle size={14} className="text-orange-600 dark:text-orange-400" />
+{
+  interrupt && (
+    <div className="flex items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
+      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
+        <AlertCircle
+          size={14}
+          className="text-orange-600 dark:text-orange-400"
+        />
+      </div>
+      <div className="flex-1 text-sm">
+        <span className="font-medium text-orange-800 dark:text-orange-200">
+          Action required
+        </span>
+        <span className="ml-1 text-orange-600 dark:text-orange-400">
+          — The agent is waiting for your approval above
+        </span>
+      </div>
+      <button
+        onClick={() => {
+          // Scroll to the interrupt tool call
+          const lastMessage = document.querySelector("[data-last-message]");
+          lastMessage?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }}
+        className="flex-shrink-0 rounded-md border border-orange-300 bg-white px-3 py-1 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-50 dark:border-orange-600 dark:bg-orange-900/50 dark:text-orange-300"
+      >
+        Review
+      </button>
     </div>
-    <div className="flex-1 text-sm">
-      <span className="font-medium text-orange-800 dark:text-orange-200">
-        Action required
-      </span>
-      <span className="ml-1 text-orange-600 dark:text-orange-400">
-        — The agent is waiting for your approval above
-      </span>
-    </div>
-    <button
-      onClick={() => {
-        // Scroll to the interrupt tool call
-        const lastMessage = document.querySelector("[data-last-message]");
-        lastMessage?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }}
-      className="flex-shrink-0 rounded-md border border-orange-300 bg-white px-3 py-1 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-50 dark:border-orange-600 dark:bg-orange-900/50 dark:text-orange-300"
-    >
-      Review
-    </button>
-  </div>
-)}
+  );
+}
 ```
 
 **Add `data-last-message` attribute to the last ChatMessage:**
@@ -522,9 +574,7 @@ export function useInterruptNotification(interrupt: unknown | undefined) {
       originalTitle.current = document.title;
       let toggle = false;
       flashInterval.current = setInterval(() => {
-        document.title = toggle
-          ? "(!) Approval needed"
-          : originalTitle.current;
+        document.title = toggle ? "(!) Approval needed" : originalTitle.current;
         toggle = !toggle;
       }, 1000);
 
@@ -638,13 +688,33 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
     const statusIcon = (() => {
       switch (subAgent.status) {
         case "active":
-          return <Loader2 size={14} className="animate-spin text-blue-500" />;
+          return (
+            <Loader2
+              size={14}
+              className="animate-spin text-blue-500"
+            />
+          );
         case "completed":
-          return <CheckCircle size={14} className="text-success/80" />;
+          return (
+            <CheckCircle
+              size={14}
+              className="text-success/80"
+            />
+          );
         case "error":
-          return <XCircle size={14} className="text-destructive" />;
+          return (
+            <XCircle
+              size={14}
+              className="text-destructive"
+            />
+          );
         default:
-          return <Clock size={14} className="text-muted-foreground" />;
+          return (
+            <Clock
+              size={14}
+              className="text-muted-foreground"
+            />
+          );
       }
     })();
 
@@ -662,12 +732,16 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
     })();
 
     return (
-      <div className={cn(
-        "w-fit max-w-[70vw] overflow-hidden rounded-lg border",
-        subAgent.status === "active" ? "border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30" :
-        subAgent.status === "error" ? "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/30" :
-        "border-border bg-card"
-      )}>
+      <div
+        className={cn(
+          "w-fit max-w-[70vw] overflow-hidden rounded-lg border",
+          subAgent.status === "active"
+            ? "border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30"
+            : subAgent.status === "error"
+            ? "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/30"
+            : "border-border bg-card"
+        )}
+      >
         <Button
           variant="ghost"
           size="sm"
@@ -681,9 +755,7 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
-              {statusText}
-            </span>
+            <span className="text-xs text-muted-foreground">{statusText}</span>
             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </div>
         </Button>
@@ -708,14 +780,14 @@ SubAgentIndicator.displayName = "SubAgentIndicator";
 
 ## Files Changed Summary
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/app/components/ContextPanel.tsx` | **NEW** | Full context panel with Tasks/Files tabs |
-| `src/app/hooks/useInterruptNotification.ts` | **NEW** | Browser notification + title flash for interrupts |
-| `src/app/page.tsx` | MODIFY | Add third ResizablePanel, lift ChatProvider, add context toggle |
-| `src/app/components/ChatInterface.tsx` | MODIFY | Remove embedded tasks/files (~200 lines), add interrupt banner |
-| `src/app/components/ToolCallBox.tsx` | MODIFY | Add interrupt ring highlight |
-| `src/app/components/SubAgentIndicator.tsx` | MODIFY | Complete redesign with status/timing |
+| File                                        | Action  | Changes                                                         |
+| ------------------------------------------- | ------- | --------------------------------------------------------------- |
+| `src/app/components/ContextPanel.tsx`       | **NEW** | Full context panel with Tasks/Files tabs                        |
+| `src/app/hooks/useInterruptNotification.ts` | **NEW** | Browser notification + title flash for interrupts               |
+| `src/app/page.tsx`                          | MODIFY  | Add third ResizablePanel, lift ChatProvider, add context toggle |
+| `src/app/components/ChatInterface.tsx`      | MODIFY  | Remove embedded tasks/files (~200 lines), add interrupt banner  |
+| `src/app/components/ToolCallBox.tsx`        | MODIFY  | Add interrupt ring highlight                                    |
+| `src/app/components/SubAgentIndicator.tsx`  | MODIFY  | Complete redesign with status/timing                            |
 
 ## New Dependencies
 

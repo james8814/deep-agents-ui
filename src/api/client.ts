@@ -23,10 +23,7 @@ export { AUTH_SERVER, API_SERVER };
  * 用于 AuthContext 等消费方通过 statusCode 判断错误类型，而非脆弱的字符串匹配
  */
 export class HttpError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number
-  ) {
+  constructor(message: string, public readonly statusCode: number) {
     super(message);
     this.name = "HttpError";
   }
@@ -133,11 +130,7 @@ export async function fetchWithCredentials<T = unknown>(
       .catch(() => ({ detail: "请求失败" }));
 
     // 401 错误处理：尝试刷新 Token（仅非 /auth/ 端点）
-    if (
-      response.status === 401 &&
-      !url.includes("/auth/") &&
-      !isRetry
-    ) {
+    if (response.status === 401 && !url.includes("/auth/") && !isRetry) {
       if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
         refreshRetryCount = 0;
         throw new HttpError("登录已过期，请重新登录", 401);

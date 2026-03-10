@@ -9,6 +9,7 @@ The Sidebar component is a production-ready navigation panel for PMAgent UI v6.0
 ## Features
 
 ### Core Features
+
 - ✅ **Expandable/Collapsible**: Toggle between full-width (224px) and icon-only (64px) views
 - ✅ **Navigation**: 2 primary routes (Chat, Files)
 - ✅ **User Menu**: 4 options (Profile, Settings, Help, Logout)
@@ -19,6 +20,7 @@ The Sidebar component is a production-ready navigation panel for PMAgent UI v6.0
 - ✅ **Accessibility**: Full WCAG 2.1 AA compliance with ARIA labels
 
 ### Design System
+
 - **Color Scheme**: Dark theme with gradient accent (Cyan → Purple)
 - **Spacing**: Uses Tailwind spacing system (gap-3, p-3)
 - **Animations**: Smooth transitions (duration-300)
@@ -73,10 +75,14 @@ Required packages (already installed):
 Update `src/app/layout.tsx`:
 
 ```typescript
-import { Sidebar } from '@/app/components/Sidebar';
-import { useSidebar } from '@/app/hooks/useSidebar';
+import { Sidebar } from "@/app/components/Sidebar";
+import { useSidebar } from "@/app/hooks/useSidebar";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { expanded, toggleExpanded } = useSidebar();
 
   return (
@@ -92,10 +98,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       expanded={expanded}
                       onToggle={toggleExpanded}
                     />
-                    <main className={cn(
-                      'flex-1 transition-all duration-300',
-                      expanded ? 'ml-56' : 'ml-16'
-                    )}>
+                    <main
+                      className={cn(
+                        "flex-1 transition-all duration-300",
+                        expanded ? "ml-56" : "ml-16"
+                      )}
+                    >
                       {children}
                     </main>
                   </div>
@@ -116,15 +124,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ### Basic Usage
 
 ```typescript
-import { Sidebar } from '@/app/components/Sidebar';
+import { Sidebar } from "@/app/components/Sidebar";
 
 export default function MyPage() {
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 ml-16">
-        {/* Main content */}
-      </main>
+      <main className="ml-16 flex-1">{/* Main content */}</main>
     </div>
   );
 }
@@ -133,10 +139,10 @@ export default function MyPage() {
 ### With State Management
 
 ```typescript
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Sidebar } from '@/app/components/Sidebar';
+import { useState } from "react";
+import { Sidebar } from "@/app/components/Sidebar";
 
 export default function MyPage() {
   const [expanded, setExpanded] = useState(false);
@@ -147,9 +153,7 @@ export default function MyPage() {
         expanded={expanded}
         onToggle={() => setExpanded(!expanded)}
       />
-      <main className={expanded ? 'ml-56' : 'ml-16'}>
-        {/* Main content */}
-      </main>
+      <main className={expanded ? "ml-56" : "ml-16"}>{/* Main content */}</main>
     </div>
   );
 }
@@ -158,20 +162,21 @@ export default function MyPage() {
 ### Using the Hook
 
 ```typescript
-'use client';
+"use client";
 
-import { useSidebar } from '@/app/hooks/useSidebar';
-import { Sidebar } from '@/app/components/Sidebar';
+import { useSidebar } from "@/app/hooks/useSidebar";
+import { Sidebar } from "@/app/components/Sidebar";
 
 export default function MyPage() {
   const { expanded, toggleExpanded } = useSidebar();
 
   return (
     <div className="flex">
-      <Sidebar expanded={expanded} onToggle={toggleExpanded} />
-      <main className={expanded ? 'ml-56' : 'ml-16'}>
-        {/* Main content */}
-      </main>
+      <Sidebar
+        expanded={expanded}
+        onToggle={toggleExpanded}
+      />
+      <main className={expanded ? "ml-56" : "ml-16"}>{/* Main content */}</main>
     </div>
   );
 }
@@ -206,16 +211,16 @@ Navigation items are defined in `src/app/constants/navigation.ts`:
 ```typescript
 const MAIN_NAV_ITEMS: NavItem[] = [
   {
-    id: 'chat',
+    id: "chat",
     icon: MessageCircle,
-    label: '对话',
-    href: '/',
+    label: "对话",
+    href: "/",
   },
   {
-    id: 'files',
+    id: "files",
     icon: FileText,
-    label: '文件',
-    href: '/files',
+    label: "文件",
+    href: "/files",
   },
 ];
 ```
@@ -229,19 +234,19 @@ User menu items can be customized in the same constants file.
 ```typescript
 KEYBOARD_SHORTCUTS = {
   TOGGLE_SIDEBAR: {
-    mac: '⌘ + /',
-    windows: 'Ctrl + /',
-    description: '切换侧边栏',
+    mac: "⌘ + /",
+    windows: "Ctrl + /",
+    description: "切换侧边栏",
   },
   NEW_CHAT: {
-    mac: '⌘ + N',
-    windows: 'Ctrl + N',
-    description: '新建对话',
+    mac: "⌘ + N",
+    windows: "Ctrl + N",
+    description: "新建对话",
   },
   SEND_MESSAGE: {
-    mac: '⌘ + Enter',
-    windows: 'Ctrl + Enter',
-    description: '发送消息',
+    mac: "⌘ + Enter",
+    windows: "Ctrl + Enter",
+    description: "发送消息",
   },
 };
 ```
@@ -254,19 +259,19 @@ The component uses Tailwind CSS with custom theme colors:
 
 ```typescript
 // Sidebar background
-bg-primary          // var(--bg-primary)
+bg - primary; // var(--bg-primary)
 
 // Border color
-border-secondary    // var(--border-secondary)
+border - secondary; // var(--border-secondary)
 
 // Text colors
-text-primary        // Primary text
-text-tertiary       // Tertiary text (dimmer)
+text - primary; // Primary text
+text - tertiary; // Tertiary text (dimmer)
 
 // State colors
-text-brand-primary  // Brand color for active states
-text-error          // Error/danger color
-bg-error-secondary  // Error background
+text - brand - primary; // Brand color for active states
+text - error; // Error/danger color
+bg - error - secondary; // Error background
 ```
 
 ### Dark Mode
@@ -294,38 +299,50 @@ theme: {
 
 ```html
 <!-- Navigation element -->
-<aside role="navigation" aria-label="Main navigation">
-
-<!-- Logo button -->
-<button aria-label="Toggle sidebar" title="Toggle sidebar expansion">
-
-<!-- Navigation items -->
-<nav role="menubar">
-  <button role="menuitem" aria-label="对话" aria-current="page">
-    <!-- Active item has aria-current="page" -->
-
-<!-- User menu button -->
-<button
-  aria-label="User menu"
-  aria-expanded="false"
-  aria-haspopup="menu"
+<aside
+  role="navigation"
+  aria-label="Main navigation"
 >
+  <!-- Logo button -->
+  <button
+    aria-label="Toggle sidebar"
+    title="Toggle sidebar expansion"
+  >
+    <!-- Navigation items -->
+    <nav role="menubar">
+      <button
+        role="menuitem"
+        aria-label="对话"
+        aria-current="page"
+      >
+        <!-- Active item has aria-current="page" -->
 
-<!-- Dropdown menu -->
-<div role="menu">
-  <button role="menuitem">Profile</button>
-</div>
+        <!-- User menu button -->
+        <button
+          aria-label="User menu"
+          aria-expanded="false"
+          aria-haspopup="menu"
+        >
+          <!-- Dropdown menu -->
+          <div role="menu">
+            <button role="menuitem">Profile</button>
+          </div>
+        </button>
+      </button>
+    </nav>
+  </button>
+</aside>
 ```
 
 ### Keyboard Navigation
 
-| Key | Action |
-|-----|--------|
-| `Tab` | Focus next element |
-| `Shift+Tab` | Focus previous element |
-| `Enter/Space` | Activate button/link |
-| `Escape` | Close user menu dropdown |
-| `Arrow Keys` | Navigate within menu (when focused) |
+| Key           | Action                              |
+| ------------- | ----------------------------------- |
+| `Tab`         | Focus next element                  |
+| `Shift+Tab`   | Focus previous element              |
+| `Enter/Space` | Activate button/link                |
+| `Escape`      | Close user menu dropdown            |
+| `Arrow Keys`  | Navigate within menu (when focused) |
 
 ### Screen Reader Support
 
@@ -426,14 +443,14 @@ Accessibility
 
 ## Browser Support
 
-| Browser | Support |
-|---------|---------|
-| Chrome | ✅ Latest 2 versions |
-| Safari | ✅ Latest 2 versions |
-| Firefox | ✅ Latest 2 versions |
-| Edge | ✅ Latest 2 versions |
-| Mobile Safari | ✅ Latest version |
-| Mobile Chrome | ✅ Latest version |
+| Browser       | Support              |
+| ------------- | -------------------- |
+| Chrome        | ✅ Latest 2 versions |
+| Safari        | ✅ Latest 2 versions |
+| Firefox       | ✅ Latest 2 versions |
+| Edge          | ✅ Latest 2 versions |
+| Mobile Safari | ✅ Latest version    |
+| Mobile Chrome | ✅ Latest version    |
 
 ## Troubleshooting
 
@@ -453,7 +470,7 @@ Accessibility
 
 ```javascript
 // Avoid event.stopPropagation() in parent elements
-element.addEventListener('click', handler, true); // ❌ Avoid capture phase
+element.addEventListener("click", handler, true); // ❌ Avoid capture phase
 ```
 
 ### Issue: localStorage persistence not working
@@ -462,7 +479,7 @@ element.addEventListener('click', handler, true); // ❌ Avoid capture phase
 
 ```javascript
 // In browser console
-localStorage.getItem('sidebar-expanded')
+localStorage.getItem("sidebar-expanded");
 // Should return 'true' or 'false'
 ```
 
@@ -471,9 +488,9 @@ localStorage.getItem('sidebar-expanded')
 **Solution**: Ensure usePathname() is being called in a client component.
 
 ```typescript
-'use client'; // ✅ Required at top of file
+"use client"; // ✅ Required at top of file
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 ```
 
 ## Migration from v5.26
@@ -482,7 +499,12 @@ import { usePathname } from 'next/navigation';
 
 ```html
 <div class="sidebar expanded">
-  <div class="logo" onclick="toggleSidebar()">A</div>
+  <div
+    class="logo"
+    onclick="toggleSidebar()"
+  >
+    A
+  </div>
   <nav class="nav">
     <div class="nav-item active">对话</div>
     <div class="nav-item">文件</div>
@@ -494,7 +516,10 @@ import { usePathname } from 'next/navigation';
 ### After (deep-agents-ui)
 
 ```typescript
-<Sidebar expanded={expanded} onToggle={toggleExpanded} />
+<Sidebar
+  expanded={expanded}
+  onToggle={toggleExpanded}
+/>
 ```
 
 ## Related Components
@@ -517,9 +542,9 @@ When modifying the Sidebar:
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-03-09 | Initial implementation |
+| Version | Date       | Changes                |
+| ------- | ---------- | ---------------------- |
+| 1.0.0   | 2026-03-09 | Initial implementation |
 
 ## License
 

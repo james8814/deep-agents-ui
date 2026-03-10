@@ -5,13 +5,19 @@
 ### Installation and Setup
 
 1. **Verify Dependencies**
+
    ```bash
    npm list react react-dom @radix-ui/react-dialog lucide-react
    ```
 
 2. **Import Components**
+
    ```tsx
-   import { WelcomeScreen, ThemeToggle, StatusIndicator } from '@/app/components';
+   import {
+     WelcomeScreen,
+     ThemeToggle,
+     StatusIndicator,
+   } from "@/app/components";
    ```
 
 3. **Wrap with Required Providers**
@@ -26,11 +32,12 @@
 ### WelcomeScreen Integration
 
 **In `page.tsx`:**
+
 ```tsx
-import { WelcomeScreen } from '@/app/components/WelcomeScreen';
+import { WelcomeScreen } from "@/app/components/WelcomeScreen";
 
 export default function HomePage() {
-  const [threadId, setThreadId] = useQueryState('threadId');
+  const [threadId, setThreadId] = useQueryState("threadId");
   const [isConnecting, setIsConnecting] = useState(false);
 
   const handleGetStarted = async () => {
@@ -60,8 +67,9 @@ export default function HomePage() {
 ### ThemeToggle Integration
 
 **In header or layout:**
+
 ```tsx
-import { ThemeToggle } from '@/app/components/ThemeToggle';
+import { ThemeToggle } from "@/app/components/ThemeToggle";
 
 export function Header() {
   return (
@@ -84,28 +92,29 @@ export function Header() {
 ### StatusIndicator Integration
 
 **In header with agent status:**
+
 ```tsx
-import { StatusIndicator } from '@/app/components/StatusIndicator';
+import { StatusIndicator } from "@/app/components/StatusIndicator";
 
 export function Header({ assistant, isConnecting }) {
   const status = isConnecting
-    ? 'connecting'
+    ? "connecting"
     : assistant
-      ? 'connected'
-      : 'disconnected';
+    ? "connected"
+    : "disconnected";
 
   const description = {
-    connected: 'Agent ready for interaction',
-    connecting: 'Initializing agent connection',
-    disconnected: 'Agent connection lost',
-    error: 'Failed to connect to agent',
+    connected: "Agent ready for interaction",
+    connecting: "Initializing agent connection",
+    disconnected: "Agent connection lost",
+    error: "Failed to connect to agent",
   }[status];
 
   return (
     <div className="flex items-center gap-4">
       <StatusIndicator
         status={status}
-        label={assistant?.name || 'Agent'}
+        label={assistant?.name || "Agent"}
         description={description}
         showLabel
       />
@@ -117,8 +126,9 @@ export function Header({ assistant, isConnecting }) {
 ### LoadingSpinner Integration
 
 **In async operations:**
+
 ```tsx
-import { LoadingSpinner } from '@/app/components/LoadingSpinner';
+import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 
 export function DataFetcher() {
   const [loading, setLoading] = useState(false);
@@ -140,14 +150,21 @@ export function DataFetcher() {
 ```
 
 **For skeleton placeholders:**
+
 ```tsx
-import { SkeletonLoader } from '@/app/components/LoadingSpinner';
+import { SkeletonLoader } from "@/app/components/LoadingSpinner";
 
 export function MessageList() {
   const { messages, isLoading } = useChatContext();
 
   if (isLoading) {
-    return <SkeletonLoader count={5} height="h-12" gap="gap-3" />;
+    return (
+      <SkeletonLoader
+        count={5}
+        height="h-12"
+        gap="gap-3"
+      />
+    );
   }
 
   return <Messages messages={messages} />;
@@ -157,8 +174,9 @@ export function MessageList() {
 ### ErrorBoundary Integration
 
 **At page level:**
+
 ```tsx
-import { ErrorBoundary } from '@/app/components/ErrorBoundary';
+import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 
 export default function PageLayout({ children }) {
   return (
@@ -179,6 +197,7 @@ export default function PageLayout({ children }) {
 ```
 
 **At section level:**
+
 ```tsx
 <ErrorBoundary level="section">
   <ComplexComponent />
@@ -186,8 +205,9 @@ export default function PageLayout({ children }) {
 ```
 
 **With error handler hook:**
+
 ```tsx
-import { useErrorHandler } from '@/app/components/ErrorBoundary';
+import { useErrorHandler } from "@/app/components/ErrorBoundary";
 
 function FileUploader() {
   const handleError = useErrorHandler();
@@ -207,8 +227,12 @@ function FileUploader() {
 ### OPDCAStageDisplay Integration
 
 **In context panel:**
+
 ```tsx
-import { OPDCAStageDisplay, OPDCATimeline } from '@/app/components/OPDCAStageDisplay';
+import {
+  OPDCAStageDisplay,
+  OPDCATimeline,
+} from "@/app/components/OPDCAStageDisplay";
 
 interface ContextPanelProps {
   currentStage: OPDCAStage;
@@ -223,7 +247,7 @@ export function ContextPanel({
     <div className="space-y-6">
       {/* Timeline overview */}
       <div>
-        <h3 className="text-sm font-semibold mb-3">Workflow Progress</h3>
+        <h3 className="mb-3 text-sm font-semibold">Workflow Progress</h3>
         <OPDCATimeline
           currentStage={currentStage}
           completedStages={completedStages}
@@ -245,6 +269,7 @@ export function ContextPanel({
 ```
 
 **Minimal inline indicator:**
+
 ```tsx
 export function ChatHeader({ stage }) {
   return (
@@ -268,10 +293,10 @@ export function ChatHeader({ stage }) {
 ```tsx
 // hooks/useTheme.ts
 export function useTheme() {
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as any;
+    const savedTheme = localStorage.getItem("theme") as any;
     if (savedTheme) setTheme(savedTheme);
   }, []);
 
@@ -304,7 +329,7 @@ export function MyApp() {
 // lib/errorLogger.ts
 export const errorLogger = {
   log(error: Error, context?: Record<string, any>) {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       // Send to Sentry, LogRocket, etc.
       captureException(error, { tags: context });
     } else {
@@ -323,23 +348,25 @@ export const errorLogger = {
   }}
 >
   <YourComponent />
-</ErrorBoundary>
+</ErrorBoundary>;
 ```
 
 ### Dynamic Status Updates
 
 ```tsx
 export function AgentConnection() {
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+  const [status, setStatus] = useState<
+    "idle" | "connecting" | "connected" | "error"
+  >("idle");
 
   useEffect(() => {
     const checkConnection = async () => {
-      setStatus('connecting');
+      setStatus("connecting");
       try {
-        const response = await fetch('/api/health');
-        setStatus(response.ok ? 'connected' : 'error');
+        const response = await fetch("/api/health");
+        setStatus(response.ok ? "connected" : "error");
       } catch {
-        setStatus('error');
+        setStatus("error");
       }
     };
 
@@ -354,7 +381,7 @@ export function AgentConnection() {
       status={status}
       label="Agent Status"
       showLabel
-      pulse={status === 'connecting'}
+      pulse={status === "connecting"}
     />
   );
 }
@@ -364,11 +391,11 @@ export function AgentConnection() {
 
 ```tsx
 export function WorkflowTracker() {
-  const [stage, setStage] = useState<OPDCAStage>('idle');
+  const [stage, setStage] = useState<OPDCAStage>("idle");
   const [completedStages, setCompletedStages] = useState<OPDCAStage[]>([]);
 
   const updateStage = (newStage: OPDCAStage) => {
-    if (stage !== 'idle' && !completedStages.includes(stage)) {
+    if (stage !== "idle" && !completedStages.includes(stage)) {
       setCompletedStages([...completedStages, stage]);
     }
     setStage(newStage);
@@ -382,11 +409,11 @@ export function WorkflowTracker() {
       />
 
       <div className="space-y-2">
-        <button onClick={() => updateStage('observe')}>Start Observe</button>
-        <button onClick={() => updateStage('plan')}>Move to Plan</button>
-        <button onClick={() => updateStage('do')}>Execute</button>
-        <button onClick={() => updateStage('check')}>Verify</button>
-        <button onClick={() => updateStage('adapt')}>Adapt</button>
+        <button onClick={() => updateStage("observe")}>Start Observe</button>
+        <button onClick={() => updateStage("plan")}>Move to Plan</button>
+        <button onClick={() => updateStage("do")}>Execute</button>
+        <button onClick={() => updateStage("check")}>Verify</button>
+        <button onClick={() => updateStage("adapt")}>Adapt</button>
       </div>
     </div>
   );
@@ -401,18 +428,18 @@ export function WorkflowTracker() {
 
 ```tsx
 // __tests__/MyComponent.test.tsx
-import { render, screen } from '@testing-library/react';
-import { MyComponent } from '../MyComponent';
+import { render, screen } from "@testing-library/react";
+import { MyComponent } from "../MyComponent";
 
-describe('MyComponent with supporting components', () => {
-  it('should render welcome screen initially', () => {
+describe("MyComponent with supporting components", () => {
+  it("should render welcome screen initially", () => {
     render(<MyComponent />);
     expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
   });
 
-  it('should handle theme toggle', () => {
+  it("should handle theme toggle", () => {
     render(<MyComponent />);
-    const themeButton = screen.getByRole('button', { name: /toggle theme/i });
+    const themeButton = screen.getByRole("button", { name: /toggle theme/i });
     expect(themeButton).toBeInTheDocument();
   });
 });
@@ -422,20 +449,20 @@ describe('MyComponent with supporting components', () => {
 
 ```tsx
 // e2e/welcome.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('welcome screen flow', async ({ page }) => {
-  await page.goto('/');
+test("welcome screen flow", async ({ page }) => {
+  await page.goto("/");
 
   // Check welcome screen
-  await expect(page.locator('text=Deep Agents Studio')).toBeVisible();
+  await expect(page.locator("text=Deep Agents Studio")).toBeVisible();
   await expect(page.locator('button:has-text("Get Started")')).toBeVisible();
 
   // Click get started
   await page.locator('button:has-text("Get Started")').click();
 
   // Should transition to chat
-  await expect(page.locator('text=Chat Interface')).toBeVisible();
+  await expect(page.locator("text=Chat Interface")).toBeVisible();
 });
 ```
 
@@ -446,11 +473,11 @@ test('welcome screen flow', async ({ page }) => {
 ### Code Splitting
 
 ```tsx
-import { lazy, Suspense } from 'react';
-import { LoadingSpinner } from '@/app/components/LoadingSpinner';
+import { lazy, Suspense } from "react";
+import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 
 const WelcomeScreen = lazy(() =>
-  import('@/app/components/WelcomeScreen').then(m => ({
+  import("@/app/components/WelcomeScreen").then((m) => ({
     default: m.WelcomeScreen,
   }))
 );
@@ -467,7 +494,7 @@ export function App() {
 ### Memoization
 
 ```tsx
-import React from 'react';
+import React from "react";
 
 const MemoizedStatusIndicator = React.memo(StatusIndicator, (prev, next) => {
   return prev.status === next.status && prev.label === next.label;
@@ -506,15 +533,19 @@ npm run test:contrast
 ## Troubleshooting
 
 ### Issue: WelcomeScreen animations not smooth
+
 **Solution:** Check prefers-reduced-motion setting and CPU throttling
 
 ### Issue: Theme not persisting across page reload
+
 **Solution:** Verify localStorage is enabled and not being cleared
 
 ### Issue: ErrorBoundary not catching errors in event handlers
+
 **Solution:** Use try-catch or useErrorHandler hook for non-render errors
 
 ### Issue: StatusIndicator tooltip not visible
+
 **Solution:** Ensure TooltipProvider wraps component, check z-index
 
 ---
@@ -540,11 +571,13 @@ When adopting these components:
 ## Performance Metrics
 
 ### Initial Load Time
+
 - Total bundle impact: ~14.5KB (gzipped)
 - React rendering: <50ms
 - Theme detection: <10ms
 
 ### Runtime Performance
+
 - StatusIndicator animation: 60fps
 - LoadingSpinner variants: 60fps
 - OPDCATimeline update: <20ms
@@ -554,9 +587,9 @@ When adopting these components:
 
 ## Version Compatibility
 
-| Component | React | TypeScript | Next.js |
-|-----------|-------|-----------|---------|
-| All | 19.1.0 | 5.0+ | 16.1.6+ |
+| Component | React  | TypeScript | Next.js |
+| --------- | ------ | ---------- | ------- |
+| All       | 19.1.0 | 5.0+       | 16.1.6+ |
 
 ---
 
@@ -576,4 +609,3 @@ When adopting these components:
 - Test files: See `src/app/components/__tests__/`
 - Examples: See this guide's usage examples
 - Issues: Check existing GitHub issues or create new one
-

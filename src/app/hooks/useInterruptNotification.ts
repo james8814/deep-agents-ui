@@ -30,9 +30,7 @@ export function useInterruptNotification(interrupt: unknown | undefined) {
       originalTitle.current = document.title;
       let toggle = false;
       flashInterval.current = setInterval(() => {
-        document.title = toggle
-          ? "(!) Approval needed"
-          : originalTitle.current;
+        document.title = toggle ? "(!) Approval needed" : originalTitle.current;
         toggle = !toggle;
       }, 1000);
 

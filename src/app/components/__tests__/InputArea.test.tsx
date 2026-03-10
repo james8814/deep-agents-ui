@@ -37,7 +37,12 @@ describe("InputArea Component", () => {
     it("should call onInputChange when typing", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      render(<InputArea {...defaultProps} onInputChange={onChange} />);
+      render(
+        <InputArea
+          {...defaultProps}
+          onInputChange={onChange}
+        />
+      );
 
       const textarea = screen.getByRole("textbox");
       await user.type(textarea, "Hello");
@@ -49,13 +54,21 @@ describe("InputArea Component", () => {
     it("should show character count above 500", () => {
       const longText = "a".repeat(600);
       render(
-        <InputArea {...defaultProps} input={longText} />
+        <InputArea
+          {...defaultProps}
+          input={longText}
+        />
       );
       expect(screen.getByText("600")).toBeInTheDocument();
     });
 
     it("should not show character count under 500", () => {
-      render(<InputArea {...defaultProps} input="short text" />);
+      render(
+        <InputArea
+          {...defaultProps}
+          input="short text"
+        />
+      );
       expect(screen.queryByText("11")).not.toBeInTheDocument();
     });
   });
@@ -338,7 +351,12 @@ describe("InputArea Component", () => {
 
   describe("Accessibility", () => {
     it("should have proper ARIA labels", () => {
-      render(<InputArea {...defaultProps} input="test" />);
+      render(
+        <InputArea
+          {...defaultProps}
+          input="test"
+        />
+      );
 
       const textarea = screen.getByLabelText("Message input");
       expect(textarea).toBeInTheDocument();
@@ -346,7 +364,12 @@ describe("InputArea Component", () => {
 
     it("should announce character count to screen readers", () => {
       const longText = "a".repeat(600);
-      render(<InputArea {...defaultProps} input={longText} />);
+      render(
+        <InputArea
+          {...defaultProps}
+          input={longText}
+        />
+      );
 
       const charCount = screen.getByText("600");
       expect(charCount.id).toBe("char-count");
@@ -354,7 +377,10 @@ describe("InputArea Component", () => {
 
     it("should have aria-busy when loading", () => {
       render(
-        <InputArea {...defaultProps} isLoading={true} />
+        <InputArea
+          {...defaultProps}
+          isLoading={true}
+        />
       );
 
       const button = screen.getByRole("button", { name: /Stop/i });
@@ -421,7 +447,9 @@ describe("InputArea Component", () => {
         />
       );
 
-      const textarea = screen.getByPlaceholderText(/Agent is waiting for approval/i);
+      const textarea = screen.getByPlaceholderText(
+        /Agent is waiting for approval/i
+      );
       expect(textarea).toBeInTheDocument();
     });
   });

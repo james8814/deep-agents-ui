@@ -1,7 +1,22 @@
 "use client";
 
-import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import { FileText, FileCode, FileSpreadsheet, Image, ChevronRight, Clock, Copy, Check } from "lucide-react";
+import React, {
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
+import {
+  FileText,
+  FileCode,
+  FileSpreadsheet,
+  Image,
+  ChevronRight,
+  Clock,
+  Copy,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FileMetadata } from "@/app/types/types";
 import { copyToClipboard, extractFileContent } from "@/app/utils/utils";
@@ -24,7 +39,8 @@ const getFileIcon = (extension: string) => {
   const ext = extension.toLowerCase();
   if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext)) return Image;
   if (["csv", "xlsx", "xls"].includes(ext)) return FileSpreadsheet;
-  if (["js", "ts", "jsx", "tsx", "py", "json", "yaml", "yml"].includes(ext)) return FileCode;
+  if (["js", "ts", "jsx", "tsx", "py", "json", "yaml", "yml"].includes(ext))
+    return FileCode;
   return FileText;
 };
 
@@ -72,28 +88,37 @@ const CopyUrlButton = React.memo<{ shareUrl: string }>(({ shareUrl }) => {
     };
   }, []);
 
-  const handleCopy = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    copyToClipboard(shareUrl).then((ok) => {
-      if (ok) {
-        setCopied(true);
-        timeoutRef.current = setTimeout(() => setCopied(false), 2000);
-      }
-    });
-  }, [shareUrl]);
+  const handleCopy = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      copyToClipboard(shareUrl).then((ok) => {
+        if (ok) {
+          setCopied(true);
+          timeoutRef.current = setTimeout(() => setCopied(false), 2000);
+        }
+      });
+    },
+    [shareUrl]
+  );
 
   return (
     <button
       type="button"
       onClick={handleCopy}
-      className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className="ml-1 rounded-sm p-0.5 hover:bg-muted-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Copy share URL"
       title="Copy share URL"
     >
       {copied ? (
-        <Check size={12} className="text-success" />
+        <Check
+          size={12}
+          className="text-success"
+        />
       ) : (
-        <Copy size={12} className="text-muted-foreground" />
+        <Copy
+          size={12}
+          className="text-muted-foreground"
+        />
       )}
     </button>
   );
@@ -107,14 +132,29 @@ const FilePreview = React.memo<{
   onView: () => void;
 }>(({ file, onView }) => {
   const ext = getFileExtension(file.path);
-  const isTextFile = ["md", "txt", "json", "csv", "js", "ts", "py", "yaml", "yml", "html", "css"].includes(ext);
+  const isTextFile = [
+    "md",
+    "txt",
+    "json",
+    "csv",
+    "js",
+    "ts",
+    "py",
+    "yaml",
+    "yml",
+    "html",
+    "css",
+  ].includes(ext);
   const isImage = ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext);
 
   const previewContent = useMemo(() => {
     if (isImage) {
       return (
-        <div className="flex items-center justify-center h-32 bg-muted/30 rounded-lg">
-          <Image size={32} className="text-muted-foreground" />
+        <div className="flex h-32 items-center justify-center rounded-lg bg-muted/30">
+          <Image
+            size={32}
+            className="text-muted-foreground"
+          />
         </div>
       );
     }
@@ -123,7 +163,7 @@ const FilePreview = React.memo<{
       const contentStr = extractFileContent(file.content);
       const lines = contentStr.split("\n").slice(0, 12);
       return (
-        <pre className="text-xs text-muted-foreground overflow-hidden whitespace-pre-wrap break-all line-clamp-12">
+        <pre className="line-clamp-12 overflow-hidden whitespace-pre-wrap break-all text-xs text-muted-foreground">
           {lines.join("\n")}
           {contentStr.split("\n").length > 12 && "\n..."}
         </pre>
@@ -131,29 +171,37 @@ const FilePreview = React.memo<{
     }
 
     return (
-      <div className="flex items-center justify-center h-24 bg-muted/30 rounded-lg">
-        <FileText size={32} className="text-muted-foreground" />
+      <div className="flex h-24 items-center justify-center rounded-lg bg-muted/30">
+        <FileText
+          size={32}
+          className="text-muted-foreground"
+        />
       </div>
     );
   }, [file.content, isTextFile, isImage]);
 
   return (
-    <div className="mt-3 border border-border/50 rounded-lg overflow-hidden bg-background/50">
+    <div className="mt-3 overflow-hidden rounded-lg border border-border/50 bg-background/50">
       {/* Preview header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-muted/20">
-        <FileText size={14} className="text-muted-foreground" />
-        <span className="text-sm font-medium truncate flex-1">{getFileName(file.path)}</span>
-        <span className="text-xs text-muted-foreground">{formatFileSize(file.content)}</span>
+      <div className="flex items-center gap-2 border-b border-border/50 bg-muted/20 px-3 py-2">
+        <FileText
+          size={14}
+          className="text-muted-foreground"
+        />
+        <span className="flex-1 truncate text-sm font-medium">
+          {getFileName(file.path)}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {formatFileSize(file.content)}
+        </span>
         {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
       </div>
 
       {/* Preview content */}
-      <div className="p-3 max-h-48 overflow-hidden">
-        {previewContent}
-      </div>
+      <div className="max-h-48 overflow-hidden p-3">{previewContent}</div>
 
       {/* View full file button */}
-      <div className="px-3 py-2 border-t border-border/50 bg-muted/10">
+      <div className="border-t border-border/50 bg-muted/10 px-3 py-2">
         <button
           onClick={onView}
           className="flex items-center gap-1 text-xs text-primary hover:underline"
@@ -168,79 +216,88 @@ const FilePreview = React.memo<{
 
 FilePreview.displayName = "FilePreview";
 
-export const DeliveryCard = React.memo<DeliveryCardProps>(({
-  files,
-  onViewFile,
-  onViewAll,
-  className,
-}) => {
-  if (files.length === 0) return null;
+export const DeliveryCard = React.memo<DeliveryCardProps>(
+  ({ files, onViewFile, onViewAll, className }) => {
+    if (files.length === 0) return null;
 
-  const displayFiles = files.slice(0, 3);
-  const lastFile = displayFiles[displayFiles.length - 1];
-  const otherFiles = displayFiles.slice(0, -1);
+    const displayFiles = files.slice(0, 3);
+    const lastFile = displayFiles[displayFiles.length - 1];
+    const otherFiles = displayFiles.slice(0, -1);
 
-  return (
-    <div className={cn("mt-4 p-4 rounded-xl border border-border/50 bg-muted/20", className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-base">📦</span>
-          <span className="text-sm font-medium">交付文件</span>
-          <span className="text-xs text-muted-foreground">({files.length})</span>
+    return (
+      <div
+        className={cn(
+          "mt-4 rounded-xl border border-border/50 bg-muted/20 p-4",
+          className
+        )}
+      >
+        {/* Header */}
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base">📦</span>
+            <span className="text-sm font-medium">交付文件</span>
+            <span className="text-xs text-muted-foreground">
+              ({files.length})
+            </span>
+          </div>
+          {onViewAll && files.length > 0 && (
+            <button
+              onClick={onViewAll}
+              className="flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              查看全部
+              <ChevronRight size={12} />
+            </button>
+          )}
         </div>
-        {onViewAll && files.length > 0 && (
-          <button
-            onClick={onViewAll}
-            className="flex items-center gap-1 text-xs text-primary hover:underline"
-          >
-            查看全部
-            <ChevronRight size={12} />
-          </button>
+
+        {/* Other files (not the last one) */}
+        {otherFiles.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {otherFiles.map((file) => {
+              const Icon = getFileIcon(getFileExtension(file.path));
+              return (
+                <div
+                  key={file.path}
+                  onClick={() => onViewFile(file.path)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onViewFile(file.path);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-border/50 bg-background px-3 py-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Icon
+                    size={14}
+                    className="text-muted-foreground"
+                  />
+                  <span className="max-w-[150px] truncate text-sm">
+                    {getFileName(file.path)}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock size={10} />
+                    {formatRelativeTime(file.metadata?.addedAt)}
+                  </span>
+                  {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Last file with preview */}
+        {lastFile && (
+          <FilePreview
+            file={lastFile}
+            onView={() => onViewFile(lastFile.path)}
+          />
         )}
       </div>
-
-      {/* Other files (not the last one) */}
-      {otherFiles.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {otherFiles.map((file) => {
-            const Icon = getFileIcon(getFileExtension(file.path));
-            return (
-              <div
-                key={file.path}
-                onClick={() => onViewFile(file.path)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onViewFile(file.path);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-background hover:bg-muted transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              >
-                <Icon size={14} className="text-muted-foreground" />
-                <span className="text-sm truncate max-w-[150px]">{getFileName(file.path)}</span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock size={10} />
-                  {formatRelativeTime(file.metadata?.addedAt)}
-                </span>
-                {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Last file with preview */}
-      {lastFile && (
-        <FilePreview
-          file={lastFile}
-          onView={() => onViewFile(lastFile.path)}
-        />
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
 
 DeliveryCard.displayName = "DeliveryCard";

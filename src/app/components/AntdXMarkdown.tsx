@@ -24,7 +24,9 @@ const DOM_PROPS_TO_EXCLUDE = [
 ];
 
 // Helper to filter out non-DOM props
-function filterDomProps(props: Record<string, unknown>): Record<string, unknown> {
+function filterDomProps(
+  props: Record<string, unknown>
+): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
     if (!DOM_PROPS_TO_EXCLUDE.includes(key)) {
@@ -58,17 +60,19 @@ const CodeBlockWrapper = memo(function CodeBlockWrapper({
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
-    const codeText = typeof children === "string"
-      ? children.replace(/\n$/, "")
-      : String(children).replace(/\n$/, "");
+    const codeText =
+      typeof children === "string"
+        ? children.replace(/\n$/, "")
+        : String(children).replace(/\n$/, "");
     navigator.clipboard.writeText(codeText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [children]);
 
-  const codeContent = typeof children === "string"
-    ? children.replace(/\n$/, "")
-    : String(children).replace(/\n$/, "");
+  const codeContent =
+    typeof children === "string"
+      ? children.replace(/\n$/, "")
+      : String(children).replace(/\n$/, "");
 
   return (
     <div className="group/code relative">
@@ -79,7 +83,10 @@ const CodeBlockWrapper = memo(function CodeBlockWrapper({
       >
         {copied ? (
           <>
-            <Check size={12} className="text-green-400" />
+            <Check
+              size={12}
+              className="text-green-400"
+            />
             <span>已复制到剪贴板</span>
           </>
         ) : (

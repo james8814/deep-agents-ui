@@ -14,14 +14,27 @@ import type {
   ActionRequest,
   ReviewConfig,
   FileMetadata,
+  AttachmentSummary,
 } from "@/app/types/types";
+import { isSchemaVersionCompatible } from "@/app/types/types";
 import { Message } from "@langchain/langgraph-sdk";
 import {
   extractSubAgentContent,
   extractStringFromMessageContent,
   copyToClipboard,
 } from "@/app/utils/utils";
-import { Copy, Check, RefreshCw, Pencil, X, Image, FileText } from "lucide-react";
+import {
+  Copy,
+  Check,
+  RefreshCw,
+  Pencil,
+  X,
+  Image,
+  FileText,
+  AlertCircle,
+  Clock,
+  Download,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +58,11 @@ interface ChatMessageProps {
   onViewAllFiles?: () => void;
   showDeliveryCards?: boolean;
   threadId?: string;
+  // Phase 2.5 support
+  schemaVersion?: string;
+  attachmentSummaries?: AttachmentSummary[];
+  cancellationReason?: string;
+  timeoutSeconds?: number;
 }
 
 // Stable no-op function to avoid creating new references on each render
@@ -84,6 +102,10 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     onViewAllFiles,
     showDeliveryCards,
     threadId,
+    schemaVersion,
+    attachmentSummaries,
+    cancellationReason,
+    timeoutSeconds,
   }) => {
     const useAntdxMarkdown = useFeatureFlag("USE_ANTDX_MARKDOWN");
     const useAntdxSubAgent = useFeatureFlag("USE_ANTDX_SUB_AGENT");
@@ -129,7 +151,9 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         content,
         metadata: fileMetadata?.get(path),
         shareUrl: threadId
-          ? `${typeof window !== "undefined" ? window.location.origin : ""}/threads/${threadId}/files/${encodeURIComponent(path)}`
+          ? `${
+              typeof window !== "undefined" ? window.location.origin : ""
+            }/threads/${threadId}/files/${encodeURIComponent(path)}`
           : undefined,
       }));
 
@@ -144,7 +168,9 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     }, [files, fileMetadata, threadId]);
 
     const [_setExpandedSubAgents] = useState<Record<string, boolean>>({});
-    const [expandedSubAgentId, setExpandedSubAgentId] = useState<string | null>(null);
+    const [expandedSubAgentId, setExpandedSubAgentId] = useState<string | null>(
+      null
+    );
     const isSubAgentExpanded = useCallback(
       (id: string) => expandedSubAgentId === id,
       [expandedSubAgentId]
@@ -174,7 +200,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         <div
           className={cn(
             "min-w-0 max-w-full",
-            isUser ? "max-w-[70%]" : "w-full group"
+            isUser ? "max-w-[70%]" : "group w-full"
           )}
         >
           {/* Edit button for user messages - shows on hover */}
@@ -184,7 +210,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 setIsEditing(true);
                 setEditContent(messageContent);
               }}
-              className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+              className="absolute -left-8 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100"
               title="Edit message"
             >
               <Pencil size={12} />
@@ -223,7 +249,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
               </div>
             </div>
           ) : hasContent ? (
-            <div className={cn("relative flex items-end gap-0 group")}>
+            <div className={cn("group relative flex items-end gap-0")}>
               <div
                 className={cn(
                   "mt-4 overflow-hidden break-words text-sm font-normal leading-[150%]",
@@ -252,7 +278,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                           </div>
                         ))}
                       {/* Image/file attachment indicators */}
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
                         {message.content
                           .filter(
                             (b) => b.type === "image_url" || b.type === "file"
@@ -262,7 +288,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                               return (
                                 <div
                                   key={i}
-                                  className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-muted/50 text-sm"
+                                  className="flex items-center gap-2 rounded border border-border bg-muted/50 px-2 py-1 text-sm"
                                 >
                                   <Image
                                     size={14}
@@ -273,20 +299,33 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                               );
                             }
                             // File attachment with filename
-                            const filename = (block as { filename?: string }).filename || "File";
-                            const _mediaType = (block as { source?: { media_type?: string } }).source?.media_type || "";
-                            const fileExt = filename.split('.').pop()?.toUpperCase() || "FILE";
+                            const filename =
+                              (block as { filename?: string }).filename ||
+                              "File";
+                            const _mediaType =
+                              (block as { source?: { media_type?: string } })
+                                .source?.media_type || "";
+                            const fileExt =
+                              filename.split(".").pop()?.toUpperCase() ||
+                              "FILE";
                             return (
                               <div
                                 key={i}
-                                className="flex items-center gap-2 px-2 py-1 rounded border border-border bg-muted/50 text-sm"
+                                className="flex items-center gap-2 rounded border border-border bg-muted/50 px-2 py-1 text-sm"
                               >
                                 <FileText
                                   size={14}
                                   className="text-muted-foreground"
                                 />
-                                <span className="truncate max-w-[150px]" title={filename}>{filename}</span>
-                                <span className="text-xs text-muted-foreground">({fileExt})</span>
+                                <span
+                                  className="max-w-[150px] truncate"
+                                  title={filename}
+                                >
+                                  {filename}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  ({fileExt})
+                                </span>
                               </div>
                             );
                           })}
@@ -299,9 +338,15 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                   )
                 ) : hasContent ? (
                   useAntdxMarkdown ? (
-                    <AntdXMarkdown content={messageContent} isStreaming={isStreaming} />
+                    <AntdXMarkdown
+                      content={messageContent}
+                      isStreaming={isStreaming}
+                    />
                   ) : (
-                    <MarkdownContent content={messageContent} isStreaming={isStreaming} />
+                    <MarkdownContent
+                      content={messageContent}
+                      isStreaming={isStreaming}
+                    />
                   )
                 ) : null}
               </div>
@@ -311,14 +356,17 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 <button
                   onClick={handleCopy}
                   className={cn(
-                    "absolute -top-0 flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground shadow-sm opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100",
+                    "absolute -top-0 flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground opacity-0 shadow-sm transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100",
                     isUser ? "-left-16" : "right-0"
                   )}
                   title="Copy message"
                 >
                   {copied ? (
                     <>
-                      <Check size={12} className="text-success" />
+                      <Check
+                        size={12}
+                        className="text-success"
+                      />
                       <span>已复制到剪贴板</span>
                     </>
                   ) : (
@@ -333,15 +381,121 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           ) : null}
 
           {/* Regenerate button for last AI message */}
-          {!isUser && isLastAiMessage && !isLoading && !isStreaming && hasContent && onRegenerate && (
-            <div className="mt-2 flex gap-1">
-              <button
-                onClick={onRegenerate}
-                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                <RefreshCw size={12} />
-                重新生成回复
-              </button>
+          {!isUser &&
+            isLastAiMessage &&
+            !isLoading &&
+            !isStreaming &&
+            hasContent &&
+            onRegenerate && (
+              <div className="mt-2 flex gap-1">
+                <button
+                  onClick={onRegenerate}
+                  className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <RefreshCw size={12} />
+                  重新生成回复
+                </button>
+              </div>
+            )}
+
+          {/* Schema version warning */}
+          {schemaVersion && !isSchemaVersionCompatible(schemaVersion) && (
+            <div className="mt-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              <AlertCircle
+                size={16}
+                className="mt-0.5 flex-shrink-0"
+              />
+              <div>
+                <p className="font-semibold">Schema Version Incompatible</p>
+                <p className="text-xs">
+                  Message uses schema v{schemaVersion}. Some features may not
+                  display correctly.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Cancellation/Timeout info */}
+          {(cancellationReason || timeoutSeconds !== undefined) && (
+            <div className="mt-4 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <AlertCircle
+                size={16}
+                className="mt-0.5 flex-shrink-0"
+              />
+              <div className="flex-1">
+                {cancellationReason && (
+                  <p className="font-semibold">
+                    Tool Execution Cancelled: {cancellationReason}
+                  </p>
+                )}
+                {timeoutSeconds !== undefined && (
+                  <p className="flex items-center gap-1 text-xs">
+                    <Clock size={12} />
+                    Timeout after {timeoutSeconds}s
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Attachment summaries */}
+          {attachmentSummaries && attachmentSummaries.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                File Attachments
+              </p>
+              {attachmentSummaries.map((attachment, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between rounded-md border border-border bg-muted/50 p-3 text-sm"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="truncate font-medium"
+                      title={attachment.path}
+                    >
+                      {attachment.path.split("/").pop()}
+                    </p>
+                    <div className="flex gap-2 text-xs text-muted-foreground">
+                      <span>
+                        {(attachment.size_bytes / 1024).toFixed(2)} KB
+                      </span>
+                      <span>{attachment.mime_type}</span>
+                      {attachment.hash_sha256 && (
+                        <span
+                          title={attachment.hash_sha256}
+                          className="truncate"
+                        >
+                          SHA256: {attachment.hash_sha256.substring(0, 8)}...
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="ml-2 flex flex-shrink-0 gap-1">
+                    {attachment.preview_url && (
+                      <a
+                        href={attachment.preview_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded p-1 hover:bg-accent"
+                        title="Preview"
+                      >
+                        <Image size={14} />
+                      </a>
+                    )}
+                    {attachment.download_url && (
+                      <a
+                        href={attachment.download_url}
+                        download
+                        className="rounded p-1 hover:bg-accent"
+                        title="Download"
+                      >
+                        <Download size={14} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -405,9 +559,17 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                             </h4>
                             <div className="mb-4">
                               {useAntdxMarkdown ? (
-                                <AntdXMarkdown content={extractSubAgentContent(subAgent.input)} />
+                                <AntdXMarkdown
+                                  content={extractSubAgentContent(
+                                    subAgent.input
+                                  )}
+                                />
                               ) : (
-                                <MarkdownContent content={extractSubAgentContent(subAgent.input)} />
+                                <MarkdownContent
+                                  content={extractSubAgentContent(
+                                    subAgent.input
+                                  )}
+                                />
                               )}
                             </div>
                             {subAgent.output && (
@@ -416,9 +578,17 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                                   Output
                                 </h4>
                                 {useAntdxMarkdown ? (
-                                  <AntdXMarkdown content={extractSubAgentContent(subAgent.output)} />
+                                  <AntdXMarkdown
+                                    content={extractSubAgentContent(
+                                      subAgent.output
+                                    )}
+                                  />
                                 ) : (
-                                  <MarkdownContent content={extractSubAgentContent(subAgent.output)} />
+                                  <MarkdownContent
+                                    content={extractSubAgentContent(
+                                      subAgent.output
+                                    )}
+                                  />
                                 )}
                               </>
                             )}
@@ -432,13 +602,15 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             </div>
           )}
           {/* Delivery cards - show for AI messages with delivered files */}
-          {message.type === "ai" && showDeliveryCards && deliveryFiles.length > 0 && (
-            <DeliveryCard
-              files={deliveryFiles}
-              onViewFile={onViewFile || NOOP}
-              onViewAll={onViewAllFiles}
-            />
-          )}
+          {message.type === "ai" &&
+            showDeliveryCards &&
+            deliveryFiles.length > 0 && (
+              <DeliveryCard
+                files={deliveryFiles}
+                onViewFile={onViewFile || NOOP}
+                onViewAll={onViewAllFiles}
+              />
+            )}
         </div>
       </div>
     );

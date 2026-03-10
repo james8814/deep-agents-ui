@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, CheckCircle, AlertCircle, Clock, Loader } from "lucide-react";
+import {
+  ChevronDown,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Loader,
+} from "lucide-react";
 import type { SubAgentDisplayData } from "@/app/types/subagent";
 
 interface SubAgentCardProps {
@@ -30,13 +36,16 @@ const STATUS_LABELS = {
   error: "Error",
 };
 
-const SubAgentCard: React.FC<SubAgentCardProps> = ({ subagent, expandedHeight = 120 }) => {
+const SubAgentCard: React.FC<SubAgentCardProps> = ({
+  subagent,
+  expandedHeight = 120,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const statusColor = STATUS_COLORS[subagent.status];
   const statusLabel = STATUS_LABELS[subagent.status];
 
   const elapsedTime = subagent.startedAt
-    ? Math.round(((new Date().getTime() - subagent.startedAt.getTime()) / 1000))
+    ? Math.round((new Date().getTime() - subagent.startedAt.getTime()) / 1000)
     : 0;
 
   return (
@@ -47,18 +56,22 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({ subagent, expandedHeight = 
         className="w-full p-2.5 text-left transition-colors hover:bg-muted/50"
       >
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <div className={`flex items-center ${statusColor}`}>
               {STATUS_ICONS[subagent.status]}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm truncate">{subagent.name}</div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium">
+                {subagent.name}
+              </div>
               <div className={`text-xs ${statusColor}`}>{statusLabel}</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
             {elapsedTime > 0 && (
-              <span className="text-xs text-muted-foreground">{elapsedTime}s</span>
+              <span className="text-xs text-muted-foreground">
+                {elapsedTime}s
+              </span>
             )}
             {subagent.toolCalls?.length > 0 && (
               <span className="text-xs font-medium text-muted-foreground">
@@ -77,19 +90,26 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({ subagent, expandedHeight = 
       {/* Expanded Content */}
       {expanded && (
         <div
-          className="border-t border-border p-2.5 space-y-2 bg-muted/20 overflow-y-auto"
+          className="space-y-2 overflow-y-auto border-t border-border bg-muted/20 p-2.5"
           style={{ maxHeight: `${expandedHeight}px` }}
         >
           {/* Tool Calls Section */}
           {subagent.toolCalls?.length > 0 && (
             <div>
-              <div className="text-xs font-semibold text-muted-foreground mb-1">Tools</div>
+              <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                Tools
+              </div>
               <div className="space-y-1">
                 {subagent.toolCalls.map((call, idx) => (
-                  <div key={idx} className="rounded bg-background p-1.5 text-xs">
-                    <div className="font-medium text-primary mb-0.5">{call.name}</div>
+                  <div
+                    key={idx}
+                    className="rounded bg-background p-1.5 text-xs"
+                  >
+                    <div className="mb-0.5 font-medium text-primary">
+                      {call.name}
+                    </div>
                     {call.args && Object.keys(call.args).length > 0 && (
-                      <div className="text-muted-foreground truncate">
+                      <div className="truncate text-muted-foreground">
                         {JSON.stringify(call.args).substring(0, 100)}...
                       </div>
                     )}
@@ -102,8 +122,10 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({ subagent, expandedHeight = 
           {/* Error Section */}
           {subagent.error && (
             <div className="rounded bg-red-500/10 p-1.5">
-              <div className="text-xs font-medium text-red-600 mb-0.5">Error</div>
-              <div className="text-xs text-red-600 break-words">
+              <div className="mb-0.5 text-xs font-medium text-red-600">
+                Error
+              </div>
+              <div className="break-words text-xs text-red-600">
                 {subagent.error}
               </div>
             </div>
@@ -112,8 +134,10 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({ subagent, expandedHeight = 
           {/* Result Section */}
           {subagent.result && (
             <div className="rounded bg-green-500/10 p-1.5">
-              <div className="text-xs font-medium text-green-600 mb-0.5">Result</div>
-              <div className="text-xs text-green-600 break-words line-clamp-3">
+              <div className="mb-0.5 text-xs font-medium text-green-600">
+                Result
+              </div>
+              <div className="line-clamp-3 break-words text-xs text-green-600">
                 {subagent.result}
               </div>
             </div>

@@ -3,15 +3,15 @@
  * Tests: Chrome, Firefox, Safari functionality
  */
 
-import { test, expect, chromium, firefox, webkit } from '@playwright/test';
+import { test, expect, chromium, firefox, webkit } from "@playwright/test";
 
 const BROWSERS = [
-  { name: 'Chromium', browser: chromium },
-  { name: 'Firefox', browser: firefox },
-  { name: 'WebKit (Safari)', browser: webkit },
+  { name: "Chromium", browser: chromium },
+  { name: "Firefox", browser: firefox },
+  { name: "WebKit (Safari)", browser: webkit },
 ];
 
-test.describe('Browser Compatibility', () => {
+test.describe("Browser Compatibility", () => {
   for (const { name, browser } of BROWSERS) {
     test.describe(`${name} Compatibility`, () => {
       test(`should load page on ${name}`, async () => {
@@ -19,10 +19,12 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded' });
+        await page.goto("http://localhost:3000", {
+          waitUntil: "domcontentloaded",
+        });
 
         // Check page loaded successfully
-        expect(page.url()).toContain('localhost:3000');
+        expect(page.url()).toContain("localhost:3000");
 
         await context.close();
         await browserInstance.close();
@@ -33,10 +35,10 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Check main content is visible
-        const body = await page.locator('body').boundingBox();
+        const body = await page.locator("body").boundingBox();
         expect(body?.width).toBeGreaterThan(0);
         expect(body?.height).toBeGreaterThan(0);
 
@@ -49,7 +51,7 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Check if flex layouts work
         const flexContainer = await page.evaluate(() => {
@@ -58,7 +60,7 @@ test.describe('Browser Compatibility', () => {
 
           const first = elements[0] as HTMLElement;
           const display = window.getComputedStyle(first).display;
-          return display === 'flex';
+          return display === "flex";
         });
 
         expect(flexContainer).toBeTruthy();
@@ -72,7 +74,7 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Check if grid layouts work
         const gridContainer = await page.evaluate(() => {
@@ -81,7 +83,7 @@ test.describe('Browser Compatibility', () => {
 
           const first = elements[0] as HTMLElement;
           const display = window.getComputedStyle(first).display;
-          return display === 'grid';
+          return display === "grid";
         });
 
         expect(gridContainer).toBeTruthy();
@@ -95,18 +97,18 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Check if CSS variables are working
         const cssVarsSupported = await page.evaluate(() => {
           const root = document.documentElement;
           const style = window.getComputedStyle(root);
           // Try to get a CSS variable
-          return style.getPropertyValue('--color-primary') !== '';
+          return style.getPropertyValue("--color-primary") !== "";
         });
 
         // CSS variables are optional
-        expect(typeof cssVarsSupported).toBe('boolean');
+        expect(typeof cssVarsSupported).toBe("boolean");
 
         await context.close();
         await browserInstance.close();
@@ -117,7 +119,7 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Test modern JS features
         const modernJsSupported = await page.evaluate(() => {
@@ -147,11 +149,11 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Check fetch support
         const fetchSupported = await page.evaluate(() => {
-          return typeof fetch === 'function';
+          return typeof fetch === "function";
         });
 
         expect(fetchSupported).toBe(true);
@@ -165,11 +167,11 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Check WebSocket support
         const wsSupported = await page.evaluate(() => {
-          return typeof WebSocket === 'function';
+          return typeof WebSocket === "function";
         });
 
         expect(wsSupported).toBe(true);
@@ -183,13 +185,13 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Test CSS transforms
         const transformSupported = await page.evaluate(() => {
-          const el = document.createElement('div');
-          el.style.transform = 'translate(0, 0)';
-          return el.style.transform !== '';
+          const el = document.createElement("div");
+          el.style.transform = "translate(0, 0)";
+          return el.style.transform !== "";
         });
 
         expect(transformSupported).toBe(true);
@@ -203,15 +205,15 @@ test.describe('Browser Compatibility', () => {
         const context = await browserInstance.newContext();
         const page = await context.newPage();
 
-        await page.goto('http://localhost:3000');
+        await page.goto("http://localhost:3000");
 
         // Test localStorage
         const localStorageSupported = await page.evaluate(() => {
           try {
-            localStorage.setItem('test', 'value');
-            const value = localStorage.getItem('test');
-            localStorage.removeItem('test');
-            return value === 'value';
+            localStorage.setItem("test", "value");
+            const value = localStorage.getItem("test");
+            localStorage.removeItem("test");
+            return value === "value";
           } catch {
             return false;
           }
@@ -225,7 +227,7 @@ test.describe('Browser Compatibility', () => {
     });
   }
 
-  test('should have consistent behavior across browsers', async () => {
+  test("should have consistent behavior across browsers", async () => {
     const results: Record<string, any> = {};
 
     for (const { name, browser } of BROWSERS) {
@@ -233,7 +235,7 @@ test.describe('Browser Compatibility', () => {
       const context = await browserInstance.newContext();
       const page = await context.newPage();
 
-      await page.goto('http://localhost:3000');
+      await page.goto("http://localhost:3000");
 
       const metrics = await page.evaluate(() => ({
         url: window.location.href,
@@ -249,8 +251,8 @@ test.describe('Browser Compatibility', () => {
 
     // All browsers should load the same page
     expect(Object.values(results)[0]).toBeTruthy();
-    expect(results['Chromium']).toBeTruthy();
-    expect(results['Firefox']).toBeTruthy();
-    expect(results['WebKit (Safari)']).toBeTruthy();
+    expect(results["Chromium"]).toBeTruthy();
+    expect(results["Firefox"]).toBeTruthy();
+    expect(results["WebKit (Safari)"]).toBeTruthy();
   });
 });

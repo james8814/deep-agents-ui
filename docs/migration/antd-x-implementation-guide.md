@@ -12,7 +12,7 @@
 ## 目录
 
 1. [前置准备](#1-前置准备)
-2. [Phase 0: 环境搭建与POC](#2-phase-0-环境搭建与poc)
+2. [Phase 0: 环境搭建与 POC](#2-phase-0-环境搭建与poc)
 3. [Phase 1: 消息列表迁移](#3-phase-1-消息列表迁移)
 4. [Phase 2: 输入组件迁移](#4-phase-2-输入组件迁移)
 5. [Phase 3: 扩展组件迁移](#5-phase-3-扩展组件迁移)
@@ -65,7 +65,7 @@ cp -r src/app/components "$BACKUP_DIR/components"
 
 ---
 
-## 2. Phase 0: 环境搭建与POC
+## 2. Phase 0: 环境搭建与 POC
 
 ### 2.1 安装依赖
 
@@ -98,20 +98,16 @@ const nextConfig = {
 
   // 新增：Ant Design 配置
   transpilePackages: [
-    'antd',
-    '@ant-design/x',
-    '@ant-design/x-markdown',
-    '@ant-design/icons',
-    '@ant-design/icons-svg',
-    'rc-util',
+    "antd",
+    "@ant-design/x",
+    "@ant-design/x-markdown",
+    "@ant-design/icons",
+    "@ant-design/icons-svg",
+    "rc-util",
   ],
 
   experimental: {
-    optimizePackageImports: [
-      'antd',
-      '@ant-design/x',
-      '@ant-design/x-markdown',
-    ],
+    optimizePackageImports: ["antd", "@ant-design/x", "@ant-design/x-markdown"],
   },
 };
 
@@ -201,7 +197,8 @@ const DUMMY_ITEMS = [
   {
     key: "2",
     role: "ai" as const,
-    content: "Hi! I received your message. This is a POC for Ant Design X integration.",
+    content:
+      "Hi! I received your message. This is a POC for Ant Design X integration.",
   },
 ];
 
@@ -459,7 +456,11 @@ export const AntdXMarkdown = React.memo<AntdXMarkdownProps>(
     if (!content) return null;
 
     return (
-      <XMarkdown children={content} streaming={streaming} components={components} />
+      <XMarkdown
+        children={content}
+        streaming={streaming}
+        components={components}
+      />
     );
   }
 );
@@ -485,7 +486,7 @@ export const BubbleMarkdown = React.memo<BubbleMarkdownProps>(({ content }) => {
   if (!content) return null;
 
   return (
-    <div className="prose prose-sm max-w-none dark:prose-invert">
+    <div className="prose prose-sm dark:prose-invert max-w-none">
       <AntdXMarkdown content={content} />
     </div>
   );
@@ -530,7 +531,10 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
       collapsible: tc.status === "completed",
       content: (
         <div className="space-y-2">
-          <ToolArgsRenderer name={tc.name} args={tc.args} />
+          <ToolArgsRenderer
+            name={tc.name}
+            args={tc.args}
+          />
           {tc.result && (
             <div className="rounded bg-muted p-2 text-xs">
               <pre className="whitespace-pre-wrap">{tc.result}</pre>
@@ -550,7 +554,10 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
 
     return (
       <div className="mt-3 border-t border-border pt-3">
-        <ThoughtChain items={items} line="dashed" />
+        <ThoughtChain
+          items={items}
+          line="dashed"
+        />
       </div>
     );
   }
@@ -566,25 +573,27 @@ function mapToolCallStatus(
   status: ToolCall["status"]
 ): ThoughtChainProps["items"][number]["status"] {
   const map: Record<string, ThoughtChainProps["items"][number]["status"]> = {
-    pending: "loading",      // 待处理 -> loading
-    completed: "success",    // 完成 -> success
-    interrupted: "loading",  // 中断中 -> loading (等待用户操作)
-    error: "error",          // 错误 -> error
+    pending: "loading", // 待处理 -> loading
+    completed: "success", // 完成 -> success
+    interrupted: "loading", // 中断中 -> loading (等待用户操作)
+    error: "error", // 错误 -> error
   };
   return map[status] || "loading";
 }
 ```
-  status: ToolCall["status"]
+
+status: ToolCall["status"]
 ): ThoughtChainProps["items"][number]["status"] {
-  const map: Record<string, ThoughtChainProps["items"][number]["status"]> = {
-    pending: "pending",
-    completed: "success",
-    interrupted: "pending",
-    error: "error",
-  };
-  return map[status] || "pending";
+const map: Record<string, ThoughtChainProps["items"][number]["status"]> = {
+pending: "pending",
+completed: "success",
+interrupted: "pending",
+error: "error",
+};
+return map[status] || "pending";
 }
-```
+
+````
 
 ### 3.5 创建 InterruptActions 组件
 
@@ -631,7 +640,7 @@ export const InterruptActions = React.memo<InterruptActionsProps>(
 );
 
 InterruptActions.displayName = "InterruptActions";
-```
+````
 
 ### 3.6 ToolArgsRenderer（使用现有组件）
 
@@ -640,6 +649,7 @@ InterruptActions.displayName = "InterruptActions";
 > 该组件已提供工具参数的人性化渲染，支持 `web_search`、`shell`、`write_file`、`read_file` 等多种工具。
 >
 > 在 `ToolCallFooter` 中直接导入使用：
+>
 > ```typescript
 > import { ToolArgsRenderer } from "./tool-renderers";
 > ```
@@ -755,27 +765,29 @@ const useAntdxMessageList = useFeatureFlag("USE_ANTDX_MESSAGE_LIST");
 
 ```typescript
 // 原有的 processedMessages.map(...) 部分替换为：
-{useAntdxMessageList ? (
-  <AntdXMessageList
-    messages={messages}
-    isLoading={isLoading}
-    interrupt={interrupt}
-    stream={stream}
-    onEditAndResend={handleEditAndResend}
-    onResumeInterrupt={resumeInterrupt}
-    files={files}
-    fileMetadata={fileMetadata}
-    onViewFile={handleViewFile}
-    showDeliveryCards={showDelivery && isLastAiMessage}
-  />
-) : (
-  <>
-    {/* 保留原有 ChatMessage 渲染逻辑 */}
-    {processedMessages.map((data, index) => {
-      // ... 原有代码
-    })}
-  </>
-)}
+{
+  useAntdxMessageList ? (
+    <AntdXMessageList
+      messages={messages}
+      isLoading={isLoading}
+      interrupt={interrupt}
+      stream={stream}
+      onEditAndResend={handleEditAndResend}
+      onResumeInterrupt={resumeInterrupt}
+      files={files}
+      fileMetadata={fileMetadata}
+      onViewFile={handleViewFile}
+      showDeliveryCards={showDelivery && isLastAiMessage}
+    />
+  ) : (
+    <>
+      {/* 保留原有 ChatMessage 渲染逻辑 */}
+      {processedMessages.map((data, index) => {
+        // ... 原有代码
+      })}
+    </>
+  );
+}
 ```
 
 ### 3.9 验证 Phase 1
@@ -991,7 +1003,9 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
           className="hidden"
           onChange={async (e) => {
             const newFiles = Array.from(e.target.files || []);
-            const processedFiles = await Promise.all(newFiles.map(handleUpload));
+            const processedFiles = await Promise.all(
+              newFiles.map(handleUpload)
+            );
             setFiles((prev) => [...prev, ...processedFiles]);
             e.target.value = "";
           }}
@@ -1047,8 +1061,13 @@ const useAntdxSender = useFeatureFlag("USE_ANTDX_SENDER");
 找到输入区域（约 506-610 行），替换为：
 
 ```typescript
-{/* Input Panel */}
-<div ref={inputPanelRef} className="flex-shrink-0 bg-background p-4 pt-2">
+{
+  /* Input Panel */
+}
+<div
+  ref={inputPanelRef}
+  className="flex-shrink-0 bg-background p-4 pt-2"
+>
   <div className="mx-auto w-full max-w-[1024px]">
     {useAntdxSender ? (
       <AntdXSender
@@ -1071,7 +1090,7 @@ const useAntdxSender = useFeatureFlag("USE_ANTDX_SENDER");
       </div>
     )}
   </div>
-</div>
+</div>;
 ```
 
 ### 4.3 验证 Phase 2
@@ -1201,7 +1220,10 @@ export const SubAgentThoughtChain = React.memo<SubAgentThoughtChainProps>(
     const items: ThoughtChainProps["items"] = subAgents.map((sa) => ({
       key: sa.id,
       title: sa.subAgentName || sa.name,
-      status: isLoading && sa.status === "active" ? "pending" : mapSubAgentStatus(sa.status),
+      status:
+        isLoading && sa.status === "active"
+          ? "pending"
+          : mapSubAgentStatus(sa.status),
       description: sa.status === "active" ? "Processing..." : undefined,
       content: sa.output ? (
         <div className="text-sm">
@@ -1220,7 +1242,10 @@ export const SubAgentThoughtChain = React.memo<SubAgentThoughtChainProps>(
 
     return (
       <div className="mt-3 border-t border-border pt-3">
-        <ThoughtChain items={items} line="dashed" />
+        <ThoughtChain
+          items={items}
+          line="dashed"
+        />
       </div>
     );
   }
@@ -1232,10 +1257,7 @@ function mapSubAgentStatus(
   status: SubAgent["status"]
 ): ThoughtChainProps["items"][number]["status"] {
   // ThoughtChain status 仅支持: 'loading' | 'success' | 'error' | 'abort'
-  const map: Record<
-    string,
-    ThoughtChainProps["items"][number]["status"]
-  > = {
+  const map: Record<string, ThoughtChainProps["items"][number]["status"]> = {
     pending: "loading",
     active: "loading",
     completed: "success",
@@ -1262,7 +1284,7 @@ const useAntdxThreadList = useFeatureFlag("USE_ANTDX_THREAD_LIST");
 if (useAntdxThreadList) {
   return (
     <AntdXThreadList
-      threads={groupedThreads.flatMap(g => g.threads)}
+      threads={groupedThreads.flatMap((g) => g.threads)}
       activeThreadId={threadId}
       onThreadSelect={setThreadId}
       onNewThread={handleNewThread}
@@ -1302,6 +1324,7 @@ if (useAntdxThreadList) {
 **创建文件：** `src/providers/AntdXProvider.tsx`
 
 > **关键修复**：
+>
 > 1. Ant Design 主题引擎无法直接解析 CSS 变量
 > 2. 需要将 HSL 颜色值转换为 HEX 格式（Ant Design 需要 HEX/RGB 进行颜色梯度计算）
 > 3. 必须使用 `getComputedStyle` 在客户端动态解析
@@ -1349,14 +1372,35 @@ function hslToHex(hslStr: string): string {
   const c = (1 - Math.abs(2 * l - 1)) * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = l - c / 2;
-  let r = 0, g = 0, b = 0;
+  let r = 0,
+    g = 0,
+    b = 0;
 
-  if (0 <= h && h < 60) { r = c; g = x; b = 0; }
-  else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
-  else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
-  else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
-  else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
-  else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+  if (0 <= h && h < 60) {
+    r = c;
+    g = x;
+    b = 0;
+  } else if (60 <= h && h < 120) {
+    r = x;
+    g = c;
+    b = 0;
+  } else if (120 <= h && h < 180) {
+    r = 0;
+    g = c;
+    b = x;
+  } else if (180 <= h && h < 240) {
+    r = 0;
+    g = x;
+    b = c;
+  } else if (240 <= h && h < 300) {
+    r = x;
+    g = 0;
+    b = c;
+  } else if (300 <= h && h < 360) {
+    r = c;
+    g = 0;
+    b = x;
+  }
 
   // RGB to HEX
   const toHex = (n: number) => {
@@ -1399,7 +1443,9 @@ function useResolvedThemeTokens() {
       colorPrimary: resolveCssVariableToHex("hsl(var(--primary))"),
       colorBgContainer: resolveCssVariableToHex("hsl(var(--background))"),
       colorText: resolveCssVariableToHex("hsl(var(--foreground))"),
-      colorTextSecondary: resolveCssVariableToHex("hsl(var(--muted-foreground))"),
+      colorTextSecondary: resolveCssVariableToHex(
+        "hsl(var(--muted-foreground))"
+      ),
       colorBorder: resolveCssVariableToHex("hsl(var(--border))"),
     };
     setTokens(resolved);
@@ -1410,7 +1456,9 @@ function useResolvedThemeTokens() {
         colorPrimary: resolveCssVariableToHex("hsl(var(--primary))"),
         colorBgContainer: resolveCssVariableToHex("hsl(var(--background))"),
         colorText: resolveCssVariableToHex("hsl(var(--foreground))"),
-        colorTextSecondary: resolveCssVariableToHex("hsl(var(--muted-foreground))"),
+        colorTextSecondary: resolveCssVariableToHex(
+          "hsl(var(--muted-foreground))"
+        ),
         colorBorder: resolveCssVariableToHex("hsl(var(--border))"),
       };
       setTokens(newResolved);
@@ -1434,8 +1482,7 @@ function useAppTheme() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const checkDark = () =>
-      document.documentElement.classList.contains("dark");
+    const checkDark = () => document.documentElement.classList.contains("dark");
     setIsDark(checkDark());
 
     const observer = new MutationObserver(() => setIsDark(checkDark()));
@@ -1455,14 +1502,17 @@ export function AntdXProvider({ children }: AntdXProviderProps) {
   const tokens = useResolvedThemeTokens();
 
   // 仅在 tokens 解析完成后渲染（避免闪烁）
-  const themeConfig = useMemo(() => ({
-    algorithm:
-      appTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
-    token: {
-      ...tokens,
-      borderRadius: 8,
-    },
-  }), [appTheme, tokens]);
+  const themeConfig = useMemo(
+    () => ({
+      algorithm:
+        appTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      token: {
+        ...tokens,
+        borderRadius: 8,
+      },
+    }),
+    [appTheme, tokens]
+  );
 
   // 等待 tokens 解析完成
   if (Object.keys(tokens).length === 0) {
@@ -1485,15 +1535,20 @@ export function AntdXProvider({ children }: AntdXProviderProps) {
 import { AntdXProvider } from "@/providers/AntdXProvider";
 
 // 在现有的 providers 层级中添加
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+    >
       <body>
         <NuqsAdapter>
           <ClientProvider>
-            <AntdXProvider>
-              {children}
-            </AntdXProvider>
+            <AntdXProvider>{children}</AntdXProvider>
           </ClientProvider>
         </NuqsAdapter>
       </body>
@@ -1582,16 +1637,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 **完整功能测试清单：**
 
-| 功能 | 测试步骤 | 预期结果 |
-|------|---------|---------|
-| 文本发送 | 输入文本 → 点击发送 | 消息显示在列表 |
-| 图片发送 | 上传图片 → 发送 | 图片正确渲染 |
-| 流式响应 | 发送消息 → 等待 AI 回复 | 内容逐步显示 |
-| Tool Calls | 触发工具调用 | 状态显示正确 |
-| 中断处理 | 触发中断 → 点击 Approve | 流程继续 |
-| 文件上传 | 点击附件 → 选择文件 | 文件显示在输入区 |
-| 线程切换 | 点击不同线程 | 消息正确加载 |
-| 编辑重发 | 编辑用户消息 → 发送 | 重新发送成功 |
+| 功能       | 测试步骤                | 预期结果         |
+| ---------- | ----------------------- | ---------------- |
+| 文本发送   | 输入文本 → 点击发送     | 消息显示在列表   |
+| 图片发送   | 上传图片 → 发送         | 图片正确渲染     |
+| 流式响应   | 发送消息 → 等待 AI 回复 | 内容逐步显示     |
+| Tool Calls | 触发工具调用            | 状态显示正确     |
+| 中断处理   | 触发中断 → 点击 Approve | 流程继续         |
+| 文件上传   | 点击附件 → 选择文件     | 文件显示在输入区 |
+| 线程切换   | 点击不同线程            | 消息正确加载     |
+| 编辑重发   | 编辑用户消息 → 发送     | 重新发送成功     |
 
 ### 7.2 性能测试
 
@@ -1695,11 +1750,11 @@ rm -rf .backup/
 
 ## 文档版本历史
 
-| 版本 | 日期 | 变更说明 |
-|------|------|---------|
-| v1.0 | 2026-02-16 | 初始版本，基于 antd-x-migration-plan.md v1.3 创建 |
-| v1.1 | 2026-02-16 | Round 1 评审：修复 Feature Flag URL 参数转换逻辑、移除 POC 未使用导入、修复备份命令 |
-| v1.2 | 2026-02-16 | Round 2 评审：移除未使用的 format 导入、完善 ThreadList 集成说明、修复 SubAgentThoughtChain isLoading 使用 |
-| v1.3 | 2026-02-16 | Round 3 评审：最终检查完成，确认文档完整性 |
-| v2.0 | 2026-02-16 | 专家评审 Round 1 修订：修复主题定制方案、修复 ThoughtChain status 值、移除重复 ToolArgsRenderer、移除 date-fns 安装、重构 AntdXSender |
-| **v2.1** | 2026-02-16 | **专家评审 Round 2 修订**：添加 HSL→HEX 颜色转换函数（Ant Design 主题引擎需要 HEX 格式进行颜色梯度计算） |
+| 版本     | 日期       | 变更说明                                                                                                                              |
+| -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.0     | 2026-02-16 | 初始版本，基于 antd-x-migration-plan.md v1.3 创建                                                                                     |
+| v1.1     | 2026-02-16 | Round 1 评审：修复 Feature Flag URL 参数转换逻辑、移除 POC 未使用导入、修复备份命令                                                   |
+| v1.2     | 2026-02-16 | Round 2 评审：移除未使用的 format 导入、完善 ThreadList 集成说明、修复 SubAgentThoughtChain isLoading 使用                            |
+| v1.3     | 2026-02-16 | Round 3 评审：最终检查完成，确认文档完整性                                                                                            |
+| v2.0     | 2026-02-16 | 专家评审 Round 1 修订：修复主题定制方案、修复 ThoughtChain status 值、移除重复 ToolArgsRenderer、移除 date-fns 安装、重构 AntdXSender |
+| **v2.1** | 2026-02-16 | **专家评审 Round 2 修订**：添加 HSL→HEX 颜色转换函数（Ant Design 主题引擎需要 HEX 格式进行颜色梯度计算）                              |

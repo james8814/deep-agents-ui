@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
 /**
  * useTheme Hook - Access theme context and utilities
  * Provides theme state and helper functions
  */
 
-import { useContext, useCallback, useEffect, useState } from 'react';
-import { ThemeContext } from '@/contexts/ThemeContext';
-import { getThemeColor, getColorsByTheme } from '@/lib/colorSystem';
+import { useContext, useCallback, useEffect, useState } from "react";
+import { ThemeContext } from "@/contexts/ThemeContext";
+import { getThemeColor, getColorsByTheme } from "@/lib/colorSystem";
 import {
   getTypographyScale,
   getBodyTextStyle,
   getLabelStyle,
   getDisplayStyle,
-} from '@/lib/typographySystem';
-import type { ThemeMode } from '@/lib/designTokens';
+} from "@/lib/typographySystem";
+import type { ThemeMode } from "@/lib/designTokens";
 
 /**
  * useTheme - Main theme hook
@@ -24,7 +24,7 @@ export function useTheme() {
   const context = useContext(ThemeContext);
 
   if (context === undefined) {
-    throw new Error('useTheme must be used within ThemeContextProvider');
+    throw new Error("useTheme must be used within ThemeContextProvider");
   }
 
   return context;
@@ -38,7 +38,7 @@ export function useTheme() {
  */
 export function useThemeColor(colorKey: string): string {
   const { isDark } = useTheme();
-  const [color, setColor] = useState('');
+  const [color, setColor] = useState("");
 
   useEffect(() => {
     setColor(getThemeColor(colorKey, isDark));
@@ -69,11 +69,11 @@ export function useThemeMode() {
   const { mode, setTheme, toggleTheme } = useTheme();
 
   return {
-    isDark: mode === 'dark',
-    isLight: mode === 'light',
+    isDark: mode === "dark",
+    isLight: mode === "light",
     mode,
-    setToDark: useCallback(() => setTheme('dark'), [setTheme]),
-    setToLight: useCallback(() => setTheme('light'), [setTheme]),
+    setToDark: useCallback(() => setTheme("dark"), [setTheme]),
+    setToLight: useCallback(() => setTheme("light"), [setTheme]),
     toggle: toggleTheme,
   };
 }
@@ -105,8 +105,8 @@ export function useThemeListener(
       callback(customEvent.detail.isDark, customEvent.detail.mode);
     };
 
-    window.addEventListener('themechange', handler);
-    return () => window.removeEventListener('themechange', handler);
+    window.addEventListener("themechange", handler);
+    return () => window.removeEventListener("themechange", handler);
   }, [callback]);
 }
 
@@ -116,29 +116,30 @@ export function useThemeListener(
  */
 export function useResponsive() {
   const [breakpoint, setBreakpoint] = useState<
-    'sm' | 'md' | 'lg' | 'xl' | '2xl'
-  >('md');
+    "sm" | "md" | "lg" | "xl" | "2xl"
+  >("md");
 
   useEffect(() => {
     const updateBreakpoint = () => {
       const width = window.innerWidth;
-      if (width < 640) setBreakpoint('sm');
-      else if (width < 768) setBreakpoint('md');
-      else if (width < 1024) setBreakpoint('lg');
-      else if (width < 1280) setBreakpoint('xl');
-      else setBreakpoint('2xl');
+      if (width < 640) setBreakpoint("sm");
+      else if (width < 768) setBreakpoint("md");
+      else if (width < 1024) setBreakpoint("lg");
+      else if (width < 1280) setBreakpoint("xl");
+      else setBreakpoint("2xl");
     };
 
     updateBreakpoint();
-    window.addEventListener('resize', updateBreakpoint);
-    return () => window.removeEventListener('resize', updateBreakpoint);
+    window.addEventListener("resize", updateBreakpoint);
+    return () => window.removeEventListener("resize", updateBreakpoint);
   }, []);
 
   return {
     breakpoint,
-    isMobile: breakpoint === 'sm',
-    isTablet: breakpoint === 'md',
-    isDesktop: breakpoint === 'lg' || breakpoint === 'xl' || breakpoint === '2xl',
+    isMobile: breakpoint === "sm",
+    isTablet: breakpoint === "md",
+    isDesktop:
+      breakpoint === "lg" || breakpoint === "xl" || breakpoint === "2xl",
   };
 }
 
@@ -147,11 +148,11 @@ export function useResponsive() {
  */
 export function useTypography() {
   return {
-    heading: (size: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
+    heading: (size: "h1" | "h2" | "h3" | "h4" | "h5" | "h6") =>
       getTypographyScale(size),
-    body: (size: 'xs' | 'sm' | 'base' | 'lg') => getBodyTextStyle(size),
-    label: (size: 'xs' | 'sm' | 'base' | 'lg') => getLabelStyle(size),
-    display: (size: 'sm' | 'md' | 'lg' | 'xl') => getDisplayStyle(size),
+    body: (size: "xs" | "sm" | "base" | "lg") => getBodyTextStyle(size),
+    label: (size: "xs" | "sm" | "base" | "lg") => getLabelStyle(size),
+    display: (size: "sm" | "md" | "lg" | "xl") => getDisplayStyle(size),
   };
 }
 
@@ -173,8 +174,8 @@ export function useThemeState() {
     // Actions
     setTheme,
     toggleTheme,
-    setToDark: useCallback(() => setTheme('dark'), [setTheme]),
-    setToLight: useCallback(() => setTheme('light'), [setTheme]),
+    setToDark: useCallback(() => setTheme("dark"), [setTheme]),
+    setToLight: useCallback(() => setTheme("light"), [setTheme]),
 
     // System preference
     systemPreference,

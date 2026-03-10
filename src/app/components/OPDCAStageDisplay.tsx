@@ -35,15 +35,18 @@ interface OPDCAStageDisplayProps {
   className?: string;
 }
 
-const stageConfig: Record<OPDCAStage, {
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
-  bgColor: string;
-  textColor: string;
-  order: number;
-}> = {
+const stageConfig: Record<
+  OPDCAStage,
+  {
+    label: string;
+    description: string;
+    icon: React.ReactNode;
+    color: string;
+    bgColor: string;
+    textColor: string;
+    order: number;
+  }
+> = {
   observe: {
     label: "Observe",
     description: "Gathering information and analyzing current state",
@@ -122,12 +125,7 @@ const stageConfig: Record<OPDCAStage, {
  * ```
  */
 export const OPDCAStageDisplay = React.memo<OPDCAStageDisplayProps>(
-  ({
-    stage,
-    variant = "full",
-    showDescription = false,
-    className,
-  }) => {
+  ({ stage, variant = "full", showDescription = false, className }) => {
     const config = stageConfig[stage];
 
     // Minimal variant - just the icon and label
@@ -159,16 +157,16 @@ export const OPDCAStageDisplay = React.memo<OPDCAStageDisplayProps>(
         >
           <div
             className={cn(
-              "flex-shrink-0 rounded-md p-1.5 mt-0.5",
+              "mt-0.5 flex-shrink-0 rounded-md p-1.5",
               config.bgColor,
               config.textColor
             )}
           >
             {config.icon}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">{config.label}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">{config.label}</p>
+            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
               {config.description}
             </p>
           </div>
@@ -187,7 +185,7 @@ export const OPDCAStageDisplay = React.memo<OPDCAStageDisplayProps>(
         aria-label={`Current stage: ${config.label}`}
       >
         {/* Header with icon and title */}
-        <div className="flex items-center gap-3 mb-3">
+        <div className="mb-3 flex items-center gap-3">
           <div
             className={cn(
               "flex-shrink-0 rounded-lg p-2.5",
@@ -198,10 +196,10 @@ export const OPDCAStageDisplay = React.memo<OPDCAStageDisplayProps>(
             {config.icon}
           </div>
           <div className="flex-1">
-            <h3 className={cn("font-semibold text-sm", config.textColor)}>
+            <h3 className={cn("text-sm font-semibold", config.textColor)}>
               {config.label}
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Stage {config.order} of 5
             </p>
           </div>
@@ -210,7 +208,7 @@ export const OPDCAStageDisplay = React.memo<OPDCAStageDisplayProps>(
         {/* Description */}
         {showDescription && (
           <>
-            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+            <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
               {config.description}
             </p>
 
@@ -225,7 +223,7 @@ export const OPDCAStageDisplay = React.memo<OPDCAStageDisplayProps>(
                   <div
                     key={s}
                     className={cn(
-                      "flex-1 h-2 rounded-full transition-all",
+                      "h-2 flex-1 rounded-full transition-all",
                       isActive && sConfig.color,
                       isPassed && sConfig.color + " opacity-50",
                       !isActive && !isPassed && "bg-muted"
@@ -278,21 +276,17 @@ interface OPDCATimelineProps {
 }
 
 export const OPDCATimeline = React.memo<OPDCATimelineProps>(
-  ({ currentStage, completedStages = [], showLabels = true, compact = false }) => {
-    const stages: OPDCAStage[] = [
-      "observe",
-      "plan",
-      "do",
-      "check",
-      "adapt",
-    ];
+  ({
+    currentStage,
+    completedStages = [],
+    showLabels = true,
+    compact = false,
+  }) => {
+    const stages: OPDCAStage[] = ["observe", "plan", "do", "check", "adapt"];
 
     return (
       <div
-        className={cn(
-          "flex items-center gap-2",
-          compact ? "gap-1" : "gap-3"
-        )}
+        className={cn("flex items-center gap-2", compact ? "gap-1" : "gap-3")}
         role="progressbar"
         aria-valuenow={stageConfig[currentStage].order}
         aria-valuemin={0}
@@ -303,21 +297,31 @@ export const OPDCATimeline = React.memo<OPDCATimelineProps>(
           const config = stageConfig[stage];
           const isActive = stage === currentStage;
           const isCompleted = completedStages.includes(stage);
-          const isFuture = stageConfig[stage].order > stageConfig[currentStage].order;
+          const isFuture =
+            stageConfig[stage].order > stageConfig[currentStage].order;
 
           return (
             <div
               key={stage}
-              className="flex items-center gap-2 flex-1"
+              className="flex flex-1 items-center gap-2"
             >
               {/* Stage dot/icon */}
               <div
                 className={cn(
                   "flex-shrink-0 rounded-full p-1.5 transition-all",
-                  isActive && cn(config.bgColor, config.textColor, "ring-2 ring-offset-2 ring-current"),
-                  isCompleted && !isActive && "bg-green-500/10 text-green-600 dark:text-green-400",
+                  isActive &&
+                    cn(
+                      config.bgColor,
+                      config.textColor,
+                      "ring-2 ring-current ring-offset-2"
+                    ),
+                  isCompleted &&
+                    !isActive &&
+                    "bg-green-500/10 text-green-600 dark:text-green-400",
                   isFuture && "bg-muted text-muted-foreground",
-                  compact ? "h-7 w-7 flex items-center justify-center text-xs" : "h-8 w-8 flex items-center justify-center"
+                  compact
+                    ? "flex h-7 w-7 items-center justify-center text-xs"
+                    : "flex h-8 w-8 items-center justify-center"
                 )}
               >
                 {isCompleted && !isActive ? (
@@ -333,7 +337,9 @@ export const OPDCATimeline = React.memo<OPDCATimelineProps>(
                   className={cn(
                     "text-xs font-medium transition-colors",
                     isActive && config.textColor,
-                    isCompleted && !isActive && "text-green-600 dark:text-green-400",
+                    isCompleted &&
+                      !isActive &&
+                      "text-green-600 dark:text-green-400",
                     isFuture && "text-muted-foreground"
                   )}
                 >
@@ -345,8 +351,10 @@ export const OPDCATimeline = React.memo<OPDCATimelineProps>(
               {index < stages.length - 1 && (
                 <div
                   className={cn(
-                    "flex-1 h-0.5 transition-all",
-                    (isActive || isCompleted) && (completedStages.includes(stages[index + 1]) || stages[index + 1] === currentStage)
+                    "h-0.5 flex-1 transition-all",
+                    (isActive || isCompleted) &&
+                      (completedStages.includes(stages[index + 1]) ||
+                        stages[index + 1] === currentStage)
                       ? "bg-green-500"
                       : "bg-muted"
                   )}

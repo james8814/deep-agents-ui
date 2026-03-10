@@ -36,10 +36,10 @@ export function ConfigDialog({
   const [assistantId, setAssistantId] = useState(
     initialConfig?.assistantId || ""
   );
-  const [useAntdX, setUseAntdX] = useState(
-    initialConfig?.useAntdX ?? false
-  );
-  const [connectionStatus, setConnectionStatus] = useState<"idle" | "testing" | "ok" | "error">("idle");
+  const [useAntdX, setUseAntdX] = useState(initialConfig?.useAntdX ?? false);
+  const [connectionStatus, setConnectionStatus] = useState<
+    "idle" | "testing" | "ok" | "error"
+  >("idle");
   const [connectionError, setConnectionError] = useState("");
 
   useEffect(() => {
@@ -119,7 +119,10 @@ export function ConfigDialog({
               >
                 {connectionStatus === "testing" ? (
                   <>
-                    <Loader2 size={14} className="mr-1 animate-spin" />
+                    <Loader2
+                      size={14}
+                      className="mr-1 animate-spin"
+                    />
                     Testing...
                   </>
                 ) : (
@@ -152,7 +155,10 @@ export function ConfigDialog({
           </div>
           <div className="flex items-center justify-between rounded-lg border p-3">
             <div className="space-y-0.5">
-              <Label htmlFor="useAntdX" className="text-sm font-medium">
+              <Label
+                htmlFor="useAntdX"
+                className="text-sm font-medium"
+              >
                 使用 Ant Design X 样式
               </Label>
               <p className="text-xs text-muted-foreground">

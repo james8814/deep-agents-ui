@@ -45,7 +45,8 @@ function HomePageInner({
   // Feature Flag for Ant Design X ThreadList
   const [useAntdxThreadList] = useQueryState("useAntdxThreadList");
   // URL 参数优先，如果没有则使用 localStorage 中的 useAntdX 设置
-  const isAntdxThreadList = useAntdxThreadList === "true" || config.useAntdX === true;
+  const isAntdxThreadList =
+    useAntdxThreadList === "true" || config.useAntdX === true;
 
   const [mutateThreads, setMutateThreads] = useState<(() => void) | null>(null);
   const [interruptCount, setInterruptCount] = useState(0);
@@ -59,7 +60,10 @@ function HomePageInner({
     }
 
     // 判断是否为 UUID 格式（Saved Assistant）
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assistantId);
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        assistantId
+      );
 
     if (isUUID) {
       // UUID 格式：尝试获取保存的 Assistant（Saved Assistant 场景）
@@ -163,77 +167,79 @@ function HomePageInner({
               </div>
             </div>
           ) : (
-          <ChatProvider
-            activeAssistant={assistant}
-            onHistoryRevalidate={() => mutateThreads?.()}
-          >
-            <ResizablePanelGroup
-              direction="horizontal"
-              autoSaveId="standalone-chat"
+            <ChatProvider
+              activeAssistant={assistant}
+              onHistoryRevalidate={() => mutateThreads?.()}
             >
-              {sidebar && (
-                <>
-                  <ResizablePanel
-                    id="thread-history"
-                    order={1}
-                    defaultSize={25}
-                    minSize={20}
-                    className="relative min-w-[380px]"
-                  >
-                    {isAntdxThreadList ? (
-                      <AntdXThreadList
-                        onThreadSelect={async (id) => {
-                          await setThreadId(id);
-                        }}
-                        onMutateReady={(fn) => setMutateThreads(() => fn)}
-                        onClose={() => setSidebar(null)}
-                        onInterruptCountChange={setInterruptCount}
-                      />
-                    ) : (
-                      <ThreadList
-                        onThreadSelect={async (id) => {
-                          await setThreadId(id);
-                        }}
-                        onMutateReady={(fn) => setMutateThreads(() => fn)}
-                        onClose={() => setSidebar(null)}
-                        onInterruptCountChange={setInterruptCount}
-                      />
-                    )}
-                  </ResizablePanel>
-                  <ResizableHandle />
-                </>
-              )}
-
-              <ResizablePanel
-                id="chat"
-                className="relative flex flex-col"
-                order={2}
+              <ResizablePanelGroup
+                direction="horizontal"
+                autoSaveId="standalone-chat"
               >
-                <ChatInterface assistant={assistant} />
-              </ResizablePanel>
+                {sidebar && (
+                  <>
+                    <ResizablePanel
+                      id="thread-history"
+                      order={1}
+                      defaultSize={25}
+                      minSize={20}
+                      className="relative min-w-[380px]"
+                    >
+                      {isAntdxThreadList ? (
+                        <AntdXThreadList
+                          onThreadSelect={async (id) => {
+                            await setThreadId(id);
+                          }}
+                          onMutateReady={(fn) => setMutateThreads(() => fn)}
+                          onClose={() => setSidebar(null)}
+                          onInterruptCountChange={setInterruptCount}
+                        />
+                      ) : (
+                        <ThreadList
+                          onThreadSelect={async (id) => {
+                            await setThreadId(id);
+                          }}
+                          onMutateReady={(fn) => setMutateThreads(() => fn)}
+                          onClose={() => setSidebar(null)}
+                          onInterruptCountChange={setInterruptCount}
+                        />
+                      )}
+                    </ResizablePanel>
+                    <ResizableHandle />
+                  </>
+                )}
 
-              {contextPanel && (
-                <>
-                  <ResizableHandle />
-                  <ResizablePanel
-                    id="context"
-                    order={3}
-                    defaultSize={25}
-                    minSize={20}
-                    className="relative min-w-[280px] h-full"
-                  >
-                    <ContextPanel
-                      onClose={() => {
-                        setContextPanel(null);
-                        setContextTab(null);
-                      }}
-                      initialTab={contextTab === "files" ? "files" : undefined}
-                    />
-                  </ResizablePanel>
-                </>
-              )}
-            </ResizablePanelGroup>
-          </ChatProvider>
+                <ResizablePanel
+                  id="chat"
+                  className="relative flex flex-col"
+                  order={2}
+                >
+                  <ChatInterface assistant={assistant} />
+                </ResizablePanel>
+
+                {contextPanel && (
+                  <>
+                    <ResizableHandle />
+                    <ResizablePanel
+                      id="context"
+                      order={3}
+                      defaultSize={25}
+                      minSize={20}
+                      className="relative h-full min-w-[280px]"
+                    >
+                      <ContextPanel
+                        onClose={() => {
+                          setContextPanel(null);
+                          setContextTab(null);
+                        }}
+                        initialTab={
+                          contextTab === "files" ? "files" : undefined
+                        }
+                      />
+                    </ResizablePanel>
+                  </>
+                )}
+              </ResizablePanelGroup>
+            </ChatProvider>
           )}
         </div>
       </div>
@@ -245,7 +251,7 @@ function HomePageContent() {
   const [config, setConfig] = useState<StandaloneConfig | null>(null);
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [assistantId, setAssistantId] = useQueryState("assistantId");
-  const { token } = useAuth();  // 获取 token
+  const { token } = useAuth(); // 获取 token
 
   // On mount, check for saved config, otherwise show config dialog
   useEffect(() => {
@@ -305,7 +311,7 @@ function HomePageContent() {
   return (
     <ClientProvider
       deploymentUrl={config.deploymentUrl}
-      token={token}  // 传递 token
+      token={token} // 传递 token
     >
       <HomePageInner
         config={config}

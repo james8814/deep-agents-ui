@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * ThemeContext - Theme state management and provider
@@ -11,14 +11,14 @@ import React, {
   useState,
   useCallback,
   ReactNode,
-} from 'react';
+} from "react";
 import {
   lightModeColors,
   darkModeColors,
   applyCSSVariables,
-} from '@/lib/colorSystem';
-import { typographyCSSVariables } from '@/lib/typographySystem';
-import type { ThemeMode } from '@/lib/designTokens';
+} from "@/lib/colorSystem";
+import { typographyCSSVariables } from "@/lib/typographySystem";
+import type { ThemeMode } from "@/lib/designTokens";
 
 // ============================================================================
 // Theme Context Type
@@ -59,12 +59,12 @@ interface ThemeContextProviderProps {
 
 export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
   children,
-  defaultTheme = 'light',
-  storageKey = 'theme-mode',
+  defaultTheme = "light",
+  storageKey = "theme-mode",
 }) => {
   const [mode, setMode] = useState<ThemeMode>(defaultTheme);
   const [isDark, setIsDark] = useState(false);
-  const [systemPreference, setSystemPreference] = useState<ThemeMode>('light');
+  const [systemPreference, setSystemPreference] = useState<ThemeMode>("light");
   const [useSystemPreference, setUseSystemPreference] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -74,47 +74,45 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
 
   useEffect(() => {
     // Detect system preference
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const prefersDark = darkModeQuery.matches;
-    setSystemPreference(prefersDark ? 'dark' : 'light');
+    setSystemPreference(prefersDark ? "dark" : "light");
 
     // Get stored theme
     const storedTheme = localStorage.getItem(storageKey) as ThemeMode | null;
-    const storedUseSystem = localStorage.getItem(
-      `${storageKey}-use-system`
-    );
+    const storedUseSystem = localStorage.getItem(`${storageKey}-use-system`);
 
     // Determine initial theme
     let initialTheme = defaultTheme;
     let initialUseSystem = true;
 
     if (storedUseSystem !== null) {
-      initialUseSystem = storedUseSystem === 'true';
+      initialUseSystem = storedUseSystem === "true";
     }
 
     if (storedTheme && !initialUseSystem) {
       initialTheme = storedTheme;
     } else if (initialUseSystem) {
-      initialTheme = prefersDark ? 'dark' : 'light';
+      initialTheme = prefersDark ? "dark" : "light";
     }
 
     setMode(initialTheme);
-    setIsDark(initialTheme === 'dark');
+    setIsDark(initialTheme === "dark");
     setUseSystemPreference(initialUseSystem);
     setIsMounted(true);
 
     // Listen for system preference changes
     const handler = (e: MediaQueryListEvent) => {
       if (useSystemPreference) {
-        const newTheme = e.matches ? 'dark' : 'light';
+        const newTheme = e.matches ? "dark" : "light";
         setMode(newTheme);
         setIsDark(e.matches);
-        setSystemPreference(e.matches ? 'dark' : 'light');
+        setSystemPreference(e.matches ? "dark" : "light");
       }
     };
 
-    darkModeQuery.addEventListener('change', handler);
-    return () => darkModeQuery.removeEventListener('change', handler);
+    darkModeQuery.addEventListener("change", handler);
+    return () => darkModeQuery.removeEventListener("change", handler);
   }, [defaultTheme, storageKey]);
 
   // =========================================================================
@@ -129,11 +127,11 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
     const bodyElement = document.body;
 
     if (isDark) {
-      htmlElement.classList.add('dark');
-      bodyElement.classList.add('dark');
+      htmlElement.classList.add("dark");
+      bodyElement.classList.add("dark");
     } else {
-      htmlElement.classList.remove('dark');
-      bodyElement.classList.remove('dark');
+      htmlElement.classList.remove("dark");
+      bodyElement.classList.remove("dark");
     }
 
     // Apply CSS variables
@@ -146,16 +144,13 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
     // Update meta theme-color
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute(
-        'content',
-        isDark ? '#0A0A12' : '#FFFFFF'
-      );
+      metaThemeColor.setAttribute("content", isDark ? "#0A0A12" : "#FFFFFF");
     }
 
     // Dispatch custom event for components to listen
     window.dispatchEvent(
-      new CustomEvent('themechange', {
-        detail: { mode: isDark ? 'dark' : 'light', isDark },
+      new CustomEvent("themechange", {
+        detail: { mode: isDark ? "dark" : "light", isDark },
       })
     );
   }, [isDark, isMounted]);
@@ -167,16 +162,16 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
   const setTheme = useCallback(
     (newMode: ThemeMode) => {
       setMode(newMode);
-      setIsDark(newMode === 'dark');
+      setIsDark(newMode === "dark");
       localStorage.setItem(storageKey, newMode);
-      localStorage.setItem(`${storageKey}-use-system`, 'false');
+      localStorage.setItem(`${storageKey}-use-system`, "false");
       setUseSystemPreference(false);
     },
     [storageKey]
   );
 
   const toggleTheme = useCallback(() => {
-    const newMode = mode === 'light' ? 'dark' : 'light';
+    const newMode = mode === "light" ? "dark" : "light";
     setTheme(newMode);
   }, [mode, setTheme]);
 
@@ -187,12 +182,12 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
 
       if (use) {
         // Switch to system preference
-        const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
         const prefersDark = darkModeQuery.matches;
-        const newMode = prefersDark ? 'dark' : 'light';
+        const newMode = prefersDark ? "dark" : "light";
         setMode(newMode);
-        setIsDark(newMode === 'dark');
-        setSystemPreference(prefersDark ? 'dark' : 'light');
+        setIsDark(newMode === "dark");
+        setSystemPreference(prefersDark ? "dark" : "light");
       }
     },
     [storageKey]
@@ -218,9 +213,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 

@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useMemo, ReactNode, useRef, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  ReactNode,
+  useRef,
+  useEffect,
+} from "react";
 import { Client } from "@langchain/langgraph-sdk";
 
 interface ClientContextValue {
@@ -13,7 +20,7 @@ const ClientContext = createContext<ClientContextValue | null>(null);
 interface ClientProviderProps {
   children: ReactNode;
   deploymentUrl: string;
-  token?: string | null;  // 添加 token prop
+  token?: string | null; // 添加 token prop
 }
 
 export function ClientProvider({
@@ -52,7 +59,7 @@ export function ClientProvider({
         "Content-Type": "application/json",
       },
     });
-  }, [deploymentUrl]);  // 只依赖 deploymentUrl，token 通过 ref 获取
+  }, [deploymentUrl]); // 只依赖 deploymentUrl，token 通过 ref 获取
 
   // 暴露 client 和 token
   const value = useMemo(() => ({ client, token }), [client, token]);

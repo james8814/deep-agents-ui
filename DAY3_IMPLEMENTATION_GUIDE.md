@@ -27,6 +27,7 @@ This document provides complete guidance for integrating Day 3 enhancements into
 **Purpose**: Enhanced input component with expand/collapse, execution time tracking, and send status indicators.
 
 **Key Features**:
+
 - Input expand/collapse button with state management
 - Automatic textarea height adjustment (1-8 lines)
 - Character count display (>500 chars)
@@ -38,6 +39,7 @@ This document provides complete guidance for integrating Day 3 enhancements into
 - Focus state styling
 
 **Props**:
+
 ```typescript
 interface InputAreaProps {
   input: string;
@@ -63,6 +65,7 @@ interface InputAreaProps {
 ```
 
 **Usage**:
+
 ```typescript
 import { InputArea } from "@/app/components/InputArea";
 
@@ -99,6 +102,7 @@ export function ChatInterface() {
 **Purpose**: Enhanced tool call display with risk badges, execution time, and copy functionality.
 
 **Key Features**:
+
 - Risk level badges (low/medium/high/critical)
 - Tool-specific risk assessment
 - Execution time display
@@ -108,23 +112,38 @@ export function ChatInterface() {
 - Full accessibility support
 
 **Risk Level System**:
+
 ```typescript
 const TOOL_RISK_MAP: Record<string, RiskBadgeConfig> = {
-  "read_file": { level: "low", label: "Read-only" },
-  "write_file": { level: "high", label: "Write Risk", description: "Modifies files" },
-  "delete_file": { level: "critical", label: "Delete Risk", description: "Removes files" },
-  "execute_command": { level: "critical", label: "Execute Risk", description: "Runs system commands" },
+  read_file: { level: "low", label: "Read-only" },
+  write_file: {
+    level: "high",
+    label: "Write Risk",
+    description: "Modifies files",
+  },
+  delete_file: {
+    level: "critical",
+    label: "Delete Risk",
+    description: "Removes files",
+  },
+  execute_command: {
+    level: "critical",
+    label: "Execute Risk",
+    description: "Runs system commands",
+  },
   // ... more tools
 };
 ```
 
 **Color Coding**:
+
 - **Critical** (Red): `bg-red-100 text-red-800`
 - **High** (Orange): `bg-orange-100 text-orange-800`
 - **Medium** (Yellow): `bg-yellow-100 text-yellow-800`
 - **Low** (Green): `bg-green-100 text-green-800`
 
 **Usage**:
+
 ```typescript
 import { ToolCallBoxEnhanced } from "@/app/components/ToolCallBoxEnhanced";
 
@@ -139,7 +158,7 @@ import { ToolCallBoxEnhanced } from "@/app/components/ToolCallBoxEnhanced";
   riskLevel="high"
   executionTime={1250}
   showCopyButton={true}
-/>
+/>;
 ```
 
 ---
@@ -149,6 +168,7 @@ import { ToolCallBoxEnhanced } from "@/app/components/ToolCallBoxEnhanced";
 **Purpose**: Enhanced message list with code block copy buttons and collapsible long messages.
 
 **Key Features**:
+
 - Code block copy functionality
 - Language badge display
 - Filename preservation
@@ -158,6 +178,7 @@ import { ToolCallBoxEnhanced } from "@/app/components/ToolCallBoxEnhanced";
 - Full accessibility support
 
 **Code Block Component**:
+
 ```typescript
 interface CodeBlockProps {
   code: string;
@@ -169,10 +190,11 @@ interface CodeBlockProps {
   code={code}
   language="typescript"
   filename="index.ts"
-/>
+/>;
 ```
 
 **Collapsible Message Component**:
+
 ```typescript
 interface CollapsibleMessageProps {
   content: string;
@@ -182,10 +204,11 @@ interface CollapsibleMessageProps {
 <CollapsibleMessage
   content={longText}
   maxLines={20}
-/>
+/>;
 ```
 
 **Usage**:
+
 ```typescript
 import { MessageListEnhanced } from "@/app/components/MessageListEnhanced";
 
@@ -193,7 +216,7 @@ import { MessageListEnhanced } from "@/app/components/MessageListEnhanced";
   messages={messages}
   isLoading={isLoading}
   onEditAndResend={handleEditAndResend}
-/>
+/>;
 ```
 
 ---
@@ -211,7 +234,7 @@ import { MessageListEnhanced } from "@/app/components/MessageListEnhanced";
   value={input}
   onChange={(e) => setInput(e.target.value)}
   {...otherProps}
-/>
+/>;
 
 // After: Use InputArea component
 import { InputArea } from "@/app/components/InputArea";
@@ -229,7 +252,7 @@ import { InputArea } from "@/app/components/InputArea";
   uploadInputRef={uploadInputRef}
   inputExpanded={isExpanded}
   onExpandedChange={setIsExpanded}
-/>
+/>;
 ```
 
 ### Step 2: Replace ToolCallBox with Enhanced Version
@@ -243,21 +266,23 @@ import { ToolCallBox } from "@/app/components/ToolCallBox";
 // After:
 import { ToolCallBoxEnhanced } from "@/app/components/ToolCallBoxEnhanced";
 
-{toolCalls.map((toolCall) => (
-  <ToolCallBoxEnhanced
-    key={toolCall.id}
-    toolCall={toolCall}
-    uiComponent={uiComponent}
-    stream={stream}
-    graphId={graphId}
-    actionRequest={actionRequestsMap?.get(toolCall.name)}
-    reviewConfig={reviewConfigsMap?.get(toolCall.name)}
-    onResume={onResumeInterrupt}
-    isLoading={isLoading && isStreaming}
-    riskLevel={getRiskLevel(toolCall.name)}
-    executionTime={getExecutionTime(toolCall)}
-  />
-))}
+{
+  toolCalls.map((toolCall) => (
+    <ToolCallBoxEnhanced
+      key={toolCall.id}
+      toolCall={toolCall}
+      uiComponent={uiComponent}
+      stream={stream}
+      graphId={graphId}
+      actionRequest={actionRequestsMap?.get(toolCall.name)}
+      reviewConfig={reviewConfigsMap?.get(toolCall.name)}
+      onResume={onResumeInterrupt}
+      isLoading={isLoading && isStreaming}
+      riskLevel={getRiskLevel(toolCall.name)}
+      executionTime={getExecutionTime(toolCall)}
+    />
+  ));
+}
 ```
 
 ### Step 3: Replace MessageList with Enhanced Version
@@ -268,16 +293,21 @@ For long text content in AI messages:
 
 ```typescript
 // Before:
-<MarkdownContent content={messageContent} />
+<MarkdownContent content={messageContent} />;
 
 // After: For messages > 500 chars
 import { CollapsibleMessage } from "@/app/components/MessageListEnhanced";
 
-{messageContent.length > 500 ? (
-  <CollapsibleMessage content={messageContent} maxLines={20} />
-) : (
-  <MarkdownContent content={messageContent} />
-)}
+{
+  messageContent.length > 500 ? (
+    <CollapsibleMessage
+      content={messageContent}
+      maxLines={20}
+    />
+  ) : (
+    <MarkdownContent content={messageContent} />
+  );
+}
 ```
 
 ### Step 4: Add Execution Time Tracking
@@ -305,7 +335,7 @@ useEffect(() => {
   {...props}
   executionTime={executionTime}
   sendStatus={stream.error ? "error" : isLoading ? "sending" : "idle"}
-/>
+/>;
 ```
 
 ---
@@ -317,6 +347,7 @@ useEffect(() => {
 All components include comprehensive test suites:
 
 1. **InputArea.test.tsx** (28 tests)
+
    - Input functionality
    - Expand/collapse behavior
    - Submit handling
@@ -363,6 +394,7 @@ npm run test -- --watch
 All components meet WCAG 2.1 AA standards:
 
 #### InputArea
+
 - ✅ Proper ARIA labels on all inputs
 - ✅ aria-describedby for character count
 - ✅ aria-busy for loading state
@@ -374,6 +406,7 @@ All components meet WCAG 2.1 AA standards:
 - ✅ Large touch targets (44x44px minimum)
 
 #### ToolCallBoxEnhanced
+
 - ✅ Semantic button elements
 - ✅ aria-label on all buttons
 - ✅ aria-expanded for expandable sections
@@ -384,6 +417,7 @@ All components meet WCAG 2.1 AA standards:
 - ✅ Color and icons for risk indication (not color alone)
 
 #### MessageListEnhanced
+
 - ✅ Semantic heading hierarchy
 - ✅ Code block language announcements
 - ✅ Copy button labels
@@ -413,18 +447,21 @@ All components meet WCAG 2.1 AA standards:
 ## Migration Path
 
 ### Phase 1: Development & Testing (Week 1)
+
 1. Implement all three components
 2. Write comprehensive tests
 3. Test with screen readers
 4. Performance optimization
 
 ### Phase 2: Integration (Week 2)
+
 1. Integrate InputArea into ChatInterface
 2. Integrate ToolCallBoxEnhanced into ChatMessage
 3. Integrate MessageListEnhanced for long messages
 4. End-to-end testing
 
 ### Phase 3: Feature Flag Rollout (Week 3-4)
+
 ```typescript
 // src/lib/featureFlags.ts
 export const useEnhancedInputArea = useFeatureFlag("ENHANCED_INPUT_AREA");
@@ -433,13 +470,14 @@ export const useEnhancedMessageList = useFeatureFlag("ENHANCED_MESSAGE_LIST");
 
 // Usage in components
 if (useEnhancedInputArea) {
-  <InputArea {...props} />
+  <InputArea {...props} />;
 } else {
-  <OldInputArea {...props} />
+  <OldInputArea {...props} />;
 }
 ```
 
 ### Phase 4: Monitoring & Optimization (Week 4+)
+
 1. Monitor performance metrics
 2. Gather user feedback
 3. Optimize based on real usage
@@ -452,11 +490,13 @@ if (useEnhancedInputArea) {
 ### Optimization Strategies
 
 1. **Memoization**
+
    - All components wrapped with React.memo()
    - useMemo for expensive calculations
    - useCallback for event handlers
 
 2. **Code Splitting**
+
    - Components can be lazily loaded
    - Risk assessment logic is cached
    - Time formatting is optimized
@@ -490,19 +530,21 @@ console.log(`InputArea render: ${end - start}ms`);
 ### Common Issues
 
 #### Issue 1: Textarea height not updating
+
 **Solution**: Ensure `ref` is properly connected and dependency array includes `[input]`
 
 ```typescript
 useEffect(() => {
   const textarea = textareaRef.current;
   if (textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
   }
 }, [input]); // Include all dependencies
 ```
 
 #### Issue 2: Risk badge colors not showing
+
 **Solution**: Ensure Tailwind CSS is configured for extended colors
 
 ```javascript
@@ -512,13 +554,14 @@ module.exports = {
     extend: {
       colors: {
         // Verify color definitions are present
-      }
-    }
-  }
+      },
+    },
+  },
 };
 ```
 
 #### Issue 3: Copy button not working
+
 **Solution**: Check clipboard API is available
 
 ```typescript
@@ -531,6 +574,7 @@ if (navigator.clipboard) {
 ```
 
 #### Issue 4: Focus indicators not visible
+
 **Solution**: Ensure focus-visible ring is not overridden
 
 ```css
@@ -551,10 +595,10 @@ Enable debug logging:
 
 ```typescript
 // In component or via window.location.search
-const DEBUG = new URLSearchParams(window.location.search).has('debug');
+const DEBUG = new URLSearchParams(window.location.search).has("debug");
 
 if (DEBUG) {
-  console.log('InputArea state:', { input, isExpanded, executionTime });
+  console.log("InputArea state:", { input, isExpanded, executionTime });
 }
 ```
 
@@ -589,14 +633,17 @@ gtag("event", "tool_call_expanded", {
 ## Future Enhancements
 
 1. **Input Autocomplete**
+
    - History suggestions
    - Command palette integration
 
 2. **Advanced Risk Assessment**
+
    - Context-aware risk levels
    - User confirmation for critical operations
 
 3. **Code Block Enhancements**
+
    - Syntax highlighting
    - Diff view for file changes
    - Line number selection
@@ -611,6 +658,7 @@ gtag("event", "tool_call_expanded", {
 ## Support & Contact
 
 For questions or issues:
+
 1. Check this guide's Troubleshooting section
 2. Review component tests for usage examples
 3. Open an issue on GitHub with:

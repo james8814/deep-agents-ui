@@ -24,14 +24,15 @@ Users cannot regenerate an AI response or edit a sent message and re-submit.
 ```typescript
 const regenerateLastMessage = useCallback(() => {
   // Find the last human message to re-submit
-  const lastHumanIdx = [...stream.messages].reverse().findIndex(m => m.type === "human");
+  const lastHumanIdx = [...stream.messages]
+    .reverse()
+    .findIndex((m) => m.type === "human");
   if (lastHumanIdx === -1) return;
 
   const actualIdx = stream.messages.length - 1 - lastHumanIdx;
   const lastHuman = stream.messages[actualIdx];
-  const content = typeof lastHuman.content === "string"
-    ? lastHuman.content
-    : "";
+  const content =
+    typeof lastHuman.content === "string" ? lastHuman.content : "";
 
   if (!content) return;
 
@@ -55,7 +56,7 @@ const regenerateLastMessage = useCallback(() => {
 ```typescript
 return {
   // ... existing
-  regenerateLastMessage,  // NEW
+  regenerateLastMessage, // NEW
 };
 ```
 
@@ -65,17 +66,19 @@ Add prop `isLastAiMessage?: boolean` and `onRegenerate?: () => void` to `ChatMes
 
 ```tsx
 // At the bottom of the AI message content, when isLastAiMessage && !isLoading:
-{!isUser && isLastAiMessage && !isLoading && (
-  <div className="mt-2 flex gap-1">
-    <button
-      onClick={onRegenerate}
-      className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-    >
-      <RefreshCw size={12} />
-      Regenerate
-    </button>
-  </div>
-)}
+{
+  !isUser && isLastAiMessage && !isLoading && (
+    <div className="mt-2 flex gap-1">
+      <button
+        onClick={onRegenerate}
+        className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      >
+        <RefreshCw size={12} />
+        Regenerate
+      </button>
+    </div>
+  );
+}
 ```
 
 **Pass from `ChatInterface.tsx`:**
@@ -211,12 +214,21 @@ export function ToolArgsRenderer({ name, args }: ToolRendererProps) {
 
 // --- Registry ---
 
-const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.ReactNode> = {
+const TOOL_RENDERERS: Record<
+  string,
+  (args: Record<string, unknown>) => React.ReactNode
+> = {
   web_search: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <Search size={14} className="flex-shrink-0 text-blue-500" />
+      <Search
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Searching: <span className="font-medium">"{String(args.query || args.search_query || "")}"</span>
+        Searching:{" "}
+        <span className="font-medium">
+          "{String(args.query || args.search_query || "")}"
+        </span>
       </span>
     </div>
   ),
@@ -238,9 +250,15 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
   file_write: (args) => (
     <div className="space-y-1">
       <div className="flex items-center gap-2 py-1">
-        <FileEdit size={14} className="flex-shrink-0 text-amber-500" />
+        <FileEdit
+          size={14}
+          className="flex-shrink-0 text-amber-500"
+        />
         <span className="text-sm">
-          Writing to: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.path || args.filename || args.file_path || "")}</code>
+          Writing to:{" "}
+          <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+            {String(args.path || args.filename || args.file_path || "")}
+          </code>
         </span>
       </div>
       {args.content && (
@@ -259,18 +277,35 @@ const TOOL_RENDERERS: Record<string, (args: Record<string, unknown>) => React.Re
 
   file_read: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <FileEdit size={14} className="flex-shrink-0 text-blue-500" />
+      <FileEdit
+        size={14}
+        className="flex-shrink-0 text-blue-500"
+      />
       <span className="text-sm">
-        Reading: <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{String(args.path || args.filename || args.file_path || "")}</code>
+        Reading:{" "}
+        <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+          {String(args.path || args.filename || args.file_path || "")}
+        </code>
       </span>
     </div>
   ),
 
   browse: (args) => (
     <div className="flex items-center gap-2 py-1">
-      <Globe size={14} className="flex-shrink-0 text-purple-500" />
+      <Globe
+        size={14}
+        className="text-purple-500 flex-shrink-0"
+      />
       <span className="text-sm">
-        Browsing: <a href={String(args.url || "")} target="_blank" rel="noopener noreferrer" className="text-primary underline">{String(args.url || "")}</a>
+        Browsing:{" "}
+        <a
+          href={String(args.url || "")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline"
+        >
+          {String(args.url || "")}
+        </a>
       </span>
     </div>
   ),
@@ -286,7 +321,9 @@ function DefaultRenderer({ args }: { args: Record<string, unknown> }) {
     if (strValue.length < 100) {
       return (
         <div className="flex items-center gap-2 py-1 text-sm">
-          <span className="font-mono text-xs text-muted-foreground">{key}:</span>
+          <span className="font-mono text-xs text-muted-foreground">
+            {key}:
+          </span>
           <span className="truncate">{strValue}</span>
         </div>
       );
@@ -311,14 +348,19 @@ Replace the raw JSON argument rendering with the new renderer:
 import { ToolArgsRenderer } from "@/app/components/tool-renderers";
 
 // Replace the existing Object.entries(args).map() block with:
-{Object.keys(args).length > 0 && (
-  <div className="mt-4">
-    <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-      Arguments
-    </h4>
-    <ToolArgsRenderer name={name} args={args} />
-  </div>
-)}
+{
+  Object.keys(args).length > 0 && (
+    <div className="mt-4">
+      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Arguments
+      </h4>
+      <ToolArgsRenderer
+        name={name}
+        args={args}
+      />
+    </div>
+  );
+}
 ```
 
 ### Extending for New Tools
@@ -363,24 +405,31 @@ Add a `viewingFile` state and render the file content inline:
 const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
 
 // Replace the FilesTab section with:
-{activeTab === "files" && !viewingFile && (
-  <FilesTab files={files} onFileSelect={setViewingFile} />
-)}
+{
+  activeTab === "files" && !viewingFile && (
+    <FilesTab
+      files={files}
+      onFileSelect={setViewingFile}
+    />
+  );
+}
 
-{activeTab === "files" && viewingFile && (
-  <InlineFileViewer
-    file={viewingFile}
-    onBack={() => setViewingFile(null)}
-    onExpand={() => {
-      setSelectedFile(viewingFile);  // Opens the full-screen dialog
-    }}
-    onSave={async (content) => {
-      await handleSaveFile(viewingFile.path, content);
-      setViewingFile({ ...viewingFile, content });
-    }}
-    editDisabled={isLoading === true || interrupt !== undefined}
-  />
-)}
+{
+  activeTab === "files" && viewingFile && (
+    <InlineFileViewer
+      file={viewingFile}
+      onBack={() => setViewingFile(null)}
+      onExpand={() => {
+        setSelectedFile(viewingFile); // Opens the full-screen dialog
+      }}
+      onSave={async (content) => {
+        await handleSaveFile(viewingFile.path, content);
+        setViewingFile({ ...viewingFile, content });
+      }}
+      editDisabled={isLoading === true || interrupt !== undefined}
+    />
+  );
+}
 ```
 
 **New sub-component `InlineFileViewer` (inside `ContextPanel.tsx` or separate file):**
@@ -407,9 +456,16 @@ function InlineFileViewer({
 
   // Language mapping (reuse from FileViewDialog or extract to shared util)
   const LANGUAGE_MAP: Record<string, string> = {
-    js: "javascript", ts: "typescript", py: "python",
-    json: "json", yaml: "yaml", yml: "yaml",
-    sh: "bash", md: "markdown", html: "html", css: "css",
+    js: "javascript",
+    ts: "typescript",
+    py: "python",
+    json: "json",
+    yaml: "yaml",
+    yml: "yaml",
+    sh: "bash",
+    md: "markdown",
+    html: "html",
+    css: "css",
     // ... same as FileViewDialog
   };
   const language = LANGUAGE_MAP[ext] || "text";
@@ -418,11 +474,18 @@ function InlineFileViewer({
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <button onClick={onBack} className="text-muted-foreground hover:text-foreground">
+        <button
+          onClick={onBack}
+          className="text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft size={14} />
         </button>
         <span className="flex-1 truncate text-xs font-medium">{file.path}</span>
-        <button onClick={onExpand} className="text-muted-foreground hover:text-foreground" title="Open full screen">
+        <button
+          onClick={onExpand}
+          className="text-muted-foreground hover:text-foreground"
+          title="Open full screen"
+        >
           <Maximize2 size={14} />
         </button>
       </div>
@@ -436,7 +499,11 @@ function InlineFileViewer({
             <SyntaxHighlighter
               language={language}
               style={oneDark}
-              customStyle={{ margin: 0, borderRadius: "0.375rem", fontSize: "0.75rem" }}
+              customStyle={{
+                margin: 0,
+                borderRadius: "0.375rem",
+                fontSize: "0.75rem",
+              }}
               showLineNumbers
               wrapLines
             >
@@ -473,7 +540,9 @@ No feedback on whether the LangGraph deployment is reachable. Users configure UR
 
 ```tsx
 // Add state:
-const [connectionStatus, setConnectionStatus] = useState<"idle" | "testing" | "ok" | "error">("idle");
+const [connectionStatus, setConnectionStatus] = useState<
+  "idle" | "testing" | "ok" | "error"
+>("idle");
 const [connectionError, setConnectionError] = useState("");
 
 // Add test function:
@@ -492,9 +561,20 @@ const testConnection = async () => {
 
 // Add to UI — after the Deployment URL input:
 <div className="flex items-center gap-2">
-  <Button variant="outline" size="sm" onClick={testConnection} disabled={!deploymentUrl || connectionStatus === "testing"}>
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={testConnection}
+    disabled={!deploymentUrl || connectionStatus === "testing"}
+  >
     {connectionStatus === "testing" ? (
-      <><Loader2 size={14} className="mr-1 animate-spin" /> Testing...</>
+      <>
+        <Loader2
+          size={14}
+          className="mr-1 animate-spin"
+        />{" "}
+        Testing...
+      </>
     ) : (
       "Test Connection"
     )}
@@ -505,11 +585,14 @@ const testConnection = async () => {
     </span>
   )}
   {connectionStatus === "error" && (
-    <span className="flex items-center gap-1 text-xs text-red-600" title={connectionError}>
+    <span
+      className="flex items-center gap-1 text-xs text-red-600"
+      title={connectionError}
+    >
       <XCircle size={12} /> Failed
     </span>
   )}
-</div>
+</div>;
 ```
 
 **Required import:**
@@ -524,10 +607,12 @@ import { Client } from "@langchain/langgraph-sdk";
 
 ```tsx
 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-  <span className={cn(
-    "inline-block h-2 w-2 rounded-full",
-    assistant ? "bg-green-500" : "bg-red-500"
-  )} />
+  <span
+    className={cn(
+      "inline-block h-2 w-2 rounded-full",
+      assistant ? "bg-green-500" : "bg-red-500"
+    )}
+  />
   <span className="font-medium">Assistant:</span> {config.assistantId}
 </div>
 ```
@@ -544,16 +629,16 @@ import { Client } from "@langchain/langgraph-sdk";
 
 ## Files Changed Summary
 
-| File | Action | Changes |
-|------|--------|---------|
-| `src/app/components/tool-renderers/index.tsx` | **NEW** | Tool-specific argument renderers |
-| `src/app/hooks/useChat.ts` | MODIFY | Add `regenerateLastMessage()` |
-| `src/app/components/ChatMessage.tsx` | MODIFY | Add regenerate button, edit UI, pass new props |
-| `src/app/components/ChatInterface.tsx` | MODIFY | Wire regenerate/edit callbacks |
-| `src/app/components/ToolCallBox.tsx` | MODIFY | Use `ToolArgsRenderer` |
-| `src/app/components/ContextPanel.tsx` | MODIFY | Add inline file viewer |
-| `src/app/components/ConfigDialog.tsx` | MODIFY | Add connection test |
-| `src/app/page.tsx` | MODIFY | Add header connection indicator |
+| File                                          | Action  | Changes                                        |
+| --------------------------------------------- | ------- | ---------------------------------------------- |
+| `src/app/components/tool-renderers/index.tsx` | **NEW** | Tool-specific argument renderers               |
+| `src/app/hooks/useChat.ts`                    | MODIFY  | Add `regenerateLastMessage()`                  |
+| `src/app/components/ChatMessage.tsx`          | MODIFY  | Add regenerate button, edit UI, pass new props |
+| `src/app/components/ChatInterface.tsx`        | MODIFY  | Wire regenerate/edit callbacks                 |
+| `src/app/components/ToolCallBox.tsx`          | MODIFY  | Use `ToolArgsRenderer`                         |
+| `src/app/components/ContextPanel.tsx`         | MODIFY  | Add inline file viewer                         |
+| `src/app/components/ConfigDialog.tsx`         | MODIFY  | Add connection test                            |
+| `src/app/page.tsx`                            | MODIFY  | Add header connection indicator                |
 
 ## New Dependencies
 

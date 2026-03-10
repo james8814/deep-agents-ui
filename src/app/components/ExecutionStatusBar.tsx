@@ -44,7 +44,10 @@ export const ExecutionStatusBar = React.memo<ExecutionStatusBarProps>(
 
     return (
       <div className="flex h-9 items-center gap-3 border-b border-border bg-accent/50 px-4 py-2 text-sm">
-        <Loader2 size={14} className="animate-spin text-primary" />
+        <Loader2
+          size={14}
+          className="animate-spin text-primary"
+        />
         <div className="flex flex-1 items-center gap-2 truncate">
           <span className="font-medium text-foreground">
             {currentStep || "Running agent"}
@@ -58,7 +61,7 @@ export const ExecutionStatusBar = React.memo<ExecutionStatusBarProps>(
             </>
           )}
         </div>
-        <span className="flex-shrink-0 tabular-nums text-xs text-muted-foreground">
+        <span className="flex-shrink-0 text-xs tabular-nums text-muted-foreground">
           {formatElapsed(elapsed)}
         </span>
       </div>

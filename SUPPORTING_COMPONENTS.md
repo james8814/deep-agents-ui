@@ -7,11 +7,13 @@ This document provides comprehensive documentation for the supporting UI compone
 ## Component Inventory
 
 ### 1. WelcomeScreen
+
 **Location**: `src/app/components/WelcomeScreen.tsx`
 
 A welcoming landing screen for new users with animated introduction, quick action buttons, and assistant information.
 
 #### Features
+
 - Animated floating logo with scale-in effect
 - Smooth slide-in animations for content sections
 - Quick action grid (4 common actions)
@@ -20,6 +22,7 @@ A welcoming landing screen for new users with animated introduction, quick actio
 - Footer with external links
 
 #### Props
+
 ```typescript
 interface WelcomeScreenProps {
   /**
@@ -40,17 +43,19 @@ interface WelcomeScreenProps {
 ```
 
 #### Usage
+
 ```tsx
-import { WelcomeScreen } from '@/app/components/WelcomeScreen';
+import { WelcomeScreen } from "@/app/components/WelcomeScreen";
 
 <WelcomeScreen
   onGetStarted={() => handleStart()}
   assistantId="my-agent-123"
   isLoading={isConnecting}
-/>
+/>;
 ```
 
 #### Accessibility
+
 - WCAG 2.1 AA compliant
 - Proper heading hierarchy (H1)
 - Semantic HTML structure
@@ -60,11 +65,13 @@ import { WelcomeScreen } from '@/app/components/WelcomeScreen';
 ---
 
 ### 2. ThemeToggle
+
 **Location**: `src/app/components/ThemeToggle.tsx`
 
 Light/dark/system theme switcher with localStorage persistence.
 
 #### Features
+
 - Three theme options: Light, Dark, System (respects OS preference)
 - localStorage persistence
 - Dropdown menu with visual feedback
@@ -73,17 +80,18 @@ Light/dark/system theme switcher with localStorage persistence.
 - Respects prefers-color-scheme media query
 
 #### Props
+
 ```typescript
 interface ThemeToggleProps {
   /**
    * Callback when theme changes
    */
-  onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
+  onThemeChange?: (theme: "light" | "dark" | "system") => void;
 
   /**
    * Display variant: 'icon' (compact) or 'full' (with text)
    */
-  variant?: 'icon' | 'full';
+  variant?: "icon" | "full";
 
   /**
    * Show label text
@@ -93,18 +101,20 @@ interface ThemeToggleProps {
 ```
 
 #### Usage
+
 ```tsx
-import { ThemeToggle } from '@/app/components/ThemeToggle';
+import { ThemeToggle } from "@/app/components/ThemeToggle";
 
 <ThemeToggle
   variant="icon"
   onThemeChange={(theme) => {
-    console.log('Theme changed to:', theme);
+    console.log("Theme changed to:", theme);
   }}
-/>
+/>;
 ```
 
 #### Accessibility
+
 - WCAG 2.1 AA compliant
 - Keyboard navigation support
 - Proper ARIA labels
@@ -115,11 +125,13 @@ import { ThemeToggle } from '@/app/components/ThemeToggle';
 ---
 
 ### 3. StatusIndicator
+
 **Location**: `src/app/components/StatusIndicator.tsx`
 
 Visual status indicator with multiple states, animations, and tooltips.
 
 #### Features
+
 - 5 status states: connected, connecting, disconnected, error, idle
 - Animated pulsing/spinning indicators
 - Optional tooltips with descriptions
@@ -128,6 +140,7 @@ Visual status indicator with multiple states, animations, and tooltips.
 - Custom labels
 
 #### Props
+
 ```typescript
 interface StatusIndicatorProps {
   /**
@@ -153,7 +166,7 @@ interface StatusIndicatorProps {
   /**
    * Size variant: 'sm' | 'md' | 'lg'
    */
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 
   /**
    * Show label beside indicator
@@ -163,8 +176,9 @@ interface StatusIndicatorProps {
 ```
 
 #### Usage
+
 ```tsx
-import { StatusIndicator } from '@/app/components/StatusIndicator';
+import { StatusIndicator } from "@/app/components/StatusIndicator";
 
 <StatusIndicator
   status="connected"
@@ -172,10 +186,11 @@ import { StatusIndicator } from '@/app/components/StatusIndicator';
   description="Connection established"
   size="md"
   showLabel
-/>
+/>;
 ```
 
 #### Accessibility
+
 - WCAG 2.1 AA compliant
 - Color + icon for status clarity (not color-dependent)
 - Proper ARIA roles (role="status")
@@ -185,11 +200,13 @@ import { StatusIndicator } from '@/app/components/StatusIndicator';
 ---
 
 ### 4. LoadingSpinner
+
 **Location**: `src/app/components/LoadingSpinner.tsx`
 
 Flexible loading state indicator with multiple variants and optional text.
 
 #### Features
+
 - 4 animation variants: spinner, dots, pulse, skeleton
 - Multiple size options (sm, md, lg, xl)
 - Optional label text
@@ -198,6 +215,7 @@ Flexible loading state indicator with multiple variants and optional text.
 - Reduced motion support
 
 #### Props
+
 ```typescript
 interface LoadingSpinnerProps {
   /**
@@ -243,17 +261,19 @@ interface LoadingSpinnerProps {
 ```
 
 #### SkeletonLoader Sub-component
+
 ```typescript
 interface SkeletonLoaderProps {
-  count?: number;      // Number of lines (default: 3)
-  height?: string;     // Height class (default: 'h-4')
-  width?: string;      // Width class (default: 'w-full')
-  gap?: string;        // Gap class (default: 'gap-2')
-  rounded?: string;    // Border radius (default: 'rounded-md')
+  count?: number; // Number of lines (default: 3)
+  height?: string; // Height class (default: 'h-4')
+  width?: string; // Width class (default: 'w-full')
+  gap?: string; // Gap class (default: 'gap-2')
+  rounded?: string; // Border radius (default: 'rounded-md')
 }
 ```
 
 #### Usage
+
 ```tsx
 import { LoadingSpinner, SkeletonLoader } from '@/app/components/LoadingSpinner';
 
@@ -279,6 +299,7 @@ import { LoadingSpinner, SkeletonLoader } from '@/app/components/LoadingSpinner'
 ```
 
 #### Accessibility
+
 - WCAG 2.1 AA compliant
 - Proper role="status"
 - Screen reader announcements
@@ -288,11 +309,13 @@ import { LoadingSpinner, SkeletonLoader } from '@/app/components/LoadingSpinner'
 ---
 
 ### 5. ErrorBoundary
+
 **Location**: `src/app/components/ErrorBoundary.tsx`
 
 Error boundary for graceful error handling with recovery options.
 
 #### Features
+
 - Catches React errors in child components
 - Customizable fallback UI
 - Development mode with stack traces
@@ -303,6 +326,7 @@ Error boundary for graceful error handling with recovery options.
 - Accessibility-first design
 
 #### Props
+
 ```typescript
 interface ErrorBoundaryProps {
   /**
@@ -333,11 +357,12 @@ interface ErrorBoundaryProps {
   /**
    * Error severity level
    */
-  level?: 'page' | 'section' | 'inline';
+  level?: "page" | "section" | "inline";
 }
 ```
 
 #### useErrorHandler Hook
+
 ```typescript
 // Manually throw errors in functional components
 const handleError = useErrorHandler();
@@ -350,6 +375,7 @@ try {
 ```
 
 #### Usage
+
 ```tsx
 import { ErrorBoundary, useErrorHandler } from '@/app/components/ErrorBoundary';
 
@@ -383,6 +409,7 @@ function MyComponent() {
 ```
 
 #### Accessibility
+
 - WCAG 2.1 AA compliant
 - Proper role="alert"
 - aria-live="assertive"
@@ -394,11 +421,13 @@ function MyComponent() {
 ---
 
 ### 6. OPDCAStageDisplay
+
 **Location**: `src/app/components/OPDCAStageDisplay.tsx`
 
 Displays OPDCA (Observe-Plan-Do-Check-Adapt) workflow stage with visual indicators.
 
 #### Features
+
 - 6 workflow stages: observe, plan, do, check, adapt, idle
 - 3 display variants: minimal, compact, full
 - Progress indicators
@@ -407,17 +436,18 @@ Displays OPDCA (Observe-Plan-Do-Check-Adapt) workflow stage with visual indicato
 - Progress bar visualization
 
 #### Props
+
 ```typescript
 interface OPDCAStageDisplayProps {
   /**
    * Current stage
    */
-  stage: 'observe' | 'plan' | 'do' | 'check' | 'adapt' | 'idle';
+  stage: "observe" | "plan" | "do" | "check" | "adapt" | "idle";
 
   /**
    * Display variant: 'minimal' | 'compact' | 'full'
    */
-  variant?: 'full' | 'compact' | 'minimal';
+  variant?: "full" | "compact" | "minimal";
 
   /**
    * Show stage description
@@ -432,6 +462,7 @@ interface OPDCAStageDisplayProps {
 ```
 
 #### OPDCATimeline Sub-component
+
 ```typescript
 interface OPDCATimelineProps {
   /**
@@ -457,6 +488,7 @@ interface OPDCATimelineProps {
 ```
 
 #### Usage
+
 ```tsx
 import {
   OPDCAStageDisplay,
@@ -482,6 +514,7 @@ import {
 ```
 
 #### Accessibility
+
 - WCAG 2.1 AA compliant
 - Proper role="status"
 - Color + icon + text for clarity
@@ -494,13 +527,14 @@ import {
 ## Integration Examples
 
 ### Example 1: Chat Interface with Welcome Screen
+
 ```tsx
-import { WelcomeScreen } from '@/app/components/WelcomeScreen';
-import { ChatInterface } from '@/app/components/ChatInterface';
+import { WelcomeScreen } from "@/app/components/WelcomeScreen";
+import { ChatInterface } from "@/app/components/ChatInterface";
 
 export function ChatPage() {
-  const [threadId, setThreadId] = useQueryState('threadId');
-  const [assistantId] = useQueryState('assistantId');
+  const [threadId, setThreadId] = useQueryState("threadId");
+  const [assistantId] = useQueryState("assistantId");
 
   return threadId ? (
     <ChatInterface assistantId={assistantId} />
@@ -516,9 +550,10 @@ export function ChatPage() {
 ```
 
 ### Example 2: Header with Theme and Status
+
 ```tsx
-import { ThemeToggle } from '@/app/components/ThemeToggle';
-import { StatusIndicator } from '@/app/components/StatusIndicator';
+import { ThemeToggle } from "@/app/components/ThemeToggle";
+import { StatusIndicator } from "@/app/components/StatusIndicator";
 
 export function Header({ agentConnected }) {
   return (
@@ -526,7 +561,7 @@ export function Header({ agentConnected }) {
       <h1>Deep Agents Studio</h1>
       <div className="flex gap-4">
         <StatusIndicator
-          status={agentConnected ? 'connected' : 'disconnected'}
+          status={agentConnected ? "connected" : "disconnected"}
           label="Agent"
           showLabel
         />
@@ -538,12 +573,16 @@ export function Header({ agentConnected }) {
 ```
 
 ### Example 3: Protected Route with Error Boundary
+
 ```tsx
-import { ErrorBoundary } from '@/app/components/ErrorBoundary';
+import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 
 export function ProtectedPage() {
   return (
-    <ErrorBoundary level="page" onError={logError}>
+    <ErrorBoundary
+      level="page"
+      onError={logError}
+    >
       <PageContent />
     </ErrorBoundary>
   );
@@ -551,8 +590,12 @@ export function ProtectedPage() {
 ```
 
 ### Example 4: Workflow Display
+
 ```tsx
-import { OPDCAStageDisplay, OPDCATimeline } from '@/app/components/OPDCAStageDisplay';
+import {
+  OPDCAStageDisplay,
+  OPDCATimeline,
+} from "@/app/components/OPDCAStageDisplay";
 
 export function WorkflowIndicator({ currentStage, completedStages }) {
   return (
@@ -577,12 +620,15 @@ export function WorkflowIndicator({ currentStage, completedStages }) {
 ## Styling and Customization
 
 ### TailwindCSS Integration
+
 All components use TailwindCSS with proper class sorting via `prettier-plugin-tailwindcss`.
 
 ### Dark Mode Support
+
 All components automatically adapt to light/dark mode using the `dark:` prefix.
 
 ### Custom Theme Colors
+
 To customize component colors, modify the Tailwind configuration:
 
 ```javascript
@@ -591,7 +637,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#your-color',
+        primary: "#your-color",
         // ... other colors
       },
     },
@@ -604,6 +650,7 @@ module.exports = {
 ## Testing
 
 Each component includes comprehensive test suites covering:
+
 - Rendering and display
 - User interactions
 - Accessibility (WCAG 2.1 AA)
@@ -612,6 +659,7 @@ Each component includes comprehensive test suites covering:
 - Integration scenarios
 
 ### Running Tests
+
 ```bash
 npm test                          # Run all tests
 npm test -- --watch             # Watch mode
@@ -633,17 +681,19 @@ npm test WelcomeScreen          # Specific component
 ## Performance Considerations
 
 ### Code Splitting
+
 Components use React.memo for optimization and can be code-split:
 
 ```tsx
 const WelcomeScreen = lazy(() =>
-  import('@/app/components/WelcomeScreen').then(mod => ({
+  import("@/app/components/WelcomeScreen").then((mod) => ({
     default: mod.WelcomeScreen,
   }))
 );
 ```
 
 ### Bundle Sizes (Gzipped)
+
 - WelcomeScreen: ~3KB
 - ThemeToggle: ~2KB
 - StatusIndicator: ~2KB
@@ -669,6 +719,7 @@ const WelcomeScreen = lazy(() =>
 ## Migration from Existing Components
 
 ### From old WelcomeScreen HTML
+
 ```tsx
 // Old
 <div className="welcome-screen">
@@ -681,6 +732,7 @@ const WelcomeScreen = lazy(() =>
 ```
 
 ### From manual theme switching
+
 ```tsx
 // Old
 const toggleTheme = () => {
@@ -688,7 +740,7 @@ const toggleTheme = () => {
 };
 
 // New
-<ThemeToggle onThemeChange={handleThemeChange} />
+<ThemeToggle onThemeChange={handleThemeChange} />;
 ```
 
 ---
@@ -696,26 +748,31 @@ const toggleTheme = () => {
 ## Troubleshooting
 
 ### WelcomeScreen not animating
+
 - Ensure component is fully mounted
 - Check that CSS-in-JS styles are applied
 - Verify prefers-reduced-motion is not set
 
 ### ThemeToggle not persisting
+
 - Clear browser localStorage
 - Check localStorage permissions
 - Verify no CSP restrictions
 
 ### StatusIndicator tooltip not showing
+
 - Ensure TooltipProvider wraps the component
 - Check description prop is set
 - Verify z-index is not being overridden
 
 ### LoadingSpinner fullScreen overlay blocking clicks
+
 - Set pointer-events: none on overlay if needed
 - Adjust z-index values
 - Use section-level instead of fullScreen
 
 ### ErrorBoundary not catching errors
+
 - Only catches render-time errors (not async)
 - Use try-catch for event handlers
 - Use useErrorHandler hook for thrown errors
@@ -725,6 +782,7 @@ const toggleTheme = () => {
 ## Contributing
 
 When adding new components:
+
 1. Create component file in `src/app/components/`
 2. Add comprehensive JSDoc comments
 3. Include full test suite in `__tests__/`
@@ -737,6 +795,7 @@ When adding new components:
 ## Version History
 
 **v1.0.0** (2026-03-09)
+
 - Initial release
 - All 6 supporting components
 - Complete test coverage
@@ -754,8 +813,8 @@ Same as parent project (Deep Agents UI)
 ## Support
 
 For issues or questions:
+
 1. Check component documentation
 2. Review test files for usage examples
 3. Check accessibility guidelines
 4. Open GitHub issue with minimal reproduction
-

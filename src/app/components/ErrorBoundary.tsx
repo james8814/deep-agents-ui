@@ -97,8 +97,7 @@ export class ErrorBoundary extends React.Component<
     // Reset if resetKeys changed
     if (resetKeys && hasError) {
       if (
-        JSON.stringify(resetKeys) !==
-        JSON.stringify(this.previousResetKeys)
+        JSON.stringify(resetKeys) !== JSON.stringify(this.previousResetKeys)
       ) {
         this.resetErrorBoundary();
         this.previousResetKeys = resetKeys;
@@ -164,7 +163,8 @@ export class ErrorBoundary extends React.Component<
         className={cn(
           "flex flex-col gap-4",
           isPage && "h-screen items-center justify-center bg-background px-4",
-          isSection && "rounded-lg border border-destructive/50 bg-destructive/5 p-6",
+          isSection &&
+            "rounded-lg border border-destructive/50 bg-destructive/5 p-6",
           !isPage && !isSection && "rounded p-3 text-sm"
         )}
         role="alert"
@@ -176,7 +176,7 @@ export class ErrorBoundary extends React.Component<
           <AlertCircle
             className={cn(
               "flex-shrink-0 text-destructive",
-              isPage ? "h-8 w-8 mt-1" : "h-5 w-5 mt-0.5"
+              isPage ? "mt-1 h-8 w-8" : "mt-0.5 h-5 w-5"
             )}
             aria-hidden="true"
           />
@@ -261,7 +261,7 @@ export class ErrorBoundary extends React.Component<
             href="/"
             className={cn(
               "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors",
-              "text-primary-foreground bg-primary hover:bg-primary/90",
+              "text-primary-foreground hover:bg-primary/90 bg-primary",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             )}
           >

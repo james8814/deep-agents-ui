@@ -91,7 +91,9 @@ export const MissingInfoForm: React.FC<MissingInfoFormProps> = ({
               placeholder={placeholder}
               rows={5}
               disabled={isSubmitting}
-              className={`${styles.formInput} ${error ? styles.inputError : ""}`}
+              className={`${styles.formInput} ${
+                error ? styles.inputError : ""
+              }`}
             />
           ) : (
             <Input
@@ -104,14 +106,14 @@ export const MissingInfoForm: React.FC<MissingInfoFormProps> = ({
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               disabled={isSubmitting}
-              className={`${styles.formInput} ${error ? styles.inputError : ""}`}
+              className={`${styles.formInput} ${
+                error ? styles.inputError : ""
+              }`}
             />
           )}
 
           {/* Hint Text */}
-          {context.hint && (
-            <p className={styles.hintText}>{context.hint}</p>
-          )}
+          {context.hint && <p className={styles.hintText}>{context.hint}</p>}
 
           {/* Error Message */}
           {error && (
@@ -122,9 +124,7 @@ export const MissingInfoForm: React.FC<MissingInfoFormProps> = ({
           )}
 
           {/* Character Count */}
-          <div className={styles.characterCount}>
-            {value.length} 字符
-          </div>
+          <div className={styles.characterCount}>{value.length} 字符</div>
         </div>
 
         {/* Action Buttons */}

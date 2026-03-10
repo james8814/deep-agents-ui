@@ -40,21 +40,36 @@ describe("ToolCallBoxEnhanced Component", () => {
 
     it("should render status icon for pending status", () => {
       const toolCall = { ...mockToolCall, status: "pending" as const };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       const spinnerIcon = document.querySelector(".animate-spin");
       expect(spinnerIcon).toBeInTheDocument();
     });
 
     it("should render status icon for error status", () => {
       const toolCall = { ...mockToolCall, status: "error" as const };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       const icon = document.querySelector(".text-destructive");
       expect(icon).toBeInTheDocument();
     });
 
     it("should render status icon for interrupted status", () => {
       const toolCall = { ...mockToolCall, status: "interrupted" as const };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       const icon = document.querySelector(".text-warning");
       expect(icon).toBeInTheDocument();
     });
@@ -68,19 +83,34 @@ describe("ToolCallBoxEnhanced Component", () => {
 
     it("should display high risk badge for write_file", () => {
       const toolCall = { ...mockToolCall, name: "write_file" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       expect(screen.getByText("Write Risk")).toBeInTheDocument();
     });
 
     it("should display critical risk badge for delete_file", () => {
       const toolCall = { ...mockToolCall, name: "delete_file" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       expect(screen.getByText("Delete Risk")).toBeInTheDocument();
     });
 
     it("should display critical risk badge for execute_command", () => {
       const toolCall = { ...mockToolCall, name: "execute_command" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       expect(screen.getByText("Execute Risk")).toBeInTheDocument();
     });
 
@@ -98,7 +128,12 @@ describe("ToolCallBoxEnhanced Component", () => {
 
     it("should show risk description on hover", () => {
       const toolCall = { ...mockToolCall, name: "write_file" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
       const badge = screen.getByText("Write Risk");
       expect(badge.parentElement).toHaveAttribute("title", "Modifies files");
     });
@@ -144,7 +179,12 @@ describe("ToolCallBoxEnhanced Component", () => {
         result: "File contents",
       };
 
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const button = screen.getByRole("button");
       await user.click(button);
@@ -159,7 +199,12 @@ describe("ToolCallBoxEnhanced Component", () => {
         args: { path: "/tmp/file.txt", encoding: "utf-8" },
       };
 
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const button = screen.getByRole("button");
       await user.click(button);
@@ -175,7 +220,12 @@ describe("ToolCallBoxEnhanced Component", () => {
       const result = "Hello, World!";
       const toolCall = { ...mockToolCall, result };
 
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const button = screen.getByRole("button");
       await user.click(button);
@@ -187,15 +237,29 @@ describe("ToolCallBoxEnhanced Component", () => {
 
     it("should be disabled when no content", () => {
       const toolCall = { ...mockToolCall, args: {}, result: undefined };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const button = screen.getByRole("button");
       expect(button).toBeDisabled();
     });
 
     it("should start expanded for interrupted status", () => {
-      const toolCall = { ...mockToolCall, status: "interrupted" as const, result: "some output" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      const toolCall = {
+        ...mockToolCall,
+        status: "interrupted" as const,
+        result: "some output",
+      };
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       expect(screen.getByText("some output")).toBeInTheDocument();
     });
@@ -310,7 +374,12 @@ describe("ToolCallBoxEnhanced Component", () => {
 
     it("should have aria-expanded attribute", () => {
       const toolCall = { ...mockToolCall, result: "output" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const button = screen.getByRole("button");
       expect(button).toHaveAttribute("aria-expanded");
@@ -318,7 +387,12 @@ describe("ToolCallBoxEnhanced Component", () => {
 
     it("should have aria-controls for expanded content", () => {
       const toolCall = { ...mockToolCall, result: "output" };
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const button = screen.getByRole("button");
       const contentId = button.getAttribute("aria-controls");
@@ -332,7 +406,12 @@ describe("ToolCallBoxEnhanced Component", () => {
         args: { key: "value" },
       };
 
-      render(<ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />);
+      render(
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
+      );
 
       const region = screen.getByRole("region");
       expect(region).toHaveAttribute("aria-label");
@@ -375,7 +454,10 @@ describe("ToolCallBoxEnhanced Component", () => {
     it("should have visual styling for interrupted status", () => {
       const toolCall = { ...mockToolCall, status: "interrupted" as const };
       const { container } = render(
-        <ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
       );
 
       const mainDiv = container.querySelector('[role="region"]');
@@ -385,9 +467,7 @@ describe("ToolCallBoxEnhanced Component", () => {
 
   describe("Visual States", () => {
     it("should show different styling for completed status", () => {
-      const { container } = render(
-        <ToolCallBoxEnhanced {...defaultProps} />
-      );
+      const { container } = render(<ToolCallBoxEnhanced {...defaultProps} />);
       const mainDiv = container.querySelector('[role="region"]');
       expect(mainDiv).toHaveClass("border-border/50");
     });
@@ -395,7 +475,10 @@ describe("ToolCallBoxEnhanced Component", () => {
     it("should highlight on hover", () => {
       const toolCall = { ...mockToolCall, result: "output" };
       const { container } = render(
-        <ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
       );
 
       const mainDiv = container.querySelector('[role="region"]');
@@ -406,7 +489,10 @@ describe("ToolCallBoxEnhanced Component", () => {
       const user = userEvent.setup();
       const toolCall = { ...mockToolCall, result: "output" };
       const { container } = render(
-        <ToolCallBoxEnhanced {...defaultProps} toolCall={toolCall} />
+        <ToolCallBoxEnhanced
+          {...defaultProps}
+          toolCall={toolCall}
+        />
       );
 
       const button = screen.getByRole("button");
