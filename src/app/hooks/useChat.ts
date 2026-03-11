@@ -26,10 +26,20 @@ import type { TodoItem } from "@/app/types/types";
 import { useClient, useClientToken } from "@/providers/ClientProvider";
 import { useQueryState } from "nuqs";
 
+export type LogEntry = {
+  type: "tool_call" | "tool_result";
+  tool_name?: string;
+  tool_input?: Record<string, unknown>;
+  tool_output?: string;
+  tool_call_id?: string;
+  status?: "success" | "error";
+};
+
 export type StateType = {
   messages: Message[];
   todos: TodoItem[];
   files: Record<string, string>;
+  subagent_logs?: Record<string, LogEntry[]>;
   subagents?: Record<string, any>;
   email?: {
     id?: string;
@@ -264,6 +274,7 @@ export function useChat({
     stream,
     todos: stream.values.todos ?? [],
     files: stream.values.files ?? {},
+    subagent_logs: stream.values.subagent_logs ?? {},
     subagents: stream.values.subagents ?? {},
     email: stream.values.email,
     ui: stream.values.ui,

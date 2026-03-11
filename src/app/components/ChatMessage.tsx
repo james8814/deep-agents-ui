@@ -17,6 +17,8 @@ import type {
   AttachmentSummary,
 } from "@/app/types/types";
 import { isSchemaVersionCompatible } from "@/app/types/types";
+import type { LogEntry } from "@/app/types/subagent";
+import { pairedLogs } from "@/app/types/subagent";
 import { Message } from "@langchain/langgraph-sdk";
 import {
   extractSubAgentContent,
@@ -32,6 +34,8 @@ import {
   Image,
   FileText,
   AlertCircle,
+  CheckCircle,
+  ChevronDown,
   Clock,
   Download,
 } from "lucide-react";
@@ -63,10 +67,78 @@ interface ChatMessageProps {
   attachmentSummaries?: AttachmentSummary[];
   cancellationReason?: string;
   timeoutSeconds?: number;
+  // SubAgent 工作日志：键为 task tool_call_id，值为工具步骤列表
+  subagentLogs?: Record<string, LogEntry[]>;
 }
 
 // Stable no-op function to avoid creating new references on each render
 const NOOP = () => {};
+
+/**
+ * Inline log step row for the legacy (non-AntdX) SubAgent expanded view
+ */
+function InlineLegacyLogRow({
+  pair,
+}: {
+  pair: { call: LogEntry; result?: LogEntry };
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const success = !pair.result || pair.result.status !== "error";
+  const hasDetails =
+    (pair.call.tool_input && Object.keys(pair.call.tool_input).length > 0) ||
+    !!pair.result?.tool_output;
+
+  return (
+    <div className="rounded border border-border bg-background text-xs">
+      <button
+        onClick={() => hasDetails && setExpanded((v) => !v)}
+        className={cn(
+          "flex w-full items-center gap-2 px-2 py-1.5 text-left",
+          hasDetails && "hover:bg-muted/50"
+        )}
+      >
+        {success ? (
+          <CheckCircle size={11} className="flex-shrink-0 text-green-500" />
+        ) : (
+          <AlertCircle size={11} className="flex-shrink-0 text-red-500" />
+        )}
+        <span className="flex-1 truncate font-medium text-primary">
+          {pair.call.tool_name || "unknown"}
+        </span>
+        {hasDetails && (
+          <ChevronDown
+            size={10}
+            className={cn(
+              "ml-auto flex-shrink-0 text-muted-foreground transition-transform",
+              expanded && "rotate-180"
+            )}
+          />
+        )}
+      </button>
+      {expanded && hasDetails && (
+        <div className="space-y-1.5 border-t border-border px-2 py-1.5">
+          {pair.call.tool_input &&
+            Object.keys(pair.call.tool_input).length > 0 && (
+              <div>
+                <span className="text-[10px] text-muted-foreground">输入</span>
+                <pre className="mt-0.5 max-h-28 overflow-x-auto whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
+                  {JSON.stringify(pair.call.tool_input, null, 2)}
+                </pre>
+              </div>
+            )}
+          {pair.result?.tool_output && (
+            <div>
+              <span className="text-[10px] text-muted-foreground">输出</span>
+              <div className="mt-0.5 line-clamp-5 whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
+                {pair.result.tool_output}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Helper to check if content is multimodal (array of content blocks)
 const isMultimodalContent = (
@@ -106,6 +178,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     attachmentSummaries,
     cancellationReason,
     timeoutSeconds,
+    subagentLogs,
   }) => {
     const useAntdxMarkdown = useFeatureFlag("USE_ANTDX_MARKDOWN");
     const useAntdxSubAgent = useFeatureFlag("USE_ANTDX_SUB_AGENT");
@@ -138,9 +211,10 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             input: toolCall.args,
             output: toolCall.result ? { result: toolCall.result } : undefined,
             status: toolCall.status,
+            logs: subagentLogs?.[toolCall.id] ?? [],
           } as SubAgent;
         });
-    }, [toolCalls]);
+    }, [toolCalls, subagentLogs]);
 
     // Memoize delivery files to prevent unnecessary re-renders
     // Sort by creation time (newest first) and take last 3 files
@@ -572,6 +646,25 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                                 />
                               )}
                             </div>
+                            {/* Execution Steps — shown when subagent_logs data available */}
+                            {subAgent.logs && subAgent.logs.length > 0 && (() => {
+                              const lPairs = pairedLogs(subAgent.logs!);
+                              return lPairs.length > 0 ? (
+                                <div className="mb-4">
+                                  <h4 className="text-primary/70 mb-1.5 text-xs font-semibold uppercase tracking-wider">
+                                    执行步骤 ({lPairs.length})
+                                  </h4>
+                                  <div className="space-y-1">
+                                    {lPairs.map((pair, idx) => (
+                                      <InlineLegacyLogRow
+                                        key={pair.call.tool_call_id ?? idx}
+                                        pair={pair}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : null;
+                            })()}
                             {subAgent.output && (
                               <>
                                 <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">

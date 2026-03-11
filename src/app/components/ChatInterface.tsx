@@ -150,6 +150,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     regenerateLastMessage,
     files,
     setFiles,
+    subagent_logs,
   } = useChatContext();
 
   // Notify user when interrupt occurs on background tab
@@ -526,6 +527,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                         data.message.type === "ai"
                       }
                       threadId={threadId ?? undefined}
+                      subagentLogs={subagent_logs}
                     />
                   </div>
                 );

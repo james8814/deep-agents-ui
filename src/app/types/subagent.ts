@@ -1,17 +1,54 @@
 /**
- * SubAgent 类型定义 (v1.2 增强版)
+ * SubAgent 类型定义 (v1.3 工作日志版)
  *
  * 符合 DeepAgent 团队评审建议:
  * - 多重名称回退机制
  * - 健壮的字段访问 (可选链)
  * - 错误状态支持
  * - 文本截断功能
+ * - SubAgent 内部工具调用日志支持 (v1.3 新增)
  */
 
 /**
  * SubAgent 执行状态
  */
 export type SubagentStatus = "pending" | "running" | "success" | "error";
+
+/**
+ * SubAgent 工作过程日志条目
+ * 对应后端 _extract_log_entries() 生成的条目结构
+ */
+export interface LogEntry {
+  type: "tool_call" | "tool_result";
+  tool_name?: string;
+  tool_input?: Record<string, unknown>;
+  tool_output?: string;
+  tool_call_id?: string;
+  status?: "success" | "error";
+}
+
+/**
+ * 将 tool_call 和 tool_result 条目配对
+ * 方便在 UI 中以"一个工具步骤"的形式展示
+ */
+export function pairedLogs(
+  logs: LogEntry[]
+): Array<{ call: LogEntry; result?: LogEntry }> {
+  const pairs: Array<{ call: LogEntry; result?: LogEntry }> = [];
+  for (const entry of logs) {
+    if (entry.type === "tool_call" && entry.tool_call_id) {
+      pairs.push({ call: entry });
+    } else if (entry.type === "tool_result" && entry.tool_call_id) {
+      const pair = pairs.find(
+        (p) => p.call.tool_call_id === entry.tool_call_id
+      );
+      if (pair) {
+        pair.result = entry;
+      }
+    }
+  }
+  return pairs;
+}
 
 /**
  * 工具调用展示数据
@@ -34,6 +71,7 @@ export interface SubAgentDisplayData {
   result?: string;
   startedAt: Date | null;
   error?: string; // 新增: 错误信息
+  logs?: LogEntry[]; // 新增: 工作过程日志，来自 subagent_logs 状态字段
 }
 
 /**

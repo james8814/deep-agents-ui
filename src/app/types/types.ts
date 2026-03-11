@@ -23,6 +23,7 @@ export interface SubAgent {
   input: Record<string, unknown>;
   output?: Record<string, unknown>;
   status: "pending" | "active" | "completed" | "error";
+  logs?: import("@/app/types/subagent").LogEntry[];
 }
 
 export interface FileItem {
