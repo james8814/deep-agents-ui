@@ -104,9 +104,9 @@ try {
   };
 
   isPatchApplied = true;
-  console.log("[fetchInterceptor] ✅ Bearer Token 自动添加已启用");
+  // Bearer Token 自动添加已启用（日志已禁用）
 } catch (error) {
-  console.error("[fetchInterceptor] ❌ Patch 失败，将使用原始 fetch", error);
+  // Patch 失败，将使用原始 fetch
 }
 
 /**

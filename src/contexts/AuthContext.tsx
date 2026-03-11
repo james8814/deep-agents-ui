@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
           setToken(demoToken);
           setUser(demoUser);
-          console.log("[Auth] 🔓 开发模式：已自动登录演示用户");
+          // 开发模式自动登录（日志已禁用）
           return;
         }
 

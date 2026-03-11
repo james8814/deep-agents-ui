@@ -270,15 +270,15 @@ export function useChat({
     onHistoryRevalidate?.();
   }, [stream, activeAssistant?.config, onHistoryRevalidate, token]);
 
-  // Debug logging for files state tracking
+  // Debug logging for files state tracking (disabled in production)
   const filesFromStream = stream.values.files ?? {};
   if (Object.keys(filesFromStream).length > 0) {
-    console.log("[useChat] Received files from stream:", {
-      count: Object.keys(filesFromStream).length,
-      files: Object.keys(filesFromStream),
-    });
-  } else {
-    console.log("[useChat] No files in stream.values.files");
+    if (process.env.NODE_ENV === "development") {
+      console.log("[useChat] Received files from stream:", {
+        count: Object.keys(filesFromStream).length,
+        files: Object.keys(filesFromStream),
+      });
+    }
   }
 
   return {
