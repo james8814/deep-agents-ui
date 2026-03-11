@@ -1,0 +1,295 @@
+/**
+ * v5.27 Design System - CSS Variables
+ *
+ * Extracted from: /docs/ui_redesign/v5.26.html
+ * Date: 2026-03-11
+ *
+ * This file contains all design tokens for the Azune design system:
+ * - 28 colors (dark + light themes)
+ * - 6 spacing levels
+ * - 4 corner radius levels
+ * - Typography system
+ * - Animation system
+ */
+
+/* ================================================================
+ * DARK THEME (Default)
+ * ================================================================ */
+
+:root {
+  /* Background Colors (Dark) */
+  --bg: #0A0A12;
+  --bg1: #0E0E1A;
+  --bg2: #12121F;
+  --bg3: #1A1A2E;
+
+  /* Text Colors (Dark) */
+  --t1: #F5F5F7;
+  --t2: #D4D4D8;
+  --t3: #71717A;
+  --t4: #52525B;
+
+  /* Border Colors (Dark) */
+  --b1: #27272A;
+  --b2: #3F3F46;
+
+  /* Brand Colors */
+  --brand: #7C6BF0;
+  --brand-l: #9D8DF7;
+  --brand-d: #5B4BC7;
+
+  /* Status Colors */
+  --ok: #22C55E;
+  --ok-d: #16A34A;
+  --err: #EF4444;
+  --err-d: #DC2626;
+  --warn: #F59E0B;
+  --warn-d: #D97706;
+  --cyan: #38BDF8;
+
+  /* Background Status Colors (Dark) */
+  --bg-err: rgba(239, 68, 68, 0.1);
+  --bg-ok: rgba(34, 197, 94, 0.1);
+  --bg-warn: rgba(245, 158, 11, 0.1);
+
+  /* Spacing (4px grid) */
+  --sp1: 4px;
+  --sp2: 8px;
+  --sp3: 12px;
+  --sp4: 16px;
+  --sp5: 24px;
+  --sp6: 32px;
+
+  /* Corner Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+
+  /* Typography */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --line-height-tight: 1.4;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+
+  /* Animation */
+  --dur-instant: 0ms;
+  --dur-fast: 150ms;
+  --dur-normal: 250ms;
+  --dur-slow: 400ms;
+  --dur-slowest: 600ms;
+
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Z-Index */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-popover: 50;
+  --z-toast: 60;
+  --z-max: 9999;
+
+  /* Shadows (Dark) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ================================================================
+ * LIGHT THEME
+ * ================================================================ */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Background Colors (Light) */
+    --bg: #FFFFFF;
+    --bg1: #F9F9FB;
+    --bg2: #F3F3F6;
+    --bg3: #ECECF1;
+
+    /* Text Colors (Light) */
+    --t1: #0A0A12;
+    --t2: #3F3F46;
+    --t3: #A1A1AA;
+    --t4: #D4D4D8;
+
+    /* Border Colors (Light) */
+    --b1: #E4E4E7;
+    --b2: #D4D4D8;
+
+    /* Brand Colors (same) */
+    --brand: #7C6BF0;
+    --brand-l: #9D8DF7;
+    --brand-d: #5B4BC7;
+
+    /* Status Colors (same) */
+    --ok: #22C55E;
+    --ok-d: #16A34A;
+    --err: #EF4444;
+    --err-d: #DC2626;
+    --warn: #F59E0B;
+    --warn-d: #D97706;
+    --cyan: #38BDF8;
+
+    /* Background Status Colors (Light) */
+    --bg-err: rgba(239, 68, 68, 0.08);
+    --bg-ok: rgba(34, 197, 94, 0.08);
+    --bg-warn: rgba(245, 158, 11, 0.08);
+
+    /* Shadows (Light) */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* ================================================================
+ * CLASS-BASED THEME OVERRIDE (for manual theme switching)
+ * ================================================================ */
+
+:root.dark {
+  /* Dark theme variables (same as default) */
+  --bg: #0A0A12;
+  --bg1: #0E0E1A;
+  --bg2: #12121F;
+  --bg3: #1A1A2E;
+  --t1: #F5F5F7;
+  --t2: #D4D4D8;
+  --t3: #71717A;
+  --t4: #52525B;
+  --b1: #27272A;
+  --b2: #3F3F46;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+:root.light {
+  /* Light theme variables */
+  --bg: #FFFFFF;
+  --bg1: #F9F9FB;
+  --bg2: #F3F3F6;
+  --bg3: #ECECF1;
+  --t1: #0A0A12;
+  --t2: #3F3F46;
+  --t3: #A1A1AA;
+  --t4: #D4D4D8;
+  --b1: #E4E4E7;
+  --b2: #D4D4D8;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* ================================================================
+ * UTILITY CLASSES
+ * ================================================================ */
+
+.text-primary {
+  color: var(--t1);
+}
+
+.text-secondary {
+  color: var(--t2);
+}
+
+.text-tertiary {
+  color: var(--t3);
+}
+
+.text-disabled {
+  color: var(--t4);
+}
+
+.bg-primary {
+  background-color: var(--bg);
+}
+
+.bg-secondary {
+  background-color: var(--bg1);
+}
+
+.bg-tertiary {
+  background-color: var(--bg2);
+}
+
+.border-default {
+  border-color: var(--b1);
+}
+
+.border-subtle {
+  border-color: var(--b2);
+}
+
+.rounded-sm {
+  border-radius: var(--r-sm);
+}
+
+.rounded-md {
+  border-radius: var(--r-md);
+}
+
+.rounded-lg {
+  border-radius: var(--r-lg);
+}
+
+.rounded-xl {
+  border-radius: var(--r-xl);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+  box-shadow: var(--shadow-xl);
+}
+
+.duration-fast {
+  transition-duration: var(--dur-fast);
+}
+
+.duration-normal {
+  transition-duration: var(--dur-normal);
+}
+
+.duration-slow {
+  transition-duration: var(--dur-slow);
+}
+
+.ease-out {
+  transition-timing-function: var(--ease-out);
+}
+
+.ease-in-out {
+  transition-timing-function: var(--ease-in-out);
+}
