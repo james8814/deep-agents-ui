@@ -73,20 +73,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function checkAuth() {
       setIsLoading(true);
       try {
-        // DEV MODE: Auto-login with demo user
+        // Demo Authentication: Auto-login with demo user
+        // 仅当 NEXT_PUBLIC_DEMO_AUTH_ENABLED=true 时启用
+        // 这是为开发环境提供无缝自动登录的合规方案
         if (
           typeof window !== "undefined" &&
-          process.env.NODE_ENV === "development"
+          process.env.NEXT_PUBLIC_DEMO_AUTH_ENABLED === "true"
         ) {
-          const demoToken = "demo_token_dev_mode";
+          const demoToken = "demo-dev-token";
           const demoUser: User = {
-            id: "demo_user_dev",
+            id: "demo_dev_user",
             username: "Developer",
             email: "dev@example.com",
           };
           setToken(demoToken);
           setUser(demoUser);
-          // 开发模式自动登录（日志已禁用）
+          console.debug("[Auth] Demo authentication enabled");
           return;
         }
 

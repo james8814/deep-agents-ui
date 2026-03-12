@@ -19,6 +19,20 @@ export type ContentBlock =
       filename?: string;
     };
 
+/**
+ * 文件附件定义（改进方案 A）
+ * 用于直接传递用户上传的文件信息，避免从文本中提取虚拟路径
+ *
+ * @property path - 虚拟路径，格式: /uploads/{user_id}/{filename}
+ * @property filename - 原始文件名
+ * @property size - 文件大小（字节）- 可选
+ */
+export interface FileAttachment {
+  path: string;       // 虚拟路径: /uploads/{uuid}/{filename}
+  filename: string;   // 原始文件名
+  size?: number;      // 文件大小（可选）
+}
+
 export type MultimodalContent = string | ContentBlock[];
 import { v4 as uuidv4 } from "uuid";
 import type { UseStreamThread } from "@langchain/langgraph-sdk/react";
@@ -128,16 +142,62 @@ export function useChat({
     fetchStateHistory: true,
   });
 
+  /**
+   * 发送消息（改进方案 A：数据流优先设计）
+   *
+   * 支持两种调用方式：
+   * 1. sendMessage("文本消息") - 纯文本，不含附件
+   * 2. sendMessage("文本消息", [{path: "...", filename: "..."}]) - 带文件附件
+   *
+   * 关键改进：
+   * - 直接接受文件信息参数，无需从文本中提取
+   * - 避免虚拟路径重复
+   * - 无脆弱的正则表达式
+   * - 完整的类型安全
+   */
   const sendMessage = useCallback(
-    (content: MultimodalContent) => {
-      // Cast content to any to support extended content types (file blocks)
-      // The SDK's MessageContent type only supports text and image_url,
-      // but the backend may support additional types like file blocks
+    (
+      content: MultimodalContent,
+      fileAttachments?: FileAttachment[]
+    ) => {
+      // 将内容转换为适当的消息内容格式
+      let messageContent: Message["content"];
+
+      // 如果是字符串，保持原样
+      if (typeof content === "string") {
+        messageContent = content;
+      } else {
+        // 否则转换为内容格式
+        messageContent = content as Message["content"];
+      }
+
+      const attachments = fileAttachments || [];
+
+      // 创建消息对象
       const newMessage: Message = {
         id: uuidv4(),
         type: "human",
-        content: content as Message["content"],
+        content: messageContent,
       };
+
+      // ✅ 改进：仅当有附件时才添加 additional_kwargs
+      // 这样避免了对没有文件的消息进行不必要的处理
+      if (attachments.length > 0) {
+        newMessage.additional_kwargs = {
+          attachments: attachments.map((att) => ({
+            path: att.path,
+            filename: att.filename,
+            ...(att.size !== undefined && { size: att.size }),
+          })),
+        };
+        console.debug(
+          "[useChat] 发送消息，包含 %d 个文件附件",
+          attachments.length,
+          attachments.map((a) => `${a.filename} (${a.path})`)
+        );
+      }
+
+      // 提交消息到流
       stream.submit(
         { messages: [newMessage] },
         {
@@ -151,7 +211,8 @@ export function useChat({
           ),
         }
       );
-      // Update thread list immediately when sending a message
+
+      // 立即刷新线程列表
       onHistoryRevalidate?.();
     },
     [stream, activeAssistant?.config, onHistoryRevalidate, token]

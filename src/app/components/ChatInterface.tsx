@@ -19,6 +19,7 @@ import {
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { constructMessageWithFiles } from "@/api/upload";
 import { ChatMessage } from "@/app/components/ChatMessage";
+import type { FileAttachment } from "@/app/hooks/useChat";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import { AntdXMessageList } from "@/app/components/AntdXMessageList";
 import {
@@ -218,21 +219,33 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   const submitDisabled = isLoading || !assistant;
 
+  /**
+   * 处理消息提交（改进方案 A：直接传递文件信息）
+   *
+   * 关键改进：
+   * - 直接将文件列表传递给 sendMessage，不需要序列化到文本中
+   * - 避免虚拟路径重复
+   * - 保持消息文本的纯净性
+   */
   const handleSubmit = useCallback(
     (e?: FormEvent) => {
       if (e) {
         e.preventDefault();
       }
+
       const messageText = input.trim();
+
+      // 验证消息有效性（有文本或有文件）
       if (
         (!messageText && attachedFiles.length === 0) ||
         isLoading ||
         !assistant
-      )
+      ) {
         return;
+      }
 
-      // 收集成功上传的文件
-      const uploadedFiles = attachedFiles
+      // ✅ 改进：直接收集文件列表，使用类型安全的 FileAttachment 接口
+      const fileAttachments: FileAttachment[] = attachedFiles
         .filter(
           (f): f is UploadedFile & { status: "success"; path: string } =>
             f.status === "success" && !!f.path
@@ -240,20 +253,22 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         .map((f) => ({
           path: f.path,
           filename: f.name,
+          size: f.size,
         }));
 
-      // 构造包含文件引用的消息
-      const content = constructMessageWithFiles(messageText, uploadedFiles);
-
-      // Analytics: track send
+      // 分析：记录发送事件
       if (typeof window !== "undefined" && (window as any).gtag) {
         (window as any).gtag("event", "message_sent", {
           message_length: messageText.length,
-          file_count: uploadedFiles.length,
+          file_count: fileAttachments.length,
         });
       }
 
-      sendMessage(content);
+      // ✅ 改进：直接发送纯文本消息和文件列表
+      // 不需要调用 constructMessageWithFiles，不需要虚拟路径出现在消息文本中
+      sendMessage(messageText, fileAttachments);
+
+      // 清空输入
       setInput("");
       setAttachedFiles([]);
     },
