@@ -134,7 +134,9 @@ export async function uploadFile(
       reject(new Error("上传已取消"));
     });
 
-    xhr.open("POST", `${AUTH_SERVER}/api/upload`);
+// ✅ 修复：使用独立的文件上传服务 (:2025) 而不是 LangGraph Server
+    const uploadServer = process.env.NEXT_PUBLIC_UPLOAD_URL || "http://localhost:2025";
+    xhr.open("POST", `${uploadServer}/api/upload`);
 
     // 添加 Bearer Token 认证（XHR 不走 fetchInterceptor，需要手动添加）
     const token =
