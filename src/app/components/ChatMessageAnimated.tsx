@@ -174,7 +174,7 @@ export const ChatMessageAnimated = React.forwardRef<
           containerRef.current,
           onAnimationComplete
         ),
-      []
+      [onAnimationComplete]  // ✅ 添加 onAnimationComplete 依赖
     );
 
     // 使用动画编排 Hook

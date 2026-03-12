@@ -226,7 +226,15 @@ export function useAnimationOrchestra(
     // 延迟后执行 onStart
     const startTimeout = setTimeout(() => {
       if (!isAnimating) return;
-      step.onStart?.();
+      try {
+        step.onStart?.();
+      } catch (error) {
+        // ✅ 错误处理：记录错误但继续执行动画
+        console.error(
+          `[AnimationError] Step "${step.name}" onStart failed:`,
+          error
+        );
+      }
     }, step.delay);
 
     timeoutRefsRef.current.push(startTimeout);
@@ -234,7 +242,15 @@ export function useAnimationOrchestra(
     // 在延迟 + 持续时间后执行 onEnd
     const endTimeout = setTimeout(() => {
       if (!isAnimating) return;
-      step.onEnd?.();
+      try {
+        step.onEnd?.();
+      } catch (error) {
+        // ✅ 错误处理：记录错误但继续执行动画
+        console.error(
+          `[AnimationError] Step "${step.name}" onEnd failed:`,
+          error
+        );
+      }
     }, step.delay + step.duration);
 
     timeoutRefsRef.current.push(endTimeout);
@@ -255,13 +271,27 @@ export function useAnimationOrchestra(
 
         if (now >= stepEndTime) {
           // 步骤已完成
-          step.onProgress?.(1);
+          try {
+            step.onProgress?.(1);
+          } catch (error) {
+            console.error(
+              `[AnimationError] Step "${step.name}" onProgress failed:`,
+              error
+            );
+          }
           return;
         }
 
         // 计算进度
         const stepProgress = (now - stepStartTime) / step.duration;
-        step.onProgress?.(Math.min(stepProgress, 1));
+        try {
+          step.onProgress?.(Math.min(stepProgress, 1));
+        } catch (error) {
+          console.error(
+            `[AnimationError] Step "${step.name}" onProgress failed:`,
+            error
+          );
+        }
 
         frameRefsRef.current.push(requestAnimationFrame(updateProgress));
       };
