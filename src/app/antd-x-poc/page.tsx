@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { notFound } from "next/navigation";
 import { Bubble, Sender, ThoughtChain } from "@ant-design/x";
 import { Button } from "antd";
 
@@ -34,6 +35,12 @@ const DUMMY_THOUGHTS = [
 ];
 
 export default function AntdXPocPage() {
+  // 生产环境中隐藏 POC 页面 - 根据架构师安全建议
+  // POC 页面应只在开发/测试环境中可访问
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-4xl space-y-8">

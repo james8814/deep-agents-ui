@@ -137,6 +137,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (response.refresh_token) {
       localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
     }
+
+    // 为 Middleware 路由保护设置 cookie
+    // Cookie 允许 Next.js Middleware 在请求级别检查认证状态
+    // 比 localStorage 更安全（不易被 XSS 窃取）
+    if (typeof window !== "undefined") {
+      document.cookie = `auth_token=${accessToken}; path=/; max-age=86400; SameSite=Strict`;
+    }
+
     const userInfo = await authApi.getUserInfo(accessToken);
     setUser(userInfo);
   }, []);
@@ -149,6 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(null);
       clearTokenFromStorage();
       localStorage.removeItem(REFRESH_TOKEN_KEY);
+
+      // 清除 Middleware 使用的认证 cookie
+      if (typeof window !== "undefined") {
+        document.cookie = "auth_token=; path=/; max-age=0; SameSite=Strict";
+      }
     }
   }, []);
 
