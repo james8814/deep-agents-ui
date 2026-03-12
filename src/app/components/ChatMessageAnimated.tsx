@@ -1,0 +1,226 @@
+'use client';
+
+/**
+ * ChatMessageAnimated 组件
+ *
+ * 在原有 ChatMessage 的基础上增加动画支持。
+ * 当消息第一次出现时，使用 useAnimationOrchestra 进行协调动画：
+ * 1. 消息向上滑入 + 淡入（300ms）
+ * 2. 自动滚动到底部（延迟 50ms，持续 200ms）
+ *
+ * 这个组件是对原有 ChatMessage.tsx 的包装，
+ * 保持所有原有功能不变，仅添加动画层。
+ */
+
+import React, { useEffect, useRef } from 'react';
+import { useAnimationOrchestra, type AnimationScene } from '@/app/hooks/useAnimationOrchestra';
+import type { Message } from '@langchain/langgraph-sdk';
+import type {
+  ToolCall,
+  ActionRequest,
+  ReviewConfig,
+  FileMetadata,
+  AttachmentSummary,
+} from '@/app/types/types';
+import type { LogEntry } from '@/app/types/subagent';
+
+/**
+ * ChatMessage 的 Props（从原组件复制）
+ */
+interface ChatMessageAnimatedProps {
+  message: Message;
+  toolCalls: ToolCall[];
+  isLoading?: boolean;
+  isStreaming?: boolean;
+  actionRequestsMap?: Map<string, ActionRequest>;
+  reviewConfigsMap?: Map<string, ReviewConfig>;
+  ui?: any[];
+  stream?: any;
+  onResumeInterrupt?: (value: any) => void;
+  graphId?: string;
+  isLastAiMessage?: boolean;
+  onRegenerate?: () => void;
+  onEditAndResend?: (newContent: string) => void;
+  files?: Record<string, string>;
+  fileMetadata?: Map<string, FileMetadata>;
+  onViewFile?: (path: string) => void;
+  onViewAllFiles?: () => void;
+  showDeliveryCards?: boolean;
+  threadId?: string;
+  schemaVersion?: string;
+  attachmentSummaries?: AttachmentSummary[];
+  cancellationReason?: string;
+  timeoutSeconds?: number;
+  subagentLogs?: Record<string, LogEntry[]>;
+  /**
+   * 新增 props：是否启用动画
+   */
+  enableAnimation?: boolean;
+  /**
+   * 新增 props：滚动到消息底部的回调
+   */
+  onAnimationComplete?: () => void;
+}
+
+/**
+ * 创建消息出现的动画场景
+ */
+function createMessageAnimationScene(
+  messageElement: HTMLElement | null,
+  onScrollEnd?: () => void
+): AnimationScene {
+  return {
+    name: 'MessageAppears',
+    concurrent: false, // 顺序执行：先消息出现，再滚动
+    steps: [
+      {
+        name: 'MessageSlideUpAndFadeIn',
+        delay: 0,
+        duration: 300, // 对应 --dur-normal (250ms，此处取 300ms 留余量)
+        onStart: () => {
+          if (!messageElement) return;
+          // 设置初始状态：隐藏 + 向下偏移
+          messageElement.style.opacity = '0';
+          messageElement.style.transform = 'translateY(16px)';
+          // 应用过渡
+          messageElement.style.transition = 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)';
+        },
+        onEnd: () => {
+          if (!messageElement) return;
+          // 移除过渡，保持最终状态
+          messageElement.style.opacity = '1';
+          messageElement.style.transform = 'translateY(0)';
+          messageElement.style.transition = 'none';
+        },
+      },
+      {
+        name: 'AutoScroll',
+        delay: 50, // 消息滑入过程中开始滚动（创建自然的流动感）
+        duration: 200, // 平滑滚动到底部
+        condition: () => {
+          // 仅在不是用户手动滚动时执行
+          // 这里可以添加逻辑检查用户是否在手动滚动
+          return true;
+        },
+        onStart: () => {
+          if (!messageElement?.parentElement) return;
+          // 获取消息列表容器（通常是父容器）
+          const container = messageElement.closest('[data-message-list]') as HTMLElement;
+          if (!container) return;
+
+          // 使用 smooth scroll API（受 CSS 变量支持）
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth',
+          });
+        },
+        onEnd: () => {
+          onScrollEnd?.();
+        },
+      },
+    ],
+    onSceneStart: () => {
+      // 场景开始时的日志（用于调试）
+      if (typeof window !== 'undefined' && (window as any).__ANIMATION_DEBUG__) {
+        console.log('[Animation] Message animation started');
+      }
+    },
+    onSceneEnd: () => {
+      // 场景结束时的日志
+      if (typeof window !== 'undefined' && (window as any).__ANIMATION_DEBUG__) {
+        console.log('[Animation] Message animation completed');
+      }
+    },
+    // 自动尊重用户的 prefers-reduced-motion 设置
+    respectReducedMotion: true,
+  };
+}
+
+/**
+ * ChatMessageAnimated 组件
+ *
+ * 这是一个高阶组件（HOC），包装原有的 ChatMessage 组件，
+ * 并在消息首次出现时应用动画。
+ *
+ * 使用方式：
+ * ```tsx
+ * <ChatMessageAnimated
+ *   message={msg}
+ *   toolCalls={[]}
+ *   enableAnimation={true}
+ *   onAnimationComplete={() => console.log('done')}
+ * />
+ * ```
+ */
+export const ChatMessageAnimated = React.forwardRef<
+  HTMLDivElement,
+  ChatMessageAnimatedProps
+>(
+  (
+    {
+      enableAnimation = true,
+      onAnimationComplete,
+      ...chatMessageProps
+    },
+    forwardedRef
+  ) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const hasAnimatedRef = useRef(false);
+
+    // 创建动画场景
+    const animationScene = React.useMemo(
+      () =>
+        createMessageAnimationScene(
+          containerRef.current,
+          onAnimationComplete
+        ),
+      []
+    );
+
+    // 使用动画编排 Hook
+    const { play } = useAnimationOrchestra(animationScene);
+
+    // 首次挂载或消息内容变化时触发动画
+    useEffect(() => {
+      if (!enableAnimation || !containerRef.current) return;
+      if (hasAnimatedRef.current) return; // 只动画一次
+
+      // 等待 DOM 完全渲染后再启动动画
+      const animationTimer = requestAnimationFrame(() => {
+        hasAnimatedRef.current = true;
+        play();
+      });
+
+      return () => cancelAnimationFrame(animationTimer);
+    }, [enableAnimation, play, chatMessageProps.message.id]);
+
+    // 使用动态导入来避免循环依赖
+    const ChatMessage = React.lazy(() =>
+      import('./ChatMessage').then((mod) => ({
+        default: mod.ChatMessage,
+      }))
+    );
+
+    return (
+      <div
+        ref={forwardedRef || containerRef}
+        // 用于 CSS 过渡
+        style={{
+          // 初始状态（如果启用动画）
+          ...(enableAnimation && {
+            opacity: 0,
+            transform: 'translateY(16px)',
+          }),
+        }}
+      >
+        <React.Suspense fallback={<div>Loading message...</div>}>
+          <ChatMessage
+            {...chatMessageProps}
+          />
+        </React.Suspense>
+      </div>
+    );
+  }
+);
+
+ChatMessageAnimated.displayName = 'ChatMessageAnimated';
