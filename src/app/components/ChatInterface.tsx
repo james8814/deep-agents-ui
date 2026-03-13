@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { constructMessageWithFiles } from "@/api/upload";
-import { ChatMessage } from "@/app/components/ChatMessage";
 import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";

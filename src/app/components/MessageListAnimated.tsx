@@ -200,6 +200,9 @@ export const MessageListAnimated = React.forwardRef<
       if (messages.length === 0) return;
       if (hasAnimatedRef.current) return;
 
+      // ✅ FIX: 追踪所有 timeout ID，确保卸载时全部清理
+      let completionTimer: NodeJS.Timeout | null = null;
+
       // 等待所有消息元素挂载
       const checkTimer = setTimeout(() => {
         const allElementsMounted = messages.every(
@@ -212,15 +215,18 @@ export const MessageListAnimated = React.forwardRef<
           setAnimatingMessages(new Set(messages.map((m) => m.id).filter((id): id is string => id !== undefined)));
           play();
 
-          // 动画完成后清除标记
+          // ✅ FIX: 保存嵌套 timeout 引用，防止卸载后内存泄漏
           const totalDuration = getTotalDuration();
-          setTimeout(() => {
+          completionTimer = setTimeout(() => {
             setAnimatingMessages(new Set());
           }, totalDuration);
         }
       }, 0);
 
-      return () => clearTimeout(checkTimer);
+      return () => {
+        clearTimeout(checkTimer);
+        if (completionTimer) clearTimeout(completionTimer);
+      };
     }, [enableCascadeAnimation, messages, play, getTotalDuration]);
 
     return (
@@ -237,7 +243,7 @@ export const MessageListAnimated = React.forwardRef<
             <div
               key={messageId}
               ref={(el) => {
-                if (el) setMessageRef(messageId, el);
+                setMessageRef(messageId, el);
               }}
               style={{
                 // 初始状态（用于动画）

@@ -173,11 +173,18 @@ export function useAnimationOrchestra(
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
+  // ✅ FIX: 使用 ref 追踪动画状态，避免 setTimeout/RAF 回调中的 stale closure
+  const isAnimatingRef = useRef(false);
+  const isPausedRef = useRef(false);
+
   const timeoutRefsRef = useRef<NodeJS.Timeout[]>([]);
-  const frameRefsRef = useRef<number[]>([]);
+  // ✅ FIX: 使用 Set 替代 Array，避免无限增长的内存泄漏
+  const frameRefsRef = useRef<Set<number>>(new Set());
   const startTimeRef = useRef<number | null>(null);
   const elapsedTimeRef = useRef<number>(0);
   const progressCallbackRef = useRef<(progress: number, elapsed: number) => void | null>(null);
+  // ✅ FIX: 暂停时保存已消耗时间，用于 resume
+  const pausedElapsedRef = useRef<number>(0);
 
   // 检查用户是否要求减少运动
   const shouldReduceMotion = (): boolean => {
@@ -211,9 +218,19 @@ export function useAnimationOrchestra(
     timeoutRefsRef.current.forEach((timeout) => clearTimeout(timeout));
     frameRefsRef.current.forEach((frameId) => cancelAnimationFrame(frameId));
     timeoutRefsRef.current = [];
-    frameRefsRef.current = [];
+    frameRefsRef.current = new Set();
     startTimeRef.current = null;
     elapsedTimeRef.current = 0;
+  };
+
+  // ✅ FIX: 安全地调度 RAF，自动从 Set 中移除已完成的帧 ID
+  const scheduleFrame = (callback: FrameRequestCallback): number => {
+    const id = requestAnimationFrame((time) => {
+      frameRefsRef.current.delete(id);
+      callback(time);
+    });
+    frameRefsRef.current.add(id);
+    return id;
   };
 
   // 执行单个步骤
@@ -225,11 +242,11 @@ export function useAnimationOrchestra(
 
     // 延迟后执行 onStart
     const startTimeout = setTimeout(() => {
-      if (!isAnimating) return;
+      // ✅ FIX: 使用 ref 而非 state 避免 stale closure
+      if (!isAnimatingRef.current) return;
       try {
         step.onStart?.();
       } catch (error) {
-        // ✅ 错误处理：记录错误但继续执行动画
         console.error(
           `[AnimationError] Step "${step.name}" onStart failed:`,
           error
@@ -241,11 +258,11 @@ export function useAnimationOrchestra(
 
     // 在延迟 + 持续时间后执行 onEnd
     const endTimeout = setTimeout(() => {
-      if (!isAnimating) return;
+      // ✅ FIX: 使用 ref 而非 state 避免 stale closure
+      if (!isAnimatingRef.current) return;
       try {
         step.onEnd?.();
       } catch (error) {
-        // ✅ 错误处理：记录错误但继续执行动画
         console.error(
           `[AnimationError] Step "${step.name}" onEnd failed:`,
           error
@@ -261,11 +278,12 @@ export function useAnimationOrchestra(
       const stepEndTime = stepStartTime + step.duration;
 
       const updateProgress = (): void => {
+        if (!isAnimatingRef.current) return;
         const now = performance.now();
 
         if (now < stepStartTime) {
           // 步骤还未开始
-          frameRefsRef.current.push(requestAnimationFrame(updateProgress));
+          scheduleFrame(updateProgress);
           return;
         }
 
@@ -293,16 +311,16 @@ export function useAnimationOrchestra(
           );
         }
 
-        frameRefsRef.current.push(requestAnimationFrame(updateProgress));
+        scheduleFrame(updateProgress);
       };
 
-      frameRefsRef.current.push(requestAnimationFrame(updateProgress));
+      scheduleFrame(updateProgress);
     }
   };
 
   // 播放动画
   const play = (): void => {
-    if (isAnimating) return;
+    if (isAnimatingRef.current) return;
 
     // 如果用户要求减少运动，立即调用所有 onEnd 回调
     if (shouldReduceMotion()) {
@@ -318,6 +336,9 @@ export function useAnimationOrchestra(
     }
 
     cleanup();
+    // ✅ FIX: 同步更新 ref 和 state
+    isAnimatingRef.current = true;
+    isPausedRef.current = false;
     setIsAnimating(true);
     setIsPaused(false);
 
@@ -334,7 +355,8 @@ export function useAnimationOrchestra(
 
     // 监测整个场景的进度
     const monitorProgress = (): void => {
-      if (!isAnimating) return;
+      // ✅ FIX: 使用 ref 而非 state 避免 stale closure
+      if (!isAnimatingRef.current) return;
 
       const now = performance.now();
       elapsedTimeRef.current = now - sceneStartTime;
@@ -344,26 +366,38 @@ export function useAnimationOrchestra(
 
       // 如果场景未完成，继续监测
       if (progress < 1) {
-        frameRefsRef.current.push(requestAnimationFrame(monitorProgress));
+        scheduleFrame(monitorProgress);
       } else {
         // 场景完成
+        isAnimatingRef.current = false;
         setIsAnimating(false);
         scene.onSceneEnd?.();
       }
     };
 
-    frameRefsRef.current.push(requestAnimationFrame(monitorProgress));
+    scheduleFrame(monitorProgress);
   };
 
   // 暂停动画
   const pause = (): void => {
-    if (!isAnimating) return;
+    if (!isAnimatingRef.current) return;
+    // ✅ FIX: 保存已消耗时间，清理计时器但保留动画状态
+    pausedElapsedRef.current = elapsedTimeRef.current;
+    isPausedRef.current = true;
+    isAnimatingRef.current = false;
     setIsPaused(true);
-    cleanup();
+    setIsAnimating(false);
+    // 清理计时器和帧，但不重置 elapsed
+    timeoutRefsRef.current.forEach((timeout) => clearTimeout(timeout));
+    frameRefsRef.current.forEach((frameId) => cancelAnimationFrame(frameId));
+    timeoutRefsRef.current = [];
+    frameRefsRef.current = new Set();
   };
 
   // 停止动画
   const stop = (): void => {
+    isAnimatingRef.current = false;
+    isPausedRef.current = false;
     setIsAnimating(false);
     setIsPaused(false);
     cleanup();

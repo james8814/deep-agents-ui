@@ -12,9 +12,16 @@
  * 保持所有原有功能不变，仅添加动画层。
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useAnimationOrchestra, type AnimationScene } from '@/app/hooks/useAnimationOrchestra';
 import type { Message } from '@langchain/langgraph-sdk';
+
+// ✅ FIX: React.lazy 提升到模块级别，避免每次渲染重建
+const ChatMessage = React.lazy(() =>
+  import('./ChatMessage').then((mod) => ({
+    default: mod.ChatMessage,
+  }))
+);
 import type {
   ToolCall,
   ActionRequest,
@@ -167,14 +174,18 @@ export const ChatMessageAnimated = React.forwardRef<
     const containerRef = useRef<HTMLDivElement>(null);
     const hasAnimatedRef = useRef(false);
 
-    // 创建动画场景
+    // ✅ FIX: 使用 useCallback 延迟获取 DOM 元素，避免 useMemo 中 ref 为 null
+    const getAnimationScene = useCallback((): AnimationScene => {
+      return createMessageAnimationScene(
+        containerRef.current,
+        onAnimationComplete
+      );
+    }, [onAnimationComplete]);
+
+    // 创建初始空场景给 hook（hook 需要稳定的 scene 引用）
     const animationScene = React.useMemo(
-      () =>
-        createMessageAnimationScene(
-          containerRef.current,
-          onAnimationComplete
-        ),
-      [onAnimationComplete]  // ✅ 添加 onAnimationComplete 依赖
+      () => getAnimationScene(),
+      [getAnimationScene]
     );
 
     // 使用动画编排 Hook
@@ -193,13 +204,6 @@ export const ChatMessageAnimated = React.forwardRef<
 
       return () => cancelAnimationFrame(animationTimer);
     }, [enableAnimation, play, chatMessageProps.message.id]);
-
-    // 使用动态导入来避免循环依赖
-    const ChatMessage = React.lazy(() =>
-      import('./ChatMessage').then((mod) => ({
-        default: mod.ChatMessage,
-      }))
-    );
 
     return (
       <div
