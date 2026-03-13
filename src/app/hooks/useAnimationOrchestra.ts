@@ -171,7 +171,7 @@ export function useAnimationOrchestra(
   scene: AnimationScene
 ): UseAnimationOrchestraReturn {
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const [_isPaused, setIsPaused] = useState(false);
 
   // ✅ FIX: 使用 ref 追踪动画状态，避免 setTimeout/RAF 回调中的 stale closure
   const isAnimatingRef = useRef(false);
