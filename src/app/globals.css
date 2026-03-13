@@ -611,14 +611,7 @@ button {
 }
 
 /* Optimization Window animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+/* fadeIn keyframes defined in animation-utilities.css (removed duplicate) */
 
 @keyframes slideIn {
   from {

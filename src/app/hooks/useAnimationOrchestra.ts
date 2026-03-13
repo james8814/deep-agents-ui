@@ -322,15 +322,15 @@ export function useAnimationOrchestra(
   const play = (): void => {
     if (isAnimatingRef.current) return;
 
-    // 如果用户要求减少运动，立即调用所有 onEnd 回调
+    // 如果用户要求减少运动，立即调用所有回调
     if (shouldReduceMotion()) {
+      scene.onSceneStart?.();
       scene.steps.forEach((step) => {
         if (step.condition?.() !== false) {
           step.onStart?.();
           step.onEnd?.();
         }
       });
-      scene.onSceneStart?.();
       scene.onSceneEnd?.();
       return;
     }
@@ -348,10 +348,19 @@ export function useAnimationOrchestra(
 
     scene.onSceneStart?.();
 
-    // 执行所有步骤
-    scene.steps.forEach((step) => {
-      executeStep(step, sceneStartTime);
-    });
+    // H1 FIX: 顺序模式下累加延迟实现串联执行
+    if (scene.concurrent) {
+      scene.steps.forEach((step) => {
+        executeStep(step, sceneStartTime);
+      });
+    } else {
+      let accumulatedDelay = 0;
+      scene.steps.forEach((step) => {
+        const adjustedStep = { ...step, delay: accumulatedDelay + step.delay };
+        executeStep(adjustedStep, sceneStartTime);
+        accumulatedDelay += step.delay + step.duration;
+      });
+    }
 
     // 监测整个场景的进度
     const monitorProgress = (): void => {

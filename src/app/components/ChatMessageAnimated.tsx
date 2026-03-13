@@ -174,7 +174,19 @@ export const ChatMessageAnimated = React.forwardRef<
     const containerRef = useRef<HTMLDivElement>(null);
     const hasAnimatedRef = useRef(false);
 
-    // ✅ FIX: 使用 useCallback 延迟获取 DOM 元素，避免 useMemo 中 ref 为 null
+    // H3 FIX: callback ref 合并 forwardedRef 和 containerRef
+    const mergedRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        containerRef.current = node;
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }
+      },
+      [forwardedRef]
+    );
+
     const getAnimationScene = useCallback((): AnimationScene => {
       return createMessageAnimationScene(
         containerRef.current,
@@ -182,21 +194,17 @@ export const ChatMessageAnimated = React.forwardRef<
       );
     }, [onAnimationComplete]);
 
-    // 创建初始空场景给 hook（hook 需要稳定的 scene 引用）
     const animationScene = React.useMemo(
       () => getAnimationScene(),
       [getAnimationScene]
     );
 
-    // 使用动画编排 Hook
     const { play } = useAnimationOrchestra(animationScene);
 
-    // 首次挂载或消息内容变化时触发动画
     useEffect(() => {
       if (!enableAnimation || !containerRef.current) return;
-      if (hasAnimatedRef.current) return; // 只动画一次
+      if (hasAnimatedRef.current) return;
 
-      // 等待 DOM 完全渲染后再启动动画
       const animationTimer = requestAnimationFrame(() => {
         hasAnimatedRef.current = true;
         play();
@@ -207,7 +215,7 @@ export const ChatMessageAnimated = React.forwardRef<
 
     return (
       <div
-        ref={forwardedRef || containerRef}
+        ref={mergedRef}
         // 用于 CSS 过渡
         style={{
           // 初始状态（如果启用动画）

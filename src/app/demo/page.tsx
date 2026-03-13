@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
  * v5.27 动画系统演示页面
@@ -10,6 +10,18 @@ import { useState, useRef, useCallback } from 'react';
  *
  * 访问: http://localhost:3000/demo
  */
+
+// C2 FIX: 静态数据提到模块级别，避免每次渲染重建
+const CONVERSATION = [
+  { text: '帮我分析一下这个产品的竞争格局', isUser: true },
+  { text: '好的，我来为您进行竞争分析。首先让我检索相关市场数据...', isUser: false },
+  { text: '请重点关注 AI 赛道的头部玩家', isUser: true },
+  { text: '已找到 15 个竞品，正在生成分析报告。根据数据显示，目前 AI 赛道主要有三个梯队...', isUser: false },
+  { text: '太好了，请生成一份 PRD', isUser: true },
+  { text: '正在根据竞品分析结果生成产品需求文档，预计包含 5 个核心功能模块...', isUser: false },
+] as const;
+
+const STAGGER_ITEMS = Array.from({ length: 8 });
 
 // ============================================================
 // 动画演示卡片
@@ -169,58 +181,17 @@ function ChatDemo() {
   const [isTyping, setIsTyping] = useState(false);
   const nextId = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // C1 FIX: 保存 timer ID 用于卸载时清理
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const conversation = [
-    { text: '帮我分析一下这个产品的竞争格局', isUser: true },
-    { text: '好的，我来为您进行竞争分析。首先让我检索相关市场数据...', isUser: false },
-    { text: '请重点关注 AI 赛道的头部玩家', isUser: true },
-    { text: '已找到 15 个竞品，正在生成分析报告。根据数据显示，目前 AI 赛道主要有三个梯队...', isUser: false },
-    { text: '太好了，请生成一份 PRD', isUser: true },
-    { text: '正在根据竞品分析结果生成产品需求文档，预计包含 5 个核心功能模块...', isUser: false },
-  ];
+  // C1 FIX: 卸载时清理 setTimeout
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
-  const addMessage = useCallback(() => {
-    const idx = nextId.current % conversation.length;
-    const sample = conversation[idx];
-
-    if (sample.isUser) {
-      // 用户消息：直接添加
-      setMessages((prev) => [
-        ...prev,
-        { id: nextId.current, text: sample.text, isUser: true },
-      ]);
-      nextId.current++;
-
-      // 如果下一条是 AI 消息，模拟"正在输入"
-      const nextIdx = (idx + 1) % conversation.length;
-      if (!conversation[nextIdx].isUser) {
-        setIsTyping(true);
-        setTimeout(() => {
-          setIsTyping(false);
-          setMessages((prev) => [
-            ...prev,
-            { id: nextId.current, text: conversation[nextIdx].text, isUser: false },
-          ]);
-          nextId.current++;
-          // 滚动到底部
-          requestAnimationFrame(() => {
-            scrollRef.current?.scrollTo({
-              top: scrollRef.current.scrollHeight,
-              behavior: 'smooth',
-            });
-          });
-        }, 1200);
-      }
-    } else {
-      // 直接添加 AI 消息
-      setMessages((prev) => [
-        ...prev,
-        { id: nextId.current, text: sample.text, isUser: false },
-      ]);
-      nextId.current++;
-    }
-
-    // 滚动到底部
+  const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({
         top: scrollRef.current.scrollHeight,
@@ -229,7 +200,46 @@ function ChatDemo() {
     });
   }, []);
 
+  const addMessage = useCallback(() => {
+    const idx = nextId.current % CONVERSATION.length;
+    const sample = CONVERSATION[idx];
+
+    if (sample.isUser) {
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId.current, text: sample.text, isUser: true },
+      ]);
+      nextId.current++;
+
+      const nextIdx = (idx + 1) % CONVERSATION.length;
+      if (!CONVERSATION[nextIdx].isUser) {
+        setIsTyping(true);
+        // C1 FIX: 保存 timer 引用
+        timerRef.current = setTimeout(() => {
+          timerRef.current = null;
+          setIsTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            { id: nextId.current, text: CONVERSATION[nextIdx].text, isUser: false },
+          ]);
+          nextId.current++;
+          scrollToBottom();
+        }, 1200);
+      }
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId.current, text: sample.text, isUser: false },
+      ]);
+      nextId.current++;
+    }
+
+    scrollToBottom();
+  }, [scrollToBottom]);
+
   const clearMessages = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
     setMessages([]);
     setIsTyping(false);
     nextId.current = 0;
@@ -341,6 +351,8 @@ function ChatDemo() {
         {isTyping && (
           <div
             className="animate-fadeIn"
+            role="status"
+            aria-live="polite"
             style={{
               alignSelf: 'flex-start',
               display: 'flex',
@@ -436,7 +448,7 @@ function StaggerDemo() {
 
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
         {show &&
-          Array.from({ length: 8 }).map((_, i) => (
+          STAGGER_ITEMS.map((_, i) => (
             <div
               key={`${key}-${i}`}
               className="animate-fadeIn"
@@ -496,6 +508,8 @@ function ExpandCollapseDemo() {
         </span>
         <button
           onClick={() => setExpanded((e) => !e)}
+          aria-expanded={expanded}
+          aria-controls="expand-demo-content"
           style={{
             fontSize: '12px',
             padding: '4px 10px',
@@ -511,6 +525,7 @@ function ExpandCollapseDemo() {
       </div>
 
       <div
+        id="expand-demo-content"
         className={expanded ? 'animate-expand' : 'animate-collapse'}
         style={{
           background: 'linear-gradient(135deg, #7c6bf0, #a78bfa)',
@@ -591,7 +606,7 @@ function GlowDemo() {
 // ============================================================
 export default function DemoPage() {
   return (
-    <div
+    <main
       style={{
         minHeight: '100vh',
         background: 'var(--background, #f9fafb)',
@@ -600,7 +615,7 @@ export default function DemoPage() {
     >
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '40px' }}>
+        <header style={{ marginBottom: '40px' }}>
           <h1
             className="animate-fadeIn"
             style={{
@@ -624,11 +639,12 @@ export default function DemoPage() {
             design-system.css + animation-utilities.css | 16 keyframes | 18
             animation classes | 6 transition classes
           </p>
-        </div>
+        </header>
 
         {/* Section 1: Basic Animations */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-fade" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-fade"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -654,8 +670,9 @@ export default function DemoPage() {
         </section>
 
         {/* Section 2: Slide Animations */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-slide" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-slide"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -681,8 +698,9 @@ export default function DemoPage() {
         </section>
 
         {/* Section 3: Continuous Animations */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-continuous" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-continuous"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -727,8 +745,9 @@ export default function DemoPage() {
         </section>
 
         {/* Section 4: Stagger */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-stagger" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-stagger"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -742,8 +761,9 @@ export default function DemoPage() {
         </section>
 
         {/* Section 5: Expand / Collapse */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-expand" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-expand"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -757,8 +777,9 @@ export default function DemoPage() {
         </section>
 
         {/* Section 6: Special Effects */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-effects" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-effects"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -772,8 +793,9 @@ export default function DemoPage() {
         </section>
 
         {/* Section 7: Chat Simulation */}
-        <section style={{ marginBottom: '40px' }}>
+        <section aria-labelledby="section-chat" style={{ marginBottom: '40px' }}>
           <h2
+            id="section-chat"
             style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -795,10 +817,9 @@ export default function DemoPage() {
             fontSize: '13px',
           }}
         >
-          v5.27 Animation System | Phase 0 Week 2-3 | Branch:
-          feature/ui-v5.27-redesign
+          v5.27 Animation System | Phase 0 Week 2-3
         </footer>
       </div>
-    </div>
+    </main>
   );
 }
