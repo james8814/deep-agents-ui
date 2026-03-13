@@ -143,21 +143,10 @@ describe('过渡工具类验证', () => {
 });
 
 describe('CSS 变量引用验证', () => {
-  it('动画类应使用 --dur-* 变量而非硬编码时长', () => {
-    // 检查所有 animate-* 类是否引用了 --dur-* 变量
+  it('所有动画类应使用 --dur-* 变量而非硬编码时长', () => {
+    // 所有 animate-* 类都应引用 --dur-* 变量（包括连续动效）
     const classBlocks = cssContent.match(/\.animate-[\w-]+\s*\{[^}]+\}/g) || [];
     classBlocks.forEach((block) => {
-      // 连续动效可以使用硬编码时长 (spin 800ms, shimmer 2s 等)
-      if (
-        block.includes('animate-spin') ||
-        block.includes('animate-pulse') ||
-        block.includes('animate-float') ||
-        block.includes('animate-shimmer') ||
-        block.includes('animate-progress')
-      ) {
-        return; // 连续动效允许硬编码
-      }
-      // 其他应使用 CSS 变量
       expect(block).toMatch(/var\(--dur-/);
     });
   });
@@ -178,28 +167,28 @@ describe('CSS 变量引用验证', () => {
 });
 
 describe('级联延迟变量验证', () => {
-  it('应定义 --stagger-item 变量', () => {
-    expect(cssContent).toContain('--stagger-item');
+  it('design-system.css 应定义 --stagger-item 变量', () => {
+    expect(designSystemContent).toContain('--stagger-item');
   });
 
-  it('应定义 --stagger-sm 变量', () => {
-    expect(cssContent).toContain('--stagger-sm');
+  it('design-system.css 应定义 --stagger-sm 变量', () => {
+    expect(designSystemContent).toContain('--stagger-sm');
   });
 
-  it('应定义 --stagger-lg 变量', () => {
-    expect(cssContent).toContain('--stagger-lg');
+  it('design-system.css 应定义 --stagger-lg 变量', () => {
+    expect(designSystemContent).toContain('--stagger-lg');
   });
 
   it('--stagger-item 应为 50ms', () => {
-    expect(cssContent).toMatch(/--stagger-item:\s*50ms/);
+    expect(designSystemContent).toMatch(/--stagger-item:\s*50ms/);
   });
 
   it('--stagger-sm 应为 30ms', () => {
-    expect(cssContent).toMatch(/--stagger-sm:\s*30ms/);
+    expect(designSystemContent).toMatch(/--stagger-sm:\s*30ms/);
   });
 
   it('--stagger-lg 应为 80ms', () => {
-    expect(cssContent).toMatch(/--stagger-lg:\s*80ms/);
+    expect(designSystemContent).toMatch(/--stagger-lg:\s*80ms/);
   });
 
   it('动画类应支持 --stagger 变量实现级联延迟', () => {
@@ -267,6 +256,20 @@ describe('design-system.css 动画变量验证', () => {
     });
   });
 
+  const requiredContinuousDurVars = [
+    '--dur-spin',
+    '--dur-pulse',
+    '--dur-float',
+    '--dur-shimmer',
+    '--dur-progress',
+  ];
+
+  requiredContinuousDurVars.forEach((v) => {
+    it(`应定义连续动效变量 ${v}`, () => {
+      expect(designSystemContent).toContain(v);
+    });
+  });
+
   const requiredEaseVars = [
     '--ease-linear',
     '--ease-in',
@@ -279,6 +282,11 @@ describe('design-system.css 动画变量验证', () => {
     it(`应定义 ${v}`, () => {
       expect(designSystemContent).toContain(v);
     });
+  });
+
+  it('应定义品牌 glow 变量', () => {
+    expect(designSystemContent).toContain('--brand-glow');
+    expect(designSystemContent).toContain('--brand-glow-subtle');
   });
 });
 

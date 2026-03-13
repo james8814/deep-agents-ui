@@ -82,18 +82,35 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.6;
 
-  /* Animation */
+  /* Animation - Duration */
   --dur-instant: 0ms;
   --dur-fast: 150ms;
   --dur-normal: 250ms;
   --dur-slow: 400ms;
   --dur-slowest: 600ms;
 
+  /* Animation - Continuous Duration (循环动效专用) */
+  --dur-spin: 800ms;
+  --dur-pulse: 2s;
+  --dur-float: 3s;
+  --dur-shimmer: 2s;
+  --dur-progress: 1.5s;
+
+  /* Animation - Easing */
   --ease-linear: linear;
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Animation - Stagger (级联延迟) */
+  --stagger-item: 50ms;
+  --stagger-sm: 30ms;
+  --stagger-lg: 80ms;
+
+  /* Animation - Brand Glow */
+  --brand-glow: rgba(124, 107, 240, 0.4);
+  --brand-glow-subtle: rgba(124, 107, 240, 0.15);
 
   /* Z-Index */
   --z-base: 0;

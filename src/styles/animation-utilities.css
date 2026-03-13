@@ -95,26 +95,30 @@
   }
 }
 
-/* --- 展开/折叠 --- */
+/* --- 展开/折叠 (GPU 加速: scaleY + opacity) --- */
 @keyframes expandHeight {
   from {
     opacity: 0;
-    max-height: 0;
+    transform: scaleY(0);
+    transform-origin: top;
   }
   to {
     opacity: 1;
-    max-height: 500px;
+    transform: scaleY(1);
+    transform-origin: top;
   }
 }
 
 @keyframes collapseHeight {
   from {
     opacity: 1;
-    max-height: 500px;
+    transform: scaleY(1);
+    transform-origin: top;
   }
   to {
     opacity: 0;
-    max-height: 0;
+    transform: scaleY(0);
+    transform-origin: top;
   }
 }
 
@@ -139,13 +143,13 @@
   100% { background-position: 200% 0; }
 }
 
-/* --- 边框/阴影 --- */
+/* --- 边框/阴影 (使用 design-system 品牌色变量) --- */
 @keyframes glowBorder {
   from {
-    box-shadow: 0 0 0 0 rgba(124, 107, 240, 0.4);
+    box-shadow: 0 0 0 0 var(--brand-glow);
   }
   to {
-    box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.15);
+    box-shadow: 0 0 0 3px var(--brand-glow-subtle);
   }
 }
 
@@ -156,14 +160,8 @@
 }
 
 /* ================================================================
- * STAGGER (级联延迟) 变量
+ * STAGGER / 连续动效变量已移至 design-system.css 统一管理
  * ================================================================ */
-
-:root {
-  --stagger-item: 50ms;
-  --stagger-sm: 30ms;
-  --stagger-lg: 80ms;
-}
 
 /* ================================================================
  * ANIMATION UTILITY CLASSES
@@ -236,21 +234,21 @@
   overflow: hidden;
 }
 
-/* --- 连续动效 --- */
+/* --- 连续动效 (时长引用 design-system.css 变量) --- */
 .animate-spin {
-  animation: spin 800ms var(--ease-linear) infinite;
+  animation: spin var(--dur-spin) var(--ease-linear) infinite;
 }
 
 .animate-pulse {
-  animation: pulse 2s var(--ease-in-out) infinite;
+  animation: pulse var(--dur-pulse) var(--ease-in-out) infinite;
 }
 
 .animate-float {
-  animation: float 3s var(--ease-in-out) infinite;
+  animation: float var(--dur-float) var(--ease-in-out) infinite;
 }
 
 .animate-shimmer {
-  animation: shimmer 2s var(--ease-linear) infinite;
+  animation: shimmer var(--dur-shimmer) var(--ease-linear) infinite;
   background: linear-gradient(
     90deg,
     transparent 25%,
@@ -267,7 +265,7 @@
 
 /* --- 进度条 --- */
 .animate-progress {
-  animation: progressIndeterminate 1.5s var(--ease-in-out) infinite;
+  animation: progressIndeterminate var(--dur-progress) var(--ease-in-out) infinite;
 }
 
 /* ================================================================
@@ -330,6 +328,7 @@
     --dur-fast: 180ms;
     --dur-normal: 300ms;
     --dur-slow: 500ms;
+    --dur-slowest: 750ms;
     --stagger-item: 60ms;
   }
 }

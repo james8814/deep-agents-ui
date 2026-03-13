@@ -543,7 +543,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       }
                       threadId={threadId ?? undefined}
                       subagentLogs={subagent_logs}
-                      enableAnimation={isLastMessage}
+                      enableAnimation={isLastMessage && !isLoading}
                     />
                   </div>
                 );
