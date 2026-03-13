@@ -19,6 +19,7 @@ import {
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { constructMessageWithFiles } from "@/api/upload";
 import { ChatMessage } from "@/app/components/ChatMessage";
+import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
 import { AntdXMessageList } from "@/app/components/AntdXMessageList";
@@ -506,7 +507,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                     key={data.message.id}
                     data-last-message={isLastMessage ? "" : undefined}
                   >
-                    <ChatMessage
+                    <ChatMessageAnimated
                       message={data.message}
                       toolCalls={data.toolCalls}
                       isLoading={isLoading}
@@ -543,6 +544,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       }
                       threadId={threadId ?? undefined}
                       subagentLogs={subagent_logs}
+                      enableAnimation={isLastMessage}
                     />
                   </div>
                 );
