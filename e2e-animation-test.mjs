@@ -163,22 +163,27 @@ async function testBrandGlowVariables() {
     const style = getComputedStyle(document.documentElement);
     return {
       brandGlow: style.getPropertyValue('--brand-glow').trim(),
+      brandGlow30: style.getPropertyValue('--brand-glow-30').trim(),
+      brandGlow20: style.getPropertyValue('--brand-glow-20').trim(),
       brandGlowSubtle: style.getPropertyValue('--brand-glow-subtle').trim(),
+      brandGlow10: style.getPropertyValue('--brand-glow-10').trim(),
     };
   });
 
   // 浏览器可能将 rgba() 标准化为 hex (#7c6bf066)
-  if (vars.brandGlow && (vars.brandGlow.includes('124') || vars.brandGlow.includes('7c6bf0'))) {
-    log('PASS', '--brand-glow 已定义', `= "${vars.brandGlow}"`);
-  } else {
-    log('FAIL', '--brand-glow 未定义或值不正确', `= "${vars.brandGlow}"`);
-  }
+  const checkGlow = (name, value) => {
+    if (value && (value.includes('124') || value.includes('7c6bf0'))) {
+      log('PASS', `${name} 已定义`, `= "${value}"`);
+    } else {
+      log('FAIL', `${name} 未定义或值不正确`, `= "${value}"`);
+    }
+  };
 
-  if (vars.brandGlowSubtle && (vars.brandGlowSubtle.includes('124') || vars.brandGlowSubtle.includes('7c6bf0'))) {
-    log('PASS', '--brand-glow-subtle 已定义', `= "${vars.brandGlowSubtle}"`);
-  } else {
-    log('FAIL', '--brand-glow-subtle 未定义或值不正确', `= "${vars.brandGlowSubtle}"`);
-  }
+  checkGlow('--brand-glow', vars.brandGlow);
+  checkGlow('--brand-glow-30', vars.brandGlow30);
+  checkGlow('--brand-glow-20', vars.brandGlow20);
+  checkGlow('--brand-glow-subtle', vars.brandGlowSubtle);
+  checkGlow('--brand-glow-10', vars.brandGlow10);
 }
 
 // ============================================================

@@ -42,6 +42,7 @@ export const designTokens = {
       raised: "#FAFAF9",
       card: "#FFFFFF",
       sidebar: "#F5F5F4",
+      elevated: "#F0F0EE",
       overlay: "rgba(0, 0, 0, 0.5)",
     },
     dark: {

@@ -321,8 +321,10 @@ export function useAnimationOrchestra(
   const play = (): void => {
     if (isAnimatingRef.current) return;
 
-    // 如果用户要求减少运动，立即调用所有回调
+    // 如果用户要求减少运动，立即调用所有回调（跳过动画）
     if (shouldReduceMotion()) {
+      isAnimatingRef.current = true;
+      setIsAnimating(true);
       scene.onSceneStart?.();
       scene.steps.forEach((step) => {
         if (step.condition?.() !== false) {
@@ -330,6 +332,8 @@ export function useAnimationOrchestra(
           step.onEnd?.();
         }
       });
+      isAnimatingRef.current = false;
+      setIsAnimating(false);
       scene.onSceneEnd?.();
       return;
     }

@@ -71,9 +71,10 @@ interface ChatMessageAnimatedProps {
 
 /**
  * 创建消息出现的动画场景
+ * 接收 ref 对象（而非 ref.current 值），确保回调执行时读取实际 DOM 节点
  */
 function createMessageAnimationScene(
-  messageElement: HTMLElement | null,
+  elementRef: React.RefObject<HTMLElement | null>,
   onScrollEnd?: () => void
 ): AnimationScene {
   return {
@@ -85,19 +86,21 @@ function createMessageAnimationScene(
         delay: 0,
         duration: 300, // 对应 --dur-normal (250ms，此处取 300ms 留余量)
         onStart: () => {
-          if (!messageElement) return;
+          const el = elementRef.current;
+          if (!el) return;
           // 设置初始状态：隐藏 + 向下偏移
-          messageElement.style.opacity = '0';
-          messageElement.style.transform = 'translateY(16px)';
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(16px)';
           // 应用过渡
-          messageElement.style.transition = 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)';
+          el.style.transition = 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)';
         },
         onEnd: () => {
-          if (!messageElement) return;
+          const el = elementRef.current;
+          if (!el) return;
           // 移除过渡，保持最终状态
-          messageElement.style.opacity = '1';
-          messageElement.style.transform = 'translateY(0)';
-          messageElement.style.transition = 'none';
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+          el.style.transition = 'none';
         },
       },
       {
@@ -105,17 +108,14 @@ function createMessageAnimationScene(
         delay: 50, // 消息滑入过程中开始滚动（创建自然的流动感）
         duration: 200, // 平滑滚动到底部
         condition: () => {
-          // 仅在不是用户手动滚动时执行
-          // 这里可以添加逻辑检查用户是否在手动滚动
           return true;
         },
         onStart: () => {
-          if (!messageElement?.parentElement) return;
-          // 获取消息列表容器（通常是父容器）
-          const container = messageElement.closest('[data-message-list]') as HTMLElement;
+          const el = elementRef.current;
+          if (!el?.parentElement) return;
+          const container = el.closest('[data-message-list]') as HTMLElement;
           if (!container) return;
 
-          // 使用 smooth scroll API（受 CSS 变量支持）
           container.scrollTo({
             top: container.scrollHeight,
             behavior: 'smooth',
@@ -189,7 +189,7 @@ export const ChatMessageAnimated = React.forwardRef<
 
     const getAnimationScene = useCallback((): AnimationScene => {
       return createMessageAnimationScene(
-        containerRef.current,
+        containerRef,
         onAnimationComplete
       );
     }, [onAnimationComplete]);

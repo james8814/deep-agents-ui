@@ -162,6 +162,19 @@ export const MessageListAnimated = React.forwardRef<
     forwardedRef
   ) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
+
+    // callback ref 合并 forwardedRef 和 containerRef
+    const mergedRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        containerRef.current = node;
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }
+      },
+      [forwardedRef]
+    );
     const messageRefsRef = useRef<Map<string, HTMLElement>>(new Map());
     const hasAnimatedRef = useRef(false);
     const [animatingMessages, setAnimatingMessages] = React.useState<Set<string>>(
@@ -231,7 +244,7 @@ export const MessageListAnimated = React.forwardRef<
 
     return (
       <div
-        ref={containerRef}
+        ref={mergedRef}
         className={className}
         {...containerProps}
       >
