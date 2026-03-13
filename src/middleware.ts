@@ -26,40 +26,50 @@ const PROTECTED_ROUTES = ['/'];
 const PUBLIC_AUTH_ROUTES = ['/login', '/register'];
 
 // Routes that are always public (no auth check)
-const ALWAYS_PUBLIC_ROUTES = ['/antd-x-poc', '/_not-found'];
+const ALWAYS_PUBLIC_ROUTES = ['/antd-x-poc', '/demo', '/_not-found'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
+  // 演示认证模式：如果启用，绕过中间件认证检查
+  // Demo Authentication: If enabled, bypass middleware auth check
+  const isDemoAuthEnabled = process.env.NEXT_PUBLIC_DEMO_AUTH_ENABLED === 'true';
+
+  if (isDemoAuthEnabled) {
+    // In demo mode, allow all routes without middleware checks
+    // 在演示模式下，绕过所有中间件认证检查
+    return NextResponse.next();
+  }
+
   // Get auth token from cookies (set after login)
   // Note: In this system, token is stored in localStorage (client-side)
   // For full middleware protection, token should also be set as HttpOnly cookie
   const token = request.cookies.get('auth_token')?.value;
-  
+
   // Check if route requires protection
   const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname === route);
   const isPublicAuthRoute = PUBLIC_AUTH_ROUTES.some(route => pathname === route);
   const isAlwaysPublic = ALWAYS_PUBLIC_ROUTES.some(route => pathname === route);
-  
+
   // For routes that should always be public
   if (isAlwaysPublic) {
     return NextResponse.next();
   }
-  
+
   // For protected routes - require authentication
   if (isProtectedRoute && !token) {
     // Redirect to login if not authenticated
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', pathname); // Optional: track where user came from
+    loginUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(loginUrl);
   }
-  
+
   // For public auth routes - redirect to home if already authenticated
   if (isPublicAuthRoute && token) {
     // User is already logged in, redirect to home
     return NextResponse.redirect(new URL('/', request.url));
   }
-  
+
   // Allow request to proceed
   return NextResponse.next();
 }
