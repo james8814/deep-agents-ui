@@ -108,9 +108,12 @@
   --stagger-sm: 30ms;
   --stagger-lg: 80ms;
 
-  /* Animation - Brand Glow */
+  /* Animation - Brand Glow (opacity levels) */
   --brand-glow: rgba(124, 107, 240, 0.4);
+  --brand-glow-30: rgba(124, 107, 240, 0.3);
+  --brand-glow-20: rgba(124, 107, 240, 0.2);
   --brand-glow-subtle: rgba(124, 107, 240, 0.15);
+  --brand-glow-10: rgba(124, 107, 240, 0.1);
 
   /* Z-Index */
   --z-base: 0;

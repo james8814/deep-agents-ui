@@ -626,8 +626,8 @@ button {
 
 .welcome-input-wrap:focus-within {
   border-color: var(--brand, #7c6bf0);
-  box-shadow: 0 0 0 3px var(--brand-glow-subtle, rgba(124, 107, 240, 0.15)),
-    0 8px 24px rgba(124, 107, 240, 0.1);
+  box-shadow: 0 0 0 3px var(--brand-glow-subtle),
+    0 8px 24px var(--brand-glow-10);
 }
 
 .welcome-input {
@@ -657,8 +657,8 @@ button {
 
   .welcome-input-wrap:focus-within {
     border-color: var(--brand, #7c6bf0);
-    box-shadow: 0 0 0 3px var(--brand-glow-subtle, rgba(124, 107, 240, 0.2)),
-      0 8px 24px rgba(124, 107, 240, 0.15);
+    box-shadow: 0 0 0 3px var(--brand-glow-20),
+      0 8px 24px var(--brand-glow-subtle);
   }
 
   .welcome-input {
@@ -695,12 +695,12 @@ button {
 .welcome-hint:hover {
   background: linear-gradient(
     135deg,
-    rgba(124, 107, 240, 0.15),
+    var(--brand-glow-subtle),
     rgba(56, 189, 248, 0.1)
   );
   color: var(--color-text-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(124, 107, 240, 0.2);
+  box-shadow: 0 4px 16px var(--brand-glow-20);
 }
 
 .welcome-hint .hot-tag {
@@ -726,11 +726,11 @@ button {
   .welcome-hint:hover {
     background: linear-gradient(
       135deg,
-      rgba(124, 107, 240, 0.2),
+      var(--brand-glow-20),
       rgba(56, 189, 248, 0.15)
     );
     color: var(--color-text-primary);
-    box-shadow: 0 4px 16px rgba(124, 107, 240, 0.3);
+    box-shadow: 0 4px 16px var(--brand-glow-30);
   }
 
   .welcome-hint svg {
