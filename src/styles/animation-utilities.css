@@ -1,0 +1,335 @@
+/**
+ * v5.27 Animation Utilities
+ *
+ * 动效工具类和关键帧定义。
+ * 所有时长和缓动均引用 design-system.css 中的 CSS 变量。
+ *
+ * 使用方式：
+ *   <div class="animate-fadeIn">...</div>
+ *   <div class="animate-slideUp" style="--stagger: 2">...</div>
+ *
+ * 级联延迟：
+ *   通过 CSS 变量 --stagger 控制，延迟 = --stagger * --stagger-item
+ */
+
+/* ================================================================
+ * KEYFRAMES
+ * ================================================================ */
+
+/* --- 淡入/淡出 --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* --- 滑动 --- */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- 缩放 --- */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* --- 展开/折叠 --- */
+@keyframes expandHeight {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+@keyframes collapseHeight {
+  from {
+    opacity: 1;
+    max-height: 500px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+  }
+}
+
+/* --- 连续动效 --- */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* --- 边框/阴影 --- */
+@keyframes glowBorder {
+  from {
+    box-shadow: 0 0 0 0 rgba(124, 107, 240, 0.4);
+  }
+  to {
+    box-shadow: 0 0 0 3px rgba(124, 107, 240, 0.15);
+  }
+}
+
+/* --- 进度条 --- */
+@keyframes progressIndeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* ================================================================
+ * STAGGER (级联延迟) 变量
+ * ================================================================ */
+
+:root {
+  --stagger-item: 50ms;
+  --stagger-sm: 30ms;
+  --stagger-lg: 80ms;
+}
+
+/* ================================================================
+ * ANIMATION UTILITY CLASSES
+ *
+ * 命名规则: .animate-{keyframeName}
+ * 所有类引用 design-system.css 中的 --dur-* 和 --ease-* 变量。
+ * 支持 --stagger 变量实现级联延迟。
+ * ================================================================ */
+
+/* --- 淡入/淡出 --- */
+.animate-fadeIn {
+  animation: fadeIn var(--dur-normal) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+.animate-fadeOut {
+  animation: fadeOut var(--dur-normal) var(--ease-in) both;
+}
+
+.animate-fadeIn-fast {
+  animation: fadeIn var(--dur-fast) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+/* --- 滑动 --- */
+.animate-slideUp {
+  animation: slideUp var(--dur-normal) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+.animate-slideDown {
+  animation: slideDown var(--dur-normal) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft var(--dur-normal) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+.animate-slideInRight {
+  animation: slideInRight var(--dur-normal) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+/* --- 消息出现 (弹性曲线) --- */
+.animate-messageIn {
+  animation: slideUp var(--dur-slow) var(--ease-elastic) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+/* --- 缩放 --- */
+.animate-scaleIn {
+  animation: scaleIn var(--dur-normal) var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * var(--stagger-item));
+}
+
+.animate-scaleOut {
+  animation: scaleOut var(--dur-normal) var(--ease-in) both;
+}
+
+/* --- 展开/折叠 --- */
+.animate-expand {
+  animation: expandHeight var(--dur-normal) var(--ease-out) both;
+  overflow: hidden;
+}
+
+.animate-collapse {
+  animation: collapseHeight var(--dur-normal) var(--ease-in) both;
+  overflow: hidden;
+}
+
+/* --- 连续动效 --- */
+.animate-spin {
+  animation: spin 800ms var(--ease-linear) infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+.animate-float {
+  animation: float 3s var(--ease-in-out) infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s var(--ease-linear) infinite;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* --- 边框/阴影 --- */
+.animate-glowBorder {
+  animation: glowBorder var(--dur-fast) var(--ease-out) both;
+}
+
+/* --- 进度条 --- */
+.animate-progress {
+  animation: progressIndeterminate 1.5s var(--ease-in-out) infinite;
+}
+
+/* ================================================================
+ * TRANSITION UTILITY CLASSES
+ *
+ * 用于 hover、focus 等状态过渡。
+ * ================================================================ */
+
+.transition-colors {
+  transition: color var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
+}
+
+.transition-opacity {
+  transition: opacity var(--dur-normal) var(--ease-out);
+}
+
+.transition-transform {
+  transition: transform var(--dur-normal) var(--ease-out);
+}
+
+.transition-shadow {
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.transition-all-fast {
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.transition-all-normal {
+  transition: all var(--dur-normal) var(--ease-out);
+}
+
+/* ================================================================
+ * PREFERS-REDUCED-MOTION
+ *
+ * 用户系统设置要求减少运动时，禁用所有动画。
+ * ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ================================================================
+ * MOBILE ADJUSTMENTS
+ *
+ * 移动设备上适当延长动画时长，增加流畅感。
+ * ================================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --dur-fast: 180ms;
+    --dur-normal: 300ms;
+    --dur-slow: 500ms;
+    --stagger-item: 60ms;
+  }
+}
