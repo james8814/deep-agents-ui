@@ -596,11 +596,16 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           </h3>
           <div className="max-h-[400px] space-y-2 overflow-y-auto">
             {subagentList.map((sa, idx) => (
-              <SubAgentCard
+              <div
                 key={sa.id || `sa-${idx}`}
-                subagent={sa}
-                expandedHeight={sa.status === "running" ? 200 : 120}
-              />
+                className="animate-[fadeIn_200ms_ease-out_both,slideUp_200ms_ease-out_both]"
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
+                <SubAgentCard
+                  subagent={sa}
+                  expandedHeight={sa.status === "running" ? 200 : 120}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -617,7 +622,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
       {/* Interrupt Banner — shows when agent needs human approval */}
       {interrupt && (
-        <div className="flex items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
+        <div className="flex animate-[slideDown_250ms_ease-out] items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
           <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
             <AlertCircle
               size={14}

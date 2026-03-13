@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import {
   ChevronDown,
-  ChevronUp,
   Terminal,
   AlertCircle,
   Loader2,
@@ -119,76 +118,81 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
                 {name}
               </span>
             </div>
-            {hasContent &&
-              (isExpanded ? (
-                <ChevronUp
-                  size={14}
-                  className="shrink-0 text-muted-foreground"
-                />
-              ) : (
+            {hasContent && (
                 <ChevronDown
                   size={14}
-                  className="shrink-0 text-muted-foreground"
+                  className={cn(
+                    "shrink-0 text-muted-foreground transition-transform duration-200",
+                    isExpanded && "rotate-180"
+                  )}
                 />
-              ))}
+              )}
           </div>
         </Button>
 
-        {isExpanded && hasContent && (
-          <div className="px-4 pb-4">
-            {uiComponent && stream && graphId ? (
-              <div className="mt-4">
-                <LoadExternalComponent
-                  key={uiComponent.id}
-                  stream={stream}
-                  message={uiComponent}
-                  namespace={graphId}
-                  meta={{ status, args, result: result ?? "No Result Yet" }}
-                />
-              </div>
-            ) : actionRequest && onResume ? (
-              // Show tool approval UI when there's an action request but no GenUI
-              <div className="mt-4">
-                <ToolApprovalInterrupt
-                  actionRequest={actionRequest}
-                  reviewConfig={reviewConfig}
-                  onResume={onResume}
-                  isLoading={isLoading}
-                />
-              </div>
-            ) : (
-              <>
-                {Object.keys(args).length > 0 && (
+        {hasContent && (
+          <div
+            className="grid transition-[grid-template-rows] duration-200 ease-out"
+            style={{
+              gridTemplateRows: isExpanded ? "1fr" : "0fr",
+            }}
+          >
+            <div className="overflow-hidden">
+              <div className="px-4 pb-4">
+                {uiComponent && stream && graphId ? (
                   <div className="mt-4">
-                    <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Arguments
-                    </h4>
-                    <ToolArgsRenderer
-                      name={name}
-                      args={args}
+                    <LoadExternalComponent
+                      key={uiComponent.id}
+                      stream={stream}
+                      message={uiComponent}
+                      namespace={graphId}
+                      meta={{ status, args, result: result ?? "No Result Yet" }}
                     />
                   </div>
-                )}
-                {result && (
+                ) : actionRequest && onResume ? (
                   <div className="mt-4">
-                    <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Result
-                    </h4>
-                    {name === "view_image" &&
-                    typeof result === "object" &&
-                    result !== null ? (
-                      <ViewImageResult result={result} />
-                    ) : (
-                      <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-all rounded-sm border border-border bg-muted/40 p-2 font-mono text-xs leading-7 text-foreground">
-                        {typeof result === "string"
-                          ? result
-                          : JSON.stringify(result, null, 2)}
-                      </pre>
-                    )}
+                    <ToolApprovalInterrupt
+                      actionRequest={actionRequest}
+                      reviewConfig={reviewConfig}
+                      onResume={onResume}
+                      isLoading={isLoading}
+                    />
                   </div>
+                ) : (
+                  <>
+                    {Object.keys(args).length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Arguments
+                        </h4>
+                        <ToolArgsRenderer
+                          name={name}
+                          args={args}
+                        />
+                      </div>
+                    )}
+                    {result && (
+                      <div className="mt-4">
+                        <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Result
+                        </h4>
+                        {name === "view_image" &&
+                        typeof result === "object" &&
+                        result !== null ? (
+                          <ViewImageResult result={result} />
+                        ) : (
+                          <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-all rounded-sm border border-border bg-muted/40 p-2 font-mono text-xs leading-7 text-foreground">
+                            {typeof result === "string"
+                              ? result
+                              : JSON.stringify(result, null, 2)}
+                          </pre>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
+              </div>
+            </div>
           </div>
         )}
       </div>

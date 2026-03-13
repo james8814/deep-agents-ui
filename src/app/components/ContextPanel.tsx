@@ -268,39 +268,44 @@ export const ContextPanel = React.memo<ContextPanelProps>(
           className="flex-1"
           key={refreshKey}
         >
-          {activeTab === "tasks" && (
-            <TasksTab
-              groupedTodos={groupedTodos}
-              hasTasks={hasTasks}
-            />
-          )}
-          {activeTab === "files" && !viewingFile && (
-            <FilesTab
-              onFileSelect={handleFileSelect}
-              sortedMetadata={sortedFileMetadata}
-              sortBy={sortBy}
-              sortAsc={sortAsc}
-              onSortChange={(newSortBy) => {
-                if (newSortBy === sortBy) {
-                  setSortAsc(!sortAsc);
-                } else {
-                  setSortBy(newSortBy);
-                  setSortAsc(false);
-                }
-              }}
-              threadId={threadId}
-              files={files}
-            />
-          )}
-          {activeTab === "subagents" && <SubAgentPanel subagents={subagents} />}
-          {activeTab === "files" && viewingFile && (
-            <InlineFileViewer
-              file={viewingFile}
-              onBack={handleBackToFileList}
-              onExpand={handleExpandFile}
-              editDisabled={isLoading === true || interrupt !== undefined}
-            />
-          )}
+          <div
+            key={activeTab}
+            className="animate-[fadeIn_150ms_ease-out]"
+          >
+            {activeTab === "tasks" && (
+              <TasksTab
+                groupedTodos={groupedTodos}
+                hasTasks={hasTasks}
+              />
+            )}
+            {activeTab === "files" && !viewingFile && (
+              <FilesTab
+                onFileSelect={handleFileSelect}
+                sortedMetadata={sortedFileMetadata}
+                sortBy={sortBy}
+                sortAsc={sortAsc}
+                onSortChange={(newSortBy) => {
+                  if (newSortBy === sortBy) {
+                    setSortAsc(!sortAsc);
+                  } else {
+                    setSortBy(newSortBy);
+                    setSortAsc(false);
+                  }
+                }}
+                threadId={threadId}
+                files={files}
+              />
+            )}
+            {activeTab === "subagents" && <SubAgentPanel subagents={subagents} />}
+            {activeTab === "files" && viewingFile && (
+              <InlineFileViewer
+                file={viewingFile}
+                onBack={handleBackToFileList}
+                onExpand={handleExpandFile}
+                editDisabled={isLoading === true || interrupt !== undefined}
+              />
+            )}
+          </div>
         </ScrollArea>
 
         {/* File Dialog — remains modal for editing */}

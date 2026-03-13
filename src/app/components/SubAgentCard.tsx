@@ -74,32 +74,39 @@ function LogEntryRow({
           <ChevronDown
             size={10}
             className={cn(
-              "ml-auto flex-shrink-0 text-muted-foreground transition-transform",
+              "ml-auto flex-shrink-0 text-muted-foreground transition-transform duration-200",
               expanded && "rotate-180"
             )}
           />
         )}
       </button>
 
-      {expanded && hasDetails && (
-        <div className="space-y-1.5 border-t border-border px-2 py-1.5">
-          {pair.call.tool_input &&
-            Object.keys(pair.call.tool_input).length > 0 && (
-              <div>
-                <span className="text-[10px] text-muted-foreground">输入</span>
-                <pre className="mt-0.5 max-h-28 overflow-x-auto whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
-                  {JSON.stringify(pair.call.tool_input, null, 2)}
-                </pre>
-              </div>
-            )}
-          {pair.result?.tool_output && (
-            <div>
-              <span className="text-[10px] text-muted-foreground">输出</span>
-              <div className="mt-0.5 line-clamp-5 whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
-                {pair.result.tool_output}
-              </div>
+      {hasDetails && (
+        <div
+          className="grid transition-[grid-template-rows] duration-200 ease-out"
+          style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
+        >
+          <div className="overflow-hidden">
+            <div className="space-y-1.5 border-t border-border px-2 py-1.5">
+              {pair.call.tool_input &&
+                Object.keys(pair.call.tool_input).length > 0 && (
+                  <div>
+                    <span className="text-[10px] text-muted-foreground">输入</span>
+                    <pre className="mt-0.5 max-h-28 overflow-x-auto whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
+                      {JSON.stringify(pair.call.tool_input, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              {pair.result?.tool_output && (
+                <div>
+                  <span className="text-[10px] text-muted-foreground">输出</span>
+                  <div className="mt-0.5 line-clamp-5 whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
+                    {pair.result.tool_output}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
@@ -157,88 +164,94 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({
               </span>
             )}
             <ChevronDown
-              className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
-                expanded ? "rotate-180" : ""
-              }`}
+              className={cn(
+                "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+                expanded && "rotate-180"
+              )}
             />
           </div>
         </div>
       </button>
 
       {/* Expanded Content */}
-      {expanded && (
-        <div
-          className="space-y-2 overflow-y-auto border-t border-border bg-muted/20 p-2.5"
-          style={{ maxHeight: `${expandedHeight}px` }}
-        >
-          {/* Execution Steps Section (from subagent_logs) */}
-          {logPairs.length > 0 && (
-            <div>
-              <div className="mb-1 text-xs font-semibold text-muted-foreground">
-                执行步骤 ({logPairs.length})
+      <div
+        className="grid transition-[grid-template-rows] duration-200 ease-out"
+        style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div
+            className="space-y-2 overflow-y-auto border-t border-border bg-muted/20 p-2.5"
+            style={{ maxHeight: expanded ? `${expandedHeight}px` : undefined }}
+          >
+            {/* Execution Steps Section (from subagent_logs) */}
+            {logPairs.length > 0 && (
+              <div>
+                <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                  执行步骤 ({logPairs.length})
+                </div>
+                <div className="space-y-1">
+                  {logPairs.map((pair, idx) => (
+                    <LogEntryRow
+                      key={pair.call.tool_call_id ?? idx}
+                      pair={pair}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="space-y-1">
-                {logPairs.map((pair, idx) => (
-                  <LogEntryRow
-                    key={pair.call.tool_call_id ?? idx}
-                    pair={pair}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Fallback: Legacy Tool Calls (when no subagent_logs available) */}
-          {logPairs.length === 0 && subagent.toolCalls?.length > 0 && (
-            <div>
-              <div className="mb-1 text-xs font-semibold text-muted-foreground">
-                Tools
-              </div>
-              <div className="space-y-1">
-                {subagent.toolCalls.map((call, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded bg-background p-1.5 text-xs"
-                  >
-                    <div className="mb-0.5 font-medium text-primary">
-                      {call.name}
-                    </div>
-                    {call.args && Object.keys(call.args).length > 0 && (
-                      <div className="truncate text-muted-foreground">
-                        {JSON.stringify(call.args).substring(0, 100)}...
+            {/* Fallback: Legacy Tool Calls (when no subagent_logs available) */}
+            {logPairs.length === 0 && subagent.toolCalls?.length > 0 && (
+              <div>
+                <div className="mb-1 text-xs font-semibold text-muted-foreground">
+                  Tools
+                </div>
+                <div className="space-y-1">
+                  {subagent.toolCalls.map((call, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded bg-background p-1.5 text-xs"
+                    >
+                      <div className="mb-0.5 font-medium text-primary">
+                        {call.name}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {call.args && Object.keys(call.args).length > 0 && (
+                        <div className="truncate text-muted-foreground">
+                          {JSON.stringify(call.args).substring(0, 100)}...
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Error Section */}
-          {subagent.error && (
-            <div className="rounded bg-red-500/10 p-1.5">
-              <div className="mb-0.5 text-xs font-medium text-red-600">
-                Error
+            {/* Error Section */}
+            {subagent.error && (
+              <div className="rounded bg-red-500/10 p-1.5">
+                <div className="mb-0.5 text-xs font-medium text-red-600">
+                  Error
+                </div>
+                <div className="break-words text-xs text-red-600">
+                  {subagent.error}
+                </div>
               </div>
-              <div className="break-words text-xs text-red-600">
-                {subagent.error}
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Result Section */}
-          {subagent.result && (
-            <div className="rounded bg-green-500/10 p-1.5">
-              <div className="mb-0.5 text-xs font-medium text-green-600">
-                Result
+            {/* Result Section */}
+            {subagent.result && (
+              <div className="rounded bg-green-500/10 p-1.5">
+                <div className="mb-0.5 text-xs font-medium text-green-600">
+                  Result
+                </div>
+                <div className="line-clamp-3 break-words text-xs text-green-600">
+                  {subagent.result}
+                </div>
               </div>
-              <div className="line-clamp-3 break-words text-xs text-green-600">
-                {subagent.result}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
