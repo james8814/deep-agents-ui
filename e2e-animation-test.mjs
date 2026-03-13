@@ -471,26 +471,29 @@ async function main() {
 
   try {
     await setup();
-    await testPageLoad();
-    await testCSSLoaded();
-    await testDurationVariables();
-    await testEasingVariables();
-    await testStaggerVariables();
-    await testBrandGlowVariables();
-    await testKeyframesExist();
-    await testAnimationClasses();
-    await testAnimationApply();
-    await testTransitionClasses();
-    await testReducedMotion();
-    await testMobileViewport();
-    await testExpandHeightGPU();
-    await testScreenshot();
-    await testNoConsoleErrors();
   } catch (err) {
-    log('FAIL', '测试执行异常', err.message);
-  } finally {
+    log('FAIL', '测试环境初始化失败', err.message);
     await teardown();
+    process.exit(1);
   }
+
+  const tests = [
+    testPageLoad, testCSSLoaded, testDurationVariables, testEasingVariables,
+    testStaggerVariables, testBrandGlowVariables, testKeyframesExist,
+    testAnimationClasses, testAnimationApply, testTransitionClasses,
+    testReducedMotion, testMobileViewport, testExpandHeightGPU,
+    testScreenshot, testNoConsoleErrors,
+  ];
+
+  for (const testFn of tests) {
+    try {
+      await testFn();
+    } catch (err) {
+      log('FAIL', `${testFn.name} 异常`, err.message);
+    }
+  }
+
+  await teardown();
 
   // 汇总
   console.log('\n═══════════════════════════════════════════════════');

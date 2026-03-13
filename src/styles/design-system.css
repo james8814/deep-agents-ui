@@ -221,92 +221,95 @@
 
 /* ================================================================
  * UTILITY CLASSES
+ *
+ * Prefixed with `ds-` to avoid conflicts with Tailwind's
+ * built-in utilities (text-primary, rounded-sm, shadow-md, etc.)
  * ================================================================ */
 
-.text-primary {
+.ds-text-primary {
   color: var(--t1);
 }
 
-.text-secondary {
+.ds-text-secondary {
   color: var(--t2);
 }
 
-.text-tertiary {
+.ds-text-tertiary {
   color: var(--t3);
 }
 
-.text-disabled {
+.ds-text-disabled {
   color: var(--t4);
 }
 
-.bg-primary {
+.ds-bg-primary {
   background-color: var(--bg);
 }
 
-.bg-secondary {
+.ds-bg-secondary {
   background-color: var(--bg1);
 }
 
-.bg-tertiary {
+.ds-bg-tertiary {
   background-color: var(--bg2);
 }
 
-.border-default {
+.ds-border-default {
   border-color: var(--b1);
 }
 
-.border-subtle {
+.ds-border-subtle {
   border-color: var(--b2);
 }
 
-.rounded-sm {
+.ds-rounded-sm {
   border-radius: var(--r-sm);
 }
 
-.rounded-md {
+.ds-rounded-md {
   border-radius: var(--r-md);
 }
 
-.rounded-lg {
+.ds-rounded-lg {
   border-radius: var(--r-lg);
 }
 
-.rounded-xl {
+.ds-rounded-xl {
   border-radius: var(--r-xl);
 }
 
-.shadow-sm {
+.ds-shadow-sm {
   box-shadow: var(--shadow-sm);
 }
 
-.shadow-md {
+.ds-shadow-md {
   box-shadow: var(--shadow-md);
 }
 
-.shadow-lg {
+.ds-shadow-lg {
   box-shadow: var(--shadow-lg);
 }
 
-.shadow-xl {
+.ds-shadow-xl {
   box-shadow: var(--shadow-xl);
 }
 
-.duration-fast {
+.ds-duration-fast {
   transition-duration: var(--dur-fast);
 }
 
-.duration-normal {
+.ds-duration-normal {
   transition-duration: var(--dur-normal);
 }
 
-.duration-slow {
+.ds-duration-slow {
   transition-duration: var(--dur-slow);
 }
 
-.ease-out {
+.ds-ease-out {
   transition-timing-function: var(--ease-out);
 }
 
-.ease-in-out {
+.ds-ease-in-out {
   transition-timing-function: var(--ease-in-out);
 }

@@ -177,7 +177,7 @@ export function useAnimationOrchestra(
   const isAnimatingRef = useRef(false);
   const isPausedRef = useRef(false);
 
-  const timeoutRefsRef = useRef<NodeJS.Timeout[]>([]);
+  const timeoutRefsRef = useRef<Set<NodeJS.Timeout>>(new Set());
   // ✅ FIX: 使用 Set 替代 Array，避免无限增长的内存泄漏
   const frameRefsRef = useRef<Set<number>>(new Set());
   const startTimeRef = useRef<number | null>(null);
@@ -217,13 +217,21 @@ export function useAnimationOrchestra(
   const cleanup = (): void => {
     timeoutRefsRef.current.forEach((timeout) => clearTimeout(timeout));
     frameRefsRef.current.forEach((frameId) => cancelAnimationFrame(frameId));
-    timeoutRefsRef.current = [];
+    timeoutRefsRef.current = new Set();
     frameRefsRef.current = new Set();
     startTimeRef.current = null;
     elapsedTimeRef.current = 0;
   };
 
-  // ✅ FIX: 安全地调度 RAF，自动从 Set 中移除已完成的帧 ID
+  const scheduleTimeout = (callback: () => void, delay: number): NodeJS.Timeout => {
+    const id = setTimeout(() => {
+      timeoutRefsRef.current.delete(id);
+      callback();
+    }, delay);
+    timeoutRefsRef.current.add(id);
+    return id;
+  };
+
   const scheduleFrame = (callback: FrameRequestCallback): number => {
     const id = requestAnimationFrame((time) => {
       frameRefsRef.current.delete(id);
@@ -235,14 +243,11 @@ export function useAnimationOrchestra(
 
   // 执行单个步骤
   const executeStep = (step: AnimationStep, sceneStartTime: number): void => {
-    // 检查条件
     if (step.condition?.() === false) {
       return;
     }
 
-    // 延迟后执行 onStart
-    const startTimeout = setTimeout(() => {
-      // ✅ FIX: 使用 ref 而非 state 避免 stale closure
+    scheduleTimeout(() => {
       if (!isAnimatingRef.current) return;
       try {
         step.onStart?.();
@@ -254,11 +259,7 @@ export function useAnimationOrchestra(
       }
     }, step.delay);
 
-    timeoutRefsRef.current.push(startTimeout);
-
-    // 在延迟 + 持续时间后执行 onEnd
-    const endTimeout = setTimeout(() => {
-      // ✅ FIX: 使用 ref 而非 state 避免 stale closure
+    scheduleTimeout(() => {
       if (!isAnimatingRef.current) return;
       try {
         step.onEnd?.();
@@ -269,8 +270,6 @@ export function useAnimationOrchestra(
         );
       }
     }, step.delay + step.duration);
-
-    timeoutRefsRef.current.push(endTimeout);
 
     // 如果有进度监听，使用 requestAnimationFrame 监测
     if (step.onProgress) {
@@ -399,7 +398,7 @@ export function useAnimationOrchestra(
     // 清理计时器和帧，但不重置 elapsed
     timeoutRefsRef.current.forEach((timeout) => clearTimeout(timeout));
     frameRefsRef.current.forEach((frameId) => cancelAnimationFrame(frameId));
-    timeoutRefsRef.current = [];
+    timeoutRefsRef.current = new Set();
     frameRefsRef.current = new Set();
   };
 
