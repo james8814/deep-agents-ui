@@ -260,18 +260,25 @@ describe('useAnimationOrchestra', () => {
         result.current.play();
       });
 
-      // Step1 onStart: delay=0
+      // Step1 onStart: delay=0（立即触发）
       act(() => {
         jest.advanceTimersByTime(0);
       });
       expect(execution).toContain('Step1-Start');
-      expect(execution).toContain('Step2-Start');
+      // 顺序模式: Step2 的累加 delay = Step1.delay(0) + Step1.duration(50) + Step2.delay(0) = 50ms
+      expect(execution).not.toContain('Step2-Start');
 
-      // Step1 onEnd: delay + duration = 50
+      // Step1 onEnd at 50ms, Step2 onStart at 50ms
       act(() => {
         jest.advanceTimersByTime(50);
       });
       expect(execution).toContain('Step1-End');
+      expect(execution).toContain('Step2-Start');
+
+      // Step2 onEnd at 50 + 50 = 100ms
+      act(() => {
+        jest.advanceTimersByTime(50);
+      });
       expect(execution).toContain('Step2-End');
     });
 
