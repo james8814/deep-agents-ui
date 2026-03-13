@@ -325,15 +325,25 @@ export function useAnimationOrchestra(
     if (shouldReduceMotion()) {
       isAnimatingRef.current = true;
       setIsAnimating(true);
-      scene.onSceneStart?.();
-      scene.steps.forEach((step) => {
-        if (step.condition?.() !== false) {
-          step.onStart?.();
-          step.onEnd?.();
-        }
-      });
-      isAnimatingRef.current = false;
-      setIsAnimating(false);
+      try {
+        scene.onSceneStart?.();
+        scene.steps.forEach((step) => {
+          if (step.condition?.() !== false) {
+            try {
+              step.onStart?.();
+              step.onEnd?.();
+            } catch (error) {
+              console.error(
+                `[AnimationError] Step "${step.name}" callback failed:`,
+                error
+              );
+            }
+          }
+        });
+      } finally {
+        isAnimatingRef.current = false;
+        setIsAnimating(false);
+      }
       scene.onSceneEnd?.();
       return;
     }
