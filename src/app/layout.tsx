@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
@@ -7,6 +8,11 @@ import { ClientInitializer } from "@/components/ClientInitializer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
 import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "PMAgent - AI Product Manager Assistant",
+  description: "AI-powered product management assistant built on LangGraph & DeepAgents",
+};
 
 const inter = Inter({ subsets: ["latin"] });
 

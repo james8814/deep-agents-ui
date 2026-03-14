@@ -216,7 +216,7 @@ export function ThreadList({
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
           >
-            <SelectTrigger className="w-fit">
+            <SelectTrigger className="w-fit" aria-label="Filter threads by status">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="end">
@@ -292,9 +292,9 @@ export function ThreadList({
                   key={group}
                   className="mb-4"
                 >
-                  <h4 className="m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div role="heading" aria-level={3} className="m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {GROUP_LABELS[group]}
-                  </h4>
+                  </div>
                   <div className="flex flex-col gap-1">
                     {groupThreads.map((thread) => (
                       <button
@@ -303,9 +303,9 @@ export function ThreadList({
                         onClick={() => onThreadSelect(thread.id)}
                         className={cn(
                           "grid w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors duration-200",
-                          "hover:bg-accent",
+                          "hover:bg-accent/15",
                           currentThreadId === thread.id
-                            ? "border border-primary bg-accent hover:bg-accent"
+                            ? "border border-primary bg-primary/15 hover:bg-primary/20"
                             : "border border-transparent bg-transparent"
                         )}
                         aria-current={currentThreadId === thread.id}

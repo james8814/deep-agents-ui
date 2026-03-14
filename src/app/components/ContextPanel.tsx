@@ -197,6 +197,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(
             size="icon"
             className="h-7 w-7"
             onClick={onClose}
+            aria-label="Close context panel"
           >
             <PanelRightClose size={14} />
           </Button>
@@ -370,7 +371,7 @@ function TasksTab({
           className="mb-2 text-muted-foreground/50"
         />
         <p className="text-xs text-muted-foreground">No tasks yet</p>
-        <p className="mt-1 text-xs text-muted-foreground/60">
+        <p className="mt-1 text-xs text-muted-foreground">
           Tasks will appear here as the agent works
         </p>
       </div>
@@ -470,7 +471,7 @@ function FilesTab({
           className="mb-2 text-muted-foreground/50"
         />
         <p className="text-xs text-muted-foreground">No files yet</p>
-        <p className="mt-1 text-xs text-muted-foreground/60">
+        <p className="mt-1 text-xs text-muted-foreground">
           Files will appear here as the agent creates them
         </p>
       </div>
@@ -543,7 +544,7 @@ function FilesTab({
                   <span>{formatSize(meta.size)}</span>
                 </div>
                 {/* Relative time */}
-                <div className="mt-0.5 text-[10px] text-muted-foreground/60">
+                <div className="mt-0.5 text-[10px] text-muted-foreground">
                   Added {formatRelativeTime(meta.addedAt)}
                 </div>
               </div>

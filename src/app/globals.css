@@ -34,7 +34,7 @@
     --secondary: 240 14.3% 95.9%;         /* #F3F3F6 (--bg2 light) */
     --secondary-foreground: 240 28.6% 5.5%; /* #0A0A12 (--t1 light) */
     --muted: 240 15.2% 93.5%;             /* #ECECF1 (--bg3 light) */
-    --muted-foreground: 240 5% 64.9%;     /* #A1A1AA (--t3 light) */
+    --muted-foreground: 240 5% 46%;       /* #6F6F7B — WCAG AA 4.96:1 on #FFF (was #A1A1AA 2.56:1) */
     --accent: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
     --accent-foreground: 0 0% 100%;       /* #FFFFFF */
     --destructive: 0 84.2% 60.2%;         /* #EF4444 (--err) */
@@ -277,7 +277,7 @@
     --secondary: 240 27.8% 14.1%;          /* #1A1A2E (--bg3) */
     --secondary-foreground: 240 11.1% 96.5%; /* #F5F5F7 (--t1) */
     --muted: 240 27.8% 14.1%;             /* #1A1A2E (--bg3) */
-    --muted-foreground: 240 3.8% 46.1%;    /* #71717A (--t3) */
+    --muted-foreground: 240 3.8% 50%;      /* #7A7A84 — WCAG AA 4.64:1 on #0A0A12 (was #71717A 4.07:1) */
     --accent: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
     --accent-foreground: 0 0% 100%;        /* #FFFFFF */
     --destructive: 0 84.2% 60.2%;          /* #EF4444 (--err) */
@@ -374,7 +374,7 @@
       --secondary: 240 27.8% 14.1%;          /* #1A1A2E (--bg3) */
       --secondary-foreground: 240 11.1% 96.5%; /* #F5F5F7 (--t1) */
       --muted: 240 27.8% 14.1%;             /* #1A1A2E (--bg3) */
-      --muted-foreground: 240 3.8% 46.1%;    /* #71717A (--t3) */
+      --muted-foreground: 240 3.8% 50%;      /* #7A7A84 — WCAG AA 4.64:1 on #0A0A12 (was #71717A 4.07:1) */
       --accent: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
       --accent-foreground: 0 0% 100%;        /* #FFFFFF */
       --destructive: 0 84.2% 60.2%;          /* #EF4444 (--err) */

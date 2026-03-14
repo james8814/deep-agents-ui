@@ -271,14 +271,14 @@ export const InputArea = React.memo<InputAreaProps>(
                 )}
               </button>
 
-              <span className="text-[10px] text-muted-foreground/60">
+              <span className="text-[10px] text-muted-foreground">
                 {inputExpanded ? "Cmd/Ctrl+Enter" : "Shift+Enter"}
               </span>
             </div>
 
             {/* Center: Execution time + Status indicator */}
             {executionTime !== null && executionTime !== undefined && (
-              <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60">
+              <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                 <Clock size={12} />
                 <span>{formatExecutionTime(executionTime)}</span>
                 {sendStatus === "sending" && (
@@ -295,7 +295,7 @@ export const InputArea = React.memo<InputAreaProps>(
               {state.charCount > 500 && (
                 <span
                   id="char-count"
-                  className="text-[10px] tabular-nums text-muted-foreground/60"
+                  className="text-[10px] tabular-nums text-muted-foreground"
                 >
                   {state.charCount.toLocaleString()}
                 </span>

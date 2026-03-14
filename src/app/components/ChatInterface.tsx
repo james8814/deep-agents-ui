@@ -740,7 +740,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       <Maximize2 size={14} />
                     )}
                   </button>
-                  <span className="text-[10px] text-muted-foreground/60">
+                  <span className="text-[10px] text-muted-foreground">
                     Shift+Enter
                   </span>
                 </div>
@@ -748,7 +748,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                 {/* Right: Char count + Send button */}
                 <div className="flex items-center gap-3">
                   {input.length > 500 && (
-                    <span className="text-[10px] tabular-nums text-muted-foreground/60">
+                    <span className="text-[10px] tabular-nums text-muted-foreground">
                       {input.length.toLocaleString()}
                     </span>
                   )}

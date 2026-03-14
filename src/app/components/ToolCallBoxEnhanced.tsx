@@ -257,7 +257,7 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
             {/* Right: Execution time + Expand arrow */}
             <div className="flex items-center gap-2">
               {executionTime !== undefined && executionTime !== null && (
-                <span className="flex-shrink-0 text-[10px] tabular-nums text-muted-foreground/60">
+                <span className="flex-shrink-0 text-[10px] tabular-nums text-muted-foreground">
                   {executionTime < 1000
                     ? `${executionTime}ms`
                     : `${(executionTime / 1000).toFixed(1)}s`}
@@ -320,7 +320,7 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
                             "text-[10px] font-medium transition-colors",
                             isCopied
                               ? "text-green-600 dark:text-green-400"
-                              : "text-muted-foreground/60 hover:text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
                           )}
                           title="Copy arguments to clipboard"
                         >

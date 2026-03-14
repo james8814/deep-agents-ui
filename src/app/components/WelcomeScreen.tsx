@@ -189,7 +189,7 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
             </div>
 
             {/* Footer Info */}
-            <div className="slide-in-up mt-12 flex flex-col items-center gap-3 border-t border-border/30 pt-8 text-xs text-muted-foreground/60">
+            <div className="slide-in-up mt-12 flex flex-col items-center gap-3 border-t border-border/30 pt-8 text-xs text-muted-foreground">
               <p>Powered by LangGraph & DeepAgents</p>
               <div className="flex gap-4">
                 <a
