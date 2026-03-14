@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { format } from "date-fns";
-import { Loader2, MessageSquare, X } from "lucide-react";
+import { Loader2, MessageSquare, Pencil, Trash2, X } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ThreadItem } from "@/app/hooks/useThreads";
 import { useThreads } from "@/app/hooks/useThreads";
+import { useClient } from "@/providers/ClientProvider";
 
 type StatusFilter = "all" | "idle" | "busy" | "interrupted" | "error";
 
@@ -115,6 +116,7 @@ interface ThreadListProps {
   onMutateReady?: (mutate: () => void) => void;
   onClose?: () => void;
   onInterruptCountChange?: (count: number) => void;
+  onThreadDelete?: (id: string) => void;
 }
 
 export function ThreadList({
@@ -122,9 +124,13 @@ export function ThreadList({
   onMutateReady,
   onClose,
   onInterruptCountChange,
+  onThreadDelete,
 }: ThreadListProps) {
-  const [currentThreadId] = useQueryState("threadId");
+  const client = useClient();
+  const [currentThreadId, setCurrentThreadId] = useQueryState("threadId");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [renamingThreadId, setRenamingThreadId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const threads = useThreads({
     status: statusFilter === "all" ? undefined : statusFilter,
@@ -205,6 +211,26 @@ export function ThreadList({
   useEffect(() => {
     onInterruptCountChange?.(interruptedCount);
   }, [interruptedCount, onInterruptCountChange]);
+
+  const handleDeleteThread = useCallback(
+    async (threadId: string) => {
+      try {
+        await client.threads.delete(threadId);
+        // If deleting the current thread, clear selection
+        if (currentThreadId === threadId) {
+          setCurrentThreadId(null);
+        }
+        onThreadDelete?.(threadId);
+        // Revalidate thread list
+        mutateRef.current();
+      } catch (err) {
+        console.error("Failed to delete thread:", err);
+      } finally {
+        setDeleteConfirmId(null);
+      }
+    },
+    [client, currentThreadId, setCurrentThreadId, onThreadDelete]
+  );
 
   return (
     <div className="absolute inset-0 flex flex-col">
@@ -297,45 +323,131 @@ export function ThreadList({
                   </div>
                   <div className="flex flex-col gap-1">
                     {groupThreads.map((thread) => (
-                      <button
+                      <div
                         key={thread.id}
-                        type="button"
-                        onClick={() => onThreadSelect(thread.id)}
-                        className={cn(
-                          "grid w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors duration-200",
-                          "hover:bg-accent/15",
-                          currentThreadId === thread.id
-                            ? "border border-primary bg-primary/15 hover:bg-primary/20"
-                            : "border border-transparent bg-transparent"
-                        )}
-                        aria-current={currentThreadId === thread.id}
+                        className="group relative"
                       >
-                        <div className="min-w-0 flex-1">
-                          {/* Title + Timestamp Row */}
-                          <div className="mb-1 flex items-center justify-between">
-                            <h3 className="truncate text-sm font-semibold">
-                              {thread.title}
-                            </h3>
-                            <span className="ml-2 flex-shrink-0 text-xs text-muted-foreground">
-                              {formatTime(thread.updatedAt)}
-                            </span>
-                          </div>
-                          {/* Description + Status Row */}
-                          <div className="flex items-center justify-between">
-                            <p className="flex-1 truncate text-sm text-muted-foreground">
-                              {thread.description}
-                            </p>
-                            <div className="ml-2 flex-shrink-0">
-                              <div
-                                className={cn(
-                                  "h-2 w-2 rounded-full",
-                                  getThreadColor(thread.status)
-                                )}
-                              />
+                        <button
+                          type="button"
+                          onClick={() => onThreadSelect(thread.id)}
+                          className={cn(
+                            "grid w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 pr-16 text-left transition-colors duration-200",
+                            "hover:bg-accent/15",
+                            currentThreadId === thread.id
+                              ? "border border-primary bg-primary/15 hover:bg-primary/20"
+                              : "border border-transparent bg-transparent"
+                          )}
+                          aria-current={currentThreadId === thread.id}
+                        >
+                          <div className="min-w-0 flex-1">
+                            {/* Title + Timestamp Row */}
+                            <div className="mb-1 flex items-center justify-between">
+                              <h3 className="truncate text-sm font-semibold">
+                                {thread.title}
+                              </h3>
+                              <span className="ml-2 flex-shrink-0 text-xs text-muted-foreground">
+                                {formatTime(thread.updatedAt)}
+                              </span>
+                            </div>
+                            {/* Description + Status Row */}
+                            <div className="flex items-center justify-between">
+                              <p className="flex-1 truncate text-sm text-muted-foreground">
+                                {thread.description}
+                              </p>
+                              <div className="ml-2 flex-shrink-0">
+                                <div
+                                  className={cn(
+                                    "h-2 w-2 rounded-full",
+                                    getThreadColor(thread.status)
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
+                        </button>
+
+                        {/* v5.26 #3: Thread Hover Actions */}
+                        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newTitle = window.prompt(
+                                "Rename thread:",
+                                thread.title
+                              );
+                              if (newTitle && newTitle !== thread.title) {
+                                client.threads
+                                  .update(thread.id, {
+                                    metadata: { title: newTitle },
+                                  })
+                                  .then(() => mutateRef.current())
+                                  .catch(console.error);
+                              }
+                            }}
+                            className={cn(
+                              "flex h-[22px] w-[22px] items-center justify-center rounded",
+                              "border-none bg-muted text-muted-foreground",
+                              "transition-all duration-150",
+                              "hover:-translate-y-px hover:bg-accent hover:text-foreground"
+                            )}
+                            title="Rename"
+                            aria-label="Rename thread"
+                          >
+                            <Pencil size={12} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmId(thread.id);
+                            }}
+                            className={cn(
+                              "flex h-[22px] w-[22px] items-center justify-center rounded",
+                              "border-none bg-muted text-muted-foreground",
+                              "transition-all duration-150",
+                              "hover:-translate-y-px hover:bg-destructive/15 hover:text-destructive"
+                            )}
+                            title="Delete"
+                            aria-label="Delete thread"
+                          >
+                            <Trash2 size={12} />
+                          </button>
                         </div>
-                      </button>
+
+                        {/* Delete confirmation inline */}
+                        {deleteConfirmId === thread.id && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/95 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground">
+                                Delete?
+                              </span>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteThread(thread.id);
+                                }}
+                              >
+                                Confirm
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteConfirmId(null);
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>

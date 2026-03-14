@@ -758,7 +758,28 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                     size="sm"
                     onClick={isLoading ? stopStream : undefined}
                     disabled={!isLoading && (submitDisabled || !input.trim())}
-                    className="h-7 px-3 text-xs"
+                    className={cn(
+                      "h-7 px-3 text-xs transition-all duration-150",
+                      isLoading && "hover:-translate-y-px hover:shadow-sm",
+                      !isLoading &&
+                        (submitDisabled || !input.trim()) &&
+                        "pointer-events-none bg-muted text-muted-foreground"
+                    )}
+                    aria-label={
+                      isLoading
+                        ? "Stop execution"
+                        : submitDisabled || !input.trim()
+                        ? "Type a message to send"
+                        : "Send message"
+                    }
+                    aria-busy={isLoading}
+                    title={
+                      !isLoading && (submitDisabled || !input.trim())
+                        ? "Type a message to send"
+                        : isLoading
+                        ? "Click to stop execution"
+                        : undefined
+                    }
                   >
                     {isLoading ? (
                       <>

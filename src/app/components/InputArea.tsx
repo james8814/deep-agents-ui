@@ -307,9 +307,27 @@ export const InputArea = React.memo<InputAreaProps>(
                 size="sm"
                 onClick={isLoading ? onStop : undefined}
                 disabled={buttonDisabled}
-                className="h-7 px-3 text-xs transition-all"
-                aria-label={isLoading ? "Stop execution" : "Send message"}
+                className={cn(
+                  "h-7 px-3 text-xs transition-all duration-150",
+                  isLoading && "hover:-translate-y-px hover:shadow-sm",
+                  buttonDisabled &&
+                    "pointer-events-none bg-muted text-muted-foreground"
+                )}
+                aria-label={
+                  isLoading
+                    ? "Stop execution"
+                    : buttonDisabled
+                    ? "Type a message to send"
+                    : "Send message"
+                }
                 aria-busy={isLoading}
+                title={
+                  buttonDisabled
+                    ? "Type a message to send"
+                    : isLoading
+                    ? "Click to stop execution"
+                    : undefined
+                }
               >
                 {buttonIcon}
                 {buttonLabel}
