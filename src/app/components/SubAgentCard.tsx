@@ -57,6 +57,7 @@ function LogEntryRow({
     <div className="rounded border border-border bg-background text-xs">
       <button
         onClick={() => hasDetails && setExpanded((v) => !v)}
+        aria-expanded={hasDetails ? expanded : undefined}
         className={cn(
           "flex w-full items-center gap-2 px-2 py-1.5 text-left",
           hasDetails && "hover:bg-muted/50"
@@ -84,6 +85,7 @@ function LogEntryRow({
       {hasDetails && (
         <div
           className="grid transition-[grid-template-rows] duration-200 ease-out"
+          aria-hidden={!expanded}
           style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
         >
           <div className="overflow-hidden">
@@ -138,6 +140,7 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
         className="w-full p-2.5 text-left transition-colors hover:bg-muted/50"
       >
         <div className="flex items-center justify-between gap-2">
@@ -176,6 +179,7 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({
       {/* Expanded Content */}
       <div
         className="grid transition-[grid-template-rows] duration-200 ease-out"
+        aria-hidden={!expanded}
         style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
       >
         <div className="overflow-hidden">

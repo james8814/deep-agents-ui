@@ -599,7 +599,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               <div
                 key={sa.id || `sa-${idx}`}
                 className="animate-[fadeIn_200ms_ease-out_both,slideUp_200ms_ease-out_both]"
-                style={{ animationDelay: `${idx * 50}ms` }}
+                style={{ animationDelay: `${Math.min(idx, 5) * 40}ms` }}
               >
                 <SubAgentCard
                   subagent={sa}

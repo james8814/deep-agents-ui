@@ -106,6 +106,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
           variant="ghost"
           size="sm"
           onClick={toggleExpanded}
+          aria-expanded={hasContent ? isExpanded : undefined}
           className={cn(
             "flex w-full items-center justify-between gap-2 border-none px-2 py-2 text-left shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-default"
           )}
@@ -133,6 +134,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
         {hasContent && (
           <div
             className="grid transition-[grid-template-rows] duration-200 ease-out"
+            aria-hidden={!isExpanded}
             style={{
               gridTemplateRows: isExpanded ? "1fr" : "0fr",
             }}

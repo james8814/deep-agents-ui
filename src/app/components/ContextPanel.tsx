@@ -266,12 +266,9 @@ export const ContextPanel = React.memo<ContextPanelProps>(
         {/* Content */}
         <ScrollArea
           className="flex-1"
-          key={refreshKey}
+          key={`${refreshKey}-${activeTab}`}
         >
-          <div
-            key={activeTab}
-            className="animate-[fadeIn_150ms_ease-out]"
-          >
+          <div className="animate-[fadeIn_150ms_ease-out]">
             {activeTab === "tasks" && (
               <TasksTab
                 groupedTodos={groupedTodos}
