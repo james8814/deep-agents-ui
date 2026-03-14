@@ -21,6 +21,7 @@ import { ChatProvider } from "@/providers/ChatProvider";
 import { ChatInterface } from "@/app/components/ChatInterface";
 import { ContextPanel } from "@/app/components/ContextPanel";
 import { cn } from "@/lib/utils";
+import { SettingsModal } from "@/app/components/SettingsModal";
 
 interface HomePageInnerProps {
   config: StandaloneConfig;
@@ -51,6 +52,7 @@ function HomePageInner({
   const [mutateThreads, setMutateThreads] = useState<(() => void) | null>(null);
   const [interruptCount, setInterruptCount] = useState(0);
   const [assistant, setAssistant] = useState<Assistant | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const fetchAssistant = useCallback(async () => {
     const assistantId = config.assistantId;
@@ -104,6 +106,10 @@ function HomePageInner({
         onSave={handleSaveConfig}
         initialConfig={config}
       />
+      <SettingsModal
+        isOpen={settingsOpen}
+        onOpenChange={setSettingsOpen}
+      />
       <div className="flex h-screen flex-col">
         <header className="flex h-16 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-4">
@@ -154,7 +160,7 @@ function HomePageInner({
               New Thread
             </Button>
             {/* 用户菜单 */}
-            <UserMenu onSettingsClick={() => setConfigDialogOpen(true)} />
+            <UserMenu onSettingsClick={() => setSettingsOpen(true)} />
           </div>
         </header>
 

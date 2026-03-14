@@ -17,12 +17,13 @@
 
 import React, { FC, useCallback, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, Moon, Sun, Copy, Check } from "lucide-react";
+import { X, Moon, Sun, Monitor, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSettings } from "./useSettings";
+import { useThemeSettings } from "@/providers/ThemeProvider";
 import type {
   SettingsModalProps,
   Theme,
+  ThemePreference,
   KeyboardShortcut,
 } from "./settingsTypes";
 
@@ -118,7 +119,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
       updateNotifications,
       saveSettings,
       switchTab,
-    } = useSettings();
+    } = useThemeSettings();
 
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [shortcutSearch, setShortcutSearch] = useState("");
@@ -145,11 +146,11 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
     }, [saveSettings, settings, onSave, onOpenChange]);
 
     /**
-     * Handle theme change
+     * Handle theme preference change (light/dark/system)
      */
-    const handleThemeChange = useCallback(
-      (theme: Theme) => {
-        updateSettings({ theme });
+    const handleThemePreferenceChange = useCallback(
+      (preference: ThemePreference) => {
+        updateSettings({ themePreference: preference });
       },
       [updateSettings]
     );
@@ -282,10 +283,14 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                     title="Theme"
                     description="Choose your preferred color scheme"
                   >
-                    <ThemeToggle
-                      currentTheme={settings.theme}
-                      onThemeChange={handleThemeChange}
+                    <ThemePreferenceToggle
+                      currentPreference={settings.themePreference}
+                      onPreferenceChange={handleThemePreferenceChange}
                     />
+                    <p className="text-azune-text-3 mt-2 text-xs">
+                      Current: {settings.theme === "dark" ? "Dark" : "Light"}
+                      {settings.themePreference === "system" && " (auto)"}
+                    </p>
                   </SettingsSection>
                 </div>
               )}
@@ -591,38 +596,47 @@ const ToggleSetting: FC<ToggleSettingProps> = ({
 );
 
 /**
- * Theme Toggle Component
+ * Theme Preference Toggle Component — Light / Dark / System
  */
-interface ThemeToggleProps {
-  readonly currentTheme: Theme;
-  readonly onThemeChange: (theme: Theme) => void;
+interface ThemePreferenceToggleProps {
+  readonly currentPreference: ThemePreference;
+  readonly onPreferenceChange: (preference: ThemePreference) => void;
 }
 
-const ThemeToggle: FC<ThemeToggleProps> = ({ currentTheme, onThemeChange }) => (
+const THEME_OPTIONS: {
+  value: ThemePreference;
+  label: string;
+  icon: typeof Sun;
+}[] = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+];
+
+const ThemePreferenceToggle: FC<ThemePreferenceToggleProps> = ({
+  currentPreference,
+  onPreferenceChange,
+}) => (
   <div className="flex gap-3">
-    {(["light", "dark"] as const).map((theme) => (
+    {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
       <button
-        key={theme}
-        onClick={() => onThemeChange(theme)}
+        key={value}
+        onClick={() => onPreferenceChange(value)}
         className={cn(
           "flex flex-1 flex-col items-center gap-2 rounded-lg border-2 p-4",
           "transition-all duration-200",
-          currentTheme === theme
+          currentPreference === value
             ? "border-azune-brand bg-azune-brand/10"
             : "border-azune-border-1 hover:border-azune-brand/50",
           "focus-visible:ring-azune-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           "dark:focus-visible:ring-offset-azune-bg-1"
         )}
-        aria-label={`${theme} theme`}
-        aria-pressed={currentTheme === theme}
+        aria-label={`${label} theme`}
+        aria-pressed={currentPreference === value}
       >
-        {theme === "light" ? (
-          <Sun className="text-azune-text-1 h-6 w-6" />
-        ) : (
-          <Moon className="text-azune-text-1 h-6 w-6" />
-        )}
-        <span className="text-azune-text-1 text-xs font-medium capitalize">
-          {theme}
+        <Icon className="text-azune-text-1 h-6 w-6" />
+        <span className="text-azune-text-1 text-xs font-medium">
+          {label}
         </span>
       </button>
     ))}

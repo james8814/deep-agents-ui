@@ -130,31 +130,35 @@ export const useSettings = () => {
       const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
       const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
 
+      // Determine theme preference: settings JSON is source of truth,
+      // pmagent-theme key is fallback for legacy/standalone usage
+      let preference: ThemePreference = DEFAULT_SETTINGS.themePreference;
+
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<UserSettings>;
         setSettings((prev) => ({ ...prev, ...parsed }));
-      }
-
-      if (storedTheme) {
-        // Validate stored value before using as ThemePreference
-        const preference: ThemePreference = VALID_PREFERENCES.includes(
+        if (
+          parsed.themePreference &&
+          VALID_PREFERENCES.includes(parsed.themePreference)
+        ) {
+          preference = parsed.themePreference;
+        }
+      } else if (storedTheme) {
+        // Legacy fallback: only use pmagent-theme if no settings JSON
+        preference = VALID_PREFERENCES.includes(
           storedTheme as ThemePreference
         )
           ? (storedTheme as ThemePreference)
           : DEFAULT_SETTINGS.themePreference;
-        const resolved = resolveTheme(preference);
-        setSettings((prev) => ({
-          ...prev,
-          theme: resolved,
-          themePreference: preference,
-        }));
-        applyTheme(resolved);
-      } else {
-        // Apply default: resolve from default themePreference
-        const resolved = resolveTheme(DEFAULT_SETTINGS.themePreference);
-        setSettings((prev) => ({ ...prev, theme: resolved }));
-        applyTheme(resolved);
       }
+
+      const resolved = resolveTheme(preference);
+      setSettings((prev) => ({
+        ...prev,
+        theme: resolved,
+        themePreference: preference,
+      }));
+      applyTheme(resolved);
     } catch (error) {
       console.warn("Failed to load settings from localStorage:", error);
     }
@@ -191,12 +195,25 @@ export const useSettings = () => {
   }, [applyTheme]);
 
   /**
-   * Update user settings
+   * Update user settings.
+   * When themePreference changes, immediately resolve and apply the theme.
    */
-  const updateSettings = useCallback((partial: Partial<UserSettings>) => {
-    setSettings((prev) => ({ ...prev, ...partial }));
-    setState((prev) => ({ ...prev, isDirty: true }));
-  }, []);
+  const updateSettings = useCallback(
+    (partial: Partial<UserSettings>) => {
+      setSettings((prev) => {
+        const merged = { ...prev, ...partial };
+        // If themePreference changed, resolve and apply immediately
+        if (partial.themePreference !== undefined) {
+          const resolved = resolveTheme(merged.themePreference);
+          merged.theme = resolved;
+          applyTheme(resolved);
+        }
+        return merged;
+      });
+      setState((prev) => ({ ...prev, isDirty: true }));
+    },
+    [applyTheme]
+  );
 
   /**
    * Update notification settings specifically

@@ -17,7 +17,7 @@ export type {
   SettingsModalProps,
   SettingsSectionProps,
   ToggleSettingProps,
-  ThemeToggleProps,
+  ThemePreferenceToggleProps,
   KeyboardShortcutsProps,
   AboutSectionProps,
   SettingsChangeEvent,

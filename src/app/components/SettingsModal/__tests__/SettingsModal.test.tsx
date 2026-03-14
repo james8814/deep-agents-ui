@@ -10,7 +10,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { SettingsModal } from "../SettingsModal";
-import { useSettings } from "../useSettings";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 /**
  * Mock localStorage
@@ -37,22 +37,25 @@ Object.defineProperty(window, "localStorage", {
 });
 
 /**
- * Test wrapper component for useSettings hook
+ * Render helper: wraps SettingsModal in required ThemeProvider context
  */
-const _TestWrapper = ({
-  isOpen,
-  onOpenChange,
-}: {
+function renderSettingsModal(props: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-}) => (
-  <SettingsModal
-    isOpen={isOpen}
-    onOpenChange={onOpenChange}
-    onSave={jest.fn()}
-    onCancel={jest.fn()}
-  />
-);
+  onSave?: (settings: unknown) => void | Promise<void>;
+  onCancel?: () => void;
+}) {
+  return render(
+    <ThemeProvider>
+      <SettingsModal
+        isOpen={props.isOpen}
+        onOpenChange={props.onOpenChange}
+        onSave={props.onSave}
+        onCancel={props.onCancel}
+      />
+    </ThemeProvider>
+  );
+}
 
 describe("SettingsModal Component", () => {
   let mockOnOpenChange: jest.Mock;
@@ -79,27 +82,23 @@ describe("SettingsModal Component", () => {
 
   describe("Rendering", () => {
     test("should not render when closed", () => {
-      render(
-        <SettingsModal
-          isOpen={false}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: false,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       expect(screen.queryByText("Settings")).not.toBeInTheDocument();
     });
 
     test("should render when open", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         expect(screen.getByText("Settings")).toBeInTheDocument();
@@ -107,14 +106,12 @@ describe("SettingsModal Component", () => {
     });
 
     test("should render all tabs", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         expect(
@@ -131,14 +128,12 @@ describe("SettingsModal Component", () => {
     });
 
     test("should render close button", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         expect(screen.getByLabelText("Close settings")).toBeInTheDocument();
@@ -146,14 +141,12 @@ describe("SettingsModal Component", () => {
     });
 
     test("should render save and cancel buttons", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         expect(screen.getByText("Cancel")).toBeInTheDocument();
@@ -168,14 +161,12 @@ describe("SettingsModal Component", () => {
 
   describe("Tab Navigation", () => {
     test("should show appearance tab by default", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
@@ -184,16 +175,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should switch to notifications tab", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const notificationsTab = screen.getByRole("tab", {
@@ -213,16 +202,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should switch to shortcuts tab", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
@@ -238,16 +225,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should switch to about tab", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const aboutTab = screen.getByRole("tab", { name: /about/i });
@@ -268,40 +253,37 @@ describe("SettingsModal Component", () => {
   // ============================================================================
 
   describe("Theme Toggle", () => {
-    test("should render theme toggle buttons in appearance tab", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+    test("should render theme preference buttons (Light/Dark/System)", async () => {
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
-        expect(screen.getByLabelText("light theme")).toBeInTheDocument();
-        expect(screen.getByLabelText("dark theme")).toBeInTheDocument();
+        expect(screen.getByLabelText("Light theme")).toBeInTheDocument();
+        expect(screen.getByLabelText("Dark theme")).toBeInTheDocument();
+        expect(screen.getByLabelText("System theme")).toBeInTheDocument();
       });
     });
 
-    test("should toggle theme selection", async () => {
-      const _user = userEvent.setup();
+    test("should toggle theme preference selection", async () => {
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
-        const lightThemeBtn = screen.getByLabelText("light theme");
+        const lightThemeBtn = screen.getByLabelText("Light theme");
         expect(lightThemeBtn).toBeInTheDocument();
       });
 
-      const lightThemeBtn = screen.getByLabelText("light theme");
+      const lightThemeBtn = screen.getByLabelText("Light theme");
       await user.click(lightThemeBtn);
 
       // Check that the button is selected
@@ -317,16 +299,14 @@ describe("SettingsModal Component", () => {
 
   describe("Notification Settings", () => {
     test("should render notification toggles", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const notificationsTab = screen.getByRole("tab", {
@@ -348,16 +328,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should toggle main notification switch", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const notificationsTab = screen.getByRole("tab", {
@@ -390,16 +368,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should disable sub-toggles when main toggle is off", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const notificationsTab = screen.getByRole("tab", {
@@ -438,16 +414,14 @@ describe("SettingsModal Component", () => {
 
   describe("Keyboard Shortcuts", () => {
     test("should render shortcuts list", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
@@ -463,16 +437,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should search shortcuts", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
@@ -500,20 +472,18 @@ describe("SettingsModal Component", () => {
     });
 
     test("should copy shortcut to clipboard", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
       const mockClipboard = {
         writeText: jest.fn().mockResolvedValue(undefined),
       };
       Object.assign(navigator, { clipboard: mockClipboard });
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const shortcutsTab = screen.getByRole("tab", { name: /shortcuts/i });
@@ -541,16 +511,14 @@ describe("SettingsModal Component", () => {
 
   describe("About Section", () => {
     test("should display version info in about tab", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const aboutTab = screen.getByRole("tab", { name: /about/i });
@@ -566,16 +534,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should show check for updates button", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const aboutTab = screen.getByRole("tab", { name: /about/i });
@@ -597,16 +563,14 @@ describe("SettingsModal Component", () => {
 
   describe("Modal Actions", () => {
     test("should call onCancel when cancel button is clicked", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const cancelBtn = screen.getByText("Cancel");
@@ -620,16 +584,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should call onSave when save button is clicked", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const saveBtn = screen.getByText("Save Changes");
@@ -645,16 +607,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should close modal when close button is clicked", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const closeBtn = screen.getByLabelText("Close settings");
@@ -674,14 +634,12 @@ describe("SettingsModal Component", () => {
 
   describe("Accessibility", () => {
     test("should have proper ARIA attributes", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const dialog = screen.getByRole("dialog");
@@ -691,14 +649,12 @@ describe("SettingsModal Component", () => {
     });
 
     test("should trap focus within modal", async () => {
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const dialog = screen.getByRole("dialog");
@@ -707,16 +663,14 @@ describe("SettingsModal Component", () => {
     });
 
     test("should have keyboard navigation support", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
@@ -736,16 +690,14 @@ describe("SettingsModal Component", () => {
 
   describe("Integration", () => {
     test("should persist settings to localStorage", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
-      render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
-      );
+      renderSettingsModal({
+        isOpen: true,
+        onOpenChange: mockOnOpenChange,
+        onSave: mockOnSave,
+        onCancel: mockOnCancel,
+      });
 
       await waitFor(() => {
         const saveBtn = screen.getByText("Save Changes");
@@ -761,15 +713,17 @@ describe("SettingsModal Component", () => {
     });
 
     test("should handle multiple save operations", async () => {
-      const _user = userEvent.setup();
+      const user = userEvent.setup();
 
       const { rerender } = render(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
+        <ThemeProvider>
+          <SettingsModal
+            isOpen={true}
+            onOpenChange={mockOnOpenChange}
+            onSave={mockOnSave}
+            onCancel={mockOnCancel}
+          />
+        </ThemeProvider>
       );
 
       await waitFor(() => {
@@ -782,12 +736,14 @@ describe("SettingsModal Component", () => {
 
       // Simulate second save
       rerender(
-        <SettingsModal
-          isOpen={true}
-          onOpenChange={mockOnOpenChange}
-          onSave={mockOnSave}
-          onCancel={mockOnCancel}
-        />
+        <ThemeProvider>
+          <SettingsModal
+            isOpen={true}
+            onOpenChange={mockOnOpenChange}
+            onSave={mockOnSave}
+            onCancel={mockOnCancel}
+          />
+        </ThemeProvider>
       );
 
       const saveBtn2 = screen.getByText("Save Changes");

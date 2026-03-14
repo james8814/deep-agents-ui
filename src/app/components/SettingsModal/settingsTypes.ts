@@ -105,11 +105,11 @@ export interface ToggleSettingProps {
 }
 
 /**
- * Props for theme toggle
+ * Props for theme preference toggle (Light/Dark/System)
  */
-export interface ThemeToggleProps {
-  readonly currentTheme: Theme;
-  readonly onThemeChange: (theme: Theme) => void;
+export interface ThemePreferenceToggleProps {
+  readonly currentPreference: ThemePreference;
+  readonly onPreferenceChange: (preference: ThemePreference) => void;
   readonly disabled?: boolean;
 }
 
