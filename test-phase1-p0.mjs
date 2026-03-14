@@ -168,11 +168,41 @@ function report(name, pass, detail = "") {
     );
     report(
       "3.11 client.threads.update for rename",
-      threadListSrc.includes("client.threads")
+      threadListSrc.includes("client.threads.update") || threadListSrc.includes("client.threads\n")
     );
     report(
       "3.12 Micro-interaction hover:-translate-y-px",
       threadListSrc.includes("hover:-translate-y-px")
+    );
+    report(
+      "3.13 Keyboard a11y: focus-within reveals actions",
+      threadListSrc.includes("group-focus-within:opacity-100")
+    );
+
+    // ================================================================
+    // TEST GROUP 5: 审查修复验证
+    // ================================================================
+    console.log("\n▶ 测试组 5: 审查修复验证");
+
+    const useThreadsSrc = readFileSync(
+      "/Volumes/0-/jameswu projects/langgraph_test/deep-agents-ui/src/app/hooks/useThreads.ts",
+      "utf-8"
+    );
+    report(
+      "5.1 useThreads: metadata.title priority over messages",
+      useThreadsSrc.includes("metadata") && useThreadsSrc.includes("metadataTitle")
+    );
+    report(
+      "5.2 ChatInterface: textarea aria-label",
+      chatInterfaceSrc.includes('aria-label="Message input"')
+    );
+    report(
+      "5.3 ChatInterface: expand button aria-label",
+      chatInterfaceSrc.includes('aria-label={isExpanded ? "Collapse input" : "Expand input"}')
+    );
+    report(
+      "5.4 ThreadList: no dead renamingThreadId state",
+      !threadListSrc.includes("renamingThreadId")
     );
 
     // ================================================================

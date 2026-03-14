@@ -129,7 +129,6 @@ export function ThreadList({
   const client = useClient();
   const [currentThreadId, setCurrentThreadId] = useQueryState("threadId");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [renamingThreadId, setRenamingThreadId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const threads = useThreads({
@@ -367,7 +366,7 @@ export function ThreadList({
                         </button>
 
                         {/* v5.26 #3: Thread Hover Actions */}
-                        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
                           <button
                             type="button"
                             onClick={(e) => {

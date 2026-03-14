@@ -17,7 +17,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
-import { constructMessageWithFiles } from "@/api/upload";
+import { constructMessageWithFiles as _constructMessageWithFiles } from "@/api/upload";
 import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
@@ -167,7 +167,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   }, [stream, (stream as any)?.isLoading, (stream as any)?.error]);
 
   // Connection status
-  const isConnected = !stream.error;
+  const _isConnected = !stream.error;
 
   // Track file metadata when files change
   useEffect(() => {
@@ -710,6 +710,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                   interrupt && "cursor-not-allowed opacity-50"
                 )}
                 rows={1}
+                aria-label="Message input"
               />
 
               {/* Toolbar: Upload + Expand + Hints + Button */}
@@ -733,6 +734,8 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                     title={
                       isExpanded ? "Collapse to 8 lines" : "Expand to 16 lines"
                     }
+                    aria-label={isExpanded ? "Collapse input" : "Expand input"}
+                    aria-pressed={isExpanded}
                   >
                     {isExpanded ? (
                       <Minimize2 size={14} />

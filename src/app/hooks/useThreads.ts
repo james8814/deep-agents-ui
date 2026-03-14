@@ -88,7 +88,11 @@ export function useThreads(props: {
         let description = "";
 
         try {
-          if (thread.values && typeof thread.values === "object") {
+          // Priority: metadata.title (user-renamed) > first human message
+          const metadataTitle = (thread.metadata as any)?.title;
+          if (typeof metadataTitle === "string" && metadataTitle.trim()) {
+            title = metadataTitle;
+          } else if (thread.values && typeof thread.values === "object") {
             const values = thread.values as any;
             const firstHumanMessage = values.messages.find(
               (m: any) => m.type === "human"
