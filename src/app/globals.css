@@ -359,9 +359,9 @@
     --scrollbar-thumb-hover: #71717A;      /* --t3 */
   }
 
-  /* System preference: apply same dark variables to :root */
+  /* System preference: apply dark variables to :root unless .light is explicitly set */
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not(.light) {
       /* Tailwind/shadcn dark mode - Aligned to Azune (v5.26.html) */
       --background: 240 28.6% 5.5%;          /* #0A0A12 (--bg) */
       --foreground: 240 11.1% 96.5%;         /* #F5F5F7 (--t1) */
