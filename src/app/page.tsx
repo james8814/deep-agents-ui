@@ -166,13 +166,13 @@ function HomePageInner({
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={() => {
+              onClick={async () => {
                 const next = settings.theme === "dark" ? "light" : "dark";
                 updateSettings({ theme: next, themePreference: next });
-                // Save immediately for persistence
-                setTimeout(() => { saveSettings().catch(console.error); }, 0);
+                await saveSettings().catch(console.error);
               }}
               aria-label={`Switch to ${settings.theme === "dark" ? "light" : "dark"} mode`}
+              aria-pressed={settings.theme === "dark"}
               title={`Current: ${settings.theme === "dark" ? "Dark" : "Light"} mode`}
             >
               {settings.theme === "dark" ? (

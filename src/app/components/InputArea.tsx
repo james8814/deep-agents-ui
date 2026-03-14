@@ -151,14 +151,6 @@ export const InputArea = React.memo<InputAreaProps>(
       }
     }, [state.isExpandable, inputExpanded, onExpandedChange]);
 
-    const _handleSubmitClick = useCallback(() => {
-      if (isLoading) {
-        onStop();
-      } else if (state.canSubmit) {
-        onSubmit();
-      }
-    }, [isLoading, state.canSubmit, onStop, onSubmit]);
-
     // Determine button state
     const buttonVariant = isLoading ? "destructive" : "default";
     const buttonDisabled =

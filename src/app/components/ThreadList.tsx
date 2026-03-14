@@ -422,6 +422,7 @@ export function ThreadList({
                         {deleteConfirmId === thread.id && (
                           <div
                             role="alertdialog"
+                            aria-modal="true"
                             aria-label="Confirm thread deletion"
                             className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/95 backdrop-blur-sm"
                             onKeyDown={(e) => {

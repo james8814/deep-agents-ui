@@ -280,6 +280,36 @@ async function waitForHydration(page, timeout = 5000) {
     );
 
     // ================================================================
+    // TEST GROUP 7: 三轮代码清理与a11y增强验证
+    // ================================================================
+    console.log("\n▶ 测试组 7: 三轮代码清理与a11y增强验证");
+
+    report(
+      "7.1 ThreadList: aria-modal on delete dialog",
+      threadListSrc.includes('aria-modal="true"')
+    );
+    report(
+      "7.2 page.tsx: aria-pressed on theme toggle",
+      pageSrc.includes("aria-pressed")
+    );
+    report(
+      "7.3 InputArea: no dead _handleSubmitClick",
+      !inputAreaSrc.includes("_handleSubmitClick")
+    );
+    report(
+      "7.4 ChatInterface: no dead _constructMessageWithFiles import",
+      !chatInterfaceSrc.includes("_constructMessageWithFiles")
+    );
+    report(
+      "7.5 ChatInterface: no dead _isConnected variable",
+      !chatInterfaceSrc.includes("_isConnected")
+    );
+    report(
+      "7.6 page.tsx: no setTimeout hack for saveSettings",
+      !pageSrc.includes("setTimeout") || !pageSrc.includes("saveSettings")
+    );
+
+    // ================================================================
     // TEST GROUP 4: 页面健康检查
     // ================================================================
     console.log("\n▶ 测试组 4: 页面健康检查");

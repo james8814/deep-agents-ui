@@ -17,7 +17,6 @@ import {
   Minimize2,
 } from "lucide-react";
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
-import { constructMessageWithFiles as _constructMessageWithFiles } from "@/api/upload";
 import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
 import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
@@ -165,9 +164,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     );
     return sortSubAgentsByTime(list);
   }, [stream, (stream as any)?.isLoading, (stream as any)?.error]);
-
-  // Connection status
-  const _isConnected = !stream.error;
 
   // Track file metadata when files change
   useEffect(() => {
