@@ -476,7 +476,11 @@ describe("SettingsModal Component", () => {
       const mockClipboard = {
         writeText: jest.fn().mockResolvedValue(undefined),
       };
-      Object.assign(navigator, { clipboard: mockClipboard });
+      Object.defineProperty(navigator, "clipboard", {
+        value: mockClipboard,
+        writable: true,
+        configurable: true,
+      });
 
       renderSettingsModal({
         isOpen: true,
@@ -734,7 +738,13 @@ describe("SettingsModal Component", () => {
       const saveBtn = screen.getByText("Save Changes");
       await user.click(saveBtn);
 
-      // Simulate second save
+      // Wait for first save to complete (300ms async delay + state reset)
+      // The modal closes after save (onOpenChange(false)), so re-open it
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalledTimes(1);
+      });
+
+      // Re-open the modal for second save
       rerender(
         <ThemeProvider>
           <SettingsModal
@@ -746,10 +756,16 @@ describe("SettingsModal Component", () => {
         </ThemeProvider>
       );
 
+      await waitFor(() => {
+        expect(screen.getByText("Save Changes")).toBeInTheDocument();
+      });
+
       const saveBtn2 = screen.getByText("Save Changes");
       await user.click(saveBtn2);
 
-      expect(mockOnSave).toHaveBeenCalledTimes(2);
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });

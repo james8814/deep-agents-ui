@@ -9,10 +9,6 @@
 export { WelcomeScreen } from "./WelcomeScreen";
 export type {} from "./WelcomeScreen";
 
-// Theme Management
-export { ThemeToggle } from "./ThemeToggle";
-export type {} from "./ThemeToggle";
-
 // Status and Indicators
 export { StatusIndicator } from "./StatusIndicator";
 export type {} from "./StatusIndicator";

@@ -47,6 +47,20 @@ describe("useSettings Hook", () => {
       },
       writable: true,
     });
+    // Mock matchMedia to return dark preference (consistent with default dark theme)
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: jest.fn().mockImplementation((query: string) => ({
+        matches: query === "(prefers-color-scheme: dark)",
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
   });
 
   // ============================================================================
@@ -67,10 +81,13 @@ describe("useSettings Hook", () => {
       expect(result.current.state.isOpen).toBe(false);
     });
 
-    test("should not be hydrated initially", () => {
+    test("should be hydrated after mount effect", async () => {
       const { result } = renderHook(() => useSettings());
 
-      expect(result.current.isHydrated).toBe(false);
+      // In jsdom, mount effect runs synchronously, so isHydrated is true immediately
+      await waitFor(() => {
+        expect(result.current.isHydrated).toBe(true);
+      });
     });
 
     test("should have correct default modal state", async () => {
@@ -112,7 +129,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       expect(result.current.state.isDirty).toBe(true);
@@ -166,7 +183,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       await act(async () => {
@@ -179,6 +196,7 @@ describe("useSettings Hook", () => {
       if (stored) {
         const parsed = JSON.parse(stored);
         expect(parsed.theme).toBe("light");
+        expect(parsed.themePreference).toBe("light");
       }
     });
 
@@ -190,7 +208,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       expect(result.current.state.isDirty).toBe(true);
@@ -204,7 +222,7 @@ describe("useSettings Hook", () => {
       });
     });
 
-    test("should save theme separately", async () => {
+    test("should save themePreference separately", async () => {
       const { result } = renderHook(() => useSettings());
 
       await waitFor(() => {
@@ -212,13 +230,14 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       await act(async () => {
         await result.current.saveSettings();
       });
 
+      // pmagent-theme stores the themePreference value, not the resolved theme
       const themeStored = localStorage.getItem("pmagent-theme");
       expect(themeStored).toBe("light");
     });
@@ -231,7 +250,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       let savingDuringSave = false;
@@ -261,7 +280,7 @@ describe("useSettings Hook", () => {
 
       act(() => {
         result.current.updateSettings({
-          theme: "light",
+          themePreference: "light",
           language: "fr",
           autoSave: false,
         });
@@ -284,7 +303,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       await act(async () => {
@@ -309,7 +328,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       expect(result.current.state.isDirty).toBe(true);
@@ -398,7 +417,8 @@ describe("useSettings Hook", () => {
         result.current.toggleModal(false);
       });
 
-      expect(result.current.state.activeTab).toBe("notifications");
+      // toggleModal(false) resets activeTab to "appearance"
+      expect(result.current.state.activeTab).toBe("appearance");
     });
   });
 
@@ -408,10 +428,10 @@ describe("useSettings Hook", () => {
 
   describe("localStorage Persistence", () => {
     test("should load settings from localStorage", async () => {
-      // Pre-populate localStorage
+      // Pre-populate localStorage with themePreference (source of truth)
       localStorage.setItem(
         "pmagent-settings",
-        JSON.stringify({ theme: "light", language: "fr" })
+        JSON.stringify({ themePreference: "light", language: "fr" })
       );
       localStorage.setItem("pmagent-theme", "light");
 
@@ -422,6 +442,7 @@ describe("useSettings Hook", () => {
       });
 
       expect(result.current.settings.theme).toBe("light");
+      expect(result.current.settings.themePreference).toBe("light");
       expect(result.current.settings.language).toBe("fr");
     });
 
@@ -462,7 +483,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       await act(async () => {
@@ -482,7 +503,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       await act(async () => {
@@ -506,7 +527,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
         result.current.updateSettings({ language: "fr" });
         result.current.updateNotifications({ soundEnabled: false });
       });
@@ -531,7 +552,7 @@ describe("useSettings Hook", () => {
       });
 
       act(() => {
-        result.current.updateSettings({ theme: "light" });
+        result.current.updateSettings({ themePreference: "light" });
       });
 
       expect(result.current.state.isDirty).toBe(true);
@@ -562,23 +583,27 @@ describe("useSettings Hook", () => {
         expect(result.current.isHydrated).toBe(true);
       });
 
+      act(() => {
+        result.current.updateSettings({ themePreference: "light" });
+      });
+
       // Mock localStorage.setItem to throw error
+      // The error occurs inside a React state updater (setSettings),
+      // so we need to suppress the console error and catch it properly
       const originalSetItem = localStorage.setItem;
       localStorage.setItem = jest.fn(() => {
         throw new Error("Storage full");
       });
 
-      act(() => {
-        result.current.updateSettings({ theme: "light" });
-      });
+      const consoleError = jest.spyOn(console, "error").mockImplementation();
 
-      await act(async () => {
-        try {
+      await expect(
+        act(async () => {
           await result.current.saveSettings();
-        } catch (error) {
-          expect(error).toBeDefined();
-        }
-      });
+        })
+      ).rejects.toThrow("Storage full");
+
+      consoleError.mockRestore();
 
       // Restore original
       localStorage.setItem = originalSetItem;
