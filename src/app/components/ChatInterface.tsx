@@ -766,7 +766,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       isLoading && "hover:-translate-y-px hover:shadow-sm",
                       !isLoading &&
                         (submitDisabled || !input.trim()) &&
-                        "pointer-events-none bg-muted text-muted-foreground"
+                        "pointer-events-none bg-muted text-muted-foreground disabled:opacity-100"
                     )}
                     aria-label={
                       isLoading

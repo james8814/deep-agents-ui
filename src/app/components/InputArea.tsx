@@ -311,7 +311,7 @@ export const InputArea = React.memo<InputAreaProps>(
                   "h-7 px-3 text-xs transition-all duration-150",
                   isLoading && "hover:-translate-y-px hover:shadow-sm",
                   buttonDisabled &&
-                    "pointer-events-none bg-muted text-muted-foreground"
+                    "pointer-events-none bg-muted text-muted-foreground disabled:opacity-100"
                 )}
                 aria-label={
                   isLoading

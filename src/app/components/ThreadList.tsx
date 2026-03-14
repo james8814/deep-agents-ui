@@ -130,6 +130,7 @@ export function ThreadList({
   const [currentThreadId, setCurrentThreadId] = useQueryState("threadId");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const threads = useThreads({
     status: statusFilter === "all" ? undefined : statusFilter,
@@ -213,6 +214,8 @@ export function ThreadList({
 
   const handleDeleteThread = useCallback(
     async (threadId: string) => {
+      if (isDeleting) return;
+      setIsDeleting(true);
       try {
         await client.threads.delete(threadId);
         // If deleting the current thread, clear selection
@@ -226,9 +229,10 @@ export function ThreadList({
         console.error("Failed to delete thread:", err);
       } finally {
         setDeleteConfirmId(null);
+        setIsDeleting(false);
       }
     },
-    [client, currentThreadId, setCurrentThreadId, onThreadDelete]
+    [client, currentThreadId, setCurrentThreadId, onThreadDelete, isDeleting]
   );
 
   return (
@@ -416,21 +420,34 @@ export function ThreadList({
 
                         {/* Delete confirmation inline */}
                         {deleteConfirmId === thread.id && (
-                          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/95 backdrop-blur-sm">
+                          <div
+                            role="alertdialog"
+                            aria-label="Confirm thread deletion"
+                            className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/95 backdrop-blur-sm"
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") {
+                                e.stopPropagation();
+                                setDeleteConfirmId(null);
+                              }
+                            }}
+                          >
                             <div className="flex items-center gap-2 text-sm">
                               <span className="text-muted-foreground">
                                 Delete?
                               </span>
                               <Button
+                                ref={(el) => el?.focus()}
                                 variant="destructive"
                                 size="sm"
                                 className="h-6 px-2 text-xs"
+                                disabled={isDeleting}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeleteThread(thread.id);
                                 }}
+                                aria-label="Confirm delete thread"
                               >
-                                Confirm
+                                {isDeleting ? "Deleting..." : "Confirm"}
                               </Button>
                               <Button
                                 variant="ghost"
@@ -440,6 +457,7 @@ export function ThreadList({
                                   e.stopPropagation();
                                   setDeleteConfirmId(null);
                                 }}
+                                aria-label="Cancel delete"
                               >
                                 Cancel
                               </Button>

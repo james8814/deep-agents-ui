@@ -7,7 +7,7 @@ import { ConfigDialog } from "@/app/components/ConfigDialog";
 import { Button } from "@/components/ui/button";
 import { Assistant } from "@langchain/langgraph-sdk";
 import { ClientProvider, useClient } from "@/providers/ClientProvider";
-import { MessagesSquare, SquarePen, PanelRight } from "lucide-react";
+import { MessagesSquare, SquarePen, PanelRight, Sun, Moon } from "lucide-react";
 import { UserMenu } from "@/components/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -22,6 +22,7 @@ import { ChatInterface } from "@/app/components/ChatInterface";
 import { ContextPanel } from "@/app/components/ContextPanel";
 import { cn } from "@/lib/utils";
 import { SettingsModal } from "@/app/components/SettingsModal";
+import { useThemeSettings } from "@/providers/ThemeProvider";
 
 interface HomePageInnerProps {
   config: StandaloneConfig;
@@ -37,7 +38,7 @@ function HomePageInner({
   handleSaveConfig,
 }: HomePageInnerProps) {
   const client = useClient();
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [threadId, setThreadId] = useQueryState("threadId");
   const [sidebar, setSidebar] = useQueryState("sidebar");
   const [contextPanel, setContextPanel] = useQueryState("context");
@@ -53,6 +54,7 @@ function HomePageInner({
   const [interruptCount, setInterruptCount] = useState(0);
   const [assistant, setAssistant] = useState<Assistant | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { settings, updateSettings, saveSettings } = useThemeSettings();
 
   const fetchAssistant = useCallback(async () => {
     const assistantId = config.assistantId;
@@ -158,6 +160,26 @@ function HomePageInner({
             >
               <SquarePen className="mr-2 h-4 w-4" />
               New Thread
+            </Button>
+            {/* 快捷主题切换 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => {
+                const next = settings.theme === "dark" ? "light" : "dark";
+                updateSettings({ theme: next, themePreference: next });
+                // Save immediately for persistence
+                setTimeout(() => saveSettings(), 0);
+              }}
+              aria-label={`Switch to ${settings.theme === "dark" ? "light" : "dark"} mode`}
+              title={`Current: ${settings.theme === "dark" ? "Dark" : "Light"} mode`}
+            >
+              {settings.theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
             </Button>
             {/* 用户菜单 */}
             <UserMenu onSettingsClick={() => setSettingsOpen(true)} />

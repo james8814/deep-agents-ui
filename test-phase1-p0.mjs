@@ -206,6 +206,50 @@ function report(name, pass, detail = "") {
     );
 
     // ================================================================
+    // TEST GROUP 6: 二轮审查修复验证
+    // ================================================================
+    console.log("\n▶ 测试组 6: 二轮审查修复验证");
+
+    report(
+      "6.1 InputArea: disabled:opacity-100 覆盖 shadcn 默认",
+      inputAreaSrc.includes("disabled:opacity-100")
+    );
+    report(
+      "6.2 ChatInterface: disabled:opacity-100 覆盖 shadcn 默认",
+      chatInterfaceSrc.includes("disabled:opacity-100")
+    );
+    report(
+      "6.3 ThreadList: delete confirm role=alertdialog",
+      threadListSrc.includes('role="alertdialog"')
+    );
+    report(
+      "6.4 ThreadList: Escape 关闭删除确认",
+      threadListSrc.includes('"Escape"') && threadListSrc.includes("setDeleteConfirmId(null)")
+    );
+    report(
+      "6.5 ThreadList: isDeleting 防重复点击",
+      threadListSrc.includes("isDeleting") && threadListSrc.includes("setIsDeleting")
+    );
+    report(
+      "6.6 ThreadList: Confirm 按钮 disabled={isDeleting}",
+      threadListSrc.includes("disabled={isDeleting}")
+    );
+    report(
+      "6.7 ThreadList: Confirm/Cancel aria-label",
+      threadListSrc.includes('aria-label="Confirm delete thread"') &&
+        threadListSrc.includes('aria-label="Cancel delete"')
+    );
+
+    const pageSrc = readFileSync(
+      "/Volumes/0-/jameswu projects/langgraph_test/deep-agents-ui/src/app/page.tsx",
+      "utf-8"
+    );
+    report(
+      "6.8 Header: 快捷主题切换按钮",
+      pageSrc.includes("Sun") && pageSrc.includes("Moon") && pageSrc.includes("useThemeSettings")
+    );
+
+    // ================================================================
     // TEST GROUP 4: 页面健康检查
     // ================================================================
     console.log("\n▶ 测试组 4: 页面健康检查");
