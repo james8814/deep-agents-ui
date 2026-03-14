@@ -7,11 +7,12 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import type {
   UserSettings,
   NotificationSettings,
   Theme,
+  ThemePreference,
   SettingsModalState,
 } from "./settingsTypes";
 
@@ -47,6 +48,30 @@ const DEFAULT_STATE: SettingsModalState = {
 const SETTINGS_STORAGE_KEY = "pmagent-settings";
 const THEME_STORAGE_KEY = "pmagent-theme";
 
+const VALID_PREFERENCES: readonly ThemePreference[] = [
+  "light",
+  "dark",
+  "system",
+];
+
+/**
+ * Detect system color scheme preference
+ */
+function getSystemTheme(): Theme {
+  if (typeof window === "undefined") return "dark";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+/**
+ * Resolve a ThemePreference to an actual Theme value
+ */
+function resolveTheme(preference: ThemePreference): Theme {
+  if (preference === "system") return getSystemTheme();
+  return preference;
+}
+
 /**
  * useSettings hook
  *
@@ -75,36 +100,6 @@ export const useSettings = () => {
   const [isHydrated, setIsHydrated] = useState(false);
 
   /**
-   * Load settings from localStorage on mount
-   */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
-      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-
-      if (stored) {
-        const parsed = JSON.parse(stored) as Partial<UserSettings>;
-        setSettings((prev) => ({ ...prev, ...parsed }));
-      }
-
-      if (storedTheme) {
-        const theme = storedTheme as Theme;
-        setSettings((prev) => ({ ...prev, theme }));
-        applyTheme(theme);
-      } else {
-        // Apply default theme
-        applyTheme(DEFAULT_SETTINGS.theme);
-      }
-    } catch (error) {
-      console.warn("Failed to load settings from localStorage:", error);
-    }
-
-    setIsHydrated(true);
-  }, []);
-
-  /**
    * Apply theme to document
    */
   const applyTheme = useCallback((theme: Theme) => {
@@ -126,14 +121,81 @@ export const useSettings = () => {
   }, []);
 
   /**
+   * Load settings from localStorage on mount
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<UserSettings>;
+        setSettings((prev) => ({ ...prev, ...parsed }));
+      }
+
+      if (storedTheme) {
+        // Validate stored value before using as ThemePreference
+        const preference: ThemePreference = VALID_PREFERENCES.includes(
+          storedTheme as ThemePreference
+        )
+          ? (storedTheme as ThemePreference)
+          : DEFAULT_SETTINGS.themePreference;
+        const resolved = resolveTheme(preference);
+        setSettings((prev) => ({
+          ...prev,
+          theme: resolved,
+          themePreference: preference,
+        }));
+        applyTheme(resolved);
+      } else {
+        // Apply default: resolve from default themePreference
+        const resolved = resolveTheme(DEFAULT_SETTINGS.themePreference);
+        setSettings((prev) => ({ ...prev, theme: resolved }));
+        applyTheme(resolved);
+      }
+    } catch (error) {
+      console.warn("Failed to load settings from localStorage:", error);
+    }
+
+    setIsHydrated(true);
+  }, [applyTheme]);
+
+  /**
+   * Ref to track latest settings for use in event handlers.
+   * Updated in useEffect (not render body) for React 18 concurrent safety.
+   */
+  const settingsRef = useRef(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  });
+
+  /**
+   * Listen for system color scheme changes.
+   * When themePreference is "system", auto-switch light/dark.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = () => {
+      if (settingsRef.current.themePreference !== "system") return;
+      const resolved = getSystemTheme();
+      setSettings((prev) => ({ ...prev, theme: resolved }));
+      applyTheme(resolved);
+    };
+
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [applyTheme]);
+
+  /**
    * Update user settings
    */
   const updateSettings = useCallback((partial: Partial<UserSettings>) => {
-    setSettings((prev) => {
-      const updated = { ...prev, ...partial };
-      setState((prev) => ({ ...prev, isDirty: true }));
-      return updated;
-    });
+    setSettings((prev) => ({ ...prev, ...partial }));
+    setState((prev) => ({ ...prev, isDirty: true }));
   }, []);
 
   /**
@@ -151,7 +213,8 @@ export const useSettings = () => {
   );
 
   /**
-   * Save settings to localStorage
+   * Save settings to localStorage.
+   * Uses setSettings updater to access latest state and avoid stale closures.
    */
   const saveSettings = useCallback(async () => {
     if (!isHydrated) return;
@@ -159,12 +222,18 @@ export const useSettings = () => {
     setState((prev) => ({ ...prev, isSaving: true }));
 
     try {
-      // Apply theme immediately
-      applyTheme(settings.theme);
+      // Use updater to get latest settings and persist atomically
+      setSettings((prev) => {
+        const resolved = resolveTheme(prev.themePreference);
+        const updated = { ...prev, theme: resolved };
 
-      // Save to localStorage
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-      localStorage.setItem(THEME_STORAGE_KEY, settings.theme);
+        // Persist inside updater to ensure we save the latest state
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+        localStorage.setItem(THEME_STORAGE_KEY, updated.themePreference);
+        applyTheme(resolved);
+
+        return updated;
+      });
 
       // Simulate async save operation
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -179,16 +248,17 @@ export const useSettings = () => {
       setState((prev) => ({ ...prev, isSaving: false }));
       throw error;
     }
-  }, [settings, applyTheme, isHydrated]);
+  }, [applyTheme, isHydrated]);
 
   /**
    * Reset settings to defaults
    */
   const resetSettings = useCallback(() => {
-    setSettings(DEFAULT_SETTINGS);
+    const resolved = resolveTheme(DEFAULT_SETTINGS.themePreference);
+    setSettings({ ...DEFAULT_SETTINGS, theme: resolved });
     localStorage.removeItem(SETTINGS_STORAGE_KEY);
     localStorage.removeItem(THEME_STORAGE_KEY);
-    applyTheme(DEFAULT_SETTINGS.theme);
+    applyTheme(resolved);
     setState((prev) => ({ ...prev, isDirty: false }));
   }, [applyTheme]);
 

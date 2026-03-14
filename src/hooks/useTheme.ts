@@ -1,6 +1,10 @@
 "use client";
 
 /**
+ * @deprecated This module is part of System A (ThemeContext + applyCSSVariables).
+ * Use useSettings (System B, classList-based) instead.
+ * Will be removed in Phase 1-3 component migration.
+ *
  * useTheme Hook - Access theme context and utilities
  * Provides theme state and helper functions
  */

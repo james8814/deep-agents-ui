@@ -1,4 +1,8 @@
 /**
+ * @deprecated This module is part of System A (ThemeContext + applyCSSVariables).
+ * Typography is now defined in design-system.css (Azune v5.26 spec).
+ * Will be removed in Phase 1-3 component migration.
+ *
  * Typography System - Complete typography definitions and utilities
  * Mapped from Liquid Iris Design System (v5.26)
  */

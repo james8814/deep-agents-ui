@@ -97,7 +97,7 @@ describe("ThemeToggle Component", () => {
       fireEvent.click(lightButton);
 
       await waitFor(() => {
-        expect(localStorage.getItem("theme")).toBe("light");
+        expect(localStorage.getItem("pmagent-theme")).toBe("light");
         expect(document.documentElement.classList.contains("dark")).toBe(false);
       });
     });
@@ -114,7 +114,7 @@ describe("ThemeToggle Component", () => {
       fireEvent.click(darkButton);
 
       await waitFor(() => {
-        expect(localStorage.getItem("theme")).toBe("dark");
+        expect(localStorage.getItem("pmagent-theme")).toBe("dark");
         expect(document.documentElement.classList.contains("dark")).toBe(true);
       });
     });
@@ -131,7 +131,7 @@ describe("ThemeToggle Component", () => {
       fireEvent.click(systemButton);
 
       await waitFor(() => {
-        expect(localStorage.getItem("theme")).toBe("system");
+        expect(localStorage.getItem("pmagent-theme")).toBe("system");
       });
     });
 
@@ -160,12 +160,12 @@ describe("ThemeToggle Component", () => {
       });
 
       await waitFor(() => {
-        expect(localStorage.getItem("theme")).toBe("dark");
+        expect(localStorage.getItem("pmagent-theme")).toBe("dark");
       });
     });
 
     it("should restore theme from localStorage on mount", async () => {
-      localStorage.setItem("theme", "dark");
+      localStorage.setItem("pmagent-theme", "dark");
 
       render(<ThemeToggle />);
 
@@ -175,13 +175,13 @@ describe("ThemeToggle Component", () => {
     });
 
     it("should handle invalid theme in localStorage", async () => {
-      localStorage.setItem("theme", "invalid-theme");
+      localStorage.setItem("pmagent-theme", "invalid-theme");
 
       render(<ThemeToggle />);
 
       await waitFor(() => {
         // Should default to system
-        expect(localStorage.getItem("theme")).toBe("invalid-theme");
+        expect(localStorage.getItem("pmagent-theme")).toBe("invalid-theme");
       });
     });
   });

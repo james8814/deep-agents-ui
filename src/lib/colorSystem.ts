@@ -1,4 +1,8 @@
 /**
+ * @deprecated This module is part of System A (ThemeContext + applyCSSVariables).
+ * Colors are now defined in globals.css and design-system.css (Azune tokens).
+ * Will be removed in Phase 1-3 component migration.
+ *
  * Color System - Complete color palette mapping
  * Maps design tokens to CSS variables and utility classes
  */

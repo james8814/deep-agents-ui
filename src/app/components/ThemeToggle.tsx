@@ -57,7 +57,7 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
     // Hydration: Set theme from localStorage on mount
     useEffect(() => {
       setMounted(true);
-      const savedTheme = localStorage.getItem("theme") as Theme | null;
+      const savedTheme = localStorage.getItem("pmagent-theme") as Theme | null;
       if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
         setTheme(savedTheme);
         applyTheme(savedTheme);
@@ -83,7 +83,7 @@ export const ThemeToggle = React.memo<ThemeToggleProps>(
         root.classList.remove("dark");
       }
 
-      localStorage.setItem("theme", newTheme);
+      localStorage.setItem("pmagent-theme", newTheme);
     };
 
     const handleThemeChange = (newTheme: Theme) => {

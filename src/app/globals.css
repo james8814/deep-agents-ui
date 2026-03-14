@@ -21,26 +21,27 @@
   :root {
     /* ================================================================
      * TAILWIND/SHADCN CORE VARIABLES (Required)
+     * Aligned to Azune Design System (v5.26.html) light theme
      * ================================================================ */
-    --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
-    --primary: 262 80% 50%;
-    --primary-foreground: 210 40% 96%;
-    --secondary: 217 32.6% 17.5%;
-    --secondary-foreground: 210 40% 96%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 262 80% 50%;
-    --accent-foreground: 210 40% 96%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 96%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262 80% 50%;
+    --background: 0 0% 100%;              /* #FFFFFF (--bg light) */
+    --foreground: 240 28.6% 5.5%;         /* #0A0A12 (--t1 light) */
+    --card: 240 20% 98%;                  /* #F9F9FB (--bg1 light) */
+    --card-foreground: 240 28.6% 5.5%;    /* #0A0A12 (--t1 light) */
+    --popover: 0 0% 100%;                 /* #FFFFFF (--bg light) */
+    --popover-foreground: 240 28.6% 5.5%; /* #0A0A12 (--t1 light) */
+    --primary: 247.7 81.6% 68%;           /* #7C6BF0 (--brand) */
+    --primary-foreground: 0 0% 100%;      /* #FFFFFF */
+    --secondary: 240 14.3% 95.9%;         /* #F3F3F6 (--bg2 light) */
+    --secondary-foreground: 240 28.6% 5.5%; /* #0A0A12 (--t1 light) */
+    --muted: 240 15.2% 93.5%;             /* #ECECF1 (--bg3 light) */
+    --muted-foreground: 240 5% 64.9%;     /* #A1A1AA (--t3 light) */
+    --accent: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
+    --accent-foreground: 0 0% 100%;       /* #FFFFFF */
+    --destructive: 0 84.2% 60.2%;         /* #EF4444 (--err) */
+    --destructive-foreground: 0 0% 100%;  /* #FFFFFF */
+    --border: 240 5.9% 90%;               /* #E4E4E7 (--b1 light) */
+    --input: 240 5.9% 90%;                /* #E4E4E7 (--b1 light) */
+    --ring: 247.7 81.6% 68%;              /* #7C6BF0 (--brand) */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -60,31 +61,31 @@
       rgba(139, 92, 246, 0.15)
     );
 
-    /* Primary Colors (Light Mode - Purple) */
-    --color-primary: #7c3aed;
-    --color-primary-hover: #6d28d9;
-    --color-primary-active: #5b21b6;
+    /* Primary Colors (Light Mode) - Aligned to Azune v5.26 */
+    --color-primary: #7C6BF0;              /* --brand */
+    --color-primary-hover: #5B4BC7;        /* --brand-d */
+    --color-primary-active: #4F3FB3;       /* --brand-d variant */
     --color-primary-subtle: #f5f3ff;
 
-    /* Surfaces (Light Mode) */
-    --surface-base: #ffffff;
-    --surface-raised: #fafaf9;
-    --surface-card: #ffffff;
-    --surface-sidebar: #f5f5f4;
+    /* Surfaces (Light Mode) - Aligned to Azune v5.26 */
+    --surface-base: #FFFFFF;               /* --bg light */
+    --surface-raised: #F9F9FB;             /* --bg1 light */
+    --surface-card: #F3F3F6;               /* --bg2 light */
+    --surface-sidebar: #F3F3F6;            /* --bg2 light */
     --surface-overlay: rgba(0, 0, 0, 0.5);
 
-    /* Text (Light Mode) */
-    --text-primary: #1a1816;
-    --text-secondary: #5c5650;
-    --text-tertiary: #8a8580;
-    --text-disabled: #a9a59f;
+    /* Text (Light Mode) - Aligned to Azune v5.26 */
+    --text-primary: #0A0A12;               /* --t1 light */
+    --text-secondary: #3F3F46;             /* --t2 light */
+    --text-tertiary: #A1A1AA;              /* --t3 light */
+    --text-disabled: #D4D4D8;              /* --t4 light */
     --text-on-primary: #ffffff;
 
-    /* Borders (Light Mode) */
+    /* Borders (Light Mode) - Aligned to Azune v5.26 */
     --border-subtle: rgba(0, 0, 0, 0.04);
-    --border-default: rgba(0, 0, 0, 0.08);
-    --border-strong: rgba(0, 0, 0, 0.14);
-    --border-focus: #7c3aed;
+    --border-default: #E4E4E7;             /* --b1 light */
+    --border-strong: #D4D4D8;              /* --b2 light */
+    --border-focus: #7C6BF0;               /* --brand */
 
     /* Status Colors (Light Mode) */
     --color-success: #22c55e;
@@ -198,18 +199,18 @@
      * Liquid Iris or Tailwind/shadcn variables above.
      * ================================================================ */
 
-    /* App-specific color variables */
+    /* App-specific color variables - Aligned to Azune v5.26 light */
     --color-user-message: #076699;
     --color-user-message-bg: #e8f4f8;
-    --color-avatar-bg: #e8ebeb;
-    --color-secondary: #1c3c3c;
-    --color-background: #f9f9f9;
-    --color-subagent-hover: #bbc4c4;
-    --color-surface: #f9fafb;
-    --color-border: #e5e7eb;
-    --color-border-light: #f3f4f6;
-    --color-file-button: #ffffff;
-    --color-file-button-hover: #e5e7eb;
+    --color-avatar-bg: #ECECF1;             /* --bg3 light */
+    --color-secondary: #3F3F46;            /* --t2 light */
+    --color-background: #FFFFFF;           /* --bg light */
+    --color-subagent-hover: #ECECF1;       /* --bg3 light */
+    --color-surface: #F3F3F6;              /* --bg2 light */
+    --color-border: #E4E4E7;              /* --b1 light */
+    --color-border-light: #ECECF1;         /* --bg3 light */
+    --color-file-button: #FFFFFF;          /* --bg light */
+    --color-file-button-hover: #ECECF1;    /* --bg3 light */
 
     /* Legacy spacing (uses different naming from Liquid Iris --space-*) */
     --spacing-xs: 0.25rem;
@@ -238,6 +239,24 @@
     /* Tailwind/Radix UI component variables */
     --radius: 0.5rem;
     --sidebar: 220 13% 95%;
+
+    /* ================================================================
+     * TAILWIND CONFIG BRIDGE VARIABLES
+     * These variables are referenced by tailwind.config.mjs custom
+     * backgroundColor/borderColor/textColor mappings.
+     * Aligned to Azune v5.26 light theme.
+     * ================================================================ */
+    --bg-primary: #FFFFFF;                 /* --bg light */
+    --bg-secondary: #F3F3F6;              /* --bg2 light */
+    --bg-tertiary: #ECECF1;               /* --bg3 light */
+    --bg-quaternary: #F9F9FB;              /* --bg1 light */
+    --bg-primary_hover: #F9F9FB;           /* --bg1 light */
+    --bg-secondary_hover: #ECECF1;         /* --bg3 light */
+    --border-primary: #E4E4E7;             /* --b1 light */
+    --border-secondary: #E4E4E7;           /* --b1 light */
+    --border-tertiary: #D4D4D8;            /* --b2 light */
+    --scrollbar-thumb: #D4D4D8;            /* --t4 light */
+    --scrollbar-thumb-hover: #A1A1AA;      /* --t3 light */
   }
 
   /* ================================================================
@@ -246,62 +265,62 @@
    * Defined once as a mixin via .dark, then applied to media query.
    * ================================================================ */
   .dark {
-    /* Tailwind/shadcn dark mode */
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 262 80% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 217 32.6% 17.5%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --accent: 262 80% 50%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 262 80% 50%;
+    /* Tailwind/shadcn dark mode - Aligned to Azune (v5.26.html) */
+    --background: 240 28.6% 5.5%;          /* #0A0A12 (--bg) */
+    --foreground: 240 11.1% 96.5%;         /* #F5F5F7 (--t1) */
+    --card: 240 26.5% 9.6%;               /* #12121F (--bg2) */
+    --card-foreground: 240 11.1% 96.5%;    /* #F5F5F7 (--t1) */
+    --popover: 240 30% 7.8%;              /* #0E0E1A (--bg1) */
+    --popover-foreground: 240 11.1% 96.5%; /* #F5F5F7 (--t1) */
+    --primary: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
+    --primary-foreground: 0 0% 100%;       /* #FFFFFF */
+    --secondary: 240 27.8% 14.1%;          /* #1A1A2E (--bg3) */
+    --secondary-foreground: 240 11.1% 96.5%; /* #F5F5F7 (--t1) */
+    --muted: 240 27.8% 14.1%;             /* #1A1A2E (--bg3) */
+    --muted-foreground: 240 3.8% 46.1%;    /* #71717A (--t3) */
+    --accent: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
+    --accent-foreground: 0 0% 100%;        /* #FFFFFF */
+    --destructive: 0 84.2% 60.2%;          /* #EF4444 (--err) */
+    --destructive-foreground: 0 0% 100%;   /* #FFFFFF */
+    --border: 240 3.7% 15.9%;             /* #27272A (--b1) */
+    --input: 240 3.7% 15.9%;              /* #27272A (--b1) */
+    --ring: 247.7 81.6% 68%;              /* #7C6BF0 (--brand) */
 
-    /* Liquid Iris - Primary Colors (Dark Mode) */
-    --color-primary: #8b5cf6;
-    --color-primary-hover: #a78bfa;
-    --color-primary-active: #7c3aed;
-    --color-primary-subtle: rgba(139, 92, 246, 0.15);
+    /* Primary Colors (Dark Mode) - Aligned to Azune v5.26 */
+    --color-primary: #7C6BF0;              /* --brand */
+    --color-primary-hover: #9D8DF7;        /* --brand-l */
+    --color-primary-active: #5B4BC7;       /* --brand-d */
+    --color-primary-subtle: rgba(124, 107, 240, 0.15);
 
-    /* Surfaces (Dark Mode) */
-    --surface-base: #0a0a12;
-    --surface-raised: #12121e;
-    --surface-card: #1a1a2e;
-    --surface-sidebar: #12121e;
+    /* Surfaces (Dark Mode) - Aligned to Azune v5.26 */
+    --surface-base: #0A0A12;               /* --bg */
+    --surface-raised: #0E0E1A;             /* --bg1 (was #12121E) */
+    --surface-card: #12121F;               /* --bg2 (was #1A1A2E) */
+    --surface-sidebar: #0E0E1A;            /* --bg1 */
     --surface-overlay: rgba(0, 0, 0, 0.7);
 
-    /* Text (Dark Mode) */
-    --text-primary: rgba(255, 255, 255, 0.95);
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-tertiary: rgba(255, 255, 255, 0.5);
-    --text-disabled: rgba(255, 255, 255, 0.3);
+    /* Text (Dark Mode) - Aligned to Azune v5.26 */
+    --text-primary: #F5F5F7;               /* --t1 */
+    --text-secondary: #D4D4D8;             /* --t2 */
+    --text-tertiary: #71717A;              /* --t3 */
+    --text-disabled: #52525B;              /* --t4 */
     --text-on-primary: #ffffff;
 
-    /* Borders (Dark Mode) */
+    /* Borders (Dark Mode) - Aligned to Azune v5.26 */
     --border-subtle: rgba(255, 255, 255, 0.04);
-    --border-default: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.14);
-    --border-focus: #8b5cf6;
+    --border-default: #27272A;             /* --b1 */
+    --border-strong: #3F3F46;              /* --b2 */
+    --border-focus: #7C6BF0;               /* --brand */
 
-    /* Status Colors (Dark Mode) */
-    --color-success: #10b981;
-    --color-success-bg: rgba(16, 185, 129, 0.1);
-    --color-warning: #fbbf24;
-    --color-warning-bg: rgba(251, 191, 36, 0.1);
-    --color-error: #f87171;
-    --color-error-bg: rgba(248, 113, 113, 0.1);
-    --color-info: #a78bfa;
-    --color-info-bg: rgba(139, 92, 246, 0.1);
+    /* Status Colors (Dark Mode) - Aligned to Azune v5.26 */
+    --color-success: #22C55E;              /* --ok */
+    --color-success-bg: rgba(34, 197, 94, 0.1);
+    --color-warning: #F59E0B;              /* --warn */
+    --color-warning-bg: rgba(245, 158, 11, 0.1);
+    --color-error: #EF4444;                /* --err */
+    --color-error-bg: rgba(239, 68, 68, 0.1);
+    --color-info: #7C6BF0;                /* --brand */
+    --color-info-bg: rgba(124, 107, 240, 0.1);
 
     /* Shadows (Dark Mode - Reduced) */
     --shadow-xs: none;
@@ -310,82 +329,95 @@
     --shadow-lg: none;
     --shadow-xl: none;
 
-    /* Legacy app-specific */
+    /* Legacy app-specific - Aligned to Azune v5.26 */
     --color-user-message: #065a8a;
-    --color-user-message-bg: #2d2d2d;
-    --color-avatar-bg: #1c3c3c;
-    --color-secondary: #bbc4c4;
-    --color-background: #0a0a12;
-    --color-subagent-hover: #1e3f3f;
-    --color-surface: #1a1a2e;
-    --color-border: #12121e;
-    --color-border-light: #353535;
-    --color-text-primary: rgba(255, 255, 255, 0.95);
-    --color-text-secondary: rgba(255, 255, 255, 0.7);
-    --color-text-tertiary: rgba(255, 255, 255, 0.5);
-    --color-file-button: #1a1a2e;
-    --color-file-button-hover: #12121e;
+    --color-user-message-bg: #1A1A2E;      /* --bg3 */
+    --color-avatar-bg: #1A1A2E;            /* --bg3 */
+    --color-secondary: #D4D4D8;            /* --t2 */
+    --color-background: #0A0A12;           /* --bg */
+    --color-subagent-hover: #1A1A2E;       /* --bg3 */
+    --color-surface: #12121F;              /* --bg2 */
+    --color-border: #27272A;              /* --b1 */
+    --color-border-light: #27272A;         /* --b1 */
+    --color-text-primary: #F5F5F7;         /* --t1 */
+    --color-text-secondary: #D4D4D8;       /* --t2 */
+    --color-text-tertiary: #71717A;        /* --t3 */
+    --color-file-button: #12121F;          /* --bg2 */
+    --color-file-button-hover: #0E0E1A;    /* --bg1 */
+
+    /* Tailwind config bridge variables (Dark) */
+    --bg-primary: #0A0A12;                 /* --bg */
+    --bg-secondary: #12121F;               /* --bg2 */
+    --bg-tertiary: #1A1A2E;                /* --bg3 */
+    --bg-quaternary: #0E0E1A;              /* --bg1 */
+    --bg-primary_hover: #0E0E1A;           /* --bg1 */
+    --bg-secondary_hover: #1A1A2E;         /* --bg3 */
+    --border-primary: #27272A;             /* --b1 */
+    --border-secondary: #27272A;           /* --b1 */
+    --border-tertiary: #3F3F46;            /* --b2 */
+    --scrollbar-thumb: #52525B;            /* --t4 */
+    --scrollbar-thumb-hover: #71717A;      /* --t3 */
   }
 
   /* System preference: apply same dark variables to :root */
   @media (prefers-color-scheme: dark) {
     :root {
-      /* Tailwind/shadcn dark mode */
-      --background: 0 0% 3.9%;
-      --foreground: 0 0% 98%;
-      --card: 0 0% 3.9%;
-      --card-foreground: 0 0% 98%;
-      --popover: 0 0% 3.9%;
-      --popover-foreground: 0 0% 98%;
-      --primary: 262 80% 50%;
-      --primary-foreground: 0 0% 98%;
-      --secondary: 217 32.6% 17.5%;
-      --secondary-foreground: 0 0% 98%;
-      --muted: 217.2 32.6% 17.5%;
-      --muted-foreground: 215.4 16.3% 56.9%;
-      --accent: 262 80% 50%;
-      --accent-foreground: 0 0% 98%;
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
-      --border: 217.2 32.6% 17.5%;
-      --input: 217.2 32.6% 17.5%;
-      --ring: 262 80% 50%;
+      /* Tailwind/shadcn dark mode - Aligned to Azune (v5.26.html) */
+      --background: 240 28.6% 5.5%;          /* #0A0A12 (--bg) */
+      --foreground: 240 11.1% 96.5%;         /* #F5F5F7 (--t1) */
+      --card: 240 26.5% 9.6%;               /* #12121F (--bg2) */
+      --card-foreground: 240 11.1% 96.5%;    /* #F5F5F7 (--t1) */
+      --popover: 240 30% 7.8%;              /* #0E0E1A (--bg1) */
+      --popover-foreground: 240 11.1% 96.5%; /* #F5F5F7 (--t1) */
+      --primary: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
+      --primary-foreground: 0 0% 100%;       /* #FFFFFF */
+      --secondary: 240 27.8% 14.1%;          /* #1A1A2E (--bg3) */
+      --secondary-foreground: 240 11.1% 96.5%; /* #F5F5F7 (--t1) */
+      --muted: 240 27.8% 14.1%;             /* #1A1A2E (--bg3) */
+      --muted-foreground: 240 3.8% 46.1%;    /* #71717A (--t3) */
+      --accent: 247.7 81.6% 68%;            /* #7C6BF0 (--brand) */
+      --accent-foreground: 0 0% 100%;        /* #FFFFFF */
+      --destructive: 0 84.2% 60.2%;          /* #EF4444 (--err) */
+      --destructive-foreground: 0 0% 100%;   /* #FFFFFF */
+      --border: 240 3.7% 15.9%;             /* #27272A (--b1) */
+      --input: 240 3.7% 15.9%;              /* #27272A (--b1) */
+      --ring: 247.7 81.6% 68%;              /* #7C6BF0 (--brand) */
 
-      /* Liquid Iris - Primary Colors (Dark Mode) */
-      --color-primary: #8b5cf6;
-      --color-primary-hover: #a78bfa;
-      --color-primary-active: #7c3aed;
-      --color-primary-subtle: rgba(139, 92, 246, 0.15);
+      /* Primary Colors (Dark Mode) - Aligned to Azune v5.26 */
+      --color-primary: #7C6BF0;              /* --brand */
+      --color-primary-hover: #9D8DF7;        /* --brand-l */
+      --color-primary-active: #5B4BC7;       /* --brand-d */
+      --color-primary-subtle: rgba(124, 107, 240, 0.15);
 
-      /* Surfaces (Dark Mode) */
-      --surface-base: #0a0a12;
-      --surface-raised: #12121e;
-      --surface-card: #1a1a2e;
-      --surface-sidebar: #12121e;
+      /* Surfaces (Dark Mode) - Aligned to Azune v5.26 */
+      --surface-base: #0A0A12;               /* --bg */
+      --surface-raised: #0E0E1A;             /* --bg1 */
+      --surface-card: #12121F;               /* --bg2 */
+      --surface-sidebar: #0E0E1A;            /* --bg1 */
       --surface-overlay: rgba(0, 0, 0, 0.7);
 
-      /* Text (Dark Mode) */
-      --text-primary: rgba(255, 255, 255, 0.95);
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --text-tertiary: rgba(255, 255, 255, 0.5);
-      --text-disabled: rgba(255, 255, 255, 0.3);
+      /* Text (Dark Mode) - Aligned to Azune v5.26 */
+      --text-primary: #F5F5F7;               /* --t1 */
+      --text-secondary: #D4D4D8;             /* --t2 */
+      --text-tertiary: #71717A;              /* --t3 */
+      --text-disabled: #52525B;              /* --t4 */
       --text-on-primary: #ffffff;
 
-      /* Borders (Dark Mode) */
+      /* Borders (Dark Mode) - Aligned to Azune v5.26 */
       --border-subtle: rgba(255, 255, 255, 0.04);
-      --border-default: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(255, 255, 255, 0.14);
-      --border-focus: #8b5cf6;
+      --border-default: #27272A;             /* --b1 */
+      --border-strong: #3F3F46;              /* --b2 */
+      --border-focus: #7C6BF0;               /* --brand */
 
-      /* Status Colors (Dark Mode) */
-      --color-success: #10b981;
-      --color-success-bg: rgba(16, 185, 129, 0.1);
-      --color-warning: #fbbf24;
-      --color-warning-bg: rgba(251, 191, 36, 0.1);
-      --color-error: #f87171;
-      --color-error-bg: rgba(248, 113, 113, 0.1);
-      --color-info: #a78bfa;
-      --color-info-bg: rgba(139, 92, 246, 0.1);
+      /* Status Colors (Dark Mode) - Aligned to Azune v5.26 */
+      --color-success: #22C55E;              /* --ok */
+      --color-success-bg: rgba(34, 197, 94, 0.1);
+      --color-warning: #F59E0B;              /* --warn */
+      --color-warning-bg: rgba(245, 158, 11, 0.1);
+      --color-error: #EF4444;                /* --err */
+      --color-error-bg: rgba(239, 68, 68, 0.1);
+      --color-info: #7C6BF0;                /* --brand */
+      --color-info-bg: rgba(124, 107, 240, 0.1);
 
       /* Shadows (Dark Mode - Reduced) */
       --shadow-xs: none;
@@ -394,21 +426,34 @@
       --shadow-lg: none;
       --shadow-xl: none;
 
-      /* Legacy app-specific */
+      /* Legacy app-specific - Aligned to Azune v5.26 */
       --color-user-message: #065a8a;
-      --color-user-message-bg: #2d2d2d;
-      --color-avatar-bg: #1c3c3c;
-      --color-secondary: #bbc4c4;
-      --color-background: #0a0a12;
-      --color-subagent-hover: #1e3f3f;
-      --color-surface: #1a1a2e;
-      --color-border: #12121e;
-      --color-border-light: #353535;
-      --color-text-primary: rgba(255, 255, 255, 0.95);
-      --color-text-secondary: rgba(255, 255, 255, 0.7);
-      --color-text-tertiary: rgba(255, 255, 255, 0.5);
-      --color-file-button: #1a1a2e;
-      --color-file-button-hover: #12121e;
+      --color-user-message-bg: #1A1A2E;      /* --bg3 */
+      --color-avatar-bg: #1A1A2E;            /* --bg3 */
+      --color-secondary: #D4D4D8;            /* --t2 */
+      --color-background: #0A0A12;           /* --bg */
+      --color-subagent-hover: #1A1A2E;       /* --bg3 */
+      --color-surface: #12121F;              /* --bg2 */
+      --color-border: #27272A;              /* --b1 */
+      --color-border-light: #27272A;         /* --b1 */
+      --color-text-primary: #F5F5F7;         /* --t1 */
+      --color-text-secondary: #D4D4D8;       /* --t2 */
+      --color-text-tertiary: #71717A;        /* --t3 */
+      --color-file-button: #12121F;          /* --bg2 */
+      --color-file-button-hover: #0E0E1A;    /* --bg1 */
+
+      /* Tailwind config bridge variables (Dark) */
+      --bg-primary: #0A0A12;                 /* --bg */
+      --bg-secondary: #12121F;               /* --bg2 */
+      --bg-tertiary: #1A1A2E;                /* --bg3 */
+      --bg-quaternary: #0E0E1A;              /* --bg1 */
+      --bg-primary_hover: #0E0E1A;           /* --bg1 */
+      --bg-secondary_hover: #1A1A2E;         /* --bg3 */
+      --border-primary: #27272A;             /* --b1 */
+      --border-secondary: #27272A;           /* --b1 */
+      --border-tertiary: #3F3F46;            /* --b2 */
+      --scrollbar-thumb: #52525B;            /* --t4 */
+      --scrollbar-thumb-hover: #71717A;      /* --t3 */
     }
   }
 }
