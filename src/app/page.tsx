@@ -170,7 +170,7 @@ function HomePageInner({
                 const next = settings.theme === "dark" ? "light" : "dark";
                 updateSettings({ theme: next, themePreference: next });
                 // Save immediately for persistence
-                setTimeout(() => saveSettings(), 0);
+                setTimeout(() => { saveSettings().catch(console.error); }, 0);
               }}
               aria-label={`Switch to ${settings.theme === "dark" ? "light" : "dark"} mode`}
               title={`Current: ${settings.theme === "dark" ? "Dark" : "Light"} mode`}
