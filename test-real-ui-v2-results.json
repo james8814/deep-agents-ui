@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-03-14T19:11:45.777Z",
+  "passRate": 100,
+  "passCount": 24,
+  "failCount": 0,
+  "results": [
+    {
+      "category": "页面基础",
+      "name": "页面标题正确",
+      "status": "✅ PASS",
+      "detail": "title: PMAgent - AI Product Manager Assistant"
+    },
+    {
+      "category": "页面基础",
+      "name": "HTML lang 属性",
+      "status": "✅ PASS",
+      "detail": "lang: zh-CN"
+    },
+    {
+      "category": "页面基础",
+      "name": "主题类已应用",
+      "status": "✅ PASS",
+      "detail": "class: dark"
+    },
+    {
+      "category": "页面基础",
+      "name": "页面内容已渲染",
+      "status": "✅ PASS",
+      "detail": "bodyHeight: 900px"
+    },
+    {
+      "category": "配置对话框",
+      "name": "对话框显示",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "category": "配置对话框",
+      "name": "对话框有 a11y 标签",
+      "status": "✅ PASS",
+      "detail": "labelledby: radix-_r_4_"
+    },
+    {
+      "category": "配置对话框",
+      "name": "输入框存在",
+      "status": "✅ PASS",
+      "detail": "count: 2"
+    },
+    {
+      "category": "配置对话框",
+      "name": "输入功能正常",
+      "status": "✅ PASS",
+      "detail": "http://test-server:2024"
+    },
+    {
+      "category": "配置对话框",
+      "name": "按钮存在",
+      "status": "✅ PASS",
+      "detail": "count: 6"
+    },
+    {
+      "category": "配置对话框",
+      "name": "关闭按钮存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "category": "无障碍",
+      "name": "按钮有 accessible name",
+      "status": "✅ PASS",
+      "detail": "6/6"
+    },
+    {
+      "category": "无障碍",
+      "name": "键盘焦点可导航",
+      "status": "✅ PASS",
+      "detail": "focused: BUTTON"
+    },
+    {
+      "category": "响应式",
+      "name": "桌面视图正常",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "category": "响应式",
+      "name": "平板视图正常",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "category": "响应式",
+      "name": "移动视图正常",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "category": "设计系统",
+      "name": "--background 已定义",
+      "status": "✅ PASS",
+      "detail": "240 28.6% 5.5%"
+    },
+    {
+      "category": "设计系统",
+      "name": "--foreground 已定义",
+      "status": "✅ PASS",
+      "detail": "240 11.1% 96.5%"
+    },
+    {
+      "category": "设计系统",
+      "name": "--primary 已定义",
+      "status": "✅ PASS",
+      "detail": "247.7 81.6% 68%"
+    },
+    {
+      "category": "设计系统",
+      "name": "--radius 已定义",
+      "status": "✅ PASS",
+      "detail": ".5rem"
+    },
+    {
+      "category": "组件检测",
+      "name": "对话框组件",
+      "status": "✅ PASS",
+      "detail": "count: 1"
+    },
+    {
+      "category": "组件检测",
+      "name": "输入组件",
+      "status": "✅ PASS",
+      "detail": "count: 2"
+    },
+    {
+      "category": "组件检测",
+      "name": "按钮组件",
+      "status": "✅ PASS",
+      "detail": "count: 6"
+    },
+    {
+      "category": "组件检测",
+      "name": "Tailwind 主题类",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "category": "错误检测",
+      "name": "无关键 JS 错误",
+      "status": "✅ PASS",
+      "detail": ""
+    }
+  ]
+}
