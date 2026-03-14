@@ -53,6 +53,26 @@ function rgbToHex(rgb) {
 }
 
 /**
+ * Helper: Wait for React hydration to complete.
+ * The ThemeProvider adds .dark or .light class to <html> via useEffect.
+ * This waits until that class is present, indicating hydration is done.
+ */
+async function waitForHydration(page, timeout = 5000) {
+  try {
+    await page.waitForFunction(
+      () => {
+        const html = document.documentElement;
+        return html.classList.contains("dark") || html.classList.contains("light");
+      },
+      { timeout }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Helper: Open SettingsModal via React fiber state injection.
  *
  * In standalone dev mode, UserMenu is hidden (no auth user), so we
@@ -176,7 +196,7 @@ async function openSettingsModal(page) {
       localStorage.clear();
     });
     await page1.reload({ waitUntil: "load", timeout: 60000 });
-    await page1.waitForTimeout(2000);
+    await waitForHydration(page1);
 
     // 1.1 Default theme should be dark (system preference = dark)
     const defaultTheme = await page1.evaluate(() => {
