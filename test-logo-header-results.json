@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-03-15T09:29:27.343Z",
+  "passRate": 100,
+  "passCount": 6,
+  "failCount": 0,
+  "results": [
+    {
+      "name": "Dark mode Logo 元素存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Dark mode Logo 在 header 中",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Dark mode Logo SVG 存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Light mode Logo 元素存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Light mode Logo 在 header 中",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Mobile Logo 元素存在",
+      "status": "✅ PASS",
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "test-logo-header-dark.png",
+    "test-logo-header-light.png",
+    "test-logo-header-mobile.png"
+  ]
+}

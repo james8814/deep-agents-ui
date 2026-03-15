@@ -9,6 +9,7 @@ import { Assistant } from "@langchain/langgraph-sdk";
 import { ClientProvider, useClient } from "@/providers/ClientProvider";
 import { MessagesSquare, SquarePen, PanelRight, Sun, Moon } from "lucide-react";
 import { UserMenu } from "@/components/UserMenu";
+import { AzuneLogo } from "@/components/AzuneLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ResizableHandle,
@@ -115,7 +116,10 @@ function HomePageInner({
       <main className="flex h-screen flex-col">
         <header className="flex h-16 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold">Deep Agent UI</h1>
+            <div className="flex items-center gap-3">
+              <AzuneLogo size={36} variant="auto" />
+              <h1 className="text-xl font-semibold">Deep Agent UI</h1>
+            </div>
             {!sidebar && (
               <Button
                 variant="ghost"

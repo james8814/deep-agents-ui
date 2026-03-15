@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-03-15T09:24:52.332Z",
+  "passRate": 100,
+  "passCount": 7,
+  "failCount": 0,
+  "results": [
+    {
+      "name": "Dark mode 页面加载",
+      "status": "✅ PASS",
+      "detail": "PMAgent - AI Product Manager Assistant"
+    },
+    {
+      "name": "Dark mode CSS 变量 --color-cyan",
+      "status": "✅ PASS",
+      "detail": "#38bdf8"
+    },
+    {
+      "name": "Light mode 页面加载",
+      "status": "✅ PASS",
+      "detail": "PMAgent - AI Product Manager Assistant"
+    },
+    {
+      "name": "Light mode CSS 变量 --color-cyan",
+      "status": "✅ PASS",
+      "detail": "#38bdf8"
+    },
+    {
+      "name": "Light mode CSS 变量 --color-primary",
+      "status": "✅ PASS",
+      "detail": "#6558d3"
+    },
+    {
+      "name": "Mobile 响应式布局",
+      "status": "✅ PASS",
+      "detail": "375x667 viewport"
+    },
+    {
+      "name": "主题切换功能",
+      "status": "✅ PASS",
+      "detail": "Dark: rgb(10, 10, 18) → Light: rgb(255, 255, 255)"
+    }
+  ],
+  "screenshots": [
+    "test-ui-logo-dark.png",
+    "test-ui-logo-light.png",
+    "test-ui-logo-mobile.png",
+    "test-ui-logo-theme-switched.png"
+  ]
+}
