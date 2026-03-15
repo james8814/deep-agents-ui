@@ -72,14 +72,11 @@ function report(name, pass, detail = "") {
   // ========================================================================
   console.log("\n▶ 测试组 2: Logo 集成");
 
-  const logoExists = await page.locator('header span:has-text("AZUNE")').count() > 0;
-  report("Header Logo (AZUNE word mark) 存在", logoExists);
+  const logoExists = await page.locator('header svg[role="img"]').count() > 0;
+  report("Header AZUNE Wordmark 存在", logoExists);
 
-  const logoHasGradient = await page.evaluate(() => {
-    const logo = document.querySelector('header span');
-    return logo && logo.className.includes('gradient');
-  });
-  report("Header Logo 有渐变样式", logoHasGradient);
+  const logoHasAriaLabel = await page.locator('header svg[aria-label="AZUNE"]').count() > 0;
+  report("Header Wordmark 有 ARIA 标签", logoHasAriaLabel);
 
   // 截图记录
   await page.screenshot({ path: "test-visual-logo-dark.png", fullPage: false });
@@ -113,7 +110,7 @@ function report(name, pass, detail = "") {
     console.log("  📸 Theme Light: test-visual-theme-light.png");
 
     // 检查 Logo 在 light mode 下仍然存在
-    const logoInLight = await page.locator('header span:has-text("AZUNE")').count() > 0;
+    const logoInLight = await page.locator('header svg[role="img"]').count() > 0;
     report("Light mode Logo 存在", logoInLight);
   } else {
     report("主题切换按钮存在", false, "未找到按钮");
@@ -148,7 +145,7 @@ function report(name, pass, detail = "") {
   console.log("  📸 Mobile: test-visual-mobile.png");
 
   // 验证 Logo 在 mobile 下存在
-  const mobileLogo = await mobilePage.locator('header span:has-text("AZUNE")').count() > 0;
+  const mobileLogo = await mobilePage.locator('header svg[role="img"]').count() > 0;
   report("Mobile Logo 存在", mobileLogo);
 
   // 验证 Header 布局
@@ -179,9 +176,9 @@ function report(name, pass, detail = "") {
   await desktopPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: 30000 });
   await desktopPage.waitForTimeout(2000);
 
-  // 验证 Header 元素 (AZUNE word mark)
-  const headerTitle = await desktopPage.locator('header span.text-xl').textContent();
-  report("Header AZUNE word mark", headerTitle?.includes("AZUNE"), headerTitle);
+  // 验证 Header 元素 (AZUNE Wordmark SVG)
+  const headerWordmark = await desktopPage.locator('header svg[aria-label="AZUNE"]').count() > 0;
+  report("Header AZUNE Wordmark SVG", headerWordmark);
 
   // 验证 Threads 按钮
   const threadsButton = await desktopPage.locator('button:has-text("Threads")').count() > 0;
@@ -223,9 +220,9 @@ function report(name, pass, detail = "") {
   await a11yPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: 30000 });
   await a11yPage.waitForTimeout(2000);
 
-  // 验证 Logo 可访问性 (AZUNE word mark)
-  const logoAccessible = await a11yPage.locator('header span:has-text("AZUNE")').count() > 0;
-  report("Logo 可访问性 (AZUNE word mark)", logoAccessible);
+  // 验证 Logo 可访问性 (AZUNE Wordmark)
+  const logoAccessible = await a11yPage.locator('header svg[aria-label="AZUNE"]').count() > 0;
+  report("Logo 可访问性 (AZUNE Wordmark)", logoAccessible);
 
   // 验证按钮 aria-label
   const themeBtnAria = await a11yPage.locator('button[aria-label*="Switch to"]').count() > 0;

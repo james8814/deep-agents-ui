@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { AzuneLogo } from "@/components/AzuneLogo";
+import { AzuneWordmark } from "@/components/AzuneWordmark";
 
 interface NavItem {
   id: string;
@@ -133,9 +133,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           aria-label="Toggle sidebar"
           title="Toggle sidebar expansion"
         >
-          <span className="text-lg font-bold tracking-tight text-white">
-            AZUNE
-          </span>
+          <AzuneWordmark height={32} variant="light" />
         </button>
 
         {/* Navigation */}

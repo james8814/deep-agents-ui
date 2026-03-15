@@ -9,7 +9,7 @@ import { Assistant } from "@langchain/langgraph-sdk";
 import { ClientProvider, useClient } from "@/providers/ClientProvider";
 import { MessagesSquare, SquarePen, PanelRight, Sun, Moon } from "lucide-react";
 import { UserMenu } from "@/components/UserMenu";
-import { AzuneLogo } from "@/components/AzuneLogo";
+import { AzuneWordmark } from "@/components/AzuneWordmark";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ResizableHandle,
@@ -117,9 +117,7 @@ function HomePageInner({
         <header className="flex h-16 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">
-                AZUNE
-              </span>
+              <AzuneWordmark height={36} variant="gradient" />
             </div>
             {!sidebar && (
               <Button
