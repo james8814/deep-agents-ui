@@ -1,0 +1,355 @@
+/**
+ * v5.27 Panel Styles - 右侧边栏重设计样式
+ *
+ * 包含:
+ * - Step Group 高亮样式
+ * - 折叠/展开动画
+ * - 状态过渡动画
+ * - 进度条渐变
+ * - 回到最新按钮
+ *
+ * 参考文档: v5.27_IMPLEMENTATION_PLAN_v3_FINAL.md
+ */
+
+/* ================================================================
+ * STEP GROUP 高亮样式
+ * ================================================================ */
+
+/**
+ * 高亮 Step Group 容器
+ * 用于: 点击任务标签后高亮对应的日志组
+ */
+.step-group--highlighted {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    rgba(124, 107, 240, 0.08) 0%,   /* brand 8% */
+    rgba(124, 107, 240, 0.04) 50%,  /* brand 4% */
+    transparent 100%
+  );
+  border-left: 3px solid var(--brand);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  transition: background 200ms ease-out, border-color 200ms ease-out;
+}
+
+/**
+ * 高亮左边框脉冲动画
+ */
+.step-group--highlighted::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--brand);
+  animation: highlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes highlightPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/**
+ * 非高亮 Step Group (用于过渡对比)
+ */
+.step-group {
+  background: transparent;
+  border-left: 3px solid transparent;
+  transition: background 200ms ease-out, border-color 200ms ease-out;
+}
+
+/* ================================================================
+ * STEP GROUP 折叠动画
+ * ================================================================ */
+
+/**
+ * 折叠内容容器 (使用 Grid 实现平滑高度过渡)
+ * 注意: 需要配合 .step-group__content-inner 使用
+ */
+.step-group__content {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 250ms ease-out;
+}
+
+/**
+ * 折叠状态: 高度变为 0
+ */
+.step-group--collapsed .step-group__content {
+  grid-template-rows: 0fr;
+}
+
+/**
+ * 内容内部容器 (overflow: hidden 配合 Grid 过渡)
+ */
+.step-group__content-inner {
+  overflow: hidden;
+}
+
+/**
+ * 折叠图标旋转动画
+ */
+.step-group__chevron {
+  transition: transform 200ms ease-out;
+}
+
+.step-group--collapsed .step-group__chevron {
+  transform: rotate(-90deg);
+}
+
+/* ================================================================
+ * 状态过渡动画
+ * ================================================================ */
+
+/**
+ * 状态文本颜色过渡
+ * 用于: 任务状态变化时平滑过渡
+ */
+.status-text {
+  font-size: 12px;
+  font-weight: 500;
+  transition: color 150ms ease-out;
+}
+
+.status-text[data-status="in_progress"] { color: var(--brand); }
+.status-text[data-status="completed"] { color: var(--ok); }
+.status-text[data-status="pending"] { color: var(--t4); }
+.status-text[data-status="error"] { color: var(--err); }
+
+/* ================================================================
+ * 进度条渐变
+ * ================================================================ */
+
+/**
+ * 默认进度条 (brand → cyan 渐变)
+ */
+.progress-bar {
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand) 0%, var(--cyan) 100%);
+  border-radius: 2px;
+  transition: width 250ms ease-out;
+}
+
+/**
+ * 完成状态 (ok → #4ade80 渐变)
+ */
+.progress-bar[data-status="completed"] {
+  background: linear-gradient(90deg, var(--ok) 0%, #4ade80 100%);
+}
+
+/**
+ * 错误状态 (err → #f87171 渐变)
+ */
+.progress-bar[data-status="error"] {
+  background: linear-gradient(90deg, var(--err) 0%, #f87171 100%);
+}
+
+/* ================================================================
+ * 回到最新按钮
+ * ================================================================ */
+
+/**
+ * 浮动按钮容器
+ */
+.scroll-to-latest-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  height: 36px;
+  padding: 8px 16px;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 18px; /* 胶囊形 */
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: var(--z-sticky);
+  animation: slideUp 200ms ease-out;
+  transition: background 150ms ease-out;
+}
+
+.scroll-to-latest-btn:hover {
+  background: var(--brand-d);
+}
+
+.scroll-to-latest-btn:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+/**
+ * 有新日志时的脉冲提示
+ */
+.scroll-to-latest-btn.has-new {
+  animation: slideUp 200ms ease-out, pulse 2s ease-in-out infinite;
+}
+
+/* 入场动画 */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 退出动画 */
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+/* 脉冲动画 (重用 animation-utilities.css 的 keyframes) */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(124, 107, 240, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(124, 107, 240, 0.6);
+  }
+}
+
+/* ================================================================
+ * 筛选器下拉菜单
+ * ================================================================ */
+
+/**
+ * 下拉菜单容器
+ */
+.task-filter-dropdown {
+  position: relative;
+}
+
+/**
+ * 下拉菜单面板
+ */
+.task-filter-dropdown__panel {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 4px;
+  min-width: 140px;
+  padding: 4px 0;
+  background: var(--bg2);
+  border: 1px solid var(--b1);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all 150ms ease-out;
+}
+
+/**
+ * 悬停显示下拉面板
+ */
+.task-filter-dropdown:hover .task-filter-dropdown__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/**
+ * 下拉菜单选项
+ */
+.task-filter-dropdown__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: background 100ms ease-out;
+}
+
+.task-filter-dropdown__option:hover {
+  background: var(--bg3);
+}
+
+.task-filter-dropdown__option--selected {
+  color: var(--brand);
+  font-weight: 500;
+}
+
+/* ================================================================
+ * 任务标签
+ * ================================================================ */
+
+/**
+ * 任务筛选标签
+ */
+.task-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t3);
+  border: 1px solid transparent;
+  transition: all 150ms ease-out;
+  cursor: pointer;
+}
+
+.task-filter-tag:hover {
+  background: var(--bg3);
+}
+
+.task-filter-tag--selected {
+  background: var(--brand-glow-10);
+  color: var(--brand);
+  border-color: var(--brand);
+}
+
+/**
+ * 任务状态图标
+ */
+.task-status-icon--completed { color: var(--ok); }
+.task-status-icon--in_progress { color: var(--brand); }
+.task-status-icon--pending { color: var(--t4); }
+
+/* ================================================================
+ * 空状态样式
+ * ================================================================ */
+
+.chat-mode-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  animation: fadeIn 150ms ease-out;
+}
+
+/* ================================================================
+ * 滚动条隐藏工具类
+ * ================================================================ */
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

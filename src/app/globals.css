@@ -1,5 +1,6 @@
 @import '../styles/design-system.css';
 @import '../styles/animation-utilities.css';
+@import '../styles/panel.css';
 
 @tailwind base;
 @tailwind components;
@@ -245,6 +246,43 @@
     --panel-width: 40vw;
     --chat-max-width: 900px;
 
+    /* ================================================================
+     * v5.27 PANEL VARIABLES - Short aliases for panel components
+     * These provide concise naming for the right sidebar redesign
+     * ================================================================ */
+
+    /* Brand aliases - Light Mode */
+    --brand: #6558D3;                       /* Primary brand color */
+    --brand-l: #7C6BF0;                     /* Brand lighter */
+    --brand-d: #4F3FB3;                     /* Brand darker */
+    --brand-glow-10: rgba(101, 88, 211, 0.1);
+    --brand-glow-20: rgba(101, 88, 211, 0.2);
+
+    /* Text aliases - Light Mode */
+    --t1: #0A0A12;                          /* Primary text */
+    --t2: #3F3F46;                          /* Secondary text */
+    --t3: #555555;                          /* Tertiary text */
+    --t4: #757575;                          /* Disabled text */
+
+    /* Background aliases - Light Mode */
+    --bg1: #F9F9FB;                         /* Raised surface */
+    --bg2: #F3F3F6;                         /* Card surface */
+    --bg3: #ECECF1;                         /* Muted surface */
+
+    /* Border aliases - Light Mode */
+    --b1: #E4E4E7;                          /* Default border */
+    --b2: #D4D4D8;                          /* Strong border */
+
+    /* Status aliases - Light Mode */
+    --ok: #22c55e;                          /* Success */
+    --err: #ef4444;                         /* Error */
+    --warn: #f59e0b;                        /* Warning */
+
+    /* Radius aliases */
+    --r-sm: 6px;
+    --r-md: 8px;
+    --r-lg: 12px;
+
     /* Tailwind/Radix UI component variables */
     --radius: 0.5rem;
     --sidebar: 220 13% 95%;
@@ -366,6 +404,29 @@
     --border-tertiary: #3F3F46;            /* --b2 */
     --scrollbar-thumb: #52525B;            /* --t4 */
     --scrollbar-thumb-hover: #71717A;      /* --t3 */
+
+    /* v5.27 Panel Variables - Dark Mode */
+    --brand: #7C6BF0;                       /* Primary brand color (lighter in dark mode) */
+    --brand-l: #9D8DF7;                     /* Brand lighter */
+    --brand-d: #5B4BC7;                     /* Brand darker */
+    --brand-glow-10: rgba(124, 107, 240, 0.15);
+    --brand-glow-20: rgba(124, 107, 240, 0.25);
+
+    --t1: #F5F5F7;                          /* Primary text */
+    --t2: #D4D4D8;                          /* Secondary text */
+    --t3: #71717A;                          /* Tertiary text */
+    --t4: #52525B;                          /* Disabled text */
+
+    --bg1: #0E0E1A;                         /* Raised surface */
+    --bg2: #12121F;                         /* Card surface */
+    --bg3: #1A1A2E;                         /* Muted surface */
+
+    --b1: #27272A;                          /* Default border */
+    --b2: #3F3F46;                          /* Strong border */
+
+    --ok: #22C55E;                          /* Success */
+    --err: #EF4444;                         /* Error */
+    --warn: #F59E0B;                        /* Warning */
   }
 
   /* System preference: apply dark variables to :root unless .light is explicitly set */

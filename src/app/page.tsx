@@ -117,7 +117,7 @@ function HomePageInner({
         <header className="flex h-16 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <AzuneWordmark height={36} variant="gradient" />
+              <AzuneWordmark height={36} variant="auto" />
             </div>
             {!sidebar && (
               <Button

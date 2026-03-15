@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-15T09:56:09.796Z",
+  "timestamp": "2026-03-15T10:28:10.972Z",
   "passRate": 100,
   "passCount": 14,
   "failCount": 0,
@@ -15,12 +15,12 @@
       "detail": "#7c6bf0"
     },
     {
-      "name": "Header Logo 元素存在",
+      "name": "Header AZUNE Wordmark 存在",
       "status": "✅ PASS",
       "detail": ""
     },
     {
-      "name": "Header Logo SVG 存在",
+      "name": "Header Wordmark 有 ARIA 标签",
       "status": "✅ PASS",
       "detail": ""
     },
@@ -45,9 +45,9 @@
       "detail": ""
     },
     {
-      "name": "Header 标题",
+      "name": "Header AZUNE Wordmark SVG",
       "status": "✅ PASS",
-      "detail": "AZUNE"
+      "detail": ""
     },
     {
       "name": "Threads 按钮存在",
@@ -65,7 +65,7 @@
       "detail": ""
     },
     {
-      "name": "Logo ARIA 标签",
+      "name": "Logo 可访问性 (AZUNE Wordmark)",
       "status": "✅ PASS",
       "detail": ""
     },

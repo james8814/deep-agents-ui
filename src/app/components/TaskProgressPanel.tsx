@@ -1,0 +1,199 @@
+"use client";
+
+import React, { useMemo } from "react";
+import { ChevronDown, CheckCircle, Clock, Circle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { TodoItem } from "@/app/types/types";
+
+/**
+ * TaskProgressPanel - v5.27 任务进度面板
+ *
+ * 设计规格:
+ * - 任务数 ≥ 2 时显示面板
+ * - 任务数 ≤ 1 时隐藏面板
+ * - 点击标签高亮对应 Step Group + 滚动到视图
+ * - 支持下拉菜单快速切换
+ */
+
+export type TaskStatus = "pending" | "in_progress" | "completed";
+
+export interface TaskWithIndex extends TodoItem {
+  index: number;
+}
+
+interface TaskProgressPanelProps {
+  /** 任务列表 */
+  tasks: TaskWithIndex[];
+  /** 当前选中的任务 ID (null = 全部) */
+  selectedTaskId: string | null;
+  /** 选中任务回调 */
+  onSelectTask: (taskId: string | null) => void;
+}
+
+// 状态图标组件
+function TaskStatusIcon({ status }: { status: TaskStatus }) {
+  switch (status) {
+    case "completed":
+      return <CheckCircle size={12} className="text-[var(--ok)]" />;
+    case "in_progress":
+      return <Clock size={12} className="text-[var(--brand)] animate-pulse" />;
+    case "pending":
+    default:
+      return <Circle size={12} className="text-[var(--t4)]" />;
+  }
+}
+
+export const TaskProgressPanel = React.memo<TaskProgressPanelProps>(
+  ({ tasks, selectedTaskId, onSelectTask }) => {
+    // 设计规格: 任务数 ≤ 1 时隐藏面板
+    if (tasks.length <= 1) {
+      return null;
+    }
+
+    return (
+      <div className="flex items-center gap-1.5 px-4 py-2 border-b border-[var(--b1)] bg-[var(--bg1)]">
+        {/* 下拉菜单 */}
+        <TaskFilterDropdown
+          tasks={tasks}
+          selectedTaskId={selectedTaskId}
+          onSelect={onSelectTask}
+        />
+
+        {/* 分隔符 */}
+        <span className="text-[var(--t4)] text-xs mx-1">|</span>
+
+        {/* 任务标签列表 */}
+        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+          {tasks.map((task) => (
+            <TaskFilterTag
+              key={task.id}
+              task={task}
+              isSelected={selectedTaskId === task.id}
+              onClick={() => onSelectTask(task.id)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+);
+
+TaskProgressPanel.displayName = "TaskProgressPanel";
+
+// --- 子组件 ---
+
+interface TaskFilterDropdownProps {
+  tasks: TaskWithIndex[];
+  selectedTaskId: string | null;
+  onSelect: (taskId: string | null) => void;
+}
+
+function TaskFilterDropdown({
+  tasks,
+  selectedTaskId,
+  onSelect,
+}: TaskFilterDropdownProps) {
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId);
+  const label = selectedTask ? selectedTask.content : "全部";
+
+  return (
+    <div className="relative group">
+      <button
+        className={cn(
+          "flex items-center gap-1 px-2 py-1 rounded-[var(--r-sm)]",
+          "text-xs font-medium transition-colors",
+          "hover:bg-[var(--bg3)]",
+          selectedTaskId ? "text-[var(--t1)]" : "text-[var(--t3)]"
+        )}
+        aria-haspopup="listbox"
+        aria-label="筛选任务"
+      >
+        <span className="truncate max-w-[80px]">{label}</span>
+        <ChevronDown size={12} className="text-[var(--t4)]" />
+      </button>
+
+      {/* 下拉菜单 (hover 触发) */}
+      <div
+        className={cn(
+          "absolute left-0 top-full mt-1 z-[var(--z-dropdown)]",
+          "min-w-[140px] py-1",
+          "bg-[var(--bg2)] border border-[var(--b1)] rounded-[var(--r-md)]",
+          "shadow-[var(--shadow-lg)]",
+          "opacity-0 invisible transform -translate-y-1",
+          "transition-all duration-150 ease-out",
+          "group-hover:opacity-100 group-hover:visible group-hover:translate-y-0"
+        )}
+        role="listbox"
+      >
+        {/* 全部选项 */}
+        <button
+          onClick={() => onSelect(null)}
+          className={cn(
+            "w-full px-3 py-1.5 text-left text-xs",
+            "hover:bg-[var(--bg3)] transition-colors",
+            !selectedTaskId ? "text-[var(--brand)] font-medium" : "text-[var(--t2)]"
+          )}
+          role="option"
+          aria-selected={!selectedTaskId}
+        >
+          全部
+        </button>
+
+        {/* 分隔线 */}
+        <div className="my-1 border-t border-[var(--b1)]" />
+
+        {/* 任务列表 */}
+        {tasks.map((task) => (
+          <button
+            key={task.id}
+            onClick={() => onSelect(task.id)}
+            className={cn(
+              "w-full px-3 py-1.5 text-left text-xs",
+              "hover:bg-[var(--bg3)] transition-colors",
+              "flex items-center gap-2",
+              selectedTaskId === task.id
+                ? "text-[var(--brand)] font-medium"
+                : "text-[var(--t2)]"
+            )}
+            role="option"
+            aria-selected={selectedTaskId === task.id}
+          >
+            <TaskStatusIcon status={task.status} />
+            <span className="truncate flex-1">{task.content}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface TaskFilterTagProps {
+  task: TaskWithIndex;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+function TaskFilterTag({ task, isSelected, onClick }: TaskFilterTagProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-1.5 px-2 py-1 rounded-[var(--r-sm)]",
+        "text-xs font-medium transition-all duration-150 ease-out",
+        "border border-transparent",
+        "hover:bg-[var(--bg3)]",
+        "focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-opacity-50",
+        isSelected
+          ? "bg-[var(--brand-glow-10)] text-[var(--brand)] border-[var(--brand)]"
+          : "text-[var(--t3)]"
+      )}
+      aria-pressed={isSelected}
+      aria-label={`筛选任务: ${task.content}`}
+    >
+      <TaskStatusIcon status={task.status} />
+      <span className="truncate max-w-[100px]">{task.content}</span>
+    </button>
+  );
+}
+
+export default TaskProgressPanel;

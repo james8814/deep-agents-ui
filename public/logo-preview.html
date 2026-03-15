@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azune Logo Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0A0A12;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      padding: 40px;
+    }
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .preview-section h2 {
+      color: #8B5CF6;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .logo-container {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .logo-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-item span {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+    }
+    /* Logo styles */
+    .azune-logo {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #38BDF8, #7C6BF0, #5B4BC7);
+    }
+    .azune-logo svg {
+      color: white;
+    }
+    /* Size variants */
+    .size-36 { width: 36px; height: 36px; }
+    .size-36 svg { width: 21.6px; height: 21.6px; }
+    .size-64 { width: 64px; height: 64px; }
+    .size-64 svg { width: 38.4px; height: 38.4px; }
+    .size-72 { width: 72px; height: 72px; }
+    .size-72 svg { width: 43.2px; height: 43.2px; }
+    .size-80 { width: 80px; height: 80px; }
+    .size-80 svg { width: 48px; height: 48px; }
+
+    /* Animated version */
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .animated {
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    /* Header preview */
+    .header-preview {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-preview .brand-text {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* Welcome screen preview */
+    .welcome-preview {
+      width: 100%;
+      max-width: 600px;
+      background: linear-gradient(135deg, #0A0A12 0%, #0A0A12 100%);
+      border-radius: 16px;
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-preview::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      background: rgba(124, 107, 240, 0.1);
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+    .welcome-preview::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: -40px;
+      width: 160px;
+      height: 160px;
+      background: rgba(124, 107, 240, 0.1);
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+    .welcome-preview h1 {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    .welcome-preview p {
+      color: rgba(255,255,255,0.6);
+      font-size: 16px;
+    }
+
+    @keyframes floating {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(2deg); }
+    }
+    .floating {
+      animation: floating 6s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <!-- Size Variants -->
+  <div class="preview-section">
+    <h2>Size Variants (Solid Ring + Transparent Center)</h2>
+    <div class="logo-container">
+      <div class="logo-item">
+        <div class="azune-logo size-36">
+          <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(18, 18)">
+              <!-- A letter -->
+              <line x1="-3.06" y1="9.9" x2="0" y2="-9.9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="3.06" y1="9.9" x2="0" y2="-9.9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Solid ring -->
+              <circle cx="0" cy="0" r="3.5" fill="#8B5CF6"/>
+              <!-- Transparent center -->
+              <circle cx="0" cy="0" r="1.8" fill="transparent"/>
+            </g>
+          </svg>
+        </div>
+        <span>36px</span>
+      </div>
+
+      <div class="logo-item">
+        <div class="azune-logo size-64">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(32, 32)">
+              <line x1="-5.44" y1="17.6" x2="0" y2="-17.6" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="5.44" y1="17.6" x2="0" y2="-17.6" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="0" cy="0" r="4.5" fill="#8B5CF6"/>
+              <circle cx="0" cy="0" r="2.2" fill="transparent"/>
+            </g>
+          </svg>
+        </div>
+        <span>64px</span>
+      </div>
+
+      <div class="logo-item">
+        <div class="azune-logo size-72">
+          <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(36, 36)">
+              <line x1="-6.12" y1="19.8" x2="0" y2="-19.8" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+              <line x1="6.12" y1="19.8" x2="0" y2="-19.8" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+              <circle cx="0" cy="0" r="5" fill="#8B5CF6"/>
+              <circle cx="0" cy="0" r="2.5" fill="transparent"/>
+            </g>
+          </svg>
+        </div>
+        <span>72px (WelcomeScreen)</span>
+      </div>
+
+      <div class="logo-item">
+        <div class="azune-logo size-80">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(40, 40)">
+              <line x1="-6.8" y1="22" x2="0" y2="-22" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+              <line x1="6.8" y1="22" x2="0" y2="-22" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+              <circle cx="0" cy="0" r="5.5" fill="#8B5CF6"/>
+              <circle cx="0" cy="0" r="2.8" fill="transparent"/>
+            </g>
+          </svg>
+        </div>
+        <span>80px</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Preview -->
+  <div class="preview-section">
+    <h2>Sidebar Header Preview</h2>
+    <div class="header-preview">
+      <div class="azune-logo size-36">
+        <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(18, 18)">
+            <line x1="-3.06" y1="9.9" x2="0" y2="-9.9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="3.06" y1="9.9" x2="0" y2="-9.9" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="0" cy="0" r="2.5" fill="#8B5CF6"/>
+            <circle cx="0" cy="0" r="1.2" fill="transparent"/>
+          </g>
+        </svg>
+      </div>
+      <span class="brand-text">Deep Agents Studio</span>
+    </div>
+  </div>
+
+  <!-- Welcome Screen Preview -->
+  <div class="preview-section">
+    <h2>Welcome Screen Preview (Animated)</h2>
+    <div class="welcome-preview">
+      <div class="azune-logo size-72 floating">
+        <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(36, 36)">
+            <line x1="-6.12" y1="19.8" x2="0" y2="-19.8" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+            <line x1="6.12" y1="19.8" x2="0" y2="-19.8" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+            <circle cx="0" cy="0" r="5" fill="#8B5CF6"/>
+            <circle cx="0" cy="0" r="2.5" fill="transparent"/>
+          </g>
+        </svg>
+      </div>
+      <h1>Deep Agents Studio</h1>
+      <p>AI-powered Product Management Assistant</p>
+    </div>
+  </div>
+</body>
+</html>

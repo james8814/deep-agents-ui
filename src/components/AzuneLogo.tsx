@@ -31,11 +31,12 @@ export interface AzuneLogoProps {
 }
 
 // Size-to-viewport mapping for SVG viewBox scaling
-const SIZE_CONFIG: Record<number, { viewBox: string; strokeWidth: number; ringRadius: number; dotRadius: number }> = {
-  36: { viewBox: "0 0 36 36", strokeWidth: 1.5, ringRadius: 2, dotRadius: 0.6 },
-  64: { viewBox: "0 0 64 64", strokeWidth: 2.5, ringRadius: 3.5, dotRadius: 1 },
-  72: { viewBox: "0 0 72 72", strokeWidth: 2.8, ringRadius: 4, dotRadius: 1.1 },
-  80: { viewBox: "0 0 80 80", strokeWidth: 3.2, ringRadius: 4.5, dotRadius: 1.2 },
+// Ring: solid fill with transparent center (donut shape) - larger for visibility
+const SIZE_CONFIG: Record<number, { viewBox: string; strokeWidth: number; ringOuterRadius: number; ringInnerRadius: number }> = {
+  36: { viewBox: "0 0 36 36", strokeWidth: 1.5, ringOuterRadius: 3.5, ringInnerRadius: 1.8 },
+  64: { viewBox: "0 0 64 64", strokeWidth: 2.5, ringOuterRadius: 6, ringInnerRadius: 3 },
+  72: { viewBox: "0 0 72 72", strokeWidth: 2.8, ringOuterRadius: 7, ringInnerRadius: 3.5 },
+  80: { viewBox: "0 0 80 80", strokeWidth: 3.2, ringOuterRadius: 8, ringInnerRadius: 4 },
 };
 
 // v5.26 color palette
@@ -138,21 +139,19 @@ export const AzuneLogo = React.memo<AzuneLogoProps>(({
               strokeLinecap="round"
               style={useCssVars ? { color: "white" } : undefined}
             />
-            {/* Precision ring */}
+            {/* Solid ring (donut shape) - outer circle filled, inner circle transparent */}
             <circle
               cx={0}
               cy={0}
-              r={config.ringRadius}
-              fill="none"
-              stroke={useCssVars ? "var(--color-cyan, #38BDF8)" : colors?.ring}
-              strokeWidth={1}
+              r={config.ringOuterRadius}
+              fill={useCssVars ? "var(--color-primary, #8B5CF6)" : colors?.ring}
             />
-            {/* Bullseye dot */}
+            {/* Inner circle - transparent (same as background color to create donut effect) */}
             <circle
               cx={0}
               cy={0}
-              r={config.dotRadius}
-              fill={useCssVars ? "var(--color-cyan, #38BDF8)" : colors?.dot}
+              r={config.ringInnerRadius}
+              fill="transparent"
             />
           </g>
         </svg>

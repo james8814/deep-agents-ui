@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { AzuneWordmark } from "@/components/AzuneWordmark";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -35,6 +36,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6 rounded-xl border border-border bg-card p-8 shadow-sm">
         <div className="space-y-2 text-center">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <AzuneWordmark height={36} variant="dark" />
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             登录
           </h1>
