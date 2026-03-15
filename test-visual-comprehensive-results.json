@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-15T09:34:40.575Z",
+  "timestamp": "2026-03-15T09:56:09.796Z",
   "passRate": 100,
   "passCount": 14,
   "failCount": 0,
@@ -47,7 +47,7 @@
     {
       "name": "Header 标题",
       "status": "✅ PASS",
-      "detail": "Deep Agent UI"
+      "detail": "AZUNE"
     },
     {
       "name": "Threads 按钮存在",

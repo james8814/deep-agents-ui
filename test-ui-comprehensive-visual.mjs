@@ -178,7 +178,7 @@ function report(name, pass, detail = "") {
 
   // 验证 Header 元素
   const headerTitle = await desktopPage.locator('header h1').textContent();
-  report("Header 标题", headerTitle?.includes("Deep Agent UI"), headerTitle);
+  report("Header 标题", headerTitle?.includes("AZUNE"), headerTitle);
 
   // 验证 Threads 按钮
   const threadsButton = await desktopPage.locator('button:has-text("Threads")').count() > 0;
