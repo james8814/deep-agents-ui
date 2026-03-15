@@ -176,17 +176,29 @@ async function sleep(ms) {
     const cssVars = await page.evaluate(() => {
       const style = getComputedStyle(document.documentElement);
       return {
-        background: style.getPropertyValue("--background").trim(),
-        foreground: style.getPropertyValue("--foreground").trim(),
-        primary: style.getPropertyValue("--primary").trim(),
-        radius: style.getPropertyValue("--radius").trim(),
+        background: style.getPropertyValue("--background"),
+        foreground: style.getPropertyValue("--foreground"),
+        primary: style.getPropertyValue("--primary"),
+        radius: style.getPropertyValue("--radius"),
+        surfaceBase: style.getPropertyValue("--surface-base"),
+        textPrimary: style.getPropertyValue("--text-primary"),
+        colorPrimary: style.getPropertyValue("--color-primary"),
       };
     });
 
-    report("设计系统", "--background 已定义", cssVars.background !== "", cssVars.background?.slice(0, 15));
-    report("设计系统", "--foreground 已定义", cssVars.foreground !== "", cssVars.foreground?.slice(0, 15));
-    report("设计系统", "--primary 已定义", cssVars.primary !== "", cssVars.primary?.slice(0, 15));
-    report("设计系统", "--radius 已定义", cssVars.radius !== "", cssVars.radius);
+    // CSS 变量值检查
+    const hasValue = (val) => val && val.trim() !== "";
+
+    // 输出实际值用于调试
+    console.log("  CSS --background:", cssVars.background?.trim() || "empty");
+    console.log("  CSS --foreground:", cssVars.foreground?.trim() || "empty");
+    console.log("  CSS --primary:", cssVars.primary?.trim() || "empty");
+    console.log("  CSS --radius:", cssVars.radius?.trim() || "empty");
+
+    report("设计系统", "--background 已定义", hasValue(cssVars.background), cssVars.background?.trim().slice(0, 15));
+    report("设计系统", "--foreground 已定义", hasValue(cssVars.foreground), cssVars.foreground?.trim().slice(0, 15));
+    report("设计系统", "--primary 已定义", hasValue(cssVars.primary), cssVars.primary?.trim().slice(0, 15));
+    report("设计系统", "--radius 已定义", hasValue(cssVars.radius), cssVars.radius?.trim());
 
     // ========================================================================
     // 测试组 6: 组件检测
