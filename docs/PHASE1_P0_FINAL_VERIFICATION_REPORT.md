@@ -152,7 +152,7 @@
 
 | # | 测试项 | 结果 |
 |---|--------|------|
-| 1.1 | 页面标题正确 | ✅ PASS - title: PMAgent - AI Product Manager Assistant |
+| 1.1 | 页面标题正确 | ✅ PASS - title: AZUNE - AI Product Manager Assistant |
 | 1.2 | 主题类已应用 | ✅ PASS - theme: dark |
 
 #### 测试组 2: 配置对话框交互

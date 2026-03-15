@@ -7,7 +7,7 @@
     {
       "name": "Dark mode 页面加载",
       "status": "✅ PASS",
-      "detail": "PMAgent - AI Product Manager Assistant"
+      "detail": "AZUNE - AI Product Manager Assistant"
     },
     {
       "name": "Dark mode CSS 变量 --color-cyan",
@@ -17,7 +17,7 @@
     {
       "name": "Light mode 页面加载",
       "status": "✅ PASS",
-      "detail": "PMAgent - AI Product Manager Assistant"
+      "detail": "AZUNE - AI Product Manager Assistant"
     },
     {
       "name": "Light mode CSS 变量 --color-cyan",

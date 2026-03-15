@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sidebar component is a production-ready navigation panel for PMAgent UI v6.0. It provides user authentication, navigation, and menu functionality with full keyboard accessibility and responsive design.
+The Sidebar component is a production-ready navigation panel for AZUNE UI v6.0. It provides user authentication, navigation, and menu functionality with full keyboard accessibility and responsive design.
 
 **Component Location**: `/src/app/components/Sidebar.tsx`
 
@@ -548,7 +548,7 @@ When modifying the Sidebar:
 
 ## License
 
-This component is part of PMAgent and follows the same license.
+This component is part of AZUNE and follows the same license.
 
 ---
 

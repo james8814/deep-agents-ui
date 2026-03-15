@@ -135,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <AzuneLogo size={36} variant="auto" showText={expanded} />
           {expanded && (
-            <span className="text-sm font-bold text-white">PMAgent</span>
+            <span className="text-sm font-bold text-white">AZUNE</span>
           )}
         </button>
 

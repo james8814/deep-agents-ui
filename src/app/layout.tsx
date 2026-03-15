@@ -10,7 +10,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PMAgent - AI Product Manager Assistant",
+  title: "AZUNE - AI Product Manager Assistant",
   description: "AI-powered product management assistant built on LangGraph & DeepAgents",
 };
 

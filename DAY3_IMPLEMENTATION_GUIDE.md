@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document provides complete guidance for integrating Day 3 enhancements into the PMAgent UI. These enhancements improve user experience, accessibility, and system visibility through expanded input features, risk indicators, and better message handling.
+This document provides complete guidance for integrating Day 3 enhancements into the AZUNE UI. These enhancements improve user experience, accessibility, and system visibility through expanded input features, risk indicators, and better message handling.
 
 ## Table of Contents
 
@@ -670,4 +670,4 @@ For questions or issues:
 ---
 
 **Last Updated**: 2026-03-09
-**Maintained By**: PMAgent Frontend Team
+**Maintained By**: AZUNE Frontend Team

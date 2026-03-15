@@ -1,7 +1,7 @@
 /**
  * SettingsModal.tsx
  *
- * Complete Settings Modal component for PMAgent v5.26
+ * Complete Settings Modal component for AZUNE v5.26
  * Features:
  * - Theme toggle (Light/Dark mode)
  * - Notification settings (with 4 toggle options)
@@ -89,7 +89,7 @@ const ABOUT_INFO = {
   version: "5.26.0",
   buildNumber: "2025-03-09-001",
   releaseDate: new Date("2025-03-09"),
-  copyright: "© 2025 PMAgent Team",
+  copyright: "© 2025 AZUNE Team",
 };
 
 /**
@@ -402,7 +402,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                   role="tabpanel"
                 >
                   <SettingsSection
-                    title="About PMAgent"
+                    title="About AZUNE"
                     description="Application information and credits"
                   >
                     <div className="space-y-4">

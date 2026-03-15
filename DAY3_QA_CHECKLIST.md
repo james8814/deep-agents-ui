@@ -1,6 +1,6 @@
 # Day 3 Enhancements - QA Testing Checklist
 
-**Project**: PMAgent UI Day 3 ChatInterface Enhancements
+**Project**: AZUNE UI Day 3 ChatInterface Enhancements
 **Date**: March 9, 2026
 **Version**: 1.0.0
 **QA Lead**: [Your Name]

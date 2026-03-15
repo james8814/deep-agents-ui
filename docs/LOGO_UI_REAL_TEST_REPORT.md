@@ -22,7 +22,7 @@
 ## ✅ 通过的测试
 
 ### 1. Dark Mode 页面渲染
-- ✅ 页面加载成功 (PMAgent - AI Product Manager Assistant)
+- ✅ 页面加载成功 (AZUNE - AI Product Manager Assistant)
 - ✅ CSS 变量 `--color-cyan` 正确渲染 (#38bdf8)
 - 📸 截图: `test-ui-logo-dark.png`
 

@@ -118,7 +118,7 @@ function HomePageInner({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <AzuneLogo size={36} variant="auto" />
-              <h1 className="text-xl font-semibold">Deep Agent UI</h1>
+              <h1 className="text-xl font-semibold">AZUNE</h1>
             </div>
             {!sidebar && (
               <Button

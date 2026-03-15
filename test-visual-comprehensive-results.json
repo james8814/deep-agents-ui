@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-03-15T09:34:40.575Z",
+  "passRate": 100,
+  "passCount": 14,
+  "failCount": 0,
+  "results": [
+    {
+      "name": "CSS 变量 --color-cyan",
+      "status": "✅ PASS",
+      "detail": "#38bdf8"
+    },
+    {
+      "name": "CSS 变量 --color-primary (dark)",
+      "status": "✅ PASS",
+      "detail": "#7c6bf0"
+    },
+    {
+      "name": "Header Logo 元素存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Header Logo SVG 存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "主题切换功能",
+      "status": "✅ PASS",
+      "detail": "rgb(10, 10, 18) → rgb(255, 255, 255)"
+    },
+    {
+      "name": "Light mode Logo 存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Mobile Logo 存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Mobile Header 存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Header 标题",
+      "status": "✅ PASS",
+      "detail": "Deep Agent UI"
+    },
+    {
+      "name": "Threads 按钮存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "任务工作台按钮存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "New Thread 按钮存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Logo ARIA 标签",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "主题按钮 ARIA 标签",
+      "status": "✅ PASS",
+      "detail": ""
+    }
+  ],
+  "screenshots": [
+    "test-visual-logo-dark.png",
+    "test-visual-theme-light.png",
+    "test-visual-mobile.png",
+    "test-visual-header.png"
+  ]
+}

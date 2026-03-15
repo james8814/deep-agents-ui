@@ -426,7 +426,7 @@ A: See DAY3_QA_CHECKLIST.md - all sections
 
 ## 👥 Team Information
 
-**Delivered By**: PMAgent Frontend Engineering Team
+**Delivered By**: AZUNE Frontend Engineering Team
 **Reviewed By**: Quality Assurance Team
 **Approved By**: Product Management Team
 
@@ -441,4 +441,4 @@ A: See DAY3_QA_CHECKLIST.md - all sections
 ---
 
 _Last Updated: March 9, 2026_
-_For questions or issues, refer to the appropriate documentation above or contact the PMAgent team._
+_For questions or issues, refer to the appropriate documentation above or contact the AZUNE team._

@@ -31,7 +31,7 @@
 | # | 测试项 | 结果 |
 |---|--------|------|
 | 1.1 | 主题类已应用 | ✅ theme: dark |
-| 1.2 | 页面标题正确 | ✅ PMAgent - AI Product Manager Assistant |
+| 1.2 | 页面标题正确 | ✅ AZUNE - AI Product Manager Assistant |
 | 1.3 | CSS 变量已定义 | ✅ |
 | 1.4 | HTML lang 属性存在 | ✅ zh-CN |
 

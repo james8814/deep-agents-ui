@@ -62,7 +62,7 @@ function report(name, pass, detail = "") {
 
     // 验证页面加载成功
     const title = await darkPage.title();
-    report("Dark mode 页面加载", title.includes("PMAgent"), title);
+    report("Dark mode 页面加载", title.includes("AZUNE"), title);
 
     // 验证 CSS 变量在真实浏览器中生效
     const cssVars = await darkPage.evaluate(() => {
@@ -110,7 +110,7 @@ function report(name, pass, detail = "") {
 
     // 验证页面加载成功
     const title = await lightPage.title();
-    report("Light mode 页面加载", title.includes("PMAgent"), title);
+    report("Light mode 页面加载", title.includes("AZUNE"), title);
 
     // 验证 CSS 变量
     const cssVars = await lightPage.evaluate(() => {

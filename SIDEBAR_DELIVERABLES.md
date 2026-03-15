@@ -1,6 +1,6 @@
 # Sidebar Component - Complete Deliverables
 
-**Project**: PMAgent UI v6.0 Redesign
+**Project**: AZUNE UI v6.0 Redesign
 **Component**: Sidebar Navigation
 **Status**: ✅ PRODUCTION READY
 **Date**: 2026-03-09

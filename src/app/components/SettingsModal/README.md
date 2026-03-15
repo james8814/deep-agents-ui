@@ -1,6 +1,6 @@
 # SettingsModal Component
 
-A comprehensive, accessible settings modal for PMAgent v5.26, providing user preferences management with theme selection, notifications control, keyboard shortcuts reference, and application information.
+A comprehensive, accessible settings modal for AZUNE v5.26, providing user preferences management with theme selection, notifications control, keyboard shortcuts reference, and application information.
 
 ## Quick Facts
 
@@ -374,7 +374,7 @@ See `SETTINGS_MODAL_IMPLEMENTATION.md` for:
 
 ## License
 
-PMAgent v5.26 © 2025 - All Rights Reserved
+AZUNE v5.26 © 2025 - All Rights Reserved
 
 ---
 

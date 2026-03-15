@@ -9,7 +9,7 @@
 
 ## 📋 Overview
 
-The SettingsModal component is a comprehensive settings interface for PMAgent v5.26, providing users with centralized control over application preferences. It features theme selection, notification settings, keyboard shortcuts reference, and about information.
+The SettingsModal component is a comprehensive settings interface for AZUNE v5.26, providing users with centralized control over application preferences. It features theme selection, notification settings, keyboard shortcuts reference, and about information.
 
 ### Key Features
 
@@ -644,7 +644,7 @@ For issues or questions:
 
 ## 📄 License
 
-PMAgent v5.26 - All Rights Reserved ©2025
+AZUNE v5.26 - All Rights Reserved ©2025
 
 ---
 
