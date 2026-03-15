@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Sparkles,
   ArrowRight,
   BookOpen,
   Zap,
   MessageSquare,
   GitBranch,
 } from "lucide-react";
+import { AzuneLogo } from "@/components/AzuneLogo";
 
 interface WelcomeScreenProps {
   onGetStarted: () => void;
@@ -100,11 +100,11 @@ export const WelcomeScreen = React.memo<WelcomeScreenProps>(
           <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
             {/* Logo/Brand Section */}
             <div className="fade-in-scale mb-8 inline-block">
-              <div className="floating relative">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg">
-                  <Sparkles className="text-primary-foreground h-8 w-8" />
-                </div>
-              </div>
+              <AzuneLogo
+                size={72}
+                variant="auto"
+                animated={true}
+              />
             </div>
 
             {/* Main Heading */}

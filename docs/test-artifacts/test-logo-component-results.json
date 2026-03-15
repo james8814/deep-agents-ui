@@ -1,0 +1,126 @@
+{
+  "timestamp": "2026-03-15T08:39:35.651Z",
+  "passRate": 100,
+  "passCount": 22,
+  "failCount": 0,
+  "results": [
+    {
+      "name": "--cyan CSS 变量 (HSL 199 89% 48%)",
+      "status": "✅ PASS",
+      "detail": "199 89% 48%"
+    },
+    {
+      "name": "--cyan-d CSS 变量 (HSL 188 94% 43%)",
+      "status": "✅ PASS",
+      "detail": "188 94% 43%"
+    },
+    {
+      "name": "--color-cyan (#38BDF8)",
+      "status": "✅ PASS",
+      "detail": "#38bdf8"
+    },
+    {
+      "name": "--logo-gradient 定义",
+      "status": "✅ PASS",
+      "detail": "linear-gradient(135deg,#38bdf8,#7c6bf0,#"
+    },
+    {
+      "name": "AzuneLogo 组件存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "使用 CSS 变量实现主题适配",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "支持 size 属性",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "支持 variant 属性",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "支持 animated 属性",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "SVG 结构正确 (A letter + ring + dot)",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Sidebar 导入 AzuneLogo",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Sidebar 使用 AzuneLogo 组件",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "Sidebar Logo 按钮使用 cyan 渐变",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "WelcomeScreen 导入 AzuneLogo",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "WelcomeScreen 使用 AzuneLogo 组件",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "WelcomeScreen Logo 启用动画",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "WelcomeScreen Logo 尺寸为 72px",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "logoFloat keyframes 定义存在",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "logoFloat 包含 translateY 动画",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "36px Logo SVG 渲染",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "72px Logo SVG 渲染",
+      "status": "✅ PASS",
+      "detail": ""
+    },
+    {
+      "name": "72px Logo 启用 logoFloat 动画",
+      "status": "✅ PASS",
+      "detail": ""
+    }
+  ],
+  "integrationStatus": {
+    "cssVariables": true,
+    "azuneLogoComponent": true,
+    "sidebarIntegration": true,
+    "welcomeScreenIntegration": true,
+    "pageIntegration": false,
+    "note": "Sidebar 和 WelcomeScreen 组件已修改但未集成到主页面"
+  }
+}

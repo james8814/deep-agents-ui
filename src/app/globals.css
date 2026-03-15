@@ -61,6 +61,15 @@
       rgba(139, 92, 246, 0.15)
     );
 
+    /* Cyan Colors - v5.26 设计原稿 (Logo 渐变必需) */
+    --cyan: 199 89% 48%;                   /* #38BDF8 - v5.26 --cyan */
+    --cyan-d: 188 94% 43%;                 /* #0EA5E9 - v5.26 --cyan-d */
+    --color-cyan: #38BDF8;                 /* HEX format for convenience */
+    --color-cyan-dark: #0EA5E9;            /* HEX format for convenience */
+
+    /* Logo Gradient - v5.26 设计原稿 */
+    --logo-gradient: linear-gradient(135deg, var(--color-cyan), var(--color-primary), var(--color-primary-active));
+
     /* Primary Colors (Light Mode) - Aligned to Azune v5.26 */
     --color-primary: #6558D3;              /* --brand (v5.26 原稿 light mode) */
     --color-primary-hover: #7C6BF0;        /* --brand-l (v5.26 原稿) */
@@ -603,6 +612,20 @@ button {
 
 /* Optimization Window animations */
 /* fadeIn keyframes defined in animation-utilities.css (removed duplicate) */
+
+/* Logo Float Animation - v5.26 设计原稿 */
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Reduced motion support for logo animation */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
 
 @keyframes slideIn {
   from {

@@ -9,11 +9,10 @@ import {
   LogOut,
   User,
   HelpCircle,
-  Menu,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { AzuneLogo } from "@/components/AzuneLogo";
 
 interface NavItem {
   id: string;
@@ -124,16 +123,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={onToggle}
           className={cn(
-            "flex items-center justify-center gap-2 rounded-md px-3 py-2",
-            "bg-gradient-to-br from-cyan-400 to-purple-600 text-lg font-bold text-white",
+            "flex items-center justify-center gap-2 rounded-md px-2 py-2",
             "transition-all duration-200 hover:scale-105 hover:shadow-lg",
             "min-h-10 min-w-10 flex-shrink-0"
           )}
+          style={{
+            background: "linear-gradient(135deg, var(--color-cyan), var(--color-primary), var(--color-primary-active))"
+          }}
           aria-label="Toggle sidebar"
           title="Toggle sidebar expansion"
         >
-          {expanded ? <X size={20} /> : <Menu size={20} />}
-          {expanded && <span className="text-sm font-semibold">Azune</span>}
+          <AzuneLogo size={36} variant="auto" showText={expanded} />
+          {expanded && (
+            <span className="text-sm font-bold text-white">PMAgent</span>
+          )}
         </button>
 
         {/* Navigation */}
