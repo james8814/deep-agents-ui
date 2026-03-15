@@ -42,7 +42,8 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
   const width = height * (viewBoxWidth / viewBoxHeight);
 
   // Colors based on variant
-  const getStrokeColor = () => {
+  // Design spec: letters are white, only ring and dot are accent color
+  const getLetterColor = () => {
     switch (variant) {
       case "light":
         return "#FFFFFF";
@@ -50,7 +51,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
         return "#1A1A2A";
       case "gradient":
       default:
-        return "url(#wordmarkGradient)";
+        return "#FFFFFF"; // Letters should be white, not gradient
     }
   };
 
@@ -78,7 +79,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
     }
   };
 
-  const strokeColor = getStrokeColor();
+  const letterColor = getLetterColor();
   const ringColor = getRingColor();
   const dotColor = getDotColor();
 
@@ -93,13 +94,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
       aria-label={ariaLabel}
     >
       <defs>
-        {variant === "gradient" && (
-          <linearGradient id="wordmarkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#38BDF8" />
-            <stop offset="50%" stopColor="#7C6BF0" />
-            <stop offset="100%" stopColor="#5B4BC7" />
-          </linearGradient>
-        )}
+        {/* No gradient needed - letters are white, only ring/dot are accent */}
       </defs>
 
       <g>
@@ -111,7 +106,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
             y1="55"
             x2="0"
             y2="-55"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
@@ -121,7 +116,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
             y1="55"
             x2="0"
             y2="-55"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
@@ -145,7 +140,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
           <path
             d="M-26 -55 L26 -55 L-26 55 L26 55"
             fill="none"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -158,7 +153,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
           <path
             d="M-26 -55 L-26 28 Q-26 55 0 55 Q26 55 26 28 L26 -55"
             fill="none"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
@@ -170,7 +165,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
           <path
             d="M-26 -55 L-26 55 L26 -55 L26 55"
             fill="none"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -183,7 +178,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
           <path
             d="M18 -55 L-22 -55 L-22 55 L18 55"
             fill="none"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -194,7 +189,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
             y1="0"
             x2="14"
             y2="0"
-            stroke={strokeColor}
+            stroke={letterColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
