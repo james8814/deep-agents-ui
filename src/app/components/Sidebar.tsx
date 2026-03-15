@@ -133,10 +133,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           aria-label="Toggle sidebar"
           title="Toggle sidebar expansion"
         >
-          <AzuneLogo size={36} variant="auto" showText={expanded} />
-          {expanded && (
-            <span className="text-sm font-bold text-white">AZUNE</span>
-          )}
+          <span className="text-lg font-bold tracking-tight text-white">
+            AZUNE
+          </span>
         </button>
 
         {/* Navigation */}

@@ -117,8 +117,9 @@ function HomePageInner({
         <header className="flex h-16 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <AzuneLogo size={36} variant="auto" />
-              <h1 className="text-xl font-semibold">AZUNE</h1>
+              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">
+                AZUNE
+              </span>
             </div>
             {!sidebar && (
               <Button
