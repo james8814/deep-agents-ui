@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { format } from "date-fns";
-import { Loader2, MessageSquare, Pencil, Trash2, X } from "lucide-react";
+import { Loader2, MessageSquare, Pencil, Search, Trash2, X } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -129,6 +129,7 @@ export function ThreadList({
   const client = useClient();
   const [currentThreadId, setCurrentThreadId] = useQueryState("threadId");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -140,6 +141,17 @@ export function ThreadList({
   const flattened = useMemo(() => {
     return threads.data?.flat() ?? [];
   }, [threads.data]);
+
+  // Filter threads by search query
+  const searchFiltered = useMemo(() => {
+    if (!searchQuery.trim()) return flattened;
+    const q = searchQuery.toLowerCase();
+    return flattened.filter(
+      (thread) =>
+        thread.title.toLowerCase().includes(q) ||
+        thread.description.toLowerCase().includes(q)
+    );
+  }, [flattened, searchQuery]);
 
   const isLoadingMore =
     threads.size > 0 && threads.data?.[threads.size - 1] == null;
@@ -157,7 +169,7 @@ export function ThreadList({
       older: [],
     };
 
-    flattened.forEach((thread) => {
+    searchFiltered.forEach((thread) => {
       if (thread.status === "interrupted") {
         groups.interrupted.push(thread);
         return;
@@ -178,11 +190,11 @@ export function ThreadList({
     });
 
     return groups;
-  }, [flattened]);
+  }, [searchFiltered]);
 
   const interruptedCount = useMemo(() => {
-    return flattened.filter((t) => t.status === "interrupted").length;
-  }, [flattened]);
+    return searchFiltered.filter((t) => t.status === "interrupted").length;
+  }, [searchFiltered]);
 
   // Expose thread list revalidation to parent component
   // Use refs to create a stable callback that always calls the latest mutate function
@@ -238,64 +250,83 @@ export function ThreadList({
   return (
     <div className="absolute inset-0 flex flex-col">
       {/* Header with title, filter, and close button */}
-      <div className="grid flex-shrink-0 grid-cols-[1fr_auto] items-center gap-3 border-b border-border p-4">
-        <h2 className="text-lg font-semibold tracking-tight">Threads</h2>
-        <div className="flex items-center gap-2">
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
-          >
-            <SelectTrigger className="w-fit" aria-label="Filter threads by status">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectSeparator />
-              <SelectGroup>
-                <SelectLabel>Active</SelectLabel>
-                <SelectItem value="idle">
-                  <StatusFilterItem
-                    status="idle"
-                    label="Idle"
-                  />
-                </SelectItem>
-                <SelectItem value="busy">
-                  <StatusFilterItem
-                    status="busy"
-                    label="Busy"
-                  />
-                </SelectItem>
-              </SelectGroup>
-              <SelectSeparator />
-              <SelectGroup>
-                <SelectLabel>Attention</SelectLabel>
-                <SelectItem value="interrupted">
-                  <StatusFilterItem
-                    status="interrupted"
-                    label="Interrupted"
-                    badge={interruptedCount}
-                  />
-                </SelectItem>
-                <SelectItem value="error">
-                  <StatusFilterItem
-                    status="error"
-                    label="Error"
-                  />
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8"
-              aria-label="Close threads sidebar"
+      <div className="flex-shrink-0 border-b border-border">
+        {/* Title row */}
+        <div className="grid grid-cols-[1fr_auto] items-center gap-3 p-4">
+          <h2 className="text-lg font-semibold tracking-tight">Threads</h2>
+          <div className="flex items-center gap-2">
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+              <SelectTrigger className="w-fit" aria-label="Filter threads by status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent align="end">
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectLabel>Active</SelectLabel>
+                  <SelectItem value="idle">
+                    <StatusFilterItem
+                      status="idle"
+                      label="Idle"
+                    />
+                  </SelectItem>
+                  <SelectItem value="busy">
+                    <StatusFilterItem
+                      status="busy"
+                      label="Busy"
+                    />
+                  </SelectItem>
+                </SelectGroup>
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectLabel>Attention</SelectLabel>
+                  <SelectItem value="interrupted">
+                    <StatusFilterItem
+                      status="interrupted"
+                      label="Interrupted"
+                      badge={interruptedCount}
+                    />
+                  </SelectItem>
+                  <SelectItem value="error">
+                    <StatusFilterItem
+                      status="error"
+                      label="Error"
+                    />
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="h-8 w-8"
+                aria-label="Close threads sidebar"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+        {/* Search row */}
+        <div className="px-4 pb-3">
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search threads..."
+              className="w-full rounded-md border border-border bg-background py-1.5 pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
         </div>
       </div>
 

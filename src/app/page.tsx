@@ -24,6 +24,7 @@ import { ContextPanel } from "@/app/components/ContextPanel";
 import { cn } from "@/lib/utils";
 import { SettingsModal } from "@/app/components/SettingsModal";
 import { useThemeSettings } from "@/providers/ThemeProvider";
+import { useKeyboardShortcuts } from "@/app/hooks/useKeyboardShortcuts";
 
 interface HomePageInnerProps {
   config: StandaloneConfig;
@@ -100,6 +101,19 @@ function HomePageInner({
   useEffect(() => {
     fetchAssistant();
   }, [fetchAssistant]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onNewThread: () => setThreadId(null),
+    onFocusInput: () => {
+      const textarea = document.querySelector("textarea[name='message']") as HTMLTextAreaElement | null;
+      textarea?.focus();
+    },
+    onToggleContext: () => setContextPanel(contextPanel ? null : "1"),
+    onStopGeneration: () => {
+      // Close dialogs or stop generation (handled by ChatInterface)
+    },
+  });
 
   return (
     <>
