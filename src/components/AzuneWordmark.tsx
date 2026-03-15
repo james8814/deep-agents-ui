@@ -6,12 +6,16 @@ import { cn } from "@/lib/utils";
 /**
  * AzuneWordmark Component
  *
- * AZUNE brand wordmark with icon + letterforms.
- * Based on brand spec:
- * - Icon: A letter with precision ring (stroke: 5.5px)
- * - Letters: Z-U-N-E drawn with strokes (stroke: 5.5px)
- * - Ring: r=8, stroke=2px
- * - Dot: r=2.2
+ * AZUNE brand wordmark matching design spec exactly.
+ * Based on: docs/brand/_archive/azune_wordmark_v1.svg
+ *
+ * Design Spec:
+ * - viewBox: 800 x 400
+ * - Center: (400, 200)
+ * - Icon (A) + Z-U-N-E letters
+ * - stroke-width: 5.5px
+ * - stroke-linecap: round
+ * - stroke-linejoin: round
  */
 
 export interface AzuneWordmarkProps {
@@ -31,42 +35,56 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
   className,
   ariaLabel = "AZUNE",
 }) {
-  // Fixed dimensions based on brand spec
-  // Base viewBox: 500 x 110 (enough space for icon + Z-U-N-E letters)
-  const viewBoxWidth = 500;
-  const viewBoxHeight = 110;
+  // The actual letter height in design is 110px (from y=-55 to y=55)
+  // ViewBox should be tighter around the actual content: x from -180 to 380, y from -60 to 60
+  const viewBoxWidth = 560; // 380 - (-180)
+  const viewBoxHeight = 120; // 60 - (-60)
   const width = height * (viewBoxWidth / viewBoxHeight);
 
   // Colors based on variant
-  const getColors = () => {
+  const getStrokeColor = () => {
     switch (variant) {
       case "light":
-        return {
-          stroke: "#FFFFFF",
-          ring: "#8B5CF6",
-          dot: "#8B5CF6",
-        };
+        return "#FFFFFF";
       case "dark":
-        return {
-          stroke: "#1A1A2A",
-          ring: "#6D28D9",
-          dot: "#6D28D9",
-        };
+        return "#1A1A2A";
       case "gradient":
       default:
-        return {
-          stroke: "url(#wordmarkGradient)",
-          ring: "#38BDF8",
-          dot: "#38BDF8",
-        };
+        return "url(#wordmarkGradient)";
     }
   };
 
-  const colors = getColors();
+  const getRingColor = () => {
+    switch (variant) {
+      case "light":
+        return "#8B5CF6";
+      case "dark":
+        return "#6D28D9";
+      case "gradient":
+      default:
+        return "#8B5CF6";
+    }
+  };
+
+  const getDotColor = () => {
+    switch (variant) {
+      case "light":
+        return "#8B5CF6";
+      case "dark":
+        return "#6D28D9";
+      case "gradient":
+      default:
+        return "#8B5CF6";
+    }
+  };
+
+  const strokeColor = getStrokeColor();
+  const ringColor = getRingColor();
+  const dotColor = getDotColor();
 
   return (
     <svg
-      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+      viewBox="-180 -60 560 120"
       width={width}
       height={height}
       xmlns="http://www.w3.org/2000/svg"
@@ -84,16 +102,16 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
         )}
       </defs>
 
-      <g transform="translate(60, 55)">
-        {/* Icon: A with precision ring */}
-        <g transform="translate(0, 0)">
+      <g>
+        {/* Icon (A) - Ring at y=-3 (geometric center of A) */}
+        <g transform="translate(-126, 0)">
           {/* A legs */}
           <line
             x1="-34"
             y1="55"
             x2="0"
             y2="-55"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
@@ -103,7 +121,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
             y1="55"
             x2="0"
             y2="-55"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
@@ -114,20 +132,20 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
             cy="3"
             r="8"
             fill="none"
-            stroke={colors.ring}
+            stroke={ringColor}
             strokeWidth="2"
             opacity="0.9"
           />
           {/* Bullseye dot */}
-          <circle cx="0" cy="3" r="2.2" fill={colors.dot} opacity="0.9" />
+          <circle cx="0" cy="3" r="2.2" fill={dotColor} opacity="0.9" />
         </g>
 
-        {/* Letter: Z */}
-        <g transform="translate(90, 0)">
+        {/* Z */}
+        <g transform="translate(-52, 0)">
           <path
             d="M-26 -55 L26 -55 L-26 55 L26 55"
             fill="none"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -135,24 +153,24 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
           />
         </g>
 
-        {/* Letter: U */}
-        <g transform="translate(170, 0)">
+        {/* U */}
+        <g transform="translate(14, 0)">
           <path
             d="M-26 -55 L-26 28 Q-26 55 0 55 Q26 55 26 28 L26 -55"
             fill="none"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
           />
         </g>
 
-        {/* Letter: N */}
-        <g transform="translate(250, 0)">
+        {/* N */}
+        <g transform="translate(80, 0)">
           <path
             d="M-26 -55 L-26 55 L26 -55 L26 55"
             fill="none"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -160,12 +178,12 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
           />
         </g>
 
-        {/* Letter: E */}
-        <g transform="translate(330, 0)">
+        {/* E */}
+        <g transform="translate(140, 0)">
           <path
             d="M18 -55 L-22 -55 L-22 55 L18 55"
             fill="none"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -176,7 +194,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(function AzuneWordma
             y1="0"
             x2="14"
             y2="0"
-            stroke={colors.stroke}
+            stroke={strokeColor}
             strokeWidth="5.5"
             strokeLinecap="round"
             opacity="0.95"
