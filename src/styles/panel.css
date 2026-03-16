@@ -7,9 +7,26 @@
  * - 状态过渡动画
  * - 进度条渐变
  * - 回到最新按钮
+ * - 动画时长 CSS 变量
+ * - prefers-reduced-motion 支持
  *
  * 参考文档: v5.27_IMPLEMENTATION_PLAN_v3_FINAL.md
  */
+
+/* ================================================================
+ * 动画时长 CSS 变量
+ * ================================================================ */
+
+:root {
+  /* 快速动画 (筛选器切换、下拉展开、状态变化) */
+  --dur-fast: 150ms;
+
+  /* 普通动画 (Step Group 展开、进度条) */
+  --dur-normal: 250ms;
+
+  /* 缓动函数 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 /* ================================================================
  * STEP GROUP 高亮样式
@@ -352,4 +369,40 @@
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* ================================================================
+ * PREFERS-REDUCED-MOTION 支持
+ * ================================================================ */
+
+/**
+ * 当用户偏好减少动画时，禁用所有动画和过渡
+ * 符合 WCAG 2.1 AA 级可访问性标准
+ */
+@media (prefers-reduced-motion: reduce) {
+  .step-group--highlighted,
+  .step-group,
+  .step-group__content,
+  .step-group__chevron,
+  .status-text,
+  .progress-bar,
+  .scroll-to-latest-btn,
+  .task-filter-dropdown__panel,
+  .task-filter-dropdown__option,
+  .task-filter-tag,
+  .chat-mode-empty-state {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* 禁用高亮脉冲动画 */
+  .step-group--highlighted::before {
+    animation: none;
+  }
+
+  /* 禁用回到最新按钮的脉冲 */
+  .scroll-to-latest-btn.has-new {
+    animation: none;
+  }
 }
