@@ -260,7 +260,10 @@ export const ContextPanel = React.memo<ContextPanelProps>(
         >
           <div className="animate-[fadeIn_150ms_ease-out]">
             {activeTab === "tasks" && (
-              <WorkPanelV527 subagentLogs={subagent_logs ?? {}} />
+              <WorkPanelV527
+                subagentLogs={subagent_logs ?? {}}
+                isVisible={activeTab === "tasks"}
+              />
             )}
             {activeTab === "files" && !viewingFile && (
               <FilesTab

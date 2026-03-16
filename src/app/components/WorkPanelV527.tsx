@@ -35,10 +35,12 @@ interface WorkPanelV527Props {
   onClose?: () => void;
   /** 子代理日志 */
   subagentLogs?: Record<string, LogEntry[]>;
+  /** 面板是否可见 (用于自动滚动重置) */
+  isVisible?: boolean;
 }
 
 export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
-  ({ onClose: _onClose, subagentLogs = {} }) => {
+  ({ onClose: _onClose, subagentLogs = {}, isVisible = true }) => {
     const { todos, isLoading, subagents } = useChatContext();
 
     // 模式检测
@@ -70,6 +72,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
     } = useAutoScrollControl({
       bottomThreshold: 50,
       behavior: "smooth",
+      isVisible,
     });
 
     // 滚动到高亮

@@ -10,10 +10,9 @@ import { useState, useCallback, useRef, useEffect } from "react";
  * - 用户向上滚动时停止自动滚动
  * - 显示"回到最新"按钮 + 新日志计数
  * - 点击按钮或手动滚动到底部恢复自动滚动
+ * - 面板展开时重置为自动滚动
  *
  * 竞品对标: Slack, Discord, WhatsApp, GitHub Actions
- *
- * @returns { containerRef, autoScrollEnabled, newLogsCount, handleScroll, onNewLog, scrollToLatest }
  */
 
 interface UseAutoScrollControlOptions {
@@ -23,6 +22,8 @@ interface UseAutoScrollControlOptions {
   behavior?: ScrollBehavior;
   /** 新日志数量变化回调 */
   onNewLogsCountChange?: (count: number) => void;
+  /** 面板可见性 (用于在面板展开时重置滚动) */
+  isVisible?: boolean;
 }
 
 interface UseAutoScrollControlReturn {
@@ -45,7 +46,12 @@ interface UseAutoScrollControlReturn {
 export function useAutoScrollControl(
   options: UseAutoScrollControlOptions = {}
 ): UseAutoScrollControlReturn {
-  const { bottomThreshold = 50, behavior = "smooth", onNewLogsCountChange } = options;
+  const {
+    bottomThreshold = 50,
+    behavior = "smooth",
+    onNewLogsCountChange,
+    isVisible = true,
+  } = options;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
@@ -53,6 +59,9 @@ export function useAutoScrollControl(
 
   // 节流滚动处理
   const scrollTimeoutRef = useRef<number | null>(null);
+
+  // 上一次可见性状态
+  const prevIsVisibleRef = useRef(isVisible);
 
   /**
    * 检查是否在底部
@@ -131,6 +140,25 @@ export function useAutoScrollControl(
     setNewLogsCount(0);
     onNewLogsCountChange?.(0);
   }, [scrollToBottom, onNewLogsCountChange]);
+
+  /**
+   * 面板可见性变化时重置滚动状态
+   * 设计规格: 面板收起再展开时，重置为自动滚动
+   */
+  useEffect(() => {
+    // 从不可见变为可见时，重置滚动状态
+    if (isVisible && !prevIsVisibleRef.current) {
+      setAutoScrollEnabled(true);
+      setNewLogsCount(0);
+      onNewLogsCountChange?.(0);
+
+      // 延迟滚动到底部，等待 DOM 更新
+      setTimeout(() => {
+        scrollToBottom();
+      }, 50);
+    }
+    prevIsVisibleRef.current = isVisible;
+  }, [isVisible, scrollToBottom, onNewLogsCountChange]);
 
   // 清理节流定时器
   useEffect(() => {
