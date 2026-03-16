@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState, useCallback } from "react";
 import { ChevronDown, CheckCircle, Clock, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TodoItem } from "@/app/types/types";
@@ -93,44 +93,119 @@ function TaskFilterDropdown({
   selectedTaskId,
   onSelect,
 }: TaskFilterDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
   const selectedTask = tasks.find((t) => t.id === selectedTaskId);
   const label = selectedTask ? selectedTask.content : "全部";
 
+  // 所有选项（包括"全部"）
+  const allOptions = [
+    { id: null, content: "全部", status: null },
+    ...tasks.map((t) => ({ id: t.id, content: t.content, status: t.status })),
+  ];
+
+  // 键盘导航
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setIsOpen(true);
+          setFocusedIndex((prev) => Math.min(prev + 1, allOptions.length - 1));
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setFocusedIndex((prev) => Math.max(prev - 1, 0));
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          if (isOpen && focusedIndex >= 0) {
+            onSelect(allOptions[focusedIndex].id);
+            setIsOpen(false);
+            buttonRef.current?.focus();
+          } else {
+            setIsOpen(true);
+          }
+          break;
+        case "Escape":
+          e.preventDefault();
+          setIsOpen(false);
+          buttonRef.current?.focus();
+          break;
+      }
+    },
+    [isOpen, focusedIndex, allOptions, onSelect]
+  );
+
+  // 选择选项
+  const handleSelect = useCallback(
+    (taskId: string | null) => {
+      onSelect(taskId);
+      setIsOpen(false);
+      buttonRef.current?.focus();
+    },
+    [onSelect]
+  );
+
   return (
-    <div className="relative group">
+    <div className="relative">
       <button
+        ref={buttonRef}
         className={cn(
           "flex items-center gap-1 px-2 py-1 rounded-[var(--r-sm)]",
           "text-xs font-medium transition-colors",
           "hover:bg-[var(--bg3)]",
+          "focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-opacity-50",
           selectedTaskId ? "text-[var(--t1)]" : "text-[var(--t3)]"
         )}
         aria-haspopup="listbox"
+        aria-expanded={isOpen}
         aria-label="筛选任务"
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleKeyDown}
+        onBlur={() => setTimeout(() => setIsOpen(false), 150)}
       >
         <span className="truncate max-w-[80px]">{label}</span>
-        <ChevronDown size={12} className="text-[var(--t4)]" />
+        <ChevronDown
+          size={12}
+          className={cn(
+            "text-[var(--t4)] transition-transform duration-150",
+            isOpen && "rotate-180"
+          )}
+        />
       </button>
 
-      {/* 下拉菜单 (hover 触发) */}
+      {/* 下拉菜单 */}
       <div
+        ref={listRef}
         className={cn(
           "absolute left-0 top-full mt-1 z-[var(--z-dropdown)]",
           "min-w-[140px] py-1",
           "bg-[var(--bg2)] border border-[var(--b1)] rounded-[var(--r-md)]",
           "shadow-[var(--shadow-lg)]",
-          "opacity-0 invisible transform -translate-y-1",
           "transition-all duration-150 ease-out",
-          "group-hover:opacity-100 group-hover:visible group-hover:translate-y-0"
+          isOpen
+            ? "opacity-100 visible translate-y-0"
+            : "opacity-0 invisible -translate-y-1"
         )}
         role="listbox"
+        aria-activedescendant={
+          focusedIndex >= 0 ? `option-${focusedIndex}` : undefined
+        }
       >
         {/* 全部选项 */}
         <button
-          onClick={() => onSelect(null)}
+          id="option-0"
+          onClick={() => handleSelect(null)}
           className={cn(
             "w-full px-3 py-1.5 text-left text-xs",
-            "hover:bg-[var(--bg3)] transition-colors",
+            "transition-colors",
+            focusedIndex === 0 && "bg-[var(--bg3)]",
+            "hover:bg-[var(--bg3)]",
             !selectedTaskId ? "text-[var(--brand)] font-medium" : "text-[var(--t2)]"
           )}
           role="option"
@@ -143,13 +218,16 @@ function TaskFilterDropdown({
         <div className="my-1 border-t border-[var(--b1)]" />
 
         {/* 任务列表 */}
-        {tasks.map((task) => (
+        {tasks.map((task, index) => (
           <button
             key={task.id}
-            onClick={() => onSelect(task.id)}
+            id={`option-${index + 1}`}
+            onClick={() => handleSelect(task.id)}
             className={cn(
               "w-full px-3 py-1.5 text-left text-xs",
-              "hover:bg-[var(--bg3)] transition-colors",
+              "transition-colors",
+              focusedIndex === index + 1 && "bg-[var(--bg3)]",
+              "hover:bg-[var(--bg3)]",
               "flex items-center gap-2",
               selectedTaskId === task.id
                 ? "text-[var(--brand)] font-medium"
