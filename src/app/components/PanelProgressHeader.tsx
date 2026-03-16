@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { ListTodo, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TodoItem } from "@/app/types/types";
@@ -52,16 +52,41 @@ export const PanelProgressHeader = React.memo<PanelProgressHeaderProps>(
       return Math.round((completed / todos.length) * 100);
     }, [todos]);
 
-    // 计算耗时
-    const elapsedTime = useMemo(() => {
-      if (!startTime) return null;
-      const seconds = Math.floor((Date.now() - startTime) / 1000);
-      if (seconds < 60) return `${seconds}s`;
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m`;
-      const hours = Math.floor(minutes / 60);
-      return `${hours}h ${minutes % 60}m`;
+    // 耗时实时更新 (每秒刷新)
+    const [elapsedTime, setElapsedTime] = useState<string | null>(null);
+
+    useEffect(() => {
+      if (!startTime) {
+        setElapsedTime(null);
+        return;
+      }
+
+      const updateElapsedTime = () => {
+        const seconds = Math.floor((Date.now() - startTime) / 1000);
+        if (seconds < 60) {
+          setElapsedTime(`${seconds}s`);
+        } else {
+          const minutes = Math.floor(seconds / 60);
+          if (minutes < 60) {
+            setElapsedTime(`${minutes}m`);
+          } else {
+            const hours = Math.floor(minutes / 60);
+            setElapsedTime(`${hours}h ${minutes % 60}m`);
+          }
+        }
+      };
+
+      // 立即更新一次
+      updateElapsedTime();
+
+      // 每秒更新
+      const interval = setInterval(updateElapsedTime, 1000);
+
+      return () => clearInterval(interval);
     }, [startTime]);
+
+    // 判断是否全部完成
+    const allCompleted = todos.length > 0 && todos.every(t => t.status === 'completed');
 
     // 无任务时不显示
     if (!currentTask) return null;
@@ -93,9 +118,14 @@ export const PanelProgressHeader = React.memo<PanelProgressHeaderProps>(
         {/* 进度条 */}
         <div className="flex-1 max-w-[120px] h-[3px] bg-[var(--bg3)] rounded-[2px] overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[var(--brand)] to-[var(--cyan)] rounded-[2px] transition-all duration-250 ease-out"
+            className={cn(
+              "h-full rounded-[2px] transition-all duration-250 ease-out",
+              allCompleted
+                ? "bg-gradient-to-r from-[var(--ok)] to-[#4ade80]"
+                : "bg-gradient-to-r from-[var(--brand)] to-[var(--cyan)]"
+            )}
             style={{ width: `${progress}%` }}
-            data-status={todos.every(t => t.status === 'completed') ? 'completed' : undefined}
+            data-status={allCompleted ? 'completed' : undefined}
           />
         </div>
 

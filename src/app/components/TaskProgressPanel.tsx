@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { ChevronDown, CheckCircle, Clock, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TodoItem } from "@/app/types/types";

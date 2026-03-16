@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { ChevronDown, CheckCircle, Clock, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LogEntry } from "@/app/types/subagent";

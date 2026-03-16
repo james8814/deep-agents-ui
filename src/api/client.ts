@@ -31,8 +31,9 @@ export class HttpError extends Error {
 
 /**
  * 从 localStorage 获取 Bearer Token
+ * 注：当前未使用，保留供未来 Token 验证功能
  */
-function getStoredToken(): string | null {
+function _getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(TOKEN_KEY);
 }
