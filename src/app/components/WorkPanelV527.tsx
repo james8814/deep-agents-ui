@@ -39,7 +39,7 @@ interface WorkPanelV527Props {
 
 export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
   ({ onClose: _onClose, subagentLogs = {} }) => {
-    const { todos, isLoading } = useChatContext();
+    const { todos, isLoading, subagents } = useChatContext();
 
     // 模式检测
     const { mode } = usePanelMode(todos);
@@ -79,14 +79,47 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
         offset: -20,
       });
 
-    // 按任务 ID 分组日志 (简化版 - 实际需要更复杂的映射逻辑)
+    // 按任务 ID 分组日志
+    // 说明：subagent_logs 的 key 是 tool_call_id，每个 tool_call 对应一个 SubAgent 执行
+    // 由于后端未提供 task_id → tool_call_id 的映射关系，我们采用简化策略：
+    // 1. 如果有 subagents 状态，尝试通过 subagent 的 taskToolCallId 建立映射
+    // 2. 否则将所有日志合并，按时间顺序显示
     const logsByTaskId = useMemo(() => {
       const result: Record<string, LogEntry[]> = {};
-      // TODO: 实现真实的 task_id -> log 映射
-      // 目前 subagent_logs 使用 tool_call_id 作为 key
-      // 需要通过 current_task_id 或其他方式建立映射
+
+      // 方案 1: 尝试通过 subagents 状态建立映射
+      // subagents 结构：{ [subagentId]: { id, name, taskToolCallId?, logs? } }
+      if (subagents && Object.keys(subagents).length > 0) {
+        // 遍历 subagents，尝试提取日志
+        Object.values(subagents).forEach((subagent: any) => {
+          const toolCallId = subagent.id || subagent.toolCallId;
+          if (toolCallId && subagentLogs[toolCallId]) {
+            // 如果 subagent 有 taskToolCallId，尝试建立与 todo 的关联
+            const taskToolCallId = subagent.taskToolCallId;
+            if (taskToolCallId) {
+              result[taskToolCallId] = [
+                ...(result[taskToolCallId] || []),
+                ...subagentLogs[toolCallId],
+              ];
+            } else {
+              // 否则使用 subagent id 作为 key
+              result[toolCallId] = subagentLogs[toolCallId];
+            }
+          }
+        });
+      }
+
+      // 方案 2: 如果 subagents 为空，直接使用 subagent_logs 的所有日志
+      // 按 tool_call_id 分组，每个 tool_call_id 对应一个 SubAgent 执行
+      if (Object.keys(result).length === 0 && subagentLogs) {
+        // 将日志按 tool_call_id 分组
+        Object.entries(subagentLogs).forEach(([toolCallId, logs]) => {
+          result[toolCallId] = logs;
+        });
+      }
+
       return result;
-    }, [subagentLogs]);
+    }, [subagentLogs, subagents]);
 
     // 处理任务选择
     const handleSelectTask = useCallback(

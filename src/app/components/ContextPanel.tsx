@@ -8,11 +8,8 @@ import React, {
   useEffect,
 } from "react";
 import {
-  CheckCircle,
-  Circle,
-  Clock,
-  FileText,
   ListTodo,
+  FileText,
   PanelRightClose,
   RefreshCw,
   ArrowLeft,
@@ -30,12 +27,13 @@ import { useChatContext } from "@/providers/ChatProvider";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import SubAgentPanel from "@/app/components/SubAgentPanel";
+import { WorkPanelV527 } from "@/app/components/WorkPanelV527";
 import type {
-  TodoItem,
   FileItem,
   FileMetadata,
   FileSortBy,
 } from "@/app/types/types";
+import type { LogEntry } from "@/app/types/subagent";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useQueryState } from "nuqs";
@@ -50,7 +48,7 @@ interface ContextPanelProps {
 
 export const ContextPanel = React.memo<ContextPanelProps>(
   ({ onClose, initialTab }) => {
-    const { todos, files, setFiles, isLoading, interrupt, subagents } =
+    const { todos, files, setFiles, isLoading, interrupt, subagents, subagent_logs } =
       useChatContext();
     const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tasks");
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
@@ -142,15 +140,6 @@ export const ContextPanel = React.memo<ContextPanelProps>(
     const hasTasks = todos.length > 0;
     const fileCount = Object.keys(files).length;
     const hasFiles = fileCount > 0;
-
-    const groupedTodos = useMemo(
-      () => ({
-        in_progress: todos.filter((t) => t.status === "in_progress"),
-        pending: todos.filter((t) => t.status === "pending"),
-        completed: todos.filter((t) => t.status === "completed"),
-      }),
-      [todos]
-    );
 
     const handleSaveFile = useCallback(
       async (fileName: string, content: string) => {
@@ -271,10 +260,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(
         >
           <div className="animate-[fadeIn_150ms_ease-out]">
             {activeTab === "tasks" && (
-              <TasksTab
-                groupedTodos={groupedTodos}
-                hasTasks={hasTasks}
-              />
+              <WorkPanelV527 subagentLogs={subagent_logs ?? {}} />
             )}
             {activeTab === "files" && !viewingFile && (
               <FilesTab
@@ -323,93 +309,6 @@ export const ContextPanel = React.memo<ContextPanelProps>(
 ContextPanel.displayName = "ContextPanel";
 
 // --- Sub-components ---
-
-function getStatusIcon(status: TodoItem["status"]) {
-  switch (status) {
-    case "completed":
-      return (
-        <CheckCircle
-          size={14}
-          className="text-success/80"
-        />
-      );
-    case "in_progress":
-      return (
-        <Clock
-          size={14}
-          className="text-warning/80 animate-pulse"
-        />
-      );
-    default:
-      return (
-        <Circle
-          size={14}
-          className="text-tertiary/70"
-        />
-      );
-  }
-}
-
-const GROUP_LABELS: Record<string, string> = {
-  in_progress: "In Progress",
-  pending: "Pending",
-  completed: "Completed",
-};
-
-function TasksTab({
-  groupedTodos,
-  hasTasks,
-}: {
-  groupedTodos: Record<string, TodoItem[]>;
-  hasTasks: boolean;
-}) {
-  if (!hasTasks) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <ListTodo
-          size={24}
-          className="mb-2 text-muted-foreground/50"
-        />
-        <p className="text-xs text-muted-foreground">No tasks yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Tasks will appear here as the agent works
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-3">
-      {Object.entries(groupedTodos)
-        .filter(([, items]) => items.length > 0)
-        .map(([status, items]) => (
-          <div
-            key={status}
-            className="mb-4 last:mb-0"
-          >
-            <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {GROUP_LABELS[status] || status}
-            </h3>
-            <div className="space-y-1.5">
-              {items.map((todo, index) => (
-                <div
-                  key={`${status}_${todo.id}_${index}`}
-                  className="flex items-start gap-2 rounded-md px-2 py-1.5 text-sm"
-                >
-                  <div className="mt-0.5 flex-shrink-0">
-                    {getStatusIcon(todo.status)}
-                  </div>
-                  <span className="flex-1 break-words leading-relaxed">
-                    {todo.content}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-    </div>
-  );
-}
 
 function FilesTab({
   onFileSelect,
