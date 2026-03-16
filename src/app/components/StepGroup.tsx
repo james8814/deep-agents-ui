@@ -5,6 +5,7 @@ import { ChevronDown, CheckCircle, Clock, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LogEntry } from "@/app/types/subagent";
 import type { TodoItem } from "@/app/types/types";
+import { useRelativeTime } from "@/app/hooks/useRelativeTime";
 
 /**
  * StepGroup - v5.27 工作日志按任务分组组件
@@ -32,6 +33,8 @@ interface StepGroupProps {
   status: StepGroupStatus;
   /** 日志条目列表 */
   logs: LogEntry[];
+  /** 任务开始时间 (用于显示相对时间) */
+  startTime?: number | Date | null;
   /** 是否折叠 */
   collapsed?: boolean;
   /** 是否高亮 */
@@ -67,6 +70,7 @@ export const StepGroup = React.memo<StepGroupProps>(
     taskContent,
     status,
     logs,
+    startTime,
     collapsed = false,
     highlighted = false,
     onToggleCollapse,
@@ -75,10 +79,8 @@ export const StepGroup = React.memo<StepGroupProps>(
     const config = STATUS_CONFIG[status];
     const logCount = logs.length;
 
-    // 相对时间显示 (简化版)
-    const relativeTime = useMemo(() => {
-      return "刚刚"; // TODO: 实现真正的相对时间
-    }, []);
+    // 相对时间显示
+    const relativeTime = useRelativeTime(startTime ?? null);
 
     return (
       <div
