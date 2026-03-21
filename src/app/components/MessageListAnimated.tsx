@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * MessageListAnimated 组件
@@ -13,10 +13,14 @@
  * 每条消息可以使用 ChatMessageAnimated 或普通 ChatMessage。
  */
 
-import React, { useEffect, useRef, useCallback } from 'react';
-import { useAnimationOrchestra, type AnimationScene, type AnimationStep } from '@/app/hooks/useAnimationOrchestra';
-import { Message } from '@langchain/langgraph-sdk';
-import type { ToolCall } from '@/app/types/types';
+import React, { useEffect, useRef, useCallback } from "react";
+import {
+  useAnimationOrchestra,
+  type AnimationScene,
+  type AnimationStep,
+} from "@/app/hooks/useAnimationOrchestra";
+import { Message } from "@langchain/langgraph-sdk";
+import type { ToolCall } from "@/app/types/types";
 
 /**
  * MessageListAnimated Props
@@ -63,7 +67,11 @@ interface MessageListAnimatedProps {
    * 渲染单条消息的函数
    * 用户需要提供此函数来自定义消息渲染
    */
-  renderMessage: (message: Message, index: number, isAnimating: boolean) => React.ReactNode;
+  renderMessage: (
+    message: Message,
+    index: number,
+    isAnimating: boolean
+  ) => React.ReactNode;
 
   /**
    * 级联动画完成的回调
@@ -78,7 +86,7 @@ interface MessageListAnimatedProps {
   /**
    * 消息列表属性（用于 CSS 选择器）
    */
-  'data-message-list'?: string;
+  "data-message-list"?: string;
 }
 
 /**
@@ -98,30 +106,38 @@ function createCascadeAnimationScene(
     duration: messageDuration,
     onStart: () => {
       // 应用初始样式
-      element.style.opacity = '0';
-      element.style.transform = 'translateY(16px)';
+      element.style.opacity = "0";
+      element.style.transform = "translateY(16px)";
       element.style.transition = `opacity ${messageDuration}ms var(--ease-out), transform ${messageDuration}ms var(--ease-out)`;
     },
     onEnd: () => {
       // 移除过渡，保持最终状态
-      element.style.opacity = '1';
-      element.style.transform = 'translateY(0)';
-      element.style.transition = 'none';
+      element.style.opacity = "1";
+      element.style.transform = "translateY(0)";
+      element.style.transition = "none";
     },
   }));
 
   return {
-    name: 'MessageListCascade',
+    name: "MessageListCascade",
     concurrent: true, // 并发模式：所有消息同时开始，各自有延迟
     steps,
     onSceneStart: () => {
-      if (typeof window !== 'undefined' && (window as any).__ANIMATION_DEBUG__) {
-        console.log(`[Animation] Cascade animation started for ${messageElements.length} messages`);
+      if (
+        typeof window !== "undefined" &&
+        (window as any).__ANIMATION_DEBUG__
+      ) {
+        console.log(
+          `[Animation] Cascade animation started for ${messageElements.length} messages`
+        );
       }
     },
     onSceneEnd: () => {
-      if (typeof window !== 'undefined' && (window as any).__ANIMATION_DEBUG__) {
-        console.log('[Animation] Cascade animation completed');
+      if (
+        typeof window !== "undefined" &&
+        (window as any).__ANIMATION_DEBUG__
+      ) {
+        console.log("[Animation] Cascade animation completed");
       }
       onComplete?.();
     },
@@ -156,7 +172,7 @@ export const MessageListAnimated = React.forwardRef<
       messageAnimationDuration = 300,
       renderMessage,
       onCascadeAnimationComplete,
-      className = '',
+      className = "",
       ...containerProps
     },
     forwardedRef
@@ -167,34 +183,39 @@ export const MessageListAnimated = React.forwardRef<
     const mergedRef = useCallback(
       (node: HTMLDivElement | null) => {
         containerRef.current = node;
-        if (typeof forwardedRef === 'function') {
+        if (typeof forwardedRef === "function") {
           forwardedRef(node);
         } else if (forwardedRef) {
-          (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          (
+            forwardedRef as React.MutableRefObject<HTMLDivElement | null>
+          ).current = node;
         }
       },
       [forwardedRef]
     );
     const messageRefsRef = useRef<Map<string, HTMLElement>>(new Map());
     const hasAnimatedRef = useRef(false);
-    const [animatingMessages, setAnimatingMessages] = React.useState<Set<string>>(
-      new Set()
-    );
+    const [animatingMessages, setAnimatingMessages] = React.useState<
+      Set<string>
+    >(new Set());
 
     // 收集消息元素引用
-    const setMessageRef = useCallback((messageId: string | undefined, element: HTMLElement | null) => {
-      if (!messageId) return;
-      if (element) {
-        messageRefsRef.current.set(messageId, element);
-      } else {
-        messageRefsRef.current.delete(messageId);
-      }
-    }, []);
+    const setMessageRef = useCallback(
+      (messageId: string | undefined, element: HTMLElement | null) => {
+        if (!messageId) return;
+        if (element) {
+          messageRefsRef.current.set(messageId, element);
+        } else {
+          messageRefsRef.current.delete(messageId);
+        }
+      },
+      []
+    );
 
     // 创建级联动画
     const animationScene = React.useMemo(() => {
       const elements = messages
-        .map((msg) => msg.id ? messageRefsRef.current.get(msg.id) : undefined)
+        .map((msg) => (msg.id ? messageRefsRef.current.get(msg.id) : undefined))
         .filter((el): el is HTMLElement => el !== undefined);
 
       return createCascadeAnimationScene(
@@ -203,7 +224,12 @@ export const MessageListAnimated = React.forwardRef<
         messageAnimationDuration,
         onCascadeAnimationComplete
       );
-    }, [messages, cascadeDelay, messageAnimationDuration, onCascadeAnimationComplete]);
+    }, [
+      messages,
+      cascadeDelay,
+      messageAnimationDuration,
+      onCascadeAnimationComplete,
+    ]);
 
     const { play, getTotalDuration } = useAnimationOrchestra(animationScene);
 
@@ -225,7 +251,13 @@ export const MessageListAnimated = React.forwardRef<
         if (allElementsMounted) {
           hasAnimatedRef.current = true;
           // 标记正在动画的消息
-          setAnimatingMessages(new Set(messages.map((m) => m.id).filter((id): id is string => id !== undefined)));
+          setAnimatingMessages(
+            new Set(
+              messages
+                .map((m) => m.id)
+                .filter((id): id is string => id !== undefined)
+            )
+          );
           play();
 
           // ✅ FIX: 保存嵌套 timeout 引用，防止卸载后内存泄漏
@@ -261,7 +293,10 @@ export const MessageListAnimated = React.forwardRef<
               style={{
                 // 初始状态（用于动画）
                 opacity: enableCascadeAnimation && isAnimating ? 0 : 1,
-                transform: enableCascadeAnimation && isAnimating ? 'translateY(16px)' : 'translateY(0)',
+                transform:
+                  enableCascadeAnimation && isAnimating
+                    ? "translateY(16px)"
+                    : "translateY(0)",
               }}
             >
               {renderMessage(message, index, isAnimating)}
@@ -273,7 +308,7 @@ export const MessageListAnimated = React.forwardRef<
   }
 );
 
-MessageListAnimated.displayName = 'MessageListAnimated';
+MessageListAnimated.displayName = "MessageListAnimated";
 
 /**
  * 使用示例

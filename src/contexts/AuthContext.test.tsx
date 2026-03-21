@@ -4,7 +4,6 @@
  */
 
 import { render, screen, waitFor, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { AuthProvider, useAuth, isTokenExpired } from "@/contexts/AuthContext";
 import * as authApi from "@/api/auth";
 import { HttpError } from "@/api/client";

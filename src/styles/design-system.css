@@ -18,34 +18,34 @@
 
 :root {
   /* Background Colors (Dark) */
-  --bg: #0A0A12;
-  --bg1: #0E0E1A;
-  --bg2: #12121F;
-  --bg3: #1A1A2E;
+  --bg: #0a0a12;
+  --bg1: #0e0e1a;
+  --bg2: #12121f;
+  --bg3: #1a1a2e;
 
   /* Text Colors (Dark) */
-  --t1: #F5F5F7;
-  --t2: #D4D4D8;
-  --t3: #71717A;
-  --t4: #52525B;
+  --t1: #f5f5f7;
+  --t2: #d4d4d8;
+  --t3: #71717a;
+  --t4: #52525b;
 
   /* Border Colors (Dark) */
-  --b1: #27272A;
-  --b2: #3F3F46;
+  --b1: #27272a;
+  --b2: #3f3f46;
 
   /* Brand Colors */
-  --brand: #7C6BF0;
-  --brand-l: #9D8DF7;
-  --brand-d: #5B4BC7;
+  --brand: #7c6bf0;
+  --brand-l: #9d8df7;
+  --brand-d: #5b4bc7;
 
   /* Status Colors */
-  --ok: #22C55E;
-  --ok-d: #16A34A;
-  --err: #EF4444;
-  --err-d: #DC2626;
-  --warn: #F59E0B;
-  --warn-d: #D97706;
-  --cyan: #38BDF8;
+  --ok: #22c55e;
+  --ok-d: #16a34a;
+  --err: #ef4444;
+  --err-d: #dc2626;
+  --warn: #f59e0b;
+  --warn-d: #d97706;
+  --cyan: #38bdf8;
 
   /* Background Status Colors (Dark) */
   --bg-err: rgba(239, 68, 68, 0.1);
@@ -140,34 +140,34 @@
 @media (prefers-color-scheme: light) {
   :root {
     /* Background Colors (Light) */
-    --bg: #FFFFFF;
-    --bg1: #F9F9FB;
-    --bg2: #F3F3F6;
-    --bg3: #ECECF1;
+    --bg: #ffffff;
+    --bg1: #f9f9fb;
+    --bg2: #f3f3f6;
+    --bg3: #ececf1;
 
     /* Text Colors (Light) */
-    --t1: #0A0A12;
-    --t2: #3F3F46;
-    --t3: #A1A1AA;
-    --t4: #D4D4D8;
+    --t1: #0a0a12;
+    --t2: #3f3f46;
+    --t3: #a1a1aa;
+    --t4: #d4d4d8;
 
     /* Border Colors (Light) */
-    --b1: #E4E4E7;
-    --b2: #D4D4D8;
+    --b1: #e4e4e7;
+    --b2: #d4d4d8;
 
     /* Brand Colors (same) */
-    --brand: #7C6BF0;
-    --brand-l: #9D8DF7;
-    --brand-d: #5B4BC7;
+    --brand: #7c6bf0;
+    --brand-l: #9d8df7;
+    --brand-d: #5b4bc7;
 
     /* Status Colors (same) */
-    --ok: #22C55E;
-    --ok-d: #16A34A;
-    --err: #EF4444;
-    --err-d: #DC2626;
-    --warn: #F59E0B;
-    --warn-d: #D97706;
-    --cyan: #38BDF8;
+    --ok: #22c55e;
+    --ok-d: #16a34a;
+    --err: #ef4444;
+    --err-d: #dc2626;
+    --warn: #f59e0b;
+    --warn-d: #d97706;
+    --cyan: #38bdf8;
 
     /* Background Status Colors (Light) */
     --bg-err: rgba(239, 68, 68, 0.08);
@@ -188,16 +188,16 @@
 
 :root.dark {
   /* Dark theme variables (same as default) */
-  --bg: #0A0A12;
-  --bg1: #0E0E1A;
-  --bg2: #12121F;
-  --bg3: #1A1A2E;
-  --t1: #F5F5F7;
-  --t2: #D4D4D8;
-  --t3: #71717A;
-  --t4: #52525B;
-  --b1: #27272A;
-  --b2: #3F3F46;
+  --bg: #0a0a12;
+  --bg1: #0e0e1a;
+  --bg2: #12121f;
+  --bg3: #1a1a2e;
+  --t1: #f5f5f7;
+  --t2: #d4d4d8;
+  --t3: #71717a;
+  --t4: #52525b;
+  --b1: #27272a;
+  --b2: #3f3f46;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
@@ -206,16 +206,16 @@
 
 :root.light {
   /* Light theme variables */
-  --bg: #FFFFFF;
-  --bg1: #F9F9FB;
-  --bg2: #F3F3F6;
-  --bg3: #ECECF1;
-  --t1: #0A0A12;
-  --t2: #3F3F46;
-  --t3: #A1A1AA;
-  --t4: #D4D4D8;
-  --b1: #E4E4E7;
-  --b2: #D4D4D8;
+  --bg: #ffffff;
+  --bg1: #f9f9fb;
+  --bg2: #f3f3f6;
+  --bg3: #ececf1;
+  --t1: #0a0a12;
+  --t2: #3f3f46;
+  --t3: #a1a1aa;
+  --t4: #d4d4d8;
+  --b1: #e4e4e7;
+  --b2: #d4d4d8;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);

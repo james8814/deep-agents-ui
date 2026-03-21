@@ -128,12 +128,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             "min-h-10 min-w-10 flex-shrink-0"
           )}
           style={{
-            background: "linear-gradient(135deg, var(--color-cyan), var(--color-primary), var(--color-primary-active))"
+            background:
+              "linear-gradient(135deg, var(--color-cyan), var(--color-primary), var(--color-primary-active))",
           }}
           aria-label="Toggle sidebar"
           title="Toggle sidebar expansion"
         >
-          <AzuneWordmark height={32} variant="light" />
+          <AzuneWordmark
+            height={32}
+            variant="light"
+          />
         </button>
 
         {/* Navigation */}

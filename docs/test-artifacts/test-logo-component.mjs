@@ -27,7 +27,7 @@ function report(name, pass, detail = "") {
 
   const browser = await chromium.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   // ========================================================================
@@ -38,14 +38,17 @@ function report(name, pass, detail = "") {
   const context = await browser.newContext({
     viewport: { width: 1400, height: 900 },
     colorScheme: "dark",
-    locale: "zh-CN"
+    locale: "zh-CN",
   });
 
   await context.addInitScript(() => {
-    localStorage.setItem("deep-agent-config-v2", JSON.stringify({
-      deploymentUrl: "http://localhost:2024",
-      assistantId: "pmagent"
-    }));
+    localStorage.setItem(
+      "deep-agent-config-v2",
+      JSON.stringify({
+        deploymentUrl: "http://localhost:2024",
+        assistantId: "pmagent",
+      })
+    );
   });
 
   const page = await context.newPage();
@@ -67,20 +70,32 @@ function report(name, pass, detail = "") {
 
     // 验证 --cyan (HSL 值)
     const hasCyan = cssVars.cyan && cssVars.cyan.includes("199");
-    report("--cyan CSS 变量 (HSL 199 89% 48%)", hasCyan, cssVars.cyan?.slice(0, 20));
+    report(
+      "--cyan CSS 变量 (HSL 199 89% 48%)",
+      hasCyan,
+      cssVars.cyan?.slice(0, 20)
+    );
 
     // 验证 --cyan-d
     const hasCyanD = cssVars.cyanD && cssVars.cyanD.includes("188");
-    report("--cyan-d CSS 变量 (HSL 188 94% 43%)", hasCyanD, cssVars.cyanD?.slice(0, 20));
+    report(
+      "--cyan-d CSS 变量 (HSL 188 94% 43%)",
+      hasCyanD,
+      cssVars.cyanD?.slice(0, 20)
+    );
 
     // 验证 --color-cyan (允许大小写差异)
     const hasColorCyan = cssVars.colorCyan?.toLowerCase() === "#38bdf8";
     report("--color-cyan (#38BDF8)", hasColorCyan, cssVars.colorCyan);
 
     // 验证 --logo-gradient
-    const hasLogoGradient = cssVars.logoGradient && cssVars.logoGradient.includes("gradient");
-    report("--logo-gradient 定义", hasLogoGradient, cssVars.logoGradient?.slice(0, 40));
-
+    const hasLogoGradient =
+      cssVars.logoGradient && cssVars.logoGradient.includes("gradient");
+    report(
+      "--logo-gradient 定义",
+      hasLogoGradient,
+      cssVars.logoGradient?.slice(0, 40)
+    );
   } catch (err) {
     report("CSS 变量测试异常", false, err.message);
   }
@@ -101,15 +116,21 @@ function report(name, pass, detail = "") {
     report("AzuneLogo 组件存在", hasComponent);
 
     // 验证 CSS 变量使用
-    const usesCssVars = logoCode.includes("var(--color-cyan") && logoCode.includes("var(--color-primary");
+    const usesCssVars =
+      logoCode.includes("var(--color-cyan") &&
+      logoCode.includes("var(--color-primary");
     report("使用 CSS 变量实现主题适配", usesCssVars);
 
     // 验证 size props
-    const hasSizeProps = logoCode.includes("size?:") && logoCode.includes("36") && logoCode.includes("72");
+    const hasSizeProps =
+      logoCode.includes("size?:") &&
+      logoCode.includes("36") &&
+      logoCode.includes("72");
     report("支持 size 属性", hasSizeProps);
 
     // 验证 variant props
-    const hasVariantProps = logoCode.includes("variant?:") && logoCode.includes("auto");
+    const hasVariantProps =
+      logoCode.includes("variant?:") && logoCode.includes("auto");
     report("支持 variant 属性", hasVariantProps);
 
     // 验证 animated prop
@@ -117,9 +138,9 @@ function report(name, pass, detail = "") {
     report("支持 animated 属性", hasAnimatedProp);
 
     // 验证 SVG 结构
-    const hasSvgStructure = logoCode.includes("<circle") && logoCode.includes("<line");
+    const hasSvgStructure =
+      logoCode.includes("<circle") && logoCode.includes("<line");
     report("SVG 结构正确 (A letter + ring + dot)", hasSvgStructure);
-
   } catch (err) {
     report("AzuneLogo 组件验证异常", false, err.message);
   }
@@ -130,11 +151,16 @@ function report(name, pass, detail = "") {
   console.log("\n▶ 测试组 3: Sidebar 组件 Logo 集成验证");
 
   try {
-    const sidebarPath = path.join(process.cwd(), "src/app/components/Sidebar.tsx");
+    const sidebarPath = path.join(
+      process.cwd(),
+      "src/app/components/Sidebar.tsx"
+    );
     const sidebarCode = fs.readFileSync(sidebarPath, "utf-8");
 
     // 验证 AzuneLogo 导入
-    const hasImport = sidebarCode.includes('import { AzuneLogo }') || sidebarCode.includes('from "@/components/AzuneLogo"');
+    const hasImport =
+      sidebarCode.includes("import { AzuneLogo }") ||
+      sidebarCode.includes('from "@/components/AzuneLogo"');
     report("Sidebar 导入 AzuneLogo", hasImport);
 
     // 验证 AzuneLogo 使用
@@ -143,10 +169,11 @@ function report(name, pass, detail = "") {
 
     // 验证渐变背景 (支持 className 和 inline style 两种方式)
     const hasGradientClass = sidebarCode.includes("from-[var(--color-cyan)]");
-    const hasGradientStyle = sidebarCode.includes("linear-gradient(135deg, var(--color-cyan)");
+    const hasGradientStyle = sidebarCode.includes(
+      "linear-gradient(135deg, var(--color-cyan)"
+    );
     const hasGradient = hasGradientClass || hasGradientStyle;
     report("Sidebar Logo 按钮使用 cyan 渐变", hasGradient);
-
   } catch (err) {
     report("Sidebar 组件验证异常", false, err.message);
   }
@@ -157,11 +184,16 @@ function report(name, pass, detail = "") {
   console.log("\n▶ 测试组 4: WelcomeScreen 组件 Logo 集成验证");
 
   try {
-    const welcomePath = path.join(process.cwd(), "src/app/components/WelcomeScreen.tsx");
+    const welcomePath = path.join(
+      process.cwd(),
+      "src/app/components/WelcomeScreen.tsx"
+    );
     const welcomeCode = fs.readFileSync(welcomePath, "utf-8");
 
     // 验证 AzuneLogo 导入
-    const hasImport = welcomeCode.includes('import { AzuneLogo }') || welcomeCode.includes('from "@/components/AzuneLogo"');
+    const hasImport =
+      welcomeCode.includes("import { AzuneLogo }") ||
+      welcomeCode.includes('from "@/components/AzuneLogo"');
     report("WelcomeScreen 导入 AzuneLogo", hasImport);
 
     // 验证 AzuneLogo 使用
@@ -175,7 +207,6 @@ function report(name, pass, detail = "") {
     // 验证 size 属性
     const hasSize = welcomeCode.includes("size={72}");
     report("WelcomeScreen Logo 尺寸为 72px", hasSize);
-
   } catch (err) {
     report("WelcomeScreen 组件验证异常", false, err.message);
   }
@@ -194,9 +225,10 @@ function report(name, pass, detail = "") {
     report("logoFloat keyframes 定义存在", hasKeyframes);
 
     // 验证动画属性
-    const hasTranslateY = cssCode.includes("translateY(-4px)") || cssCode.includes("translateY(-20px)");
+    const hasTranslateY =
+      cssCode.includes("translateY(-4px)") ||
+      cssCode.includes("translateY(-20px)");
     report("logoFloat 包含 translateY 动画", hasTranslateY);
-
   } catch (err) {
     report("logoFloat 动画验证异常", false, err.message);
   }
@@ -274,25 +306,32 @@ function report(name, pass, detail = "") {
     await testPage.goto(`file://${testHtmlPath}`, { waitUntil: "networkidle" });
 
     // 验证 36px logo 渲染
-    const smallLogo = await testPage.locator('.test-item').first().innerHTML();
-    const hasSmallLogo = smallLogo.includes('svg') && smallLogo.includes('viewBox="0 0 36 36"');
+    const smallLogo = await testPage.locator(".test-item").first().innerHTML();
+    const hasSmallLogo =
+      smallLogo.includes("svg") && smallLogo.includes('viewBox="0 0 36 36"');
     report("36px Logo SVG 渲染", hasSmallLogo);
 
     // 验证 72px logo 渲染
-    const largeLogo = await testPage.locator('.test-item').nth(1).innerHTML();
-    const hasLargeLogo = largeLogo.includes('svg') && largeLogo.includes('viewBox="0 0 72 72"');
+    const largeLogo = await testPage.locator(".test-item").nth(1).innerHTML();
+    const hasLargeLogo =
+      largeLogo.includes("svg") && largeLogo.includes('viewBox="0 0 72 72"');
     report("72px Logo SVG 渲染", hasLargeLogo);
 
     // 验证动画
-    const hasAnimation = await testPage.locator('.test-item').nth(1).evaluate(el => {
-      return el.querySelector('div')?.style.animation?.includes('logoFloat') || false;
-    });
+    const hasAnimation = await testPage
+      .locator(".test-item")
+      .nth(1)
+      .evaluate((el) => {
+        return (
+          el.querySelector("div")?.style.animation?.includes("logoFloat") ||
+          false
+        );
+      });
     report("72px Logo 启用 logoFloat 动画", hasAnimation);
 
     // 截图
     await testPage.screenshot({ path: "test-logo-standalone.png" });
     console.log("\n📸 Logo 组件截图: test-logo-standalone.png");
-
   } catch (err) {
     report("组件独立渲染测试异常", false, err.message);
   }
@@ -304,17 +343,21 @@ function report(name, pass, detail = "") {
   // 结果汇总
   // ========================================================================
   console.log("\n" + "=".repeat(70));
-  console.log(` 测试结果: ${passCount} PASS / ${failCount} FAIL / ${passCount + failCount} TOTAL`);
+  console.log(
+    ` 测试结果: ${passCount} PASS / ${failCount} FAIL / ${
+      passCount + failCount
+    } TOTAL`
+  );
   console.log("=".repeat(70));
 
   if (failCount > 0) {
     console.log("\n❌ 失败项:");
-    for (const r of results.filter(r => r.status.includes("FAIL"))) {
+    for (const r of results.filter((r) => r.status.includes("FAIL"))) {
       console.log(`  ${r.name}: ${r.detail}`);
     }
   }
 
-  const passRate = Math.round(passCount / (passCount + failCount) * 100);
+  const passRate = Math.round((passCount / (passCount + failCount)) * 100);
   console.log(`\n📈 通过率: ${passRate}%`);
 
   if (passRate >= 95) {
@@ -343,21 +386,28 @@ function report(name, pass, detail = "") {
   建议: 如需在主页面显示 Logo，需要将 Sidebar 或 header 集成到 page.tsx
   `);
 
-  fs.writeFileSync("test-logo-component-results.json", JSON.stringify({
-    timestamp: new Date().toISOString(),
-    passRate,
-    passCount,
-    failCount,
-    results,
-    integrationStatus: {
-      cssVariables: true,
-      azuneLogoComponent: true,
-      sidebarIntegration: true,
-      welcomeScreenIntegration: true,
-      pageIntegration: false,
-      note: "Sidebar 和 WelcomeScreen 组件已修改但未集成到主页面"
-    }
-  }, null, 2));
+  fs.writeFileSync(
+    "test-logo-component-results.json",
+    JSON.stringify(
+      {
+        timestamp: new Date().toISOString(),
+        passRate,
+        passCount,
+        failCount,
+        results,
+        integrationStatus: {
+          cssVariables: true,
+          azuneLogoComponent: true,
+          sidebarIntegration: true,
+          welcomeScreenIntegration: true,
+          pageIntegration: false,
+          note: "Sidebar 和 WelcomeScreen 组件已修改但未集成到主页面",
+        },
+      },
+      null,
+      2
+    )
+  );
 
   process.exit(failCount > 0 ? 1 : 0);
 })();

@@ -62,7 +62,7 @@ describe("useChat - Error Handling", () => {
         .mockImplementation(() => {});
 
       // Create a hook instance to access handleStreamError
-      const { result } = renderHook(() =>
+      renderHook(() =>
         useChat({
           activeAssistant: null,
           onHistoryRevalidate: mockOnHistoryRevalidate,

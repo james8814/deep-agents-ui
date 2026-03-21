@@ -86,23 +86,27 @@ export const PanelProgressHeader = React.memo<PanelProgressHeaderProps>(
     }, [startTime]);
 
     // 判断是否全部完成
-    const allCompleted = todos.length > 0 && todos.every(t => t.status === 'completed');
+    const allCompleted =
+      todos.length > 0 && todos.every((t) => t.status === "completed");
 
     // 无任务时不显示
     if (!currentTask) return null;
 
     return (
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--b1)]">
+      <div className="flex items-center gap-3 border-b border-[var(--b1)] px-4 py-3">
         {/* 左侧: 任务图标 + 名称 */}
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <ListTodo size={16} className="text-[var(--brand)] flex-shrink-0" />
-          <span className="text-sm font-semibold text-[var(--t1)] truncate">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <ListTodo
+            size={16}
+            className="flex-shrink-0 text-[var(--brand)]"
+          />
+          <span className="truncate text-sm font-semibold text-[var(--t1)]">
             {currentTask.content}
           </span>
         </div>
 
         {/* 分隔符 */}
-        <span className="text-[var(--t4)] text-xs">·</span>
+        <span className="text-xs text-[var(--t4)]">·</span>
 
         {/* 状态 (带过渡动画) */}
         <span
@@ -116,22 +120,22 @@ export const PanelProgressHeader = React.memo<PanelProgressHeaderProps>(
         </span>
 
         {/* 进度条 */}
-        <div className="flex-1 max-w-[120px] h-[3px] bg-[var(--bg3)] rounded-[2px] overflow-hidden">
+        <div className="h-[3px] max-w-[120px] flex-1 overflow-hidden rounded-[2px] bg-[var(--bg3)]">
           <div
             className={cn(
-              "h-full rounded-[2px] transition-all duration-250 ease-out",
+              "duration-250 h-full rounded-[2px] transition-all ease-out",
               allCompleted
                 ? "bg-gradient-to-r from-[var(--ok)] to-[#4ade80]"
                 : "bg-gradient-to-r from-[var(--brand)] to-[var(--cyan)]"
             )}
             style={{ width: `${progress}%` }}
-            data-status={allCompleted ? 'completed' : undefined}
+            data-status={allCompleted ? "completed" : undefined}
           />
         </div>
 
         {/* 耗时 */}
         {elapsedTime && (
-          <span className="text-xs text-[var(--t3)] tabular-nums">
+          <span className="text-xs tabular-nums text-[var(--t3)]">
             {elapsedTime}
           </span>
         )}
@@ -140,13 +144,19 @@ export const PanelProgressHeader = React.memo<PanelProgressHeaderProps>(
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className="p-2 rounded-[var(--r-sm)] hover:bg-[var(--bg3)] transition-colors"
+            className="rounded-[var(--r-sm)] p-2 transition-colors hover:bg-[var(--bg3)]"
             aria-label={collapsed ? "展开面板" : "收起面板"}
           >
             {collapsed ? (
-              <ChevronDown size={16} className="text-[var(--t3)]" />
+              <ChevronDown
+                size={16}
+                className="text-[var(--t3)]"
+              />
             ) : (
-              <ChevronUp size={16} className="text-[var(--t3)]" />
+              <ChevronUp
+                size={16}
+                className="text-[var(--t3)]"
+              />
             )}
           </button>
         )}

@@ -51,15 +51,30 @@ const STATUS_CONFIG: Record<
   { icon: React.ReactNode; label: string }
 > = {
   completed: {
-    icon: <CheckCircle size={14} className="text-[var(--ok)]" />,
+    icon: (
+      <CheckCircle
+        size={14}
+        className="text-[var(--ok)]"
+      />
+    ),
     label: "已完成",
   },
   in_progress: {
-    icon: <Clock size={14} className="text-[var(--brand)] animate-pulse" />,
+    icon: (
+      <Clock
+        size={14}
+        className="animate-pulse text-[var(--brand)]"
+      />
+    ),
     label: "进行中",
   },
   pending: {
-    icon: <Circle size={14} className="text-[var(--t4)]" />,
+    icon: (
+      <Circle
+        size={14}
+        className="text-[var(--t4)]"
+      />
+    ),
     label: "待处理",
   },
 };
@@ -95,9 +110,9 @@ export const StepGroup = React.memo<StepGroupProps>(
         <button
           onClick={onToggleCollapse}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5",
+            "flex w-full items-center gap-3 px-3 py-2.5",
             "rounded-[var(--r-md)]",
-            "hover:bg-[var(--bg3)] transition-colors duration-150 ease-out",
+            "transition-colors duration-150 ease-out hover:bg-[var(--bg3)]",
             "focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-opacity-50"
           )}
           aria-expanded={!collapsed}
@@ -107,7 +122,7 @@ export const StepGroup = React.memo<StepGroupProps>(
           <ChevronDown
             size={14}
             className={cn(
-              "text-[var(--t4)] transition-transform duration-200 ease-out step-group__chevron",
+              "step-group__chevron text-[var(--t4)] transition-transform duration-200 ease-out",
               collapsed && "step-group--collapsed"
             )}
           />
@@ -116,7 +131,7 @@ export const StepGroup = React.memo<StepGroupProps>(
           {config.icon}
 
           {/* 任务名称 */}
-          <span className="flex-1 text-left text-sm font-medium text-[var(--t1)] truncate">
+          <span className="flex-1 truncate text-left text-sm font-medium text-[var(--t1)]">
             {taskContent}
           </span>
 
@@ -139,7 +154,7 @@ export const StepGroup = React.memo<StepGroupProps>(
           <div className="step-group__content-inner">
             {/* 日志列表 */}
             {logCount > 0 && (
-              <div className="px-3 pb-3 space-y-2">
+              <div className="space-y-2 px-3 pb-3">
                 {logs.map((log, index) => (
                   <LogEntryRow
                     key={`${log.tool_call_id || index}`}
@@ -179,28 +194,31 @@ const LogEntryRow = React.memo<LogEntryRowProps>(({ log, index }) => {
   return (
     <div className="flex items-start gap-2 py-1.5 text-xs">
       {/* 序号 */}
-      <span className="text-[var(--t4)] w-5 text-right flex-shrink-0">
+      <span className="w-5 flex-shrink-0 text-right text-[var(--t4)]">
         {index + 1}.
       </span>
 
       {/* 工具名称 */}
-      <span className="text-[var(--brand)] font-medium flex-shrink-0">
+      <span className="flex-shrink-0 font-medium text-[var(--brand)]">
         {toolName}
       </span>
 
       {/* 简短参数预览 */}
       {isToolCall && log.tool_input && (
-        <span className="text-[var(--t3)] truncate flex-1">
+        <span className="flex-1 truncate text-[var(--t3)]">
           {truncateToolInput(log.tool_input)}
         </span>
       )}
 
       {/* 状态图标 */}
       {log.status === "success" && (
-        <CheckCircle size={12} className="text-[var(--ok)] flex-shrink-0" />
+        <CheckCircle
+          size={12}
+          className="flex-shrink-0 text-[var(--ok)]"
+        />
       )}
       {log.status === "error" && (
-        <span className="text-[var(--err)] flex-shrink-0">✕</span>
+        <span className="flex-shrink-0 text-[var(--err)]">✕</span>
       )}
     </div>
   );

@@ -22,7 +22,6 @@ import { cn } from "@/lib/utils";
 import { useThemeSettings } from "@/providers/ThemeProvider";
 import type {
   SettingsModalProps,
-  Theme,
   ThemePreference,
   KeyboardShortcut,
 } from "./settingsTypes";
@@ -202,7 +201,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
           <Dialog.Content
             className={cn(
               "fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%]",
-              "border-border rounded-lg border",
+              "rounded-lg border border-border",
               "bg-popover shadow-xl",
               "duration-300 animate-in fade-in slide-in-from-bottom-4",
               "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:slide-out-to-bottom-4",
@@ -210,12 +209,12 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
             )}
           >
             {/* Header */}
-            <div className="border-border flex items-center justify-between border-b px-6 py-4">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div>
-                <Dialog.Title className="text-foreground text-lg font-semibold">
+                <Dialog.Title className="text-lg font-semibold text-foreground">
                   Settings
                 </Dialog.Title>
-                <Dialog.Description className="text-muted-foreground text-sm">
+                <Dialog.Description className="text-sm text-muted-foreground">
                   Customize your experience
                 </Dialog.Description>
               </div>
@@ -227,7 +226,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                     "inline-flex items-center justify-center rounded-md p-1",
                     "text-muted-foreground transition-colors",
                     "hover:bg-muted hover:text-foreground",
-                    "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                     "dark:focus-visible:ring-offset-background"
                   )}
                   aria-label="Close settings"
@@ -238,7 +237,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
             </div>
 
             {/* Tabs */}
-            <div className="border-border border-b">
+            <div className="border-b border-border">
               <div className="flex">
                 {(
                   ["appearance", "notifications", "shortcuts", "about"] as const
@@ -251,7 +250,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                       "border-b-2 capitalize",
                       state.activeTab === tab
                         ? "border-primary text-primary"
-                        : "text-muted-foreground hover:text-foreground border-transparent"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
                     )}
                     role="tab"
                     aria-selected={state.activeTab === tab}
@@ -279,7 +278,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                       currentPreference={settings.themePreference}
                       onPreferenceChange={handleThemePreferenceChange}
                     />
-                    <p className="text-muted-foreground mt-2 text-xs">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       Current: {settings.theme === "dark" ? "Dark" : "Light"}
                       {settings.themePreference === "system" && " (auto)"}
                     </p>
@@ -364,11 +363,11 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                         value={shortcutSearch}
                         onChange={(e) => setShortcutSearch(e.target.value)}
                         className={cn(
-                          "border-border w-full rounded-md border",
+                          "w-full rounded-md border border-border",
                           "bg-muted px-3 py-2 text-sm",
                           "text-foreground placeholder-muted-foreground",
                           "transition-colors",
-                          "focus:border-primary focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                          "focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                           "dark:focus-visible:ring-offset-background"
                         )}
                         aria-label="Search keyboard shortcuts"
@@ -385,7 +384,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                             />
                           ))
                         ) : (
-                          <p className="text-muted-foreground py-8 text-center text-sm">
+                          <p className="py-8 text-center text-sm text-muted-foreground">
                             No shortcuts found
                           </p>
                         )}
@@ -406,29 +405,29 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                     description="Application information and credits"
                   >
                     <div className="space-y-4">
-                      <div className="bg-muted rounded-md p-4">
+                      <div className="rounded-md bg-muted p-4">
                         <dl className="space-y-3 text-sm">
                           <div className="flex justify-between">
                             <dt className="text-muted-foreground">Version</dt>
-                            <dd className="text-foreground font-medium">
+                            <dd className="font-medium text-foreground">
                               {ABOUT_INFO.version}
                             </dd>
                           </div>
                           <div className="flex justify-between">
                             <dt className="text-muted-foreground">Build</dt>
-                            <dd className="text-foreground font-medium">
+                            <dd className="font-medium text-foreground">
                               {ABOUT_INFO.buildNumber}
                             </dd>
                           </div>
                           <div className="flex justify-between">
                             <dt className="text-muted-foreground">Released</dt>
-                            <dd className="text-foreground font-medium">
+                            <dd className="font-medium text-foreground">
                               {ABOUT_INFO.releaseDate.toLocaleDateString()}
                             </dd>
                           </div>
                           <div className="flex justify-between">
                             <dt className="text-muted-foreground">Copyright</dt>
-                            <dd className="text-foreground font-medium">
+                            <dd className="font-medium text-foreground">
                               {ABOUT_INFO.copyright}
                             </dd>
                           </div>
@@ -437,10 +436,10 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
 
                       <button
                         className={cn(
-                          "bg-primary w-full rounded-md px-4 py-2",
+                          "w-full rounded-md bg-primary px-4 py-2",
                           "text-sm font-medium text-white transition-colors",
                           "hover:bg-opacity-90",
-                          "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                           "dark:focus-visible:ring-offset-background",
                           "disabled:cursor-not-allowed disabled:opacity-50"
                         )}
@@ -460,7 +459,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
             {/* Footer */}
             <div
               className={cn(
-                "border-border border-t px-6 py-4",
+                "border-t border-border px-6 py-4",
                 "flex items-center justify-end gap-3"
               )}
             >
@@ -469,9 +468,9 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                 className={cn(
                   "inline-flex items-center justify-center rounded-md",
                   "px-4 py-2 text-sm font-medium",
-                  "text-foreground bg-muted",
-                  "hover:bg-secondary transition-colors",
-                  "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                  "bg-muted text-foreground",
+                  "transition-colors hover:bg-secondary",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                   "dark:focus-visible:ring-offset-background"
                 )}
               >
@@ -486,7 +485,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                   "px-4 py-2 text-sm font-medium",
                   "bg-primary text-white",
                   "transition-colors hover:bg-opacity-90",
-                  "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                   "dark:focus-visible:ring-offset-background",
                   "disabled:cursor-not-allowed disabled:opacity-50"
                 )}
@@ -519,9 +518,9 @@ const SettingsSection: FC<SettingsSectionProps> = ({
 }) => (
   <section className="space-y-4">
     <div>
-      <h3 className="text-foreground text-base font-semibold">{title}</h3>
+      <h3 className="text-base font-semibold text-foreground">{title}</h3>
       {description && (
-        <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       )}
     </div>
     {children}
@@ -558,14 +557,14 @@ const ToggleSetting: FC<ToggleSettingProps> = ({
       <label
         htmlFor={id}
         className={cn(
-          "text-foreground block text-sm font-medium",
+          "block text-sm font-medium text-foreground",
           disabled && "cursor-not-allowed"
         )}
       >
         {label}
       </label>
       {description && (
-        <p className="text-muted-foreground mt-1 text-xs">{description}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
       )}
     </div>
 
@@ -576,9 +575,9 @@ const ToggleSetting: FC<ToggleSettingProps> = ({
       onChange={(e) => onChange(e.target.checked)}
       disabled={disabled}
       className={cn(
-        "border-border mt-1 h-5 w-5 rounded",
-        "accent-primary cursor-pointer",
-        "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+        "mt-1 h-5 w-5 rounded border-border",
+        "cursor-pointer accent-primary",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         "dark:focus-visible:ring-offset-background",
         disabled && "cursor-not-allowed opacity-50"
       )}
@@ -618,18 +617,16 @@ const ThemePreferenceToggle: FC<ThemePreferenceToggleProps> = ({
           "flex flex-1 flex-col items-center gap-2 rounded-lg border-2 p-4",
           "transition-all duration-200",
           currentPreference === value
-            ? "border-primary bg-primary/10"
-            : "border-border hover:border-primary/50",
-          "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+            ? "bg-primary/10 border-primary"
+            : "hover:border-primary/50 border-border",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
           "dark:focus-visible:ring-offset-background"
         )}
         aria-label={`${label} theme`}
         aria-pressed={currentPreference === value}
       >
-        <Icon className="text-foreground h-6 w-6" />
-        <span className="text-foreground text-xs font-medium">
-          {label}
-        </span>
+        <Icon className="h-6 w-6 text-foreground" />
+        <span className="text-xs font-medium text-foreground">{label}</span>
       </button>
     ))}
   </div>
@@ -649,17 +646,17 @@ const ShortcutItem: FC<ShortcutItemProps> = ({
   isCopied,
   onCopy,
 }) => (
-  <div className="bg-muted flex items-center justify-between rounded-md p-3 text-sm">
+  <div className="flex items-center justify-between rounded-md bg-muted p-3 text-sm">
     <div className="flex-1">
-      <p className="text-foreground font-medium">{shortcut.action}</p>
-      <p className="text-muted-foreground text-xs">{shortcut.description}</p>
+      <p className="font-medium text-foreground">{shortcut.action}</p>
+      <p className="text-xs text-muted-foreground">{shortcut.description}</p>
     </div>
 
     <div className="flex items-center gap-2">
       <kbd
         className={cn(
-          "bg-secondary rounded px-2 py-1 font-mono text-xs",
-          "text-foreground border-border border"
+          "rounded bg-secondary px-2 py-1 font-mono text-xs",
+          "border border-border text-foreground"
         )}
       >
         {shortcut.keys.join(" + ")}
@@ -671,7 +668,7 @@ const ShortcutItem: FC<ShortcutItemProps> = ({
           "inline-flex items-center justify-center rounded-md p-2",
           "text-muted-foreground transition-colors",
           "hover:bg-secondary hover:text-foreground",
-          "focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
           "dark:focus-visible:ring-offset-background",
           isCopied && "text-green-600"
         )}

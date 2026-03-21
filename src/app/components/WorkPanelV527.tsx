@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatContext } from "@/providers/ChatProvider";
 import type { LogEntry } from "@/app/types/subagent";
@@ -41,10 +41,10 @@ interface WorkPanelV527Props {
 
 export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
   ({ onClose: _onClose, subagentLogs = {}, isVisible = true }) => {
-    const { todos, isLoading, subagents } = useChatContext();
+    const { todos, files = {}, isLoading, subagents } = useChatContext();
 
-    // 模式检测
-    const { mode } = usePanelMode(todos);
+    // 模式检测（设计基准 Section 2.2）
+    const { mode } = usePanelMode({ todos, files, subagentLogs });
 
     // 任务选择状态
     const {
@@ -61,6 +61,9 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
     const { isCollapsed, toggleCollapse } = useCollapseState({
       storageKeyPrefix: "work-panel-v527-",
     });
+
+    // 面板级别折叠状态 (用于 Progress Header 的收起/展开按钮)
+    const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
 
     // 自动滚动控制
     const {
@@ -168,7 +171,11 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
     return (
       <div className="flex h-full flex-col">
         {/* Progress Header */}
-        <PanelProgressHeader todos={todos} />
+        <PanelProgressHeader
+          todos={todos}
+          collapsed={isPanelCollapsed}
+          onToggleCollapse={() => setIsPanelCollapsed((prev) => !prev)}
+        />
 
         {/* Task Progress Panel (任务数 ≥ 2 时显示) */}
         <TaskProgressPanel
@@ -184,18 +191,42 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
           className="flex-1"
         >
           <div className="space-y-2 p-3">
-            {tasksWithIndex.map((task) => (
-              <StepGroup
-                key={task.id}
-                taskId={task.id}
-                taskContent={task.content}
-                status={task.status}
-                logs={logsByTaskId[task.id] || []}
-                collapsed={isCollapsed(task.id, task.status === "in_progress")}
-                highlighted={selectedTaskId === task.id}
-                onToggleCollapse={handleToggleCollapse(task.id)}
-              />
-            ))}
+            {(() => {
+              // 筛选器逻辑：根据选中的任务过滤显示
+              if (selectedTaskId === null) {
+                // 选中"全部"，显示所有任务
+                return tasksWithIndex.map((task) => (
+                  <StepGroup
+                    key={task.id}
+                    taskId={task.id}
+                    taskContent={task.content}
+                    status={task.status}
+                    logs={logsByTaskId[task.id] || []}
+                    collapsed={isCollapsed(task.id, task.status === "in_progress")}
+                    highlighted={false}
+                    onToggleCollapse={handleToggleCollapse(task.id)}
+                  />
+                ));
+              } else {
+                // 选中特定任务，只显示该任务
+                const task = tasksWithIndex.find((t) => t.id === selectedTaskId);
+                if (task) {
+                  return (
+                    <StepGroup
+                      key={task.id}
+                      taskId={task.id}
+                      taskContent={task.content}
+                      status={task.status}
+                      logs={logsByTaskId[task.id] || []}
+                      collapsed={isCollapsed(task.id, task.status === "in_progress")}
+                      highlighted
+                      onToggleCollapse={handleToggleCollapse(task.id)}
+                    />
+                  );
+                }
+                return null;
+              }
+            })()}
           </div>
         </ScrollArea>
 

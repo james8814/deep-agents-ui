@@ -106,7 +106,9 @@ function HomePageInner({
   useKeyboardShortcuts({
     onNewThread: () => setThreadId(null),
     onFocusInput: () => {
-      const textarea = document.querySelector("textarea[name='message']") as HTMLTextAreaElement | null;
+      const textarea = document.querySelector(
+        "textarea[name='message']"
+      ) as HTMLTextAreaElement | null;
       textarea?.focus();
     },
     onToggleContext: () => setContextPanel(contextPanel ? null : "1"),
@@ -131,7 +133,10 @@ function HomePageInner({
         <header className="flex h-16 items-center justify-between border-b border-border px-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <AzuneWordmark height={36} variant="auto" />
+              <AzuneWordmark
+                height={36}
+                variant="auto"
+              />
             </div>
             {!sidebar && (
               <Button
@@ -188,9 +193,13 @@ function HomePageInner({
                 updateSettings({ theme: next, themePreference: next });
                 await saveSettings().catch(console.error);
               }}
-              aria-label={`Switch to ${settings.theme === "dark" ? "light" : "dark"} mode`}
+              aria-label={`Switch to ${
+                settings.theme === "dark" ? "light" : "dark"
+              } mode`}
               aria-pressed={settings.theme === "dark"}
-              title={`Current: ${settings.theme === "dark" ? "Dark" : "Light"} mode`}
+              title={`Current: ${
+                settings.theme === "dark" ? "Dark" : "Light"
+              } mode`}
             >
               {settings.theme === "dark" ? (
                 <Sun className="h-4 w-4" />

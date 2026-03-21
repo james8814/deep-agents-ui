@@ -40,9 +40,9 @@
   position: relative;
   background: linear-gradient(
     90deg,
-    rgba(124, 107, 240, 0.08) 0%,   /* brand 8% */
-    rgba(124, 107, 240, 0.04) 50%,  /* brand 4% */
-    transparent 100%
+    rgba(124, 107, 240, 0.08) 0%,
+    /* brand 8% */ rgba(124, 107, 240, 0.04) 50%,
+    /* brand 4% */ transparent 100%
   );
   border-left: 3px solid var(--brand);
   border-radius: 0 var(--r-md) var(--r-md) 0;
@@ -53,7 +53,7 @@
  * 高亮左边框脉冲动画
  */
 .step-group--highlighted::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -64,8 +64,13 @@
 }
 
 @keyframes highlightPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /**
@@ -130,10 +135,18 @@
   transition: color 150ms ease-out;
 }
 
-.status-text[data-status="in_progress"] { color: var(--brand); }
-.status-text[data-status="completed"] { color: var(--ok); }
-.status-text[data-status="pending"] { color: var(--t4); }
-.status-text[data-status="error"] { color: var(--err); }
+.status-text[data-status="in_progress"] {
+  color: var(--brand);
+}
+.status-text[data-status="completed"] {
+  color: var(--ok);
+}
+.status-text[data-status="pending"] {
+  color: var(--t4);
+}
+.status-text[data-status="error"] {
+  color: var(--err);
+}
 
 /* ================================================================
  * 进度条渐变
@@ -232,7 +245,8 @@
 
 /* 脉冲动画 (重用 animation-utilities.css 的 keyframes) */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 4px 12px rgba(124, 107, 240, 0.3);
   }
   50% {
@@ -340,9 +354,15 @@
 /**
  * 任务状态图标
  */
-.task-status-icon--completed { color: var(--ok); }
-.task-status-icon--in_progress { color: var(--brand); }
-.task-status-icon--pending { color: var(--t4); }
+.task-status-icon--completed {
+  color: var(--ok);
+}
+.task-status-icon--in_progress {
+  color: var(--brand);
+}
+.task-status-icon--pending {
+  color: var(--t4);
+}
 
 /* ================================================================
  * 空状态样式

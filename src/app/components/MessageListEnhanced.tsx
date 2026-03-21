@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils";
 import { MarkdownContent } from "./MarkdownContent";
 import type { ToolCall } from "@/app/types/types";
 
-interface CodeBlockMeta {
+interface _CodeBlockMeta {
   language?: string;
   filename?: string;
 }
 
-interface MessageItemEnhancedProps {
+interface _MessageItemEnhancedProps {
   message: Message;
   toolCalls?: ToolCall[];
   isLoading?: boolean;

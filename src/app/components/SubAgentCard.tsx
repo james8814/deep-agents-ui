@@ -64,9 +64,15 @@ function LogEntryRow({
         )}
       >
         {success ? (
-          <CheckCircle size={11} className="flex-shrink-0 text-green-500" />
+          <CheckCircle
+            size={11}
+            className="flex-shrink-0 text-green-500"
+          />
         ) : (
-          <AlertCircle size={11} className="flex-shrink-0 text-red-500" />
+          <AlertCircle
+            size={11}
+            className="flex-shrink-0 text-red-500"
+          />
         )}
         <span className="flex-1 truncate font-medium text-primary">
           {pair.call.tool_name || "unknown"}
@@ -93,7 +99,9 @@ function LogEntryRow({
               {pair.call.tool_input &&
                 Object.keys(pair.call.tool_input).length > 0 && (
                   <div>
-                    <span className="text-[10px] text-muted-foreground">输入</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      输入
+                    </span>
                     <pre className="mt-0.5 max-h-28 overflow-x-auto whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
                       {JSON.stringify(pair.call.tool_input, null, 2)}
                     </pre>
@@ -101,7 +109,9 @@ function LogEntryRow({
                 )}
               {pair.result?.tool_output && (
                 <div>
-                  <span className="text-[10px] text-muted-foreground">输出</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    输出
+                  </span>
                   <div className="mt-0.5 line-clamp-5 whitespace-pre-wrap rounded bg-muted p-1 text-[10px]">
                     {pair.result.tool_output}
                   </div>
@@ -128,12 +138,10 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({
     : 0;
 
   const logPairs =
-    subagent.logs && subagent.logs.length > 0
-      ? pairedLogs(subagent.logs)
-      : [];
+    subagent.logs && subagent.logs.length > 0 ? pairedLogs(subagent.logs) : [];
 
   const stepCount =
-    logPairs.length > 0 ? logPairs.length : (subagent.toolCalls?.length ?? 0);
+    logPairs.length > 0 ? logPairs.length : subagent.toolCalls?.length ?? 0;
 
   return (
     <div className="overflow-hidden rounded-md border border-border bg-muted/30">

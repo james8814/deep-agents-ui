@@ -122,7 +122,7 @@ test.describe("v5.27 Right Sidebar Components", () => {
       await page.goto("/");
 
       // Check for buttons with aria-label
-      const buttonsWithAria = await page.locator('button[aria-label]').count();
+      const buttonsWithAria = await page.locator("button[aria-label]").count();
 
       // There should be at least some buttons with aria-labels for accessibility
       // (The sidebar toggle, theme toggle, etc.)

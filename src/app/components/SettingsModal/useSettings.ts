@@ -145,9 +145,7 @@ export const useSettings = () => {
         }
       } else if (storedTheme) {
         // Legacy fallback: only use pmagent-theme if no settings JSON
-        preference = VALID_PREFERENCES.includes(
-          storedTheme as ThemePreference
-        )
+        preference = VALID_PREFERENCES.includes(storedTheme as ThemePreference)
           ? (storedTheme as ThemePreference)
           : DEFAULT_SETTINGS.themePreference;
       }

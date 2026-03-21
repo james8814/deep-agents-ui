@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * useAnimationOrchestra Hook 使用示例集合
@@ -7,8 +7,11 @@
  * 这些示例来自 v5.26 UI 设计规范中的真实交互流程。
  */
 
-import { useEffect, useRef } from 'react';
-import { useAnimationOrchestra, type AnimationScene } from './useAnimationOrchestra';
+import { useEffect } from "react";
+import {
+  useAnimationOrchestra,
+  type AnimationScene,
+} from "./useAnimationOrchestra";
 
 /**
  * 示例 1: 消息出现动画（顺序执行）
@@ -22,26 +25,26 @@ import { useAnimationOrchestra, type AnimationScene } from './useAnimationOrches
  */
 export function useMessageAnimation(messageElement: HTMLElement | null) {
   const messageScene: AnimationScene = {
-    name: 'MessageAppears',
+    name: "MessageAppears",
     concurrent: false,
     steps: [
       {
-        name: 'MessageSlideUp',
+        name: "MessageSlideUp",
         delay: 0,
         duration: 300,
         onStart: () => {
           if (!messageElement) return;
-          messageElement.classList.add('animate-slideUp');
-          messageElement.style.opacity = '0';
+          messageElement.classList.add("animate-slideUp");
+          messageElement.style.opacity = "0";
         },
         onEnd: () => {
           if (!messageElement) return;
-          messageElement.style.opacity = '1';
-          messageElement.classList.remove('animate-slideUp');
+          messageElement.style.opacity = "1";
+          messageElement.classList.remove("animate-slideUp");
         },
       },
       {
-        name: 'AutoScroll',
+        name: "AutoScroll",
         delay: 50, // 消息滑入过程中开始滚动
         duration: 200,
         condition: () => {
@@ -51,12 +54,12 @@ export function useMessageAnimation(messageElement: HTMLElement | null) {
         onStart: () => {
           // scrollToBottom() 的实际实现
           // 使用 smooth scroll 和设计系统的缓动函数
-          console.log('Auto-scrolling to bottom...');
+          console.log("Auto-scrolling to bottom...");
         },
       },
     ],
     onSceneEnd: () => {
-      console.log('Message animation complete');
+      console.log("Message animation complete");
     },
   };
 
@@ -87,24 +90,24 @@ export function useToolCallCascadeAnimation(toolCallElements: HTMLElement[]) {
     delay: index * 50, // 每个工具调用相隔 50ms
     duration: 200,
     onStart: () => {
-      element.classList.add('animate-slideDown');
-      element.style.opacity = '0';
+      element.classList.add("animate-slideDown");
+      element.style.opacity = "0";
     },
     onEnd: () => {
-      element.style.opacity = '1';
-      element.classList.remove('animate-slideDown');
+      element.style.opacity = "1";
+      element.classList.remove("animate-slideDown");
     },
   }));
 
   const cascadeScene: AnimationScene = {
-    name: 'ToolCallsCascade',
+    name: "ToolCallsCascade",
     concurrent: true, // 使用并发模式，延迟各自独立
     steps,
     onSceneStart: () => {
       console.log(`Starting cascade of ${toolCallElements.length} tool calls`);
     },
     onSceneEnd: () => {
-      console.log('All tool calls animated');
+      console.log("All tool calls animated");
     },
   };
 
@@ -134,14 +137,14 @@ export function useToolCallCascadeAnimation(toolCallElements: HTMLElement[]) {
 export function useInputExpandAnimation(containerElement: HTMLElement | null) {
   const initialHeight = 44; // px，来自设计系统
   const finalHeight = 120; // px，来自设计系统
-  const uploadZoneHeight = 80; // px
+  const _uploadZoneHeight = 80; // px
 
   const expandScene: AnimationScene = {
-    name: 'InputExpands',
+    name: "InputExpands",
     concurrent: true,
     steps: [
       {
-        name: 'ContainerExpand',
+        name: "ContainerExpand",
         delay: 0,
         duration: 150, // --dur-normal 来自 design-system.css
         onStart: () => {
@@ -150,7 +153,8 @@ export function useInputExpandAnimation(containerElement: HTMLElement | null) {
         },
         onProgress: (progress) => {
           if (!containerElement) return;
-          const currentHeight = initialHeight + (finalHeight - initialHeight) * progress;
+          const currentHeight =
+            initialHeight + (finalHeight - initialHeight) * progress;
           containerElement.style.height = `${currentHeight}px`;
         },
         onEnd: () => {
@@ -159,18 +163,18 @@ export function useInputExpandAnimation(containerElement: HTMLElement | null) {
         },
       },
       {
-        name: 'UploadZoneSlideOut',
+        name: "UploadZoneSlideOut",
         delay: 50, // 稍晚于容器展开开始
         duration: 150,
         onStart: () => {
-          const uploadZone = containerElement?.querySelector('.upload-zone');
+          const uploadZone = containerElement?.querySelector(".upload-zone");
           if (!uploadZone) return;
-          uploadZone.classList.add('animate-slideDown');
+          uploadZone.classList.add("animate-slideDown");
         },
         onEnd: () => {
-          const uploadZone = containerElement?.querySelector('.upload-zone');
+          const uploadZone = containerElement?.querySelector(".upload-zone");
           if (!uploadZone) return;
-          uploadZone.classList.remove('animate-slideDown');
+          uploadZone.classList.remove("animate-slideDown");
         },
       },
     ],
@@ -197,45 +201,48 @@ export function useInterruptBannerAnimation(
   isRejected: boolean
 ) {
   const interruptScene: AnimationScene = {
-    name: 'InterruptBannerFlow',
+    name: "InterruptBannerFlow",
     concurrent: false,
     steps: [
       {
-        name: 'BannerSlideDown',
+        name: "BannerSlideDown",
         delay: 0,
         duration: 250, // --dur-normal
         onStart: () => {
           if (!bannerElement) return;
-          bannerElement.classList.add('animate-slideDown');
-          bannerElement.style.opacity = '0';
+          bannerElement.classList.add("animate-slideDown");
+          bannerElement.style.opacity = "0";
         },
         onEnd: () => {
           if (!bannerElement) return;
-          bannerElement.style.opacity = '1';
+          bannerElement.style.opacity = "1";
         },
       },
       {
-        name: 'BannerWaitForAction',
+        name: "BannerWaitForAction",
         delay: 0,
         duration: 5000, // 等待 5 秒用户响应
         condition: () => !isApproved && !isRejected,
         onStart: () => {
-          console.log('Waiting for user action...');
+          console.log("Waiting for user action...");
         },
       },
       {
-        name: 'BannerSlideUp',
+        name: "BannerSlideUp",
         delay: 0,
         duration: 200,
         condition: () => isApproved,
         onStart: () => {
           if (!bannerElement) return;
-          bannerElement.classList.add('animate-slideUp');
+          bannerElement.classList.add("animate-slideUp");
         },
         onEnd: () => {
           if (!bannerElement) return;
-          bannerElement.style.opacity = '0';
-          bannerElement.classList.remove('animate-slideUp', 'animate-slideDown');
+          bannerElement.style.opacity = "0";
+          bannerElement.classList.remove(
+            "animate-slideUp",
+            "animate-slideDown"
+          );
         },
       },
     ],
@@ -264,60 +271,60 @@ export function useInterruptBannerAnimation(
  */
 export function useThemeSwitchAnimation(isDarkMode: boolean) {
   const themeScene: AnimationScene = {
-    name: 'ThemeSwitch',
+    name: "ThemeSwitch",
     concurrent: true,
     respectReducedMotion: true, // 尊重用户的减少运动偏好
     steps: [
       {
-        name: 'BackgroundTransition',
+        name: "BackgroundTransition",
         delay: 0,
         duration: 300,
         onStart: () => {
           const root = document.documentElement;
-          root.classList.add('theme-transitioning');
-          root.classList.toggle('dark', isDarkMode);
+          root.classList.add("theme-transitioning");
+          root.classList.toggle("dark", isDarkMode);
         },
         onEnd: () => {
           const root = document.documentElement;
-          root.classList.remove('theme-transitioning');
+          root.classList.remove("theme-transitioning");
         },
       },
       {
-        name: 'TextColorTransition',
+        name: "TextColorTransition",
         delay: 50,
         duration: 250,
         onStart: () => {
-          document.querySelectorAll('[data-theme-aware]').forEach((el) => {
-            el.classList.add('color-transitioning');
+          document.querySelectorAll("[data-theme-aware]").forEach((el) => {
+            el.classList.add("color-transitioning");
           });
         },
         onEnd: () => {
-          document.querySelectorAll('[data-theme-aware]').forEach((el) => {
-            el.classList.remove('color-transitioning');
+          document.querySelectorAll("[data-theme-aware]").forEach((el) => {
+            el.classList.remove("color-transitioning");
           });
         },
       },
       {
-        name: 'InteractiveElementPulse',
+        name: "InteractiveElementPulse",
         delay: 100,
         duration: 200,
         onStart: () => {
           document.querySelectorAll('button, [role="button"]').forEach((el) => {
-            el.classList.add('animate-pulse');
+            el.classList.add("animate-pulse");
           });
         },
         onEnd: () => {
           document.querySelectorAll('button, [role="button"]').forEach((el) => {
-            el.classList.remove('animate-pulse');
+            el.classList.remove("animate-pulse");
           });
         },
       },
     ],
     onSceneStart: () => {
-      console.log(`Switching to ${isDarkMode ? 'dark' : 'light'} theme`);
+      console.log(`Switching to ${isDarkMode ? "dark" : "light"} theme`);
     },
     onSceneEnd: () => {
-      console.log('Theme switch complete');
+      console.log("Theme switch complete");
     },
   };
 
@@ -346,46 +353,49 @@ export function useChatInterfaceLoadAnimation(
   inputAreaElement: HTMLElement | null
 ) {
   const loadScene: AnimationScene = {
-    name: 'ChatInterfaceLoad',
+    name: "ChatInterfaceLoad",
     concurrent: false, // 顺序执行
     steps: [
       {
-        name: 'SidebarSlideIn',
+        name: "SidebarSlideIn",
         delay: 0,
         duration: 300,
         onStart: () => {
           if (sidebarElement) {
-            sidebarElement.classList.add('animate-slideIn-left');
+            sidebarElement.classList.add("animate-slideIn-left");
           }
         },
       },
       {
-        name: 'ChatAreaFadeIn',
+        name: "ChatAreaFadeIn",
         delay: 150, // 与 Sidebar 动画重叠
         duration: 200,
         onStart: () => {
           if (chatAreaElement) {
-            chatAreaElement.classList.add('animate-fadeIn');
+            chatAreaElement.classList.add("animate-fadeIn");
           }
         },
       },
       {
-        name: 'InputAreaEnable',
+        name: "InputAreaEnable",
         delay: 100,
         duration: 200,
         onStart: () => {
           if (inputAreaElement) {
-            inputAreaElement.classList.remove('opacity-50', 'pointer-events-none');
-            inputAreaElement.classList.add('animate-fadeIn');
+            inputAreaElement.classList.remove(
+              "opacity-50",
+              "pointer-events-none"
+            );
+            inputAreaElement.classList.add("animate-fadeIn");
           }
         },
       },
     ],
     onSceneStart: () => {
-      console.log('Chat interface is loading...');
+      console.log("Chat interface is loading...");
     },
     onSceneEnd: () => {
-      console.log('Chat interface fully loaded');
+      console.log("Chat interface fully loaded");
     },
   };
 

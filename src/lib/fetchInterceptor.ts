@@ -105,7 +105,7 @@ try {
 
   isPatchApplied = true;
   // Bearer Token 自动添加已启用（日志已禁用）
-} catch (error) {
+} catch {
   // Patch 失败，将使用原始 fetch
 }
 

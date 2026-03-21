@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * ChatMessageAnimated 组件
@@ -12,13 +12,16 @@
  * 保持所有原有功能不变，仅添加动画层。
  */
 
-import React, { useEffect, useRef, useCallback } from 'react';
-import { useAnimationOrchestra, type AnimationScene } from '@/app/hooks/useAnimationOrchestra';
-import type { Message } from '@langchain/langgraph-sdk';
+import React, { useEffect, useRef, useCallback } from "react";
+import {
+  useAnimationOrchestra,
+  type AnimationScene,
+} from "@/app/hooks/useAnimationOrchestra";
+import type { Message } from "@langchain/langgraph-sdk";
 
 // ✅ FIX: React.lazy 提升到模块级别，避免每次渲染重建
 const ChatMessage = React.lazy(() =>
-  import('./ChatMessage').then((mod) => ({
+  import("./ChatMessage").then((mod) => ({
     default: mod.ChatMessage,
   }))
 );
@@ -28,8 +31,8 @@ import type {
   ReviewConfig,
   FileMetadata,
   AttachmentSummary,
-} from '@/app/types/types';
-import type { LogEntry } from '@/app/types/subagent';
+} from "@/app/types/types";
+import type { LogEntry } from "@/app/types/subagent";
 
 /**
  * ChatMessage 的 Props（从原组件复制）
@@ -78,33 +81,34 @@ function createMessageAnimationScene(
   onScrollEnd?: () => void
 ): AnimationScene {
   return {
-    name: 'MessageAppears',
+    name: "MessageAppears",
     concurrent: false, // 顺序执行：先消息出现，再滚动
     steps: [
       {
-        name: 'MessageSlideUpAndFadeIn',
+        name: "MessageSlideUpAndFadeIn",
         delay: 0,
         duration: 300, // 对应 --dur-normal (250ms，此处取 300ms 留余量)
         onStart: () => {
           const el = elementRef.current;
           if (!el) return;
           // 设置初始状态：隐藏 + 向下偏移
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(16px)';
+          el.style.opacity = "0";
+          el.style.transform = "translateY(16px)";
           // 应用过渡
-          el.style.transition = 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)';
+          el.style.transition =
+            "opacity 300ms var(--ease-out), transform 300ms var(--ease-out)";
         },
         onEnd: () => {
           const el = elementRef.current;
           if (!el) return;
           // 移除过渡，保持最终状态
-          el.style.opacity = '1';
-          el.style.transform = 'translateY(0)';
-          el.style.transition = 'none';
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
+          el.style.transition = "none";
         },
       },
       {
-        name: 'AutoScroll',
+        name: "AutoScroll",
         delay: 50, // 消息滑入过程中开始滚动（创建自然的流动感）
         duration: 200, // 平滑滚动到底部
         condition: () => {
@@ -113,12 +117,12 @@ function createMessageAnimationScene(
         onStart: () => {
           const el = elementRef.current;
           if (!el?.parentElement) return;
-          const container = el.closest('[data-message-list]') as HTMLElement;
+          const container = el.closest("[data-message-list]") as HTMLElement;
           if (!container) return;
 
           container.scrollTo({
             top: container.scrollHeight,
-            behavior: 'smooth',
+            behavior: "smooth",
           });
         },
         onEnd: () => {
@@ -128,14 +132,20 @@ function createMessageAnimationScene(
     ],
     onSceneStart: () => {
       // 场景开始时的日志（用于调试）
-      if (typeof window !== 'undefined' && (window as any).__ANIMATION_DEBUG__) {
-        console.log('[Animation] Message animation started');
+      if (
+        typeof window !== "undefined" &&
+        (window as any).__ANIMATION_DEBUG__
+      ) {
+        console.log("[Animation] Message animation started");
       }
     },
     onSceneEnd: () => {
       // 场景结束时的日志
-      if (typeof window !== 'undefined' && (window as any).__ANIMATION_DEBUG__) {
-        console.log('[Animation] Message animation completed');
+      if (
+        typeof window !== "undefined" &&
+        (window as any).__ANIMATION_DEBUG__
+      ) {
+        console.log("[Animation] Message animation completed");
       }
     },
     // 自动尊重用户的 prefers-reduced-motion 设置
@@ -164,11 +174,7 @@ export const ChatMessageAnimated = React.forwardRef<
   ChatMessageAnimatedProps
 >(
   (
-    {
-      enableAnimation = true,
-      onAnimationComplete,
-      ...chatMessageProps
-    },
+    { enableAnimation = true, onAnimationComplete, ...chatMessageProps },
     forwardedRef
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -178,20 +184,19 @@ export const ChatMessageAnimated = React.forwardRef<
     const mergedRef = useCallback(
       (node: HTMLDivElement | null) => {
         containerRef.current = node;
-        if (typeof forwardedRef === 'function') {
+        if (typeof forwardedRef === "function") {
           forwardedRef(node);
         } else if (forwardedRef) {
-          (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          (
+            forwardedRef as React.MutableRefObject<HTMLDivElement | null>
+          ).current = node;
         }
       },
       [forwardedRef]
     );
 
     const getAnimationScene = useCallback((): AnimationScene => {
-      return createMessageAnimationScene(
-        containerRef,
-        onAnimationComplete
-      );
+      return createMessageAnimationScene(containerRef, onAnimationComplete);
     }, [onAnimationComplete]);
 
     const animationScene = React.useMemo(
@@ -221,18 +226,16 @@ export const ChatMessageAnimated = React.forwardRef<
           // 初始状态（如果启用动画）
           ...(enableAnimation && {
             opacity: 0,
-            transform: 'translateY(16px)',
+            transform: "translateY(16px)",
           }),
         }}
       >
         <React.Suspense fallback={<div>Loading message...</div>}>
-          <ChatMessage
-            {...chatMessageProps}
-          />
+          <ChatMessage {...chatMessageProps} />
         </React.Suspense>
       </div>
     );
   }
 );
 
-ChatMessageAnimated.displayName = 'ChatMessageAnimated';
+ChatMessageAnimated.displayName = "ChatMessageAnimated";

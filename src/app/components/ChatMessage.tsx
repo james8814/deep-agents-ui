@@ -98,9 +98,15 @@ function InlineLegacyLogRow({
         )}
       >
         {success ? (
-          <CheckCircle size={11} className="flex-shrink-0 text-green-500" />
+          <CheckCircle
+            size={11}
+            className="flex-shrink-0 text-green-500"
+          />
         ) : (
-          <AlertCircle size={11} className="flex-shrink-0 text-red-500" />
+          <AlertCircle
+            size={11}
+            className="flex-shrink-0 text-red-500"
+          />
         )}
         <span className="flex-1 truncate font-medium text-primary">
           {pair.call.tool_name || "unknown"}
@@ -647,24 +653,26 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                               )}
                             </div>
                             {/* Execution Steps — shown when subagent_logs data available */}
-                            {subAgent.logs && subAgent.logs.length > 0 && (() => {
-                              const lPairs = pairedLogs(subAgent.logs!);
-                              return lPairs.length > 0 ? (
-                                <div className="mb-4">
-                                  <h4 className="text-primary/70 mb-1.5 text-xs font-semibold uppercase tracking-wider">
-                                    执行步骤 ({lPairs.length})
-                                  </h4>
-                                  <div className="space-y-1">
-                                    {lPairs.map((pair, idx) => (
-                                      <InlineLegacyLogRow
-                                        key={pair.call.tool_call_id ?? idx}
-                                        pair={pair}
-                                      />
-                                    ))}
+                            {subAgent.logs &&
+                              subAgent.logs.length > 0 &&
+                              (() => {
+                                const lPairs = pairedLogs(subAgent.logs!);
+                                return lPairs.length > 0 ? (
+                                  <div className="mb-4">
+                                    <h4 className="text-primary/70 mb-1.5 text-xs font-semibold uppercase tracking-wider">
+                                      执行步骤 ({lPairs.length})
+                                    </h4>
+                                    <div className="space-y-1">
+                                      {lPairs.map((pair, idx) => (
+                                        <InlineLegacyLogRow
+                                          key={pair.call.tool_call_id ?? idx}
+                                          pair={pair}
+                                        />
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              ) : null;
-                            })()}
+                                ) : null;
+                              })()}
                             {subAgent.output && (
                               <>
                                 <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">

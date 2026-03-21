@@ -15,7 +15,9 @@ import { useMemo } from "react";
  * 如需实时更新，请在父组件中使用 setInterval 触发重渲染
  */
 
-export function useRelativeTime(timestamp: number | Date | null | undefined): string {
+export function useRelativeTime(
+  timestamp: number | Date | null | undefined
+): string {
   return useMemo(() => {
     if (!timestamp) return "";
 
@@ -75,7 +77,9 @@ export function formatElapsedTime(seconds: number): string {
   const remainingSeconds = seconds % 60;
 
   if (minutes < 60) {
-    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+    return remainingSeconds > 0
+      ? `${minutes}m ${remainingSeconds}s`
+      : `${minutes}m`;
   }
 
   const hours = Math.floor(minutes / 60);
@@ -100,13 +104,17 @@ export function formatDetailedElapsedTime(startTime: number): string {
   const remainingSeconds = seconds % 60;
 
   if (minutes < 60) {
-    return remainingSeconds > 0 ? `${minutes}分${remainingSeconds}秒` : `${minutes}分钟`;
+    return remainingSeconds > 0
+      ? `${minutes}分${remainingSeconds}秒`
+      : `${minutes}分钟`;
   }
 
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
 
-  return remainingMinutes > 0 ? `${hours}小时${remainingMinutes}分钟` : `${hours}小时`;
+  return remainingMinutes > 0
+    ? `${hours}小时${remainingMinutes}分钟`
+    : `${hours}小时`;
 }
 
 export default useRelativeTime;

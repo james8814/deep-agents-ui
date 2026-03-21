@@ -117,7 +117,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
 
     darkModeQuery.addEventListener("change", handler);
     return () => darkModeQuery.removeEventListener("change", handler);
-  }, [defaultTheme, storageKey]);
+  }, [defaultTheme, storageKey, useSystemPreference]);
 
   // =========================================================================
   // Apply theme to DOM

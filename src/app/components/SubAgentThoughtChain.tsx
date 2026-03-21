@@ -116,9 +116,15 @@ function LogEntryRow({
         )}
       >
         {success ? (
-          <CheckCircle size={11} className="flex-shrink-0 text-green-500" />
+          <CheckCircle
+            size={11}
+            className="flex-shrink-0 text-green-500"
+          />
         ) : (
-          <AlertCircle size={11} className="flex-shrink-0 text-red-500" />
+          <AlertCircle
+            size={11}
+            className="flex-shrink-0 text-red-500"
+          />
         )}
         <span className="flex-1 truncate font-medium text-primary">
           {pair.call.tool_name || "unknown"}
@@ -200,7 +206,10 @@ function SubAgentContent({
   );
 
   const logPairs = useMemo(
-    () => (subAgent.logs && subAgent.logs.length > 0 ? pairedLogs(subAgent.logs) : []),
+    () =>
+      subAgent.logs && subAgent.logs.length > 0
+        ? pairedLogs(subAgent.logs)
+        : [],
     [subAgent.logs]
   );
 
@@ -228,7 +237,10 @@ function SubAgentContent({
           </h4>
           <div className="space-y-1">
             {logPairs.map((pair, idx) => (
-              <LogEntryRow key={pair.call.tool_call_id ?? idx} pair={pair} />
+              <LogEntryRow
+                key={pair.call.tool_call_id ?? idx}
+                pair={pair}
+              />
             ))}
           </div>
         </div>

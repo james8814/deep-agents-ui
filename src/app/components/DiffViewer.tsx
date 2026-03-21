@@ -28,7 +28,9 @@ export const DiffViewer = React.memo<DiffViewerProps>(
       let added = 0;
       let removed = 0;
       changes.forEach((change) => {
-        const lineCount = change.value.split("\n").filter((line) => line.length > 0).length;
+        const lineCount = change.value
+          .split("\n")
+          .filter((line) => line.length > 0).length;
         if (change.added) added += lineCount;
         if (change.removed) removed += lineCount;
       });

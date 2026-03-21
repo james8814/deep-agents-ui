@@ -120,14 +120,14 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
               </span>
             </div>
             {hasContent && (
-                <ChevronDown
-                  size={14}
-                  className={cn(
-                    "shrink-0 text-muted-foreground transition-transform duration-200",
-                    isExpanded && "rotate-180"
-                  )}
-                />
-              )}
+              <ChevronDown
+                size={14}
+                className={cn(
+                  "shrink-0 text-muted-foreground transition-transform duration-200",
+                  isExpanded && "rotate-180"
+                )}
+              />
+            )}
           </div>
         </Button>
 

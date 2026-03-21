@@ -40,6 +40,7 @@ export function useTaskSelection(
   options: UseTaskSelectionOptions = {}
 ): UseTaskSelectionReturn {
   const { autoSelectInProgress = true } = options;
+  const _autoSelectInProgress = autoSelectInProgress; // Reserved for future use
 
   // 选中的任务 ID
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);

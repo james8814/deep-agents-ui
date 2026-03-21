@@ -26,20 +26,14 @@ import { cn } from "@/lib/utils";
 import { useChatContext } from "@/providers/ChatProvider";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
-import SubAgentPanel from "@/app/components/SubAgentPanel";
 import { WorkPanelV527 } from "@/app/components/WorkPanelV527";
-import type {
-  FileItem,
-  FileMetadata,
-  FileSortBy,
-} from "@/app/types/types";
-import type { LogEntry } from "@/app/types/subagent";
+import type { FileItem, FileMetadata, FileSortBy } from "@/app/types/types";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useQueryState } from "nuqs";
 import { extractFileContent } from "@/app/utils/utils";
 
-type Tab = "tasks" | "files" | "subagents";
+type Tab = "worklog" | "files";
 
 interface ContextPanelProps {
   onClose: () => void;
@@ -48,9 +42,15 @@ interface ContextPanelProps {
 
 export const ContextPanel = React.memo<ContextPanelProps>(
   ({ onClose, initialTab }) => {
-    const { todos, files, setFiles, isLoading, interrupt, subagents, subagent_logs } =
-      useChatContext();
-    const [activeTab, setActiveTab] = useState<Tab>(initialTab || "tasks");
+    const {
+      todos,
+      files,
+      setFiles,
+      isLoading,
+      interrupt,
+      subagent_logs,
+    } = useChatContext();
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab || "worklog");
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
     const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -192,19 +192,19 @@ export const ContextPanel = React.memo<ContextPanelProps>(
           </Button>
         </div>
 
-        {/* Tab Switcher */}
+        {/* Tab Switcher - 2-Tab Design (v5.26/v5.27 Design Benchmark Section 5.2) */}
         <div className="flex border-b border-border">
           <button
-            onClick={() => setActiveTab("tasks")}
+            onClick={() => setActiveTab("worklog")}
             className={cn(
               "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
-              activeTab === "tasks"
+              activeTab === "worklog"
                 ? "border-b-2 border-primary text-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
             <ListTodo size={14} />
-            Tasks
+            工作日志
             {hasTasks && (
               <span className="bg-primary/10 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
                 {todos.length}
@@ -221,24 +221,12 @@ export const ContextPanel = React.memo<ContextPanelProps>(
             )}
           >
             <FileText size={14} />
-            Files
+            交付物
             {hasFiles && (
               <span className="bg-primary/10 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary">
                 {fileCount}
               </span>
             )}
-          </button>
-          <button
-            onClick={() => setActiveTab("subagents")}
-            className={cn(
-              "flex flex-1 items-center justify-center gap-2 px-3 py-2 text-xs font-medium transition-colors",
-              activeTab === "subagents"
-                ? "border-b-2 border-primary text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <span className="text-sm">🤖</span>
-            子代理
           </button>
           {activeTab === "files" && (
             <Button
@@ -259,10 +247,10 @@ export const ContextPanel = React.memo<ContextPanelProps>(
           key={`${refreshKey}-${activeTab}`}
         >
           <div className="animate-[fadeIn_150ms_ease-out]">
-            {activeTab === "tasks" && (
+            {activeTab === "worklog" && (
               <WorkPanelV527
                 subagentLogs={subagent_logs ?? {}}
-                isVisible={activeTab === "tasks"}
+                isVisible={activeTab === "worklog"}
               />
             )}
             {activeTab === "files" && !viewingFile && (
@@ -283,7 +271,6 @@ export const ContextPanel = React.memo<ContextPanelProps>(
                 files={files}
               />
             )}
-            {activeTab === "subagents" && <SubAgentPanel subagents={subagents} />}
             {activeTab === "files" && viewingFile && (
               <InlineFileViewer
                 file={viewingFile}

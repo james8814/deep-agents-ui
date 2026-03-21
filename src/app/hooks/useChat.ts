@@ -28,9 +28,9 @@ export type ContentBlock =
  * @property size - 文件大小（字节）- 可选
  */
 export interface FileAttachment {
-  path: string;       // 虚拟路径: /uploads/{uuid}/{filename}
-  filename: string;   // 原始文件名
-  size?: number;      // 文件大小（可选）
+  path: string; // 虚拟路径: /uploads/{uuid}/{filename}
+  filename: string; // 原始文件名
+  size?: number; // 文件大小（可选）
 }
 
 export type MultimodalContent = string | ContentBlock[];
@@ -78,25 +78,28 @@ export function useChat({
 
   // 辅助函数：将 token 添加到 config.configurable
   // 供后端 AuthMiddleware 读取，实现用户身份验证
-  const getConfigWithToken = (baseConfig?: Record<string, unknown>) => {
-    // 无 token 时直接返回原配置，避免不必要的对象分配
-    if (!token) {
-      return baseConfig;
-    }
+  const getConfigWithToken = useCallback(
+    (baseConfig?: Record<string, unknown>) => {
+      // 无 token 时直接返回原配置，避免不必要的对象分配
+      if (!token) {
+        return baseConfig;
+      }
 
-    const config = baseConfig ? { ...baseConfig } : {};
-    const configurable = config.configurable
-      ? { ...(config.configurable as Record<string, unknown>) }
-      : {};
+      const config = baseConfig ? { ...baseConfig } : {};
+      const configurable = config.configurable
+        ? { ...(config.configurable as Record<string, unknown>) }
+        : {};
 
-    // 将 token 放入 configurable 中，供后端 AuthMiddleware 读取
-    configurable.access_token = token;
+      // 将 token 放入 configurable 中，供后端 AuthMiddleware 读取
+      configurable.access_token = token;
 
-    return {
-      ...config,
-      configurable,
-    };
-  };
+      return {
+        ...config,
+        configurable,
+      };
+    },
+    [token]
+  );
 
   // 智能错误处理：区分认证/网络错误和未知错误
   const handleStreamError = useCallback(
@@ -156,10 +159,7 @@ export function useChat({
    * - 完整的类型安全
    */
   const sendMessage = useCallback(
-    (
-      content: MultimodalContent,
-      fileAttachments?: FileAttachment[]
-    ) => {
+    (content: MultimodalContent, fileAttachments?: FileAttachment[]) => {
       // 将内容转换为适当的消息内容格式
       let messageContent: Message["content"];
 
@@ -215,7 +215,7 @@ export function useChat({
       // 立即刷新线程列表
       onHistoryRevalidate?.();
     },
-    [stream, activeAssistant?.config, onHistoryRevalidate, token]
+    [stream, activeAssistant?.config, onHistoryRevalidate, getConfigWithToken]
   );
 
   const runSingleStep = useCallback(
@@ -250,7 +250,7 @@ export function useChat({
         );
       }
     },
-    [stream, activeAssistant?.config, token]
+    [stream, activeAssistant?.config, getConfigWithToken]
   );
 
   const setFiles = useCallback(
@@ -277,7 +277,7 @@ export function useChat({
       // Update thread list when continuing stream
       onHistoryRevalidate?.();
     },
-    [stream, activeAssistant?.config, onHistoryRevalidate, token]
+    [stream, activeAssistant?.config, onHistoryRevalidate, getConfigWithToken]
   );
 
   const markCurrentThreadAsResolved = useCallback(() => {
@@ -329,7 +329,7 @@ export function useChat({
       }
     );
     onHistoryRevalidate?.();
-  }, [stream, activeAssistant?.config, onHistoryRevalidate, token]);
+  }, [stream, activeAssistant?.config, onHistoryRevalidate, getConfigWithToken]);
 
   // Debug logging for files state tracking (disabled in production)
   const filesFromStream = stream.values.files ?? {};

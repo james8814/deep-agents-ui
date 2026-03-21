@@ -34,12 +34,27 @@ interface TaskProgressPanelProps {
 function TaskStatusIcon({ status }: { status: TaskStatus }) {
   switch (status) {
     case "completed":
-      return <CheckCircle size={12} className="text-[var(--ok)]" />;
+      return (
+        <CheckCircle
+          size={12}
+          className="text-[var(--ok)]"
+        />
+      );
     case "in_progress":
-      return <Clock size={12} className="text-[var(--brand)] animate-pulse" />;
+      return (
+        <Clock
+          size={12}
+          className="animate-pulse text-[var(--brand)]"
+        />
+      );
     case "pending":
     default:
-      return <Circle size={12} className="text-[var(--t4)]" />;
+      return (
+        <Circle
+          size={12}
+          className="text-[var(--t4)]"
+        />
+      );
   }
 }
 
@@ -51,7 +66,7 @@ export const TaskProgressPanel = React.memo<TaskProgressPanelProps>(
     }
 
     return (
-      <div className="flex items-center gap-1.5 px-4 py-2 border-b border-[var(--b1)] bg-[var(--bg1)]">
+      <div className="flex items-center gap-1.5 border-b border-[var(--b1)] bg-[var(--bg1)] px-4 py-2">
         {/* 下拉菜单 */}
         <TaskFilterDropdown
           tasks={tasks}
@@ -60,10 +75,10 @@ export const TaskProgressPanel = React.memo<TaskProgressPanelProps>(
         />
 
         {/* 分隔符 */}
-        <span className="text-[var(--t4)] text-xs mx-1">|</span>
+        <span className="mx-1 text-xs text-[var(--t4)]">|</span>
 
         {/* 任务标签列表 */}
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+        <div className="scrollbar-none flex items-center gap-1 overflow-x-auto">
           {tasks.map((task) => (
             <TaskFilterTag
               key={task.id}
@@ -101,15 +116,15 @@ function TaskFilterDropdown({
   const selectedTask = tasks.find((t) => t.id === selectedTaskId);
   const label = selectedTask ? selectedTask.content : "全部";
 
-  // 所有选项（包括"全部"）
-  const allOptions = [
-    { id: null, content: "全部", status: null },
-    ...tasks.map((t) => ({ id: t.id, content: t.content, status: t.status })),
-  ];
-
   // 键盘导航
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // 在函数内部定义 allOptions，避免作为 useCallback 依赖
+      const allOptions = [
+        { id: null, content: "全部", status: null },
+        ...tasks.map((t) => ({ id: t.id, content: t.content, status: t.status })),
+      ];
+
       switch (e.key) {
         case "ArrowDown":
           e.preventDefault();
@@ -138,7 +153,7 @@ function TaskFilterDropdown({
           break;
       }
     },
-    [isOpen, focusedIndex, allOptions, onSelect]
+    [isOpen, focusedIndex, onSelect, tasks]
   );
 
   // 选择选项
@@ -156,7 +171,7 @@ function TaskFilterDropdown({
       <button
         ref={buttonRef}
         className={cn(
-          "flex items-center gap-1 px-2 py-1 rounded-[var(--r-sm)]",
+          "flex items-center gap-1 rounded-[var(--r-sm)] px-2 py-1",
           "text-xs font-medium transition-colors",
           "hover:bg-[var(--bg3)]",
           "focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-opacity-50",
@@ -169,7 +184,7 @@ function TaskFilterDropdown({
         onKeyDown={handleKeyDown}
         onBlur={() => setTimeout(() => setIsOpen(false), 150)}
       >
-        <span className="truncate max-w-[80px]">{label}</span>
+        <span className="max-w-[80px] truncate">{label}</span>
         <ChevronDown
           size={12}
           className={cn(
@@ -183,14 +198,14 @@ function TaskFilterDropdown({
       <div
         ref={listRef}
         className={cn(
-          "absolute left-0 top-full mt-1 z-[var(--z-dropdown)]",
+          "absolute left-0 top-full z-[var(--z-dropdown)] mt-1",
           "min-w-[140px] py-1",
-          "bg-[var(--bg2)] border border-[var(--b1)] rounded-[var(--r-md)]",
+          "rounded-[var(--r-md)] border border-[var(--b1)] bg-[var(--bg2)]",
           "shadow-[var(--shadow-lg)]",
           "transition-all duration-150 ease-out",
           isOpen
-            ? "opacity-100 visible translate-y-0"
-            : "opacity-0 invisible -translate-y-1"
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-1 opacity-0"
         )}
         role="listbox"
         aria-activedescendant={
@@ -206,7 +221,9 @@ function TaskFilterDropdown({
             "transition-colors",
             focusedIndex === 0 && "bg-[var(--bg3)]",
             "hover:bg-[var(--bg3)]",
-            !selectedTaskId ? "text-[var(--brand)] font-medium" : "text-[var(--t2)]"
+            !selectedTaskId
+              ? "font-medium text-[var(--brand)]"
+              : "text-[var(--t2)]"
           )}
           role="option"
           aria-selected={!selectedTaskId}
@@ -230,14 +247,14 @@ function TaskFilterDropdown({
               "hover:bg-[var(--bg3)]",
               "flex items-center gap-2",
               selectedTaskId === task.id
-                ? "text-[var(--brand)] font-medium"
+                ? "font-medium text-[var(--brand)]"
                 : "text-[var(--t2)]"
             )}
             role="option"
             aria-selected={selectedTaskId === task.id}
           >
             <TaskStatusIcon status={task.status} />
-            <span className="truncate flex-1">{task.content}</span>
+            <span className="flex-1 truncate">{task.content}</span>
           </button>
         ))}
       </div>
@@ -256,20 +273,20 @@ function TaskFilterTag({ task, isSelected, onClick }: TaskFilterTagProps) {
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1.5 px-2 py-1 rounded-[var(--r-sm)]",
+        "flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1",
         "text-xs font-medium transition-all duration-150 ease-out",
         "border border-transparent",
         "hover:bg-[var(--bg3)]",
         "focus:outline-none focus:ring-2 focus:ring-[var(--brand)] focus:ring-opacity-50",
         isSelected
-          ? "bg-[var(--brand-glow-10)] text-[var(--brand)] border-[var(--brand)]"
+          ? "border-[var(--brand)] bg-[var(--brand-glow-10)] text-[var(--brand)]"
           : "text-[var(--t3)]"
       )}
       aria-pressed={isSelected}
       aria-label={`筛选任务: ${task.content}`}
     >
       <TaskStatusIcon status={task.status} />
-      <span className="truncate max-w-[100px]">{task.content}</span>
+      <span className="max-w-[100px] truncate">{task.content}</span>
     </button>
   );
 }

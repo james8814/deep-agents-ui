@@ -88,16 +88,17 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     wasLoadingRef.current = false;
   }, [threadId]);
 
-  // Height constants
-  const LINE_HEIGHT = 24; // leading-6 = 24px
-  const PADDING_Y = 24; // py-3 = 12px * 2 = 24px
-  const MIN_HEIGHT = LINE_HEIGHT + PADDING_Y; // ~48px (1 line + padding)
-  const AUTO_MAX_LINES = 8; // Max lines before auto-expand stops
-  const AUTO_MAX_HEIGHT = MIN_HEIGHT + (AUTO_MAX_LINES - 1) * LINE_HEIGHT; // ~216px
-  const TOOLBAR_HEIGHT = 44; // Toolbar + padding
+  // Height constants (moved inside useEffect to avoid dependency warnings)
+  // These are computed values, not responsive values, so they don't need to be in dependency array
 
   // Calculate expanded height (fill remaining space in the middle column)
   useEffect(() => {
+    // Constants defined inside useEffect to avoid react-hooks/exhaustive-deps warnings
+    const LINE_HEIGHT = 24; // leading-6 = 24px
+    const PADDING_Y = 24; // py-3 = 12px * 2 = 24px
+    const MIN_HEIGHT = LINE_HEIGHT + PADDING_Y; // ~48px (1 line + padding)
+    const TOOLBAR_HEIGHT = 44; // Toolbar + padding
+
     if (isExpanded && containerRef.current && inputPanelRef.current) {
       const containerHeight = containerRef.current.clientHeight;
       // Expanded height = container height - toolbar height - some margin
@@ -110,6 +111,13 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   // Auto-resize textarea based on content
   useEffect(() => {
+    // Constants defined inside useEffect to avoid react-hooks/exhaustive-deps warnings
+    const LINE_HEIGHT = 24; // leading-6 = 24px
+    const PADDING_Y = 24; // py-3 = 12px * 2 = 24px
+    const MIN_HEIGHT = LINE_HEIGHT + PADDING_Y; // ~48px (1 line + padding)
+    const AUTO_MAX_LINES = 8; // Max lines before auto-expand stops
+    const AUTO_MAX_HEIGHT = MIN_HEIGHT + (AUTO_MAX_LINES - 1) * LINE_HEIGHT; // ~216px
+
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -128,7 +136,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       textarea.style.overflowY =
         textarea.scrollHeight > AUTO_MAX_HEIGHT ? "auto" : "hidden";
     }
-  }, [input, isExpanded, expandedHeight, AUTO_MAX_HEIGHT, MIN_HEIGHT]);
+  }, [input, isExpanded, expandedHeight]);
 
   // Reset to compact mode when input is cleared
   useEffect(() => {
@@ -163,7 +171,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       transformSubagentData
     );
     return sortSubAgentsByTime(list);
-  }, [stream, (stream as any)?.isLoading, (stream as any)?.error]);
+  }, [stream]);
 
   // Track file metadata when files change
   useEffect(() => {

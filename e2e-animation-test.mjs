@@ -11,16 +11,16 @@
  * 7. 组件渲染正常
  */
 
-import { chromium } from 'playwright';
+import { chromium } from "playwright";
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const results = [];
 let browser, page;
 
-function log(status, name, detail = '') {
-  const icon = status === 'PASS' ? '✅' : status === 'FAIL' ? '❌' : '⚠️';
+function log(status, name, detail = "") {
+  const icon = status === "PASS" ? "✅" : status === "FAIL" ? "❌" : "⚠️";
   results.push({ status, name, detail });
-  console.log(`${icon} ${name}${detail ? ` — ${detail}` : ''}`);
+  console.log(`${icon} ${name}${detail ? ` — ${detail}` : ""}`);
 }
 
 async function setup() {
@@ -31,8 +31,8 @@ async function setup() {
   page = await context.newPage();
 
   // 收集 JS 错误
-  page.on('pageerror', (err) => {
-    log('FAIL', 'JS Error', err.message);
+  page.on("pageerror", (err) => {
+    log("FAIL", "JS Error", err.message);
   });
 }
 
@@ -44,11 +44,14 @@ async function teardown() {
 // 测试 1: 页面加载
 // ============================================================
 async function testPageLoad() {
-  const response = await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
+  const response = await page.goto(BASE_URL, {
+    waitUntil: "networkidle",
+    timeout: 30000,
+  });
   if (response?.ok()) {
-    log('PASS', '页面加载', `HTTP ${response.status()}`);
+    log("PASS", "页面加载", `HTTP ${response.status()}`);
   } else {
-    log('FAIL', '页面加载', `HTTP ${response?.status()}`);
+    log("FAIL", "页面加载", `HTTP ${response?.status()}`);
   }
 }
 
@@ -58,12 +61,12 @@ async function testPageLoad() {
 async function testCSSLoaded() {
   // 检查 design-system.css 变量是否注入到 :root
   const bgVar = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()
+    getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()
   );
   if (bgVar) {
-    log('PASS', 'design-system.css 已加载', `--bg = "${bgVar}"`);
+    log("PASS", "design-system.css 已加载", `--bg = "${bgVar}"`);
   } else {
-    log('FAIL', 'design-system.css 未加载', '--bg 为空');
+    log("FAIL", "design-system.css 未加载", "--bg 为空");
   }
 }
 
@@ -74,33 +77,46 @@ async function testDurationVariables() {
   const vars = await page.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return {
-      durFast: style.getPropertyValue('--dur-fast').trim(),
-      durNormal: style.getPropertyValue('--dur-normal').trim(),
-      durSlow: style.getPropertyValue('--dur-slow').trim(),
-      durSlowest: style.getPropertyValue('--dur-slowest').trim(),
-      durSpin: style.getPropertyValue('--dur-spin').trim(),
-      durPulse: style.getPropertyValue('--dur-pulse').trim(),
-      durFloat: style.getPropertyValue('--dur-float').trim(),
-      durShimmer: style.getPropertyValue('--dur-shimmer').trim(),
-      durProgress: style.getPropertyValue('--dur-progress').trim(),
+      durFast: style.getPropertyValue("--dur-fast").trim(),
+      durNormal: style.getPropertyValue("--dur-normal").trim(),
+      durSlow: style.getPropertyValue("--dur-slow").trim(),
+      durSlowest: style.getPropertyValue("--dur-slowest").trim(),
+      durSpin: style.getPropertyValue("--dur-spin").trim(),
+      durPulse: style.getPropertyValue("--dur-pulse").trim(),
+      durFloat: style.getPropertyValue("--dur-float").trim(),
+      durShimmer: style.getPropertyValue("--dur-shimmer").trim(),
+      durProgress: style.getPropertyValue("--dur-progress").trim(),
     };
   });
 
   // 浏览器 getComputedStyle 会将 ms 标准化为 s (如 150ms → .15s)
   const expected = {
-    durFast: 150, durNormal: 250, durSlow: 400, durSlowest: 600,
-    durSpin: 800, durPulse: 2000, durFloat: 3000, durShimmer: 2000, durProgress: 1500,
+    durFast: 150,
+    durNormal: 250,
+    durSlow: 400,
+    durSlowest: 600,
+    durSpin: 800,
+    durPulse: 2000,
+    durFloat: 3000,
+    durShimmer: 2000,
+    durProgress: 1500,
   };
 
   let allPass = true;
   for (const [key, expectedMs] of Object.entries(expected)) {
     const actual = vars[key];
-    const actualMs = actual.endsWith('ms') ? parseFloat(actual) : parseFloat(actual) * 1000;
-    const varName = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+    const actualMs = actual.endsWith("ms")
+      ? parseFloat(actual)
+      : parseFloat(actual) * 1000;
+    const varName = `--${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`;
     if (Math.abs(actualMs - expectedMs) < 1) {
-      log('PASS', `CSS 变量 ${varName}`, `= "${actual}" (${expectedMs}ms)`);
+      log("PASS", `CSS 变量 ${varName}`, `= "${actual}" (${expectedMs}ms)`);
     } else {
-      log('FAIL', `CSS 变量 ${varName}`, `期望 ${expectedMs}ms, 实际 "${actual}"`);
+      log(
+        "FAIL",
+        `CSS 变量 ${varName}`,
+        `期望 ${expectedMs}ms, 实际 "${actual}"`
+      );
       allPass = false;
     }
   }
@@ -114,19 +130,27 @@ async function testEasingVariables() {
   const vars = await page.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return {
-      easeLinear: style.getPropertyValue('--ease-linear').trim(),
-      easeIn: style.getPropertyValue('--ease-in').trim(),
-      easeOut: style.getPropertyValue('--ease-out').trim(),
-      easeInOut: style.getPropertyValue('--ease-in-out').trim(),
-      easeElastic: style.getPropertyValue('--ease-elastic').trim(),
+      easeLinear: style.getPropertyValue("--ease-linear").trim(),
+      easeIn: style.getPropertyValue("--ease-in").trim(),
+      easeOut: style.getPropertyValue("--ease-out").trim(),
+      easeInOut: style.getPropertyValue("--ease-in-out").trim(),
+      easeElastic: style.getPropertyValue("--ease-elastic").trim(),
     };
   });
 
   for (const [key, val] of Object.entries(vars)) {
     if (val) {
-      log('PASS', `缓动变量 --${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`, `= "${val}"`);
+      log(
+        "PASS",
+        `缓动变量 --${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`,
+        `= "${val}"`
+      );
     } else {
-      log('FAIL', `缓动变量 --${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`, '未定义');
+      log(
+        "FAIL",
+        `缓动变量 --${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`,
+        "未定义"
+      );
     }
   }
 }
@@ -138,19 +162,31 @@ async function testStaggerVariables() {
   const vars = await page.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return {
-      staggerItem: style.getPropertyValue('--stagger-item').trim(),
-      staggerSm: style.getPropertyValue('--stagger-sm').trim(),
-      staggerLg: style.getPropertyValue('--stagger-lg').trim(),
+      staggerItem: style.getPropertyValue("--stagger-item").trim(),
+      staggerSm: style.getPropertyValue("--stagger-sm").trim(),
+      staggerLg: style.getPropertyValue("--stagger-lg").trim(),
     };
   });
 
-  const expected = { staggerItem: '50ms', staggerSm: '30ms', staggerLg: '80ms' };
+  const expected = {
+    staggerItem: "50ms",
+    staggerSm: "30ms",
+    staggerLg: "80ms",
+  };
   for (const [key, expectedVal] of Object.entries(expected)) {
     const actual = vars[key];
     if (actual === expectedVal) {
-      log('PASS', `Stagger 变量 --${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`, `= "${actual}"`);
+      log(
+        "PASS",
+        `Stagger 变量 --${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`,
+        `= "${actual}"`
+      );
     } else {
-      log('FAIL', `Stagger 变量 --${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`, `期望 "${expectedVal}", 实际 "${actual}"`);
+      log(
+        "FAIL",
+        `Stagger 变量 --${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`,
+        `期望 "${expectedVal}", 实际 "${actual}"`
+      );
     }
   }
 }
@@ -162,28 +198,28 @@ async function testBrandGlowVariables() {
   const vars = await page.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return {
-      brandGlow: style.getPropertyValue('--brand-glow').trim(),
-      brandGlow30: style.getPropertyValue('--brand-glow-30').trim(),
-      brandGlow20: style.getPropertyValue('--brand-glow-20').trim(),
-      brandGlowSubtle: style.getPropertyValue('--brand-glow-subtle').trim(),
-      brandGlow10: style.getPropertyValue('--brand-glow-10').trim(),
+      brandGlow: style.getPropertyValue("--brand-glow").trim(),
+      brandGlow30: style.getPropertyValue("--brand-glow-30").trim(),
+      brandGlow20: style.getPropertyValue("--brand-glow-20").trim(),
+      brandGlowSubtle: style.getPropertyValue("--brand-glow-subtle").trim(),
+      brandGlow10: style.getPropertyValue("--brand-glow-10").trim(),
     };
   });
 
   // 浏览器可能将 rgba() 标准化为 hex (#7c6bf066)
   const checkGlow = (name, value) => {
-    if (value && (value.includes('124') || value.includes('7c6bf0'))) {
-      log('PASS', `${name} 已定义`, `= "${value}"`);
+    if (value && (value.includes("124") || value.includes("7c6bf0"))) {
+      log("PASS", `${name} 已定义`, `= "${value}"`);
     } else {
-      log('FAIL', `${name} 未定义或值不正确`, `= "${value}"`);
+      log("FAIL", `${name} 未定义或值不正确`, `= "${value}"`);
     }
   };
 
-  checkGlow('--brand-glow', vars.brandGlow);
-  checkGlow('--brand-glow-30', vars.brandGlow30);
-  checkGlow('--brand-glow-20', vars.brandGlow20);
-  checkGlow('--brand-glow-subtle', vars.brandGlowSubtle);
-  checkGlow('--brand-glow-10', vars.brandGlow10);
+  checkGlow("--brand-glow", vars.brandGlow);
+  checkGlow("--brand-glow-30", vars.brandGlow30);
+  checkGlow("--brand-glow-20", vars.brandGlow20);
+  checkGlow("--brand-glow-subtle", vars.brandGlowSubtle);
+  checkGlow("--brand-glow-10", vars.brandGlow10);
 }
 
 // ============================================================
@@ -207,16 +243,29 @@ async function testKeyframesExist() {
   });
 
   const required = [
-    'fadeIn', 'fadeOut', 'slideUp', 'slideDown', 'slideInLeft', 'slideInRight',
-    'scaleIn', 'scaleOut', 'expandHeight', 'collapseHeight',
-    'spin', 'pulse', 'float', 'shimmer', 'glowBorder', 'progressIndeterminate',
+    "fadeIn",
+    "fadeOut",
+    "slideUp",
+    "slideDown",
+    "slideInLeft",
+    "slideInRight",
+    "scaleIn",
+    "scaleOut",
+    "expandHeight",
+    "collapseHeight",
+    "spin",
+    "pulse",
+    "float",
+    "shimmer",
+    "glowBorder",
+    "progressIndeterminate",
   ];
 
   for (const name of required) {
     if (keyframeNames.includes(name)) {
-      log('PASS', `@keyframes ${name} 存在`);
+      log("PASS", `@keyframes ${name} 存在`);
     } else {
-      log('FAIL', `@keyframes ${name} 缺失`);
+      log("FAIL", `@keyframes ${name} 缺失`);
     }
   }
 }
@@ -230,29 +279,46 @@ async function testAnimationClasses() {
     for (const sheet of document.styleSheets) {
       try {
         for (const rule of sheet.cssRules) {
-          if (rule instanceof CSSStyleRule && rule.selectorText?.startsWith('.animate-')) {
+          if (
+            rule instanceof CSSStyleRule &&
+            rule.selectorText?.startsWith(".animate-")
+          ) {
             classes.add(rule.selectorText);
           }
         }
-      } catch (e) { /* 跨域 */ }
+      } catch (e) {
+        /* 跨域 */
+      }
     }
     return [...classes];
   });
 
   const required = [
-    '.animate-fadeIn', '.animate-fadeOut', '.animate-fadeIn-fast',
-    '.animate-slideUp', '.animate-slideDown', '.animate-slideInLeft', '.animate-slideInRight',
-    '.animate-messageIn', '.animate-scaleIn', '.animate-scaleOut',
-    '.animate-expand', '.animate-collapse',
-    '.animate-spin', '.animate-pulse', '.animate-float', '.animate-shimmer',
-    '.animate-glowBorder', '.animate-progress',
+    ".animate-fadeIn",
+    ".animate-fadeOut",
+    ".animate-fadeIn-fast",
+    ".animate-slideUp",
+    ".animate-slideDown",
+    ".animate-slideInLeft",
+    ".animate-slideInRight",
+    ".animate-messageIn",
+    ".animate-scaleIn",
+    ".animate-scaleOut",
+    ".animate-expand",
+    ".animate-collapse",
+    ".animate-spin",
+    ".animate-pulse",
+    ".animate-float",
+    ".animate-shimmer",
+    ".animate-glowBorder",
+    ".animate-progress",
   ];
 
   for (const cls of required) {
     if (classNames.includes(cls)) {
-      log('PASS', `CSS 类 ${cls} 可用`);
+      log("PASS", `CSS 类 ${cls} 可用`);
     } else {
-      log('FAIL', `CSS 类 ${cls} 缺失`);
+      log("FAIL", `CSS 类 ${cls} 缺失`);
     }
   }
 }
@@ -263,9 +329,9 @@ async function testAnimationClasses() {
 async function testAnimationApply() {
   // 创建一个测试元素并应用动画类
   const result = await page.evaluate(() => {
-    const el = document.createElement('div');
-    el.className = 'animate-fadeIn';
-    el.textContent = 'test';
+    const el = document.createElement("div");
+    el.className = "animate-fadeIn";
+    el.textContent = "test";
     document.body.appendChild(el);
 
     const computed = getComputedStyle(el);
@@ -277,10 +343,18 @@ async function testAnimationApply() {
     return { animName, animDuration, animFillMode };
   });
 
-  if (result.animName === 'fadeIn') {
-    log('PASS', '.animate-fadeIn 应用效果', `name="${result.animName}", duration="${result.animDuration}", fill="${result.animFillMode}"`);
+  if (result.animName === "fadeIn") {
+    log(
+      "PASS",
+      ".animate-fadeIn 应用效果",
+      `name="${result.animName}", duration="${result.animDuration}", fill="${result.animFillMode}"`
+    );
   } else {
-    log('FAIL', '.animate-fadeIn 应用效果', `name="${result.animName}" (期望 "fadeIn")`);
+    log(
+      "FAIL",
+      ".animate-fadeIn 应用效果",
+      `name="${result.animName}" (期望 "fadeIn")`
+    );
   }
 }
 
@@ -293,25 +367,34 @@ async function testTransitionClasses() {
     for (const sheet of document.styleSheets) {
       try {
         for (const rule of sheet.cssRules) {
-          if (rule instanceof CSSStyleRule && rule.selectorText?.startsWith('.transition-')) {
+          if (
+            rule instanceof CSSStyleRule &&
+            rule.selectorText?.startsWith(".transition-")
+          ) {
             classes.add(rule.selectorText);
           }
         }
-      } catch (e) { /* 跨域 */ }
+      } catch (e) {
+        /* 跨域 */
+      }
     }
     return [...classes];
   });
 
   const required = [
-    '.transition-colors', '.transition-opacity', '.transition-transform',
-    '.transition-shadow', '.transition-all-fast', '.transition-all-normal',
+    ".transition-colors",
+    ".transition-opacity",
+    ".transition-transform",
+    ".transition-shadow",
+    ".transition-all-fast",
+    ".transition-all-normal",
   ];
 
   for (const cls of required) {
     if (classNames.includes(cls)) {
-      log('PASS', `过渡类 ${cls} 可用`);
+      log("PASS", `过渡类 ${cls} 可用`);
     } else {
-      log('FAIL', `过渡类 ${cls} 缺失`);
+      log("FAIL", `过渡类 ${cls} 缺失`);
     }
   }
 }
@@ -322,15 +405,15 @@ async function testTransitionClasses() {
 async function testReducedMotion() {
   // 创建新的 context，模拟 prefers-reduced-motion
   const rmContext = await browser.newContext({
-    reducedMotion: 'reduce',
+    reducedMotion: "reduce",
     viewport: { width: 1280, height: 800 },
   });
   const rmPage = await rmContext.newPage();
-  await rmPage.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
+  await rmPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: 30000 });
 
   const result = await rmPage.evaluate(() => {
-    const el = document.createElement('div');
-    el.className = 'animate-fadeIn';
+    const el = document.createElement("div");
+    el.className = "animate-fadeIn";
     document.body.appendChild(el);
     const computed = getComputedStyle(el);
     const dur = computed.animationDuration;
@@ -344,9 +427,17 @@ async function testReducedMotion() {
   // prefers-reduced-motion: reduce 应将 duration 设为接近 0
   const durMs = parseFloat(result.dur);
   if (durMs < 0.1) {
-    log('PASS', 'prefers-reduced-motion 生效', `duration="${result.dur}", iterations="${result.iterCount}"`);
+    log(
+      "PASS",
+      "prefers-reduced-motion 生效",
+      `duration="${result.dur}", iterations="${result.iterCount}"`
+    );
   } else {
-    log('FAIL', 'prefers-reduced-motion 未生效', `duration="${result.dur}" (期望接近 0)`);
+    log(
+      "FAIL",
+      "prefers-reduced-motion 未生效",
+      `duration="${result.dur}" (期望接近 0)`
+    );
   }
 }
 
@@ -358,16 +449,16 @@ async function testMobileViewport() {
     viewport: { width: 375, height: 812 }, // iPhone X
   });
   const mobilePage = await mobileContext.newPage();
-  await mobilePage.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
+  await mobilePage.goto(BASE_URL, { waitUntil: "networkidle", timeout: 30000 });
 
   const vars = await mobilePage.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return {
-      durFast: style.getPropertyValue('--dur-fast').trim(),
-      durNormal: style.getPropertyValue('--dur-normal').trim(),
-      durSlow: style.getPropertyValue('--dur-slow').trim(),
-      durSlowest: style.getPropertyValue('--dur-slowest').trim(),
-      staggerItem: style.getPropertyValue('--stagger-item').trim(),
+      durFast: style.getPropertyValue("--dur-fast").trim(),
+      durNormal: style.getPropertyValue("--dur-normal").trim(),
+      durSlow: style.getPropertyValue("--dur-slow").trim(),
+      durSlowest: style.getPropertyValue("--dur-slowest").trim(),
+      staggerItem: style.getPropertyValue("--stagger-item").trim(),
     };
   });
 
@@ -375,18 +466,27 @@ async function testMobileViewport() {
 
   // 移动端应使用延长的时长 (浏览器可能将 ms 标准化为 s)
   const checks = {
-    durFast: 180, durNormal: 300, durSlow: 500,
-    durSlowest: 750, staggerItem: 60,
+    durFast: 180,
+    durNormal: 300,
+    durSlow: 500,
+    durSlowest: 750,
+    staggerItem: 60,
   };
 
   for (const [key, expectedMs] of Object.entries(checks)) {
     const actual = vars[key];
-    const actualMs = actual.endsWith('ms') ? parseFloat(actual) : parseFloat(actual) * 1000;
-    const varName = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+    const actualMs = actual.endsWith("ms")
+      ? parseFloat(actual)
+      : parseFloat(actual) * 1000;
+    const varName = `--${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`;
     if (Math.abs(actualMs - expectedMs) < 1) {
-      log('PASS', `移动端 ${varName}`, `= "${actual}" (${expectedMs}ms)`);
+      log("PASS", `移动端 ${varName}`, `= "${actual}" (${expectedMs}ms)`);
     } else {
-      log('FAIL', `移动端 ${varName}`, `期望 ${expectedMs}ms, 实际 "${actual}"`);
+      log(
+        "FAIL",
+        `移动端 ${varName}`,
+        `期望 ${expectedMs}ms, 实际 "${actual}"`
+      );
     }
   }
 }
@@ -400,7 +500,10 @@ async function testExpandHeightGPU() {
     for (const sheet of document.styleSheets) {
       try {
         for (const rule of sheet.cssRules) {
-          if (rule instanceof CSSKeyframesRule && rule.name === 'expandHeight') {
+          if (
+            rule instanceof CSSKeyframesRule &&
+            rule.name === "expandHeight"
+          ) {
             const frames = [];
             for (const keyframe of rule.cssRules) {
               frames.push({
@@ -412,25 +515,33 @@ async function testExpandHeightGPU() {
             return frames;
           }
         }
-      } catch (e) { /* 跨域 */ }
+      } catch (e) {
+        /* 跨域 */
+      }
     }
     return null;
   });
 
   if (!result) {
-    log('FAIL', 'expandHeight @keyframes 未找到');
+    log("FAIL", "expandHeight @keyframes 未找到");
     return;
   }
 
-  const hasScaleY = result.some(f => f.transform && f.transform.includes('scaleY'));
-  const hasMaxHeight = result.some(f => f.maxHeight && f.maxHeight !== '');
+  const hasScaleY = result.some(
+    (f) => f.transform && f.transform.includes("scaleY")
+  );
+  const hasMaxHeight = result.some((f) => f.maxHeight && f.maxHeight !== "");
 
   if (hasScaleY && !hasMaxHeight) {
-    log('PASS', 'expandHeight 使用 scaleY (GPU 加速)', JSON.stringify(result));
+    log("PASS", "expandHeight 使用 scaleY (GPU 加速)", JSON.stringify(result));
   } else if (hasMaxHeight) {
-    log('FAIL', 'expandHeight 仍使用 max-height (非 GPU)', JSON.stringify(result));
+    log(
+      "FAIL",
+      "expandHeight 仍使用 max-height (非 GPU)",
+      JSON.stringify(result)
+    );
   } else {
-    log('WARN', 'expandHeight 关键帧内容', JSON.stringify(result));
+    log("WARN", "expandHeight 关键帧内容", JSON.stringify(result));
   }
 }
 
@@ -438,9 +549,9 @@ async function testExpandHeightGPU() {
 // 测试 14: 页面截图
 // ============================================================
 async function testScreenshot() {
-  const screenshotPath = '/tmp/animation-ui-test-screenshot.png';
+  const screenshotPath = "/tmp/animation-ui-test-screenshot.png";
   await page.screenshot({ path: screenshotPath, fullPage: false });
-  log('PASS', '页面截图已保存', screenshotPath);
+  log("PASS", "页面截图已保存", screenshotPath);
 }
 
 // ============================================================
@@ -448,20 +559,24 @@ async function testScreenshot() {
 // ============================================================
 async function testNoConsoleErrors() {
   const errors = [];
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') {
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
       errors.push(msg.text());
     }
   });
 
   // 重新加载页面来收集错误
-  await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  await page.reload({ waitUntil: "networkidle", timeout: 30000 });
   await page.waitForTimeout(2000);
 
   if (errors.length === 0) {
-    log('PASS', '无 console.error 输出');
+    log("PASS", "无 console.error 输出");
   } else {
-    log('WARN', `${errors.length} 个 console.error`, errors.slice(0, 3).join(' | '));
+    log(
+      "WARN",
+      `${errors.length} 个 console.error`,
+      errors.slice(0, 3).join(" | ")
+    );
   }
 }
 
@@ -469,50 +584,62 @@ async function testNoConsoleErrors() {
 // 主流程
 // ============================================================
 async function main() {
-  console.log('═══════════════════════════════════════════════════');
-  console.log('  v5.27 动画系统 — 前端 UI E2E 测试');
-  console.log('  Playwright + Chromium (headless)');
-  console.log('═══════════════════════════════════════════════════\n');
+  console.log("═══════════════════════════════════════════════════");
+  console.log("  v5.27 动画系统 — 前端 UI E2E 测试");
+  console.log("  Playwright + Chromium (headless)");
+  console.log("═══════════════════════════════════════════════════\n");
 
   try {
     await setup();
   } catch (err) {
-    log('FAIL', '测试环境初始化失败', err.message);
+    log("FAIL", "测试环境初始化失败", err.message);
     await teardown();
     process.exit(1);
   }
 
   const tests = [
-    testPageLoad, testCSSLoaded, testDurationVariables, testEasingVariables,
-    testStaggerVariables, testBrandGlowVariables, testKeyframesExist,
-    testAnimationClasses, testAnimationApply, testTransitionClasses,
-    testReducedMotion, testMobileViewport, testExpandHeightGPU,
-    testScreenshot, testNoConsoleErrors,
+    testPageLoad,
+    testCSSLoaded,
+    testDurationVariables,
+    testEasingVariables,
+    testStaggerVariables,
+    testBrandGlowVariables,
+    testKeyframesExist,
+    testAnimationClasses,
+    testAnimationApply,
+    testTransitionClasses,
+    testReducedMotion,
+    testMobileViewport,
+    testExpandHeightGPU,
+    testScreenshot,
+    testNoConsoleErrors,
   ];
 
   for (const testFn of tests) {
     try {
       await testFn();
     } catch (err) {
-      log('FAIL', `${testFn.name} 异常`, err.message);
+      log("FAIL", `${testFn.name} 异常`, err.message);
     }
   }
 
   await teardown();
 
   // 汇总
-  console.log('\n═══════════════════════════════════════════════════');
-  const pass = results.filter(r => r.status === 'PASS').length;
-  const fail = results.filter(r => r.status === 'FAIL').length;
-  const warn = results.filter(r => r.status === 'WARN').length;
+  console.log("\n═══════════════════════════════════════════════════");
+  const pass = results.filter((r) => r.status === "PASS").length;
+  const fail = results.filter((r) => r.status === "FAIL").length;
+  const warn = results.filter((r) => r.status === "WARN").length;
   console.log(`  结果: ${pass} 通过 / ${fail} 失败 / ${warn} 警告`);
-  console.log('═══════════════════════════════════════════════════');
+  console.log("═══════════════════════════════════════════════════");
 
   if (fail > 0) {
-    console.log('\n❌ 失败项:');
-    results.filter(r => r.status === 'FAIL').forEach(r => {
-      console.log(`   - ${r.name}: ${r.detail}`);
-    });
+    console.log("\n❌ 失败项:");
+    results
+      .filter((r) => r.status === "FAIL")
+      .forEach((r) => {
+        console.log(`   - ${r.name}: ${r.detail}`);
+      });
   }
 
   process.exit(fail > 0 ? 1 : 0);

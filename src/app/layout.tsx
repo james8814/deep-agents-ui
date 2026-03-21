@@ -11,7 +11,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AZUNE - AI Product Manager Assistant",
-  description: "AI-powered product management assistant built on LangGraph & DeepAgents",
+  description:
+    "AI-powered product management assistant built on LangGraph & DeepAgents",
 };
 
 const inter = Inter({ subsets: ["latin"] });

@@ -46,7 +46,9 @@ export function useScrollToHighlight(
       }
 
       // 查找目标元素
-      const targetElement = container.querySelector(`[data-task-id="${taskId}"]`);
+      const targetElement = container.querySelector(
+        `[data-task-id="${taskId}"]`
+      );
       if (!targetElement) {
         console.debug(`[useScrollToHighlight] 未找到 taskId=${taskId} 的元素`);
         return;

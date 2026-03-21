@@ -305,9 +305,7 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled || loading || !!interrupt}
             />
-            <span className="text-xs text-muted-foreground">
-              Shift+Enter
-            </span>
+            <span className="text-xs text-muted-foreground">Shift+Enter</span>
             {hasUploadingFiles && (
               <span className="flex items-center gap-1 text-xs text-warning">
                 <Loader2

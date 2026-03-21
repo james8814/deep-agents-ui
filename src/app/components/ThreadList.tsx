@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { format } from "date-fns";
-import { Loader2, MessageSquare, Pencil, Search, Trash2, X } from "lucide-react";
+import {
+  Loader2,
+  MessageSquare,
+  Pencil,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useQueryState } from "nuqs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -259,7 +266,10 @@ export function ThreadList({
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
-              <SelectTrigger className="w-fit" aria-label="Filter threads by status">
+              <SelectTrigger
+                className="w-fit"
+                aria-label="Filter threads by status"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent align="end">
@@ -352,7 +362,11 @@ export function ThreadList({
                   key={group}
                   className="mb-4"
                 >
-                  <div role="heading" aria-level={3} className="m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div
+                    role="heading"
+                    aria-level={3}
+                    className="m-0 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                  >
                     {GROUP_LABELS[group]}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -368,7 +382,7 @@ export function ThreadList({
                             "grid w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 pr-16 text-left transition-colors duration-200",
                             "hover:bg-accent/15",
                             currentThreadId === thread.id
-                              ? "border border-primary bg-primary/15 hover:bg-primary/20"
+                              ? "bg-primary/15 hover:bg-primary/20 border border-primary"
                               : "border border-transparent bg-transparent"
                           )}
                           aria-current={currentThreadId === thread.id}
@@ -401,7 +415,7 @@ export function ThreadList({
                         </button>
 
                         {/* v5.26 #3: Thread Hover Actions */}
-                        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
+                        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100">
                           <button
                             type="button"
                             onClick={(e) => {

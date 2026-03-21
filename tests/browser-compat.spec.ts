@@ -129,7 +129,7 @@ test.describe("Browser Compatibility", () => {
             // Test template literals
             const _template = `test`;
             // Test destructuring
-            const { a } = { a: 1 };
+            const { _a } = { a: 1 };
             // Test async/await
             const _asyncFunc = async () => true;
             return true;

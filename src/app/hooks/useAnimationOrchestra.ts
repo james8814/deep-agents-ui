@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 /**
  * 动画编排系统的核心数据类型定义
@@ -182,15 +182,16 @@ export function useAnimationOrchestra(
   const frameRefsRef = useRef<Set<number>>(new Set());
   const startTimeRef = useRef<number | null>(null);
   const elapsedTimeRef = useRef<number>(0);
-  const progressCallbackRef = useRef<(progress: number, elapsed: number) => void | null>(null);
+  const progressCallbackRef =
+    useRef<(progress: number, elapsed: number) => void | null>(null);
   // ✅ FIX: 暂停时保存已消耗时间，用于 resume
   const pausedElapsedRef = useRef<number>(0);
 
   // 检查用户是否要求减少运动
   const shouldReduceMotion = (): boolean => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === "undefined") return false;
     if (scene.respectReducedMotion === false) return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   };
 
   // 计算场景总时长
@@ -199,10 +200,16 @@ export function useAnimationOrchestra(
 
     if (scene.concurrent) {
       // 并发模式：取所有步骤的最大时长
-      return Math.max(...scene.steps.map((step) => step.delay + step.duration), 0);
+      return Math.max(
+        ...scene.steps.map((step) => step.delay + step.duration),
+        0
+      );
     } else {
       // 顺序模式：求和所有步骤的时长
-      return scene.steps.reduce((sum, step) => sum + step.delay + step.duration, 0);
+      return scene.steps.reduce(
+        (sum, step) => sum + step.delay + step.duration,
+        0
+      );
     }
   };
 
@@ -223,7 +230,10 @@ export function useAnimationOrchestra(
     elapsedTimeRef.current = 0;
   };
 
-  const scheduleTimeout = (callback: () => void, delay: number): NodeJS.Timeout => {
+  const scheduleTimeout = (
+    callback: () => void,
+    delay: number
+  ): NodeJS.Timeout => {
     const id = setTimeout(() => {
       timeoutRefsRef.current.delete(id);
       callback();
@@ -426,7 +436,9 @@ export function useAnimationOrchestra(
   };
 
   // 注册帧更新监听
-  const onFrame = (callback: (progress: number, elapsed: number) => void): void => {
+  const onFrame = (
+    callback: (progress: number, elapsed: number) => void
+  ): void => {
     progressCallbackRef.current = callback;
   };
 

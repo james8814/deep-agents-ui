@@ -84,8 +84,6 @@ test.describe("Performance Tests", () => {
   });
 
   test("should not have render-blocking resources", async ({ page }) => {
-    const _requests = (await page.context().tracing.startChunk?.()) || null;
-
     await page.goto("http://localhost:3000");
 
     const resources = await page.evaluate(() => {

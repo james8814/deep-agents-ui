@@ -3,7 +3,7 @@
  * 测试初始化逻辑
  */
 
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { ClientInitializer } from "./ClientInitializer";
 import "@testing-library/jest-dom";
 
@@ -23,20 +23,20 @@ describe("ClientInitializer", () => {
 
   test("在加载完成前不应渲染子组件", async () => {
     // Use a state to track render
-    let renderCount = 0;
+    let _renderCount = 0;
 
-    const ChildComponent = () => {
-      renderCount++;
+    const _ChildComponent = () => {
+      _renderCount++;
       return <div data-testid="child">Child Content</div>;
     };
 
     // Mock dynamic import to delay
-    const originalImport = jest.requireActual("@/lib/fetchInterceptor");
+    const _originalImport = jest.requireActual("@/lib/fetchInterceptor");
 
     // Create a promise that doesn't resolve immediately
-    let resolveImport: (value: unknown) => void;
-    const importPromise = new Promise((resolve) => {
-      resolveImport = resolve;
+    let _resolveImport: (value: unknown) => void;
+    const _importPromise = new Promise((resolve) => {
+      _resolveImport = resolve;
     });
 
     jest.doMock("@/lib/fetchInterceptor", () => ({
@@ -113,7 +113,7 @@ describe("ClientInitializer", () => {
 
     // Re-require to pick up the mock
     jest.isolateModules(() => {
-      require("@/lib/fetchInterceptor");
+      import("@/lib/fetchInterceptor");
     });
 
     // Clean up
