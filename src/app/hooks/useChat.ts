@@ -361,45 +361,45 @@ export function useChat({
     });
   }, [stream.messages, threadId, stream.isLoading]);
 
-  // ✅ 修复 ISSUE-001: 添加本地消息缓存，防止消息清空
-  const messagesCache = useRef<Message[]>([]);
+  // ✅ 修复 ISSUE-004: 正确处理 SDK messages 覆盖问题
+  // 问题：SDK 在 streaming 时，stream.messages 会从 [用户消息] 变成 [AI回复]
+  // 解决：使用 Map 按 id 去重，保留所有见过的消息
+
+  const messagesMap = useRef<Map<string, Message>>(new Map());
   const prevThreadId = useRef<string | null>(null);
 
-  // 当 threadId 改变时，清空缓存
+  // 当 threadId 改变时，清空 Map
   useEffect(() => {
     if (threadId !== prevThreadId.current) {
-      console.log("[useChat] threadId changed, clearing cache:", {
+      console.log("[useChat] threadId changed, clearing message map:", {
         prev: prevThreadId.current,
         new: threadId,
       });
-      messagesCache.current = [];
+      messagesMap.current.clear();
       prevThreadId.current = threadId;
     }
   }, [threadId]);
 
   // 合并 SDK messages 和缓存
   const messages = useMemo(() => {
-    // 如果 SDK messages 为空，使用缓存
-    if (stream.messages.length === 0 && messagesCache.current.length > 0) {
-      console.log("[useChat] SDK messages empty, using cache:", messagesCache.current.length);
-      return messagesCache.current;
-    }
-
-    // 合并缓存和新消息
-    const merged = [...messagesCache.current];
+    // 将 SDK messages 添加到 Map（去重）
     stream.messages.forEach((msg) => {
-      if (!merged.find((m) => m.id === msg.id)) {
-        merged.push(msg);
+      if (msg.id) {
+        messagesMap.current.set(msg.id, msg);
       }
     });
 
-    // 更新缓存
-    if (merged.length !== messagesCache.current.length) {
-      console.log("[useChat] updating cache:", messagesCache.current.length, "->", merged.length);
-      messagesCache.current = merged;
-    }
+    // 从 Map 生成消息列表，保持插入顺序
+    const allMessages = Array.from(messagesMap.current.values());
 
-    return merged;
+    console.log("[useChat] merged messages from map:", {
+      mapSize: messagesMap.current.size,
+      sdkCount: stream.messages.length,
+      finalCount: allMessages.length,
+      types: allMessages.map(m => m.type).join(', '),
+    });
+
+    return allMessages;
   }, [stream.messages]);
 
   return {
