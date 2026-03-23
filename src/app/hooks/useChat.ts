@@ -201,9 +201,13 @@ export function useChat({
       stream.submit(
         { messages: [newMessage] },
         {
-          optimisticValues: (prev) => ({
-            messages: [...(prev.messages ?? []), newMessage],
-          }),
+          optimisticValues: (prev) => {
+            // 🔧 防御性检查：处理 prev 为空或 prev.messages 不是数组的情况
+            const prevMessages = Array.isArray(prev?.messages) ? prev.messages : [];
+            return {
+              messages: [...prevMessages, newMessage],
+            };
+          },
           config: getConfigWithToken(
             (activeAssistant?.config as Record<string, unknown>) ?? {
               recursion_limit: 200,
@@ -318,9 +322,13 @@ export function useChat({
     stream.submit(
       { messages: [newMessage] },
       {
-        optimisticValues: (prev) => ({
-          messages: [...(prev.messages ?? []), newMessage],
-        }),
+        optimisticValues: (prev) => {
+          // 🔧 防御性检查：处理 prev 为空或 prev.messages 不是数组的情况
+          const prevMessages = Array.isArray(prev?.messages) ? prev.messages : [];
+          return {
+            messages: [...prevMessages, newMessage],
+          };
+        },
         config: getConfigWithToken(
           (activeAssistant?.config as Record<string, unknown>) ?? {
             recursion_limit: 200,
