@@ -62,15 +62,33 @@ function processMessagesWithTools(
 ): ProcessedMessage[] {
   const messageMap = new Map<string, ProcessedMessage>();
 
-  messages.forEach((message) => {
+  // 🔍 调试日志：确认 interrupt 数据结构（修复 ISSUE-002）
+  if (interrupt) {
+    console.log("[messageConverter] interrupt detected:", {
+      interrupt,
+      type: typeof interrupt,
+      keys: interrupt && typeof interrupt === "object" ? Object.keys(interrupt) : [],
+    });
+  }
+
+  messages.forEach((message, messageIndex) => {
     if (message.type === "ai") {
       const toolCalls = extractToolCalls(message);
+      const isLastMessage = messageIndex === messages.length - 1;
+
       messageMap.set(message.id!, {
         message,
-        toolCalls: toolCalls.map((tc) => ({
-          ...tc,
-          status: interrupt ? "interrupted" : "pending",
-        })),
+        toolCalls: toolCalls.map((tc, tcIndex) => {
+          // ✅ 修复 ISSUE-002: 正确的 interrupt 状态判断
+          // 只有最后一个 AI 消息的最后一个 tool call 可能是 interrupted
+          const isLastToolCall = tcIndex === toolCalls.length - 1;
+          const shouldBeInterrupted = interrupt && isLastMessage && isLastToolCall;
+
+          return {
+            ...tc,
+            status: shouldBeInterrupted ? "interrupted" : "pending",
+          };
+        }),
       });
     } else if (message.type === "tool") {
       const toolCallId = message.tool_call_id;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import {
   type Message,
@@ -342,6 +342,58 @@ export function useChat({
     }
   }
 
+  // 🔍 调试日志：监控 messages 变化（修复 ISSUE-001）
+  useEffect(() => {
+    console.log("[useChat] stream.messages changed:", {
+      count: stream.messages.length,
+      threadId,
+      isLoading: stream.isLoading,
+      firstMsg: stream.messages[0]?.content?.toString().substring(0, 50),
+      lastMsg: stream.messages[stream.messages.length - 1]?.content?.toString().substring(0, 50),
+    });
+  }, [stream.messages, threadId, stream.isLoading]);
+
+  // ✅ 修复 ISSUE-001: 添加本地消息缓存，防止消息清空
+  const messagesCache = useRef<Message[]>([]);
+  const prevThreadId = useRef<string | null>(null);
+
+  // 当 threadId 改变时，清空缓存
+  useEffect(() => {
+    if (threadId !== prevThreadId.current) {
+      console.log("[useChat] threadId changed, clearing cache:", {
+        prev: prevThreadId.current,
+        new: threadId,
+      });
+      messagesCache.current = [];
+      prevThreadId.current = threadId;
+    }
+  }, [threadId]);
+
+  // 合并 SDK messages 和缓存
+  const messages = useMemo(() => {
+    // 如果 SDK messages 为空，使用缓存
+    if (stream.messages.length === 0 && messagesCache.current.length > 0) {
+      console.log("[useChat] SDK messages empty, using cache:", messagesCache.current.length);
+      return messagesCache.current;
+    }
+
+    // 合并缓存和新消息
+    const merged = [...messagesCache.current];
+    stream.messages.forEach((msg) => {
+      if (!merged.find((m) => m.id === msg.id)) {
+        merged.push(msg);
+      }
+    });
+
+    // 更新缓存
+    if (merged.length !== messagesCache.current.length) {
+      console.log("[useChat] updating cache:", messagesCache.current.length, "->", merged.length);
+      messagesCache.current = merged;
+    }
+
+    return merged;
+  }, [stream.messages]);
+
   return {
     stream,
     todos: stream.values.todos ?? [],
@@ -351,7 +403,7 @@ export function useChat({
     email: stream.values.email,
     ui: stream.values.ui,
     setFiles,
-    messages: stream.messages,
+    messages, // ✅ 使用合并后的 messages
     isLoading: stream.isLoading,
     isThreadLoading: stream.isThreadLoading,
     interrupt: stream.interrupt,

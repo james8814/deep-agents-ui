@@ -40,8 +40,11 @@ interface WorkPanelV527Props {
 }
 
 export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
-  ({ onClose: _onClose, subagentLogs = {}, isVisible = true }) => {
-    const { todos, files = {}, isLoading, subagents } = useChatContext();
+  ({ onClose: _onClose, subagentLogs: externalSubagentLogs, isVisible = true }) => {
+    const { todos, files = {}, isLoading, subagents, subagent_logs: contextSubagentLogs } = useChatContext();
+
+    // 优先使用 props，fallback 到 context（修复 ISSUE-003）
+    const subagentLogs = externalSubagentLogs ?? contextSubagentLogs ?? {};
 
     // 模式检测（设计基准 Section 2.2）
     const { mode } = usePanelMode({ todos, files, subagentLogs });
