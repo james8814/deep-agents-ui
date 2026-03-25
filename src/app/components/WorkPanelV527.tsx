@@ -46,6 +46,10 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
     // 优先使用 props，fallback 到 context（修复 ISSUE-003）
     const subagentLogs = externalSubagentLogs ?? contextSubagentLogs ?? {};
 
+    // 🔧 修复无限循环：移除组件体内的 console.log
+    // 原因：console.log 在组件体内会在每次渲染时执行
+    // 如需调试，使用 React DevTools 或 useEffect
+
     // 模式检测（设计基准 Section 2.2）
     const { mode } = usePanelMode({ todos, files, subagentLogs });
 

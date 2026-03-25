@@ -62,20 +62,21 @@ function processMessagesWithTools(
 ): ProcessedMessage[] {
   const messageMap = new Map<string, ProcessedMessage>();
 
-  // 🔍 调试日志：确认 interrupt 数据结构（修复 ISSUE-002）
-  if (interrupt) {
-    console.log("[messageConverter] interrupt detected:", {
-      interrupt,
-      type: typeof interrupt,
-      keys: interrupt && typeof interrupt === "object" ? Object.keys(interrupt) : [],
-    });
-  }
-
   // 🔧 修复 ISSUE-005: 从 interrupt 对象中提取被中断的 tool_call_id
   // interrupt 结构可能是：
-  // { value: { tool_call_id: "xxx", ... } } 或
+  // { value: { action_requests: [...], review_configs: [...] } } (submit_deliverable 等 HIL)
+  // { value: { tool_call_id: "xxx", ... } } (普通 tool 中断)
   // { tool_call_id: "xxx", ... }
-  const interruptedToolCallId = (() => {
+  const hasActionRequests = (() => {
+    if (!interrupt || typeof interrupt !== "object") return false;
+    const interruptValue = (interrupt as any).value;
+    return !!(interruptValue && typeof interruptValue === "object" &&
+              Array.isArray(interruptValue.action_requests) &&
+              interruptValue.action_requests.length > 0);
+  })();
+
+  // 提取被中断的 tool_call_id（如果有的话）
+  const interruptedToolCallId = hasActionRequests ? null : (() => {
     if (!interrupt || typeof interrupt !== "object") return null;
 
     // 尝试从 interrupt.value 中获取
@@ -88,9 +89,8 @@ function processMessagesWithTools(
     return (interrupt as any).tool_call_id || (interrupt as any).toolCallId;
   })();
 
-  if (interrupt && interruptedToolCallId) {
-    console.log("[messageConverter] interrupted tool_call_id:", interruptedToolCallId);
-  }
+  // 🔧 修复：当有 action_requests 时，标记所有 pending tool call 为 interrupted
+  // 因为无法精确匹配到具体是哪个 tool call_id（interrupt 没有这个字段）
 
   messages.forEach((message, messageIndex) => {
     if (message.type === "ai") {
@@ -99,20 +99,11 @@ function processMessagesWithTools(
       messageMap.set(message.id!, {
         message,
         toolCalls: toolCalls.map((tc, tcIndex) => {
-          // ✅ 修复 ISSUE-005: 使用 tool_call_id 判断 interrupt 状态
-          // 之前的逻辑（ISSUE-002）只检查最后一个 AI 消息的最后一个 tool call
-          // 但实际上 interrupt 可能发生在任何位置的 tool call
-          const shouldBeInterrupted = interrupt && tc.id === interruptedToolCallId;
-
-          // 🔍 调试日志：检查每个 tool call 的 interrupt 状态
-          if (interrupt) {
-            console.log("[messageConverter] tool call status:", {
-              tcId: tc.id,
-              tcName: tc.name,
-              interruptedToolCallId,
-              shouldBeInterrupted,
-            });
-          }
+          // 🔧 修复: 使用 hasActionRequests 或 tool_call_id 匹配来判断 interrupt 状态
+          // 当有 action_requests 时（submit_deliverable 等 HIL），所有 pending tool call 都需要用户审批
+          const shouldBeInterrupted = hasActionRequests
+            ? tc.status === "pending" || tc.status === "interrupted" // 标记所有 pending 为 interrupted
+            : (interrupt && tc.id === interruptedToolCallId);
 
           return {
             ...tc,
