@@ -67,14 +67,30 @@ export function useChat({
   activeAssistant,
   onHistoryRevalidate,
   thread,
+  externalThreadId,
 }: {
   activeAssistant: Assistant | null;
   onHistoryRevalidate?: () => void;
   thread?: UseStreamThread<StateType>;
+  externalThreadId?: string | null;
 }) {
-  const [threadId, setThreadId] = useQueryState("threadId");
+  // 如果传入了 externalThreadId，使用它；否则使用内部的 useQueryState
+  const [internalThreadId, setInternalThreadId] = useQueryState("threadId");
+  // 🔧 修复：使用外部传入的 threadId，避免和 page.tsx 的 threadId 冲突
+  const threadId = externalThreadId !== undefined ? externalThreadId : internalThreadId;
+  const setThreadId = externalThreadId !== undefined
+    ? ((_id: string | null) => { /* external set handled by parent */ })
+    : setInternalThreadId;
   const client = useClient();
   const token = useClientToken();
+
+  // 🔍 监控 threadId 变化
+  const prevThreadId = useRef<string | null>(null);
+  useEffect(() => {
+    if (threadId !== prevThreadId.current) {
+      prevThreadId.current = threadId;
+    }
+  }, [threadId]);
 
   // 辅助函数：将 token 添加到 config.configurable
   // 供后端 AuthMiddleware 读取，实现用户身份验证
@@ -137,7 +153,12 @@ export function useChat({
     assistantId: activeAssistant?.assistant_id || "",
     client: client ?? undefined,
     threadId: threadId ?? null,
-    onThreadId: setThreadId,
+    onThreadId: (newThreadId) => {
+      // 🔧 修复：只有使用内部 threadId 时才更新
+      if (externalThreadId === undefined) {
+        setInternalThreadId(newThreadId);
+      }
+    },
     // Revalidate thread list when stream finishes, errors, or creates new thread
     onFinish: onHistoryRevalidate,
     onError: handleStreamError,
@@ -197,7 +218,13 @@ export function useChat({
         );
       }
 
-      // 提交消息到流
+      // 🔧【P0 修复】消息历史累积问题 - 传递 checkpoint 以从上一个状态恢复
+      // 问题：不传递 checkpoint 时，每次运行都从头开始，导致消息历史无法累积
+      // 解决：从 stream.history 获取当前 checkpoint，在 submit 时传递
+      // 参考：LangGraph SDK 内部使用 branchContext.threadHead?.checkpoint
+      // 注意：stream.history 是时间顺序数组，.at(-1) 是最新状态（threadHead）
+      const currentCheckpoint = stream.history?.at(-1)?.checkpoint ?? null;
+
       stream.submit(
         { messages: [newMessage] },
         {
@@ -213,6 +240,8 @@ export function useChat({
               recursion_limit: 200,
             }
           ),
+          // ✅ 传递 checkpoint，让后端从上一个 checkpoint 恢复消息历史
+          checkpoint: currentCheckpoint,
         }
       );
 
@@ -339,68 +368,75 @@ export function useChat({
     onHistoryRevalidate?.();
   }, [stream, activeAssistant?.config, onHistoryRevalidate, getConfigWithToken]);
 
-  // Debug logging for files state tracking (disabled in production)
-  const filesFromStream = stream.values.files ?? {};
-  if (Object.keys(filesFromStream).length > 0) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[useChat] Received files from stream:", {
-        count: Object.keys(filesFromStream).length,
-        files: Object.keys(filesFromStream),
-      });
-    }
-  }
+  // 🔧 修复无限循环：移除 subagent_logs console.log
+  // 原因：每次渲染都执行，导致性能问题
+  // 如需调试，使用 React DevTools 或条件化日志
 
-  // 🔍 调试日志：监控 messages 变化（修复 ISSUE-001）
-  useEffect(() => {
-    console.log("[useChat] stream.messages changed:", {
-      count: stream.messages.length,
-      threadId,
-      isLoading: stream.isLoading,
-      firstMsg: stream.messages[0]?.content?.toString().substring(0, 50),
-      lastMsg: stream.messages[stream.messages.length - 1]?.content?.toString().substring(0, 50),
-    });
-  }, [stream.messages, threadId, stream.isLoading]);
+  // 🔧 修复无限循环：移除 files console.log
+  // 原因：每次渲染都执行，导致性能问题
+  const filesFromStream = stream.values.files ?? {};
+
+  // 🔧 修复无限循环：移除 stream.messages useEffect 监控
+  // 原因：stream.messages 是数组，引用频繁变化导致无限重渲染
+  // 如需调试，使用 React DevTools 或手动 console.log
+
+  // 🔧 修复无限循环：移除 console.log
 
   // ✅ 修复 ISSUE-004: 正确处理 SDK messages 覆盖问题
   // 问题：SDK 在 streaming 时，stream.messages 会从 [用户消息] 变成 [AI回复]
   // 解决：使用 Map 按 id 去重，保留所有见过的消息
 
   const messagesMap = useRef<Map<string, Message>>(new Map());
-  const prevThreadId = useRef<string | null>(null);
+  // ⚠️ prevThreadId 已在上面定义（第 92 行），用于监控 threadId 变化
 
   // 当 threadId 改变时，清空 Map
   useEffect(() => {
     if (threadId !== prevThreadId.current) {
-      console.log("[useChat] threadId changed, clearing message map:", {
-        prev: prevThreadId.current,
-        new: threadId,
-      });
       messagesMap.current.clear();
       prevThreadId.current = threadId;
     }
   }, [threadId]);
 
-  // 合并 SDK messages 和缓存
+  // 🔧 修复无限循环：稳定 useMemo 依赖
+  // 原因：stream.messages 数组引用频繁变化
+  // 解决：只在消息数量或 ID 集合变化时重新计算
   const messages = useMemo(() => {
     // 将 SDK messages 添加到 Map（去重）
     stream.messages.forEach((msg) => {
       if (msg.id) {
-        messagesMap.current.set(msg.id, msg);
+        // 🔧 修复：LangGraph SDK 在流式传输期间可能返回空内容
+        // 检查 stream.values.messages 中是否有完整内容作为回退
+        let finalMsg = msg;
+        if (!msg.content || (typeof msg.content === 'string' && msg.content.trim() === '')) {
+          // 检查 stream.values 中是否有该消息的完整版本
+          const valuesMessages = stream.values.messages || [];
+          const completeMsg = valuesMessages.find((m: any) => m.id === msg.id);
+          if (completeMsg && completeMsg.content) {
+            finalMsg = completeMsg;
+          }
+        }
+        messagesMap.current.set(msg.id, finalMsg);
       }
     });
 
     // 从 Map 生成消息列表，保持插入顺序
     const allMessages = Array.from(messagesMap.current.values());
 
-    console.log("[useChat] merged messages from map:", {
-      mapSize: messagesMap.current.size,
-      sdkCount: stream.messages.length,
-      finalCount: allMessages.length,
-      types: allMessages.map(m => m.type).join(', '),
-    });
+    // 🔧 仅在开发环境且消息数量变化时记录日志
+    if (process.env.NODE_ENV === 'development') {
+      const prevSize = messagesMap.current.size;
+      const newSize = allMessages.length;
+      if (prevSize !== newSize) {
+        console.log("[useChat] messages updated:", {
+          count: newSize,
+          types: allMessages.map(m => m.type).join(', '),
+        });
+      }
+    }
 
     return allMessages;
-  }, [stream.messages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stream.messages.length, stream.messages.map(m => m.id).join(','), stream.isLoading]);
 
   return {
     stream,

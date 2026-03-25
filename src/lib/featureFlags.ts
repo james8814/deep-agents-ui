@@ -34,7 +34,7 @@ const URL_KEY_MAP: Record<FeatureFlagKey, string> = {
   USE_ANTDX_SUB_AGENT: "useAntdxSubAgent",
 };
 
-const CONFIG_KEY = "deep-agent-config";
+const CONFIG_KEY = "deep-agent-config-v2"; // Must match config.ts
 
 /**
  * 从 localStorage 读取 useAntdX 配置

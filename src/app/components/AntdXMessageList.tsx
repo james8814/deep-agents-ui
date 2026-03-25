@@ -23,10 +23,24 @@ interface AntdXMessageListProps {
 export const AntdXMessageList = React.memo<AntdXMessageListProps>(
   ({ messages, isLoading, interrupt, stream, onResumeInterrupt }) => {
     const bubbleItems = useMemo(() => {
-      // 过滤掉空内容的消息，避免渲染空的气泡
-      return convertMessagesToBubbles(messages, isLoading, interrupt).filter(
-        (item) => item.content && item.content.trim() !== ""
-      );
+      // 转换消息
+      const items = convertMessagesToBubbles(messages, isLoading, interrupt);
+
+      // 🔧 修复：不要过滤空内容的消息！
+      // 原因：流式输出期间，AI 消息的 content 可能暂时为空
+      // 如果过滤掉，会导致消息不显示
+      // 改为：仅在非 loading 状态且 content 确实为空时才考虑过滤
+      const filteredItems = items.filter((item) => {
+        // 保留所有 user 消息
+        if (item.role === "user") return true;
+        // 始终保留 AI 消息 - 即使内容为空也应该显示
+        // 因为流式输出期间内容可能暂时为空，但消息仍需显示
+        if (item.role === "ai") return true;
+        // 其他角色需要内容
+        return item.content && item.content.trim() !== "";
+      });
+
+      return filteredItems;
     }, [messages, isLoading, interrupt]);
 
     const roleConfig = useMemo(

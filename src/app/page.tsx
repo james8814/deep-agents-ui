@@ -178,7 +178,7 @@ function HomePageInner({
               variant="default"
               size="sm"
               onClick={() => setThreadId(null)}
-              disabled={!threadId}
+              // 🔧 修复：移除 disabled 限制，允许在任何情况下创建新会话
             >
               <SquarePen className="mr-2 h-4 w-4" />
               New Thread
@@ -224,6 +224,7 @@ function HomePageInner({
             <ChatProvider
               activeAssistant={assistant}
               onHistoryRevalidate={() => mutateThreads?.()}
+              threadId={threadId}
             >
               <ResizablePanelGroup
                 direction="horizontal"

@@ -71,18 +71,48 @@ function processMessagesWithTools(
     });
   }
 
+  // 🔧 修复 ISSUE-005: 从 interrupt 对象中提取被中断的 tool_call_id
+  // interrupt 结构可能是：
+  // { value: { tool_call_id: "xxx", ... } } 或
+  // { tool_call_id: "xxx", ... }
+  const interruptedToolCallId = (() => {
+    if (!interrupt || typeof interrupt !== "object") return null;
+
+    // 尝试从 interrupt.value 中获取
+    const interruptValue = (interrupt as any).value;
+    if (interruptValue && typeof interruptValue === "object") {
+      return interruptValue.tool_call_id || interruptValue.toolCallId;
+    }
+
+    // 或者直接从 interrupt 中获取
+    return (interrupt as any).tool_call_id || (interrupt as any).toolCallId;
+  })();
+
+  if (interrupt && interruptedToolCallId) {
+    console.log("[messageConverter] interrupted tool_call_id:", interruptedToolCallId);
+  }
+
   messages.forEach((message, messageIndex) => {
     if (message.type === "ai") {
       const toolCalls = extractToolCalls(message);
-      const isLastMessage = messageIndex === messages.length - 1;
 
       messageMap.set(message.id!, {
         message,
         toolCalls: toolCalls.map((tc, tcIndex) => {
-          // ✅ 修复 ISSUE-002: 正确的 interrupt 状态判断
-          // 只有最后一个 AI 消息的最后一个 tool call 可能是 interrupted
-          const isLastToolCall = tcIndex === toolCalls.length - 1;
-          const shouldBeInterrupted = interrupt && isLastMessage && isLastToolCall;
+          // ✅ 修复 ISSUE-005: 使用 tool_call_id 判断 interrupt 状态
+          // 之前的逻辑（ISSUE-002）只检查最后一个 AI 消息的最后一个 tool call
+          // 但实际上 interrupt 可能发生在任何位置的 tool call
+          const shouldBeInterrupted = interrupt && tc.id === interruptedToolCallId;
+
+          // 🔍 调试日志：检查每个 tool call 的 interrupt 状态
+          if (interrupt) {
+            console.log("[messageConverter] tool call status:", {
+              tcId: tc.id,
+              tcName: tc.name,
+              interruptedToolCallId,
+              shouldBeInterrupted,
+            });
+          }
 
           return {
             ...tc,
