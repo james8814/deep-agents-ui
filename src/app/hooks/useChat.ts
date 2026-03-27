@@ -78,19 +78,12 @@ export function useChat({
   const [internalThreadId, setInternalThreadId] = useQueryState("threadId");
   // 🔧 修复：使用外部传入的 threadId，避免和 page.tsx 的 threadId 冲突
   const threadId = externalThreadId !== undefined ? externalThreadId : internalThreadId;
-  const setThreadId = externalThreadId !== undefined
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _setThreadId = externalThreadId !== undefined
     ? ((_id: string | null) => { /* external set handled by parent */ })
     : setInternalThreadId;
   const client = useClient();
   const token = useClientToken();
-
-  // 🔍 监控 threadId 变化
-  const prevThreadId = useRef<string | null>(null);
-  useEffect(() => {
-    if (threadId !== prevThreadId.current) {
-      prevThreadId.current = threadId;
-    }
-  }, [threadId]);
 
   // 辅助函数：将 token 添加到 config.configurable
   // 供后端 AuthMiddleware 读取，实现用户身份验证
@@ -154,15 +147,27 @@ export function useChat({
     client: client ?? undefined,
     threadId: threadId ?? null,
     onThreadId: (newThreadId) => {
-      // 🔧 修复：只有使用内部 threadId 时才更新
-      if (externalThreadId === undefined) {
-        setInternalThreadId(newThreadId);
-      }
+      // 🔧 P0 修复：Thread 重复创建 Bug
+      // 根因：当 externalThreadId 为 null 时，条件 externalThreadId === undefined 为 false
+      // 导致 setInternalThreadId 不会被调用，URL 不会更新为新 threadId
+      // 修复：检查 null 或 undefined，都触发更新
+      // 🔧 使用 setTimeout 确保状态更新后执行
+      setTimeout(() => {
+        if (externalThreadId == null) {
+          setInternalThreadId(newThreadId);
+        }
+      }, 100);
     },
     // Revalidate thread list when stream finishes, errors, or creates new thread
-    onFinish: onHistoryRevalidate,
-    onError: handleStreamError,
-    onCreated: onHistoryRevalidate,
+    onFinish: () => {
+      onHistoryRevalidate?.();
+    },
+    onError: (error) => {
+      handleStreamError(error);
+    },
+    onCreated: () => {
+      onHistoryRevalidate?.();
+    },
     fetchStateHistory: true,
   });
 
@@ -223,7 +228,20 @@ export function useChat({
       // 解决：从 stream.history 获取当前 checkpoint，在 submit 时传递
       // 参考：LangGraph SDK 内部使用 branchContext.threadHead?.checkpoint
       // 注意：stream.history 是时间顺序数组，.at(-1) 是最新状态（threadHead）
-      const currentCheckpoint = stream.history?.at(-1)?.checkpoint ?? null;
+      // [P0-4 修复] 增强 checkpoint 获取的健壮性
+      // 🔧 修复 React #321: 移除 useMemo (Hooks 不能在普通函数内调用)
+      const currentCheckpoint = (() => {
+        if (!stream.history || stream.history.length === 0) {
+          console.warn('[useChat] stream.history is empty, checkpoint will be null');
+          return null;
+        }
+        const lastEntry = stream.history.at(-1);
+        if (!lastEntry?.checkpoint) {
+          console.warn('[useChat] Last history entry has no checkpoint');
+          return null;
+        }
+        return lastEntry.checkpoint;
+      })();
 
       stream.submit(
         { messages: [newMessage] },
@@ -231,8 +249,13 @@ export function useChat({
           optimisticValues: (prev) => {
             // 🔧 防御性检查：处理 prev 为空或 prev.messages 不是数组的情况
             const prevMessages = Array.isArray(prev?.messages) ? prev.messages : [];
+            // [P0-3 修复] 保留所有状态字段，防止闪烁
             return {
               messages: [...prevMessages, newMessage],
+              files: prev?.files ?? {},
+              subagent_logs: prev?.subagent_logs ?? {},
+              todos: prev?.todos ?? [],
+              subagents: prev?.subagents ?? {},
             };
           },
           config: getConfigWithToken(
@@ -242,6 +265,9 @@ export function useChat({
           ),
           // ✅ 传递 checkpoint，让后端从上一个 checkpoint 恢复消息历史
           checkpoint: currentCheckpoint,
+          // 🔧 修复：添加 streamMode 配置以获取完整状态（包含 subagent_logs）
+          // 使用 "updates" + "messages" 组合模式，性能优于 "values" + "messages"
+          streamMode: ["updates", "messages"],
         }
       );
 
@@ -270,6 +296,8 @@ export function useChat({
           ...(isRerunningSubagent
             ? { interruptAfter: ["tools"] }
             : { interruptBefore: ["tools"] }),
+          // 🔧 修复：添加 streamMode 配置以获取完整状态
+          streamMode: ["updates", "messages"],
         });
       } else {
         stream.submit(
@@ -279,6 +307,8 @@ export function useChat({
               activeAssistant?.config as Record<string, unknown>
             ),
             interruptBefore: ["tools"],
+            // 🔧 修复：添加 streamMode 配置以获取完整状态
+            streamMode: ["updates", "messages"],
           }
         );
       }
@@ -306,6 +336,8 @@ export function useChat({
         ...(hasTaskToolCall
           ? { interruptAfter: ["tools"] }
           : { interruptBefore: ["tools"] }),
+        // 🔧 修复：添加 streamMode 配置以获取完整状态
+        streamMode: ["updates", "messages"],
       });
       // Update thread list when continuing stream
       onHistoryRevalidate?.();
@@ -368,12 +400,6 @@ export function useChat({
     onHistoryRevalidate?.();
   }, [stream, activeAssistant?.config, onHistoryRevalidate, getConfigWithToken]);
 
-  // 🔧 修复无限循环：移除 subagent_logs console.log
-  // 原因：每次渲染都执行，导致性能问题
-  // 如需调试，使用 React DevTools 或条件化日志
-
-  // 🔧 修复无限循环：移除 files console.log
-  // 原因：每次渲染都执行，导致性能问题
   const filesFromStream = stream.values.files ?? {};
 
   // 🔧 修复无限循环：移除 stream.messages useEffect 监控
@@ -387,13 +413,18 @@ export function useChat({
   // 解决：使用 Map 按 id 去重，保留所有见过的消息
 
   const messagesMap = useRef<Map<string, Message>>(new Map());
-  // ⚠️ prevThreadId 已在上面定义（第 92 行），用于监控 threadId 变化
+  const prevThreadIdRef = useRef<string | null>(null);
 
   // 当 threadId 改变时，清空 Map
+  // 🔧 修复: 确保在 threadId 变化时正确清空消息
   useEffect(() => {
-    if (threadId !== prevThreadId.current) {
+    const hasChanged = threadId !== prevThreadIdRef.current;
+    const isNewThread = threadId === null;
+
+    // 当 threadId 发生变化，或者是创建新会话（null），都清空消息
+    if (hasChanged || (isNewThread && messagesMap.current.size > 0)) {
       messagesMap.current.clear();
-      prevThreadId.current = threadId;
+      prevThreadIdRef.current = threadId;
     }
   }, [threadId]);
 
