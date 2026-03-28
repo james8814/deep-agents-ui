@@ -193,6 +193,14 @@ UI config dialog settings take precedence over env vars.
 - 前端组件文档优先写在代码注释中，复杂架构说明写在 CLAUDE.md
 - 详细规范参见根目录 `CLAUDE.md` 的「📁 文档存放规范 > 多项目文档架构」章节
 
+## 测试管理规范
+
+- **正式 E2E 测试** (Playwright `.spec.ts`) → `tests/` 目录
+- **Jest 单元测试** → 与被测文件同目录 (`*.test.ts(x)`)
+- **临时诊断/验证脚本** → `tests/manual/`（.gitignore 排除，不纳入版本跟踪）
+- **跨项目 E2E**（前后端联调） → `langgraph_test/tests/e2e/`
+- **禁止**在项目根目录放置 `test_*.py` 或 `verify_*.py`
+
 ## Debug Mode
 
 - **interruptBefore**: Pauses before tool execution
