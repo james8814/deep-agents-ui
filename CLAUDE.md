@@ -176,6 +176,23 @@ UI config dialog settings take precedence over env vars.
 - `resumeInterrupt(value)` sends `Command({ resume: value })` to resume execution
 - Interrupt banner appears when agent needs approval
 
+## 文档管理规范
+
+前端项目无独立 `docs/` 目录，文档管理��循以下规���：
+
+**文档存放位置**:
+
+- 前端架构说明、组件关系、Auth 流程 → 本文件 (`CLAUDE.md`)
+- 涉及前后端协同的文档（E2E 测试、集成修复） → `langgraph_test/docs/`（根 docs/）
+- 纯后端文档 → `pmagent/docs/`（后端项目内部）
+
+**��键规则**:
+
+- 前端相关的 Bug 修复记录 → `langgraph_test/docs/bugfixes/`（跨项目）
+- 不在 deep-agents-ui/ 根���录创建临时 .md/.txt 文件
+- 前端组件文档优先写在代码注释中，复杂架构说明写在 CLAUDE.md
+- 详细规范参见根目录 `CLAUDE.md` 的「📁 文档存放规范 > 多项目文档架构」章节
+
 ## Debug Mode
 
 - **interruptBefore**: Pauses before tool execution

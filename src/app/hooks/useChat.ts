@@ -266,8 +266,9 @@ export function useChat({
           // ✅ 传递 checkpoint，让后端从上一个 checkpoint 恢复消息历史
           checkpoint: currentCheckpoint,
           // 🔧 修复：添加 streamMode 配置以获取完整状态（包含 subagent_logs）
-          // 使用 "updates" + "messages" 组合模式，性能优于 "values" + "messages"
-          streamMode: ["updates", "messages"],
+          // 使用 "values" + "messages" 组合模式，确保 subagent_logs 自动推送到 stream.values
+          // 注意："updates" 模式不会自动更新 stream.values，必须用 "values" 模式
+          streamMode: ["values", "messages"],
         }
       );
 
@@ -297,7 +298,7 @@ export function useChat({
             ? { interruptAfter: ["tools"] }
             : { interruptBefore: ["tools"] }),
           // 🔧 修复：添加 streamMode 配置以获取完整状态
-          streamMode: ["updates", "messages"],
+          streamMode: ["values", "messages"],
         });
       } else {
         stream.submit(
@@ -307,8 +308,9 @@ export function useChat({
               activeAssistant?.config as Record<string, unknown>
             ),
             interruptBefore: ["tools"],
-            // 🔧 修复：添加 streamMode 配置以获取完整状态
-            streamMode: ["updates", "messages"],
+            // 🔧 修复：统一使用 "values" 模式，确保 stream.values 正确更新
+            // 这与 sendMessage() 保持一致，避免状态不一致问题
+            streamMode: ["values", "messages"],
           }
         );
       }
@@ -336,8 +338,9 @@ export function useChat({
         ...(hasTaskToolCall
           ? { interruptAfter: ["tools"] }
           : { interruptBefore: ["tools"] }),
-        // 🔧 修复：添加 streamMode 配置以获取完整状态
-        streamMode: ["updates", "messages"],
+        // 🔧 修复：统一使用 "values" 模式，确保 stream.values 正确更新
+        // 这与 sendMessage() 保持一致，避免状态不一致问题
+        streamMode: ["values", "messages"],
       });
       // Update thread list when continuing stream
       onHistoryRevalidate?.();
@@ -353,7 +356,18 @@ export function useChat({
 
   const resumeInterrupt = useCallback(
     (value: any) => {
-      stream.submit(null, { command: { resume: value } });
+      stream.submit(
+        null,
+        {
+          command: { resume: value },
+          // 🔧 修复 HIL 中断状态不同步：添加 streamMode 配置
+          // 使用 "values" + "messages" 组合模式，确保：
+          // 1. 后端清除 __interrupt__ 字段后，前端 stream.values 自动更新
+          // 2. stream.interrupt getter 能正确读取最新状态（应为 undefined）
+          // 3. HIL banner 正确消失，Agent 继续执行
+          streamMode: ["values", "messages"],
+        }
+      );
       // Update thread list when resuming from interrupt
       onHistoryRevalidate?.();
     },
