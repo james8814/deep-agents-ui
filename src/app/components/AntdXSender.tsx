@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
 import { Sender, Attachments } from "@ant-design/x";
 import { Button, message, Modal } from "antd";
+import { useThemeSettings } from "@/providers/ThemeProvider";
 import {
   Square,
   ArrowUp,
@@ -60,27 +61,30 @@ const _getFileIcon = (mimeType: string | undefined): React.ReactNode => {
 };
 
 // 生成文件预览图（用于非图片文件）
-const generateFileThumbnail = (filename: string, mimeType: string): string => {
+const generateFileThumbnail = (filename: string, mimeType: string, isDark = false): string => {
   const ext = filename.split(".").pop()?.toUpperCase() || "FILE";
   const bgColor = mimeType.startsWith("image/")
-    ? "#e8f5e9"
+    ? (isDark ? "#1a3a2a" : "#e8f5e9")
     : mimeType === "application/pdf"
-    ? "#ffebee"
+    ? (isDark ? "#3a1a1a" : "#ffebee")
     : mimeType.includes("wordprocessingml")
-    ? "#e3f2fd"
+    ? (isDark ? "#1a2a3a" : "#e3f2fd")
     : mimeType.includes("presentationml")
-    ? "#fff8e1"
+    ? (isDark ? "#3a3a1a" : "#fff8e1")
     : mimeType.includes("spreadsheetml")
-    ? "#e8f5e9"
+    ? (isDark ? "#1a3a2a" : "#e8f5e9")
     : mimeType.includes("text") || mimeType.includes("markdown")
-    ? "#fff3e0"
-    : "#f3f4f6";
+    ? (isDark ? "#3a2a1a" : "#fff3e0")
+    : (isDark ? "#1a1a2e" : "#f3f4f6");
+  const paperFill = isDark ? "#12121f" : "white";
+  const paperStroke = isDark ? "#3f3f46" : "#d1d5db";
+  const textFill = isDark ? "#d4d4d8" : "#374151";
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
       <rect width="80" height="80" fill="${bgColor}" rx="8"/>
-      <rect x="16" y="12" width="48" height="56" fill="white" rx="4" stroke="#d1d5db" stroke-width="1"/>
-      <text x="40" y="45" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="600" fill="#374151">${ext}</text>
+      <rect x="16" y="12" width="48" height="56" fill="${paperFill}" rx="4" stroke="${paperStroke}" stroke-width="1"/>
+      <text x="40" y="45" text-anchor="middle" font-family="system-ui" font-size="12" font-weight="600" fill="${textFill}">${ext}</text>
     </svg>
   `;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -95,6 +99,8 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
     placeholder = "Write your message...",
     interrupt,
   }) => {
+    const { settings } = useThemeSettings();
+    const isDark = settings.theme === "dark";
     const [value, setValue] = useState("");
     const [files, setFiles] = useState<UploadFileItem[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,7 +162,7 @@ export const AntdXSender = React.memo<AntdXSenderProps>(
         size: file.size,
         thumbUrl: file.type.startsWith("image/")
           ? undefined
-          : generateFileThumbnail(file.name, file.type),
+          : generateFileThumbnail(file.name, file.type, isDark),
         status: "pending",
         progress: 0,
       }));

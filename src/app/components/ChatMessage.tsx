@@ -1,13 +1,22 @@
 "use client";
 
 import React, { useMemo, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
-import { SubAgentThoughtChain } from "@/app/components/SubAgentThoughtChain";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
-import { AntdXMarkdown } from "@/app/components/AntdXMarkdown";
 import { DeliveryCard } from "@/app/components/DeliveryCard";
 import { useFeatureFlag } from "@/lib/featureFlags";
+
+// AntdX 组件动态加载 — feature flag 关闭时不会被打包
+const SubAgentThoughtChain = dynamic(
+  () => import("@/app/components/SubAgentThoughtChain").then((m) => m.SubAgentThoughtChain),
+  { ssr: false }
+);
+const AntdXMarkdown = dynamic(
+  () => import("@/app/components/AntdXMarkdown").then((m) => m.AntdXMarkdown),
+  { ssr: false }
+);
 import type {
   SubAgent,
   ToolCall,
@@ -100,12 +109,12 @@ function InlineLegacyLogRow({
         {success ? (
           <CheckCircle
             size={11}
-            className="flex-shrink-0 text-green-500"
+            className="flex-shrink-0 text-green-600 dark:text-green-400"
           />
         ) : (
           <AlertCircle
             size={11}
-            className="flex-shrink-0 text-red-500"
+            className="flex-shrink-0 text-red-600 dark:text-red-400"
           />
         )}
         <span className="flex-1 truncate font-medium text-primary">
@@ -497,7 +506,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
 
           {/* Cancellation/Timeout info */}
           {(cancellationReason || timeoutSeconds !== undefined) && (
-            <div className="mt-4 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            <div className="mt-4 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
               <AlertCircle
                 size={16}
                 className="mt-0.5 flex-shrink-0"

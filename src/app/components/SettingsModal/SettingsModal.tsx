@@ -437,7 +437,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                       <button
                         className={cn(
                           "w-full rounded-md bg-primary px-4 py-2",
-                          "text-sm font-medium text-white transition-colors",
+                          "text-sm font-medium text-primary-foreground transition-colors",
                           "hover:bg-opacity-90",
                           "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                           "dark:focus-visible:ring-offset-background",
@@ -483,7 +483,7 @@ export const SettingsModal: FC<SettingsModalProps> = React.memo(
                 className={cn(
                   "inline-flex items-center justify-center rounded-md",
                   "px-4 py-2 text-sm font-medium",
-                  "bg-primary text-white",
+                  "bg-primary text-primary-foreground",
                   "transition-colors hover:bg-opacity-90",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                   "dark:focus-visible:ring-offset-background",

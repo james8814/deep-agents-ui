@@ -67,18 +67,18 @@ const SIZE_CONFIG: Record<
   },
 };
 
-// v5.26 color palette
+// 对齐 docs/brand/wordmark/ 设计稿
 const COLORS = {
   dark: {
     letter: "#FFFFFF",
-    ring: "#8B5CF6", // violet-500
+    ring: "#8B5CF6", // violet-500 — 设计稿 dark/light 同色
     dot: "#8B5CF6",
     gradient: "linear-gradient(135deg, #38BDF8, #7C6BF0, #5B4BC7)",
   },
   light: {
-    letter: "#1A1A2A",
-    ring: "#6D28D9", // violet-700
-    dot: "#6D28D9",
+    letter: "#0A0A12", // 设计稿原值（非 #1A1A2A）
+    ring: "#8B5CF6", // 设计稿 dark/light 同色（非 #6D28D9）
+    dot: "#8B5CF6",
     gradient: "linear-gradient(135deg, #38BDF8, #6558D3, #4F3FB3)",
   },
 };

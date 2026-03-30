@@ -58,17 +58,17 @@ const DESIGN = {
   VIEWBOX_HEIGHT: 120,
 } as const;
 
-// 颜色配置
+// 颜色配置 — 对齐 docs/brand/wordmark/ 设计稿
 const COLORS = {
   dark: {
-    // 深色背景（深色模式）
+    // 深色背景（深色模式） — azune_wordmark.svg
     letter: "#FFFFFF", // 白色字母
     accent: "#8B5CF6", // 紫色圆环和 E
   },
   light: {
-    // 浅色背景（浅色模式）
-    letter: "#1A1A2A", // 深色字母
-    accent: "#6D28D9", // 深紫色圆环和 E
+    // 浅色背景（浅色模式） — azune_wordmark_light.svg
+    letter: "#0A0A12", // 深色字母（设计稿原值）
+    accent: "#8B5CF6", // 紫色圆环和 E（设计稿 light/dark 同色）
   },
 } as const;
 
@@ -88,24 +88,51 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(
     // 计算宽度（保持宽高比）
     const width = height * (DESIGN.VIEWBOX_WIDTH / DESIGN.VIEWBOX_HEIGHT);
 
-    // 自动检测系统主题
+    // 检测当前主题 — 基于 html 元素的 .dark/.light class（跟随手动切换）
+    const detect = React.useCallback((): "light" | "dark" => {
+      if (typeof window === "undefined") return "dark";
+      const html = document.documentElement;
+      if (html.classList.contains("dark")) return "dark";
+      if (html.classList.contains("light")) return "light";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }, []);
+
+    // 惰性初始化：避免 light 模式用户首次渲染闪现 dark Wordmark
     const [resolvedVariant, setResolvedVariant] = React.useState<
       "light" | "dark"
-    >("dark");
+    >(detect);
 
     React.useEffect(() => {
-      if (variant === "auto") {
-        const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
-        setResolvedVariant(mediaQuery.matches ? "light" : "dark");
+      if (variant !== "auto") return;
 
-        const handler = (e: MediaQueryListEvent) => {
-          setResolvedVariant(e.matches ? "light" : "dark");
-        };
+      setResolvedVariant(detect());
 
-        mediaQuery.addEventListener("change", handler);
-        return () => mediaQuery.removeEventListener("change", handler);
-      }
-    }, [variant]);
+      // 监听 html class 变化（用户手动切换主题时触发）
+      let prevIsDark = document.documentElement.classList.contains("dark");
+      const observer = new MutationObserver(() => {
+        const nowDark = document.documentElement.classList.contains("dark");
+        if (nowDark !== prevIsDark) {
+          prevIsDark = nowDark;
+          setResolvedVariant(detect());
+        }
+      });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+
+      // 同时监听系统偏好变化
+      const mql = window.matchMedia("(prefers-color-scheme: dark)");
+      const onSystemChange = () => setResolvedVariant(detect());
+      mql.addEventListener("change", onSystemChange);
+
+      return () => {
+        observer.disconnect();
+        mql.removeEventListener("change", onSystemChange);
+      };
+    }, [variant, detect]);
 
     // 确定最终颜色模式
     const effectiveVariant = variant === "auto" ? resolvedVariant : variant;
@@ -121,6 +148,7 @@ export const AzuneWordmark = React.memo<AzuneWordmarkProps>(
         className={cn("inline-block", className)}
         role="img"
         aria-label={ariaLabel}
+        suppressHydrationWarning
       >
         <defs>
           {/* 圆环镂空遮罩 - 白色区域显示，黑色区域透明 */}

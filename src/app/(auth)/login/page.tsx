@@ -40,7 +40,7 @@ export default function LoginPage() {
           <div className="mb-6 flex justify-center">
             <AzuneWordmark
               height={36}
-              variant="dark"
+              variant="auto"
             />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">

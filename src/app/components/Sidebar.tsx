@@ -136,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <AzuneWordmark
             height={32}
-            variant="light"
+            variant="dark"
           />
         </button>
 

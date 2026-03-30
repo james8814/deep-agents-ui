@@ -28,8 +28,8 @@ const STATUS_ICONS = {
 const STATUS_COLORS = {
   pending: "text-muted-foreground",
   running: "text-primary animate-pulse",
-  success: "text-green-500",
-  error: "text-red-500",
+  success: "text-green-600 dark:text-green-400",
+  error: "text-red-600 dark:text-red-400",
 };
 
 const STATUS_LABELS = {
@@ -66,12 +66,12 @@ function LogEntryRow({
         {success ? (
           <CheckCircle
             size={11}
-            className="flex-shrink-0 text-green-500"
+            className="flex-shrink-0 text-green-600 dark:text-green-400"
           />
         ) : (
           <AlertCircle
             size={11}
-            className="flex-shrink-0 text-red-500"
+            className="flex-shrink-0 text-red-600 dark:text-red-400"
           />
         )}
         <span className="flex-1 truncate font-medium text-primary">
@@ -240,11 +240,11 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({
 
             {/* Error Section */}
             {subagent.error && (
-              <div className="rounded bg-red-500/10 p-1.5">
-                <div className="mb-0.5 text-xs font-medium text-red-600">
+              <div className="rounded bg-red-100 p-1.5 dark:bg-red-900/20">
+                <div className="mb-0.5 text-xs font-medium text-red-600 dark:text-red-400">
                   Error
                 </div>
-                <div className="break-words text-xs text-red-600">
+                <div className="break-words text-xs text-red-600 dark:text-red-400">
                   {subagent.error}
                 </div>
               </div>
@@ -252,11 +252,11 @@ const SubAgentCard: React.FC<SubAgentCardProps> = ({
 
             {/* Result Section */}
             {subagent.result && (
-              <div className="rounded bg-green-500/10 p-1.5">
-                <div className="mb-0.5 text-xs font-medium text-green-600">
+              <div className="rounded bg-green-100 p-1.5 dark:bg-green-900/20">
+                <div className="mb-0.5 text-xs font-medium text-green-600 dark:text-green-400">
                   Result
                 </div>
-                <div className="line-clamp-3 break-words text-xs text-green-600">
+                <div className="line-clamp-3 break-words text-xs text-green-600 dark:text-green-400">
                   {subagent.result}
                 </div>
               </div>

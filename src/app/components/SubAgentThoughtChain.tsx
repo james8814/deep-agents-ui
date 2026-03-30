@@ -118,12 +118,12 @@ function LogEntryRow({
         {success ? (
           <CheckCircle
             size={11}
-            className="flex-shrink-0 text-green-500"
+            className="flex-shrink-0 text-green-600 dark:text-green-400"
           />
         ) : (
           <AlertCircle
             size={11}
-            className="flex-shrink-0 text-red-500"
+            className="flex-shrink-0 text-red-600 dark:text-red-400"
           />
         )}
         <span className="flex-1 truncate font-medium text-primary">

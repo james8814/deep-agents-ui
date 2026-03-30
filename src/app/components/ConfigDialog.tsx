@@ -130,13 +130,13 @@ export function ConfigDialog({
                 )}
               </Button>
               {connectionStatus === "ok" && (
-                <span className="flex items-center gap-1 text-xs text-green-600">
+                <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                   <CheckCircle size={12} /> Connected
                 </span>
               )}
               {connectionStatus === "error" && (
                 <span
-                  className="flex items-center gap-1 text-xs text-red-600"
+                  className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400"
                   title={connectionError}
                 >
                   <XCircle size={12} /> Failed
