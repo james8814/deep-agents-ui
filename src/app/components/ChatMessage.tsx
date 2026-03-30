@@ -321,7 +321,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
               <div className="mt-2 flex justify-end gap-2">
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="flex items-center gap-1 rounded-md px-3 py-1 text-xs text-muted-foreground hover:bg-accent"
+                  className="flex items-center gap-1 rounded-md px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   <X size={12} />
                   Cancel
@@ -560,7 +560,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                         href={attachment.preview_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded p-1 hover:bg-accent"
+                        className="rounded p-1 transition-colors hover:bg-accent hover:text-accent-foreground"
                         title="Preview"
                       >
                         <Image size={14} />
@@ -570,7 +570,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                       <a
                         href={attachment.download_url}
                         download
-                        className="rounded p-1 hover:bg-accent"
+                        className="rounded p-1 transition-colors hover:bg-accent hover:text-accent-foreground"
                         title="Download"
                       >
                         <Download size={14} />

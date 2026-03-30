@@ -36,7 +36,7 @@ const CodeBlock = memo(function CodeBlock({
     <div className="group/code relative">
       <button
         onClick={handleCopy}
-        className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/60 opacity-0 transition-opacity hover:bg-white/10 hover:text-white group-hover/code:opacity-100"
+        className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-white/70 opacity-0 transition-opacity hover:bg-white/20 hover:text-white group-hover/code:opacity-100"
         title="Copy code"
       >
         {copied ? (
