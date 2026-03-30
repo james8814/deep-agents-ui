@@ -16,8 +16,14 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import dynamic from "next/dynamic";
 import { ThreadList } from "@/app/components/ThreadList";
-import { AntdXThreadList } from "@/app/components/AntdXThreadList";
+
+// AntdX 组件动态加载 — useAntdX=false 时不会被打包
+const AntdXThreadList = dynamic(
+  () => import("@/app/components/AntdXThreadList").then((m) => m.AntdXThreadList),
+  { ssr: false }
+);
 import { ChatProvider } from "@/providers/ChatProvider";
 import { ChatInterface } from "@/app/components/ChatInterface";
 import { ContextPanel } from "@/app/components/ContextPanel";

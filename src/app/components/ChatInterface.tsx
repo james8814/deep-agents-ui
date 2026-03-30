@@ -19,13 +19,22 @@ import {
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
-import { ExecutionStatusBar } from "@/app/components/ExecutionStatusBar";
-import { AntdXMessageList } from "@/app/components/AntdXMessageList";
-import {
-  AntdXSender,
-  type MultimodalContent,
-} from "@/app/components/AntdXSender";
+// ExecutionStatusBar 已整合到 WorkPanelV527 中
+import dynamic from "next/dynamic";
 import { useUseAntdX } from "@/lib/featureFlags";
+
+// AntdX 组件动态加载 — useAntdX=false 时不会被打包
+const AntdXMessageList = dynamic(
+  () => import("@/app/components/AntdXMessageList").then((m) => m.AntdXMessageList),
+  { ssr: false }
+);
+const AntdXSender = dynamic(
+  () => import("@/app/components/AntdXSender").then((m) => m.AntdXSender),
+  { ssr: false }
+);
+
+// MultimodalContent 原来是 AntdXSender 的类型别名 (= string)
+type MultimodalContent = string;
 import type {
   ToolCall,
   ActionRequest,
@@ -40,12 +49,8 @@ import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { useQueryState } from "nuqs";
-import SubAgentCard from "./SubAgentCard";
-import {
-  transformSubagentData,
-  sortSubAgentsByTime,
-} from "@/app/types/subagent";
-import { Bot } from "lucide-react";
+import { AgentExecutionIndicator } from "@/app/components/AgentExecutionIndicator";
+import { getToolDisplayName } from "@/app/utils/toolNames";
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
@@ -164,15 +169,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   // Notify user when interrupt occurs on background tab
   useInterruptNotification(interrupt);
 
-  // SubAgent list - transform and sort by start time
-  const subagentList = useMemo(() => {
-    if (!stream || !(stream as any).subagents) return [];
-    const list = Array.from((stream as any).subagents.values()).map(
-      transformSubagentData
-    );
-    return sortSubAgentsByTime(list);
-  }, [stream]);
-
   // Track file metadata when files change
   useEffect(() => {
     const currentFilePaths = new Set(Object.keys(files));
@@ -245,6 +241,12 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         isLoading ||
         !assistant
       ) {
+        console.warn('[ChatInterface] handleSubmit validation failed', {
+          noText: !messageText,
+          noFiles: attachedFiles.length === 0,
+          isLoading,
+          noAssistant: !assistant
+        });
         return;
       }
 
@@ -329,19 +331,51 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     [files, setFiles]
   );
 
+  // Parse out any action requests or review configs from the interrupt
+  // IMPORTANT: Must be defined BEFORE processedMessages to be used in status determination
+  const actionRequestsMap: Map<string, ActionRequest> | null = useMemo(() => {
+    const actionRequests =
+      interrupt?.value && (interrupt.value as any)["action_requests"];
+    if (!actionRequests) return new Map<string, ActionRequest>();
+    return new Map(actionRequests.map((ar: ActionRequest) => [ar.name, ar]));
+  }, [interrupt]);
+
+  const reviewConfigsMap: Map<string, ReviewConfig> | null = useMemo(() => {
+    const reviewConfigs =
+      interrupt?.value && (interrupt.value as any)["review_configs"];
+    if (!reviewConfigs) return new Map<string, ReviewConfig>();
+    return new Map(
+      reviewConfigs.map((rc: ReviewConfig) => [rc.actionName, rc])
+    );
+  }, [interrupt]);
+
   // TODO: can we make this part of the hook?
   const processedMessages = useMemo(() => {
     /*
      1. Loop through all messages
      2. For each AI message, add the AI message, and any tool calls to the messageMap
      3. For each tool message, find the corresponding tool call in the messageMap and update the status and output
+
+     CRITICAL FIX (2026-03-27): Tool call status must be determined by exact match with action_requests,
+     NOT by global interrupt presence. Only tool calls that triggered the interrupt should be marked as "interrupted".
     */
+    console.log('[ChatInterface] processedMessages useMemo - 开始处理', {
+      messagesCount: messages.length,
+      messagesTypes: messages.map(m => m.type).join(', ')
+    });
+
     const messageMap = new Map<
       string,
       { message: Message; toolCalls: ToolCall[] }
     >();
     messages.forEach((message: Message) => {
       if (message.type === "ai") {
+        console.log('[ChatInterface] 处理 AI 消息:', {
+          id: message.id,
+          hasToolCalls: !!(message as any).tool_calls?.length,
+          toolCallsCount: (message as any).tool_calls?.length || 0
+        });
+
         const toolCallsInMessage: Array<{
           id?: string;
           function?: { name?: string; arguments?: unknown };
@@ -367,6 +401,12 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           );
           toolCallsInMessage.push(...toolUseBlocks);
         }
+
+        console.log('[ChatInterface] 提取的 tool_calls:', {
+          count: toolCallsInMessage.length,
+          names: toolCallsInMessage.map(tc => tc.name || tc.function?.name || tc.type || 'unknown')
+        });
+
         const toolCallsWithStatus = toolCallsInMessage.map(
           (toolCall: {
             id?: string;
@@ -386,11 +426,18 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               toolCall.args ||
               toolCall.input ||
               {};
+
+            // 🔧 CRITICAL FIX: Determine status by exact match with action_requests
+            // Previously: status: interrupt ? "interrupted" : "pending"
+            // Bug: ALL tool calls were marked as "interrupted" when any interrupt occurred
+            // Fix: Only tool calls that triggered the interrupt should be marked as "interrupted"
+            const isInterrupted = actionRequestsMap.has(name);
+
             return {
               id: toolCall.id || `tool-${Math.random()}`,
               name,
               args,
-              status: interrupt ? "interrupted" : ("pending" as const),
+              status: isInterrupted ? "interrupted" : ("pending" as const),
             } as ToolCall;
           }
         );
@@ -432,26 +479,9 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         showAvatar: data.message.type !== prevMessage?.type,
       };
     });
-  }, [messages, interrupt]);
+  }, [messages, actionRequestsMap]);
 
-  // Parse out any action requests or review configs from the interrupt
-  const actionRequestsMap: Map<string, ActionRequest> | null = useMemo(() => {
-    const actionRequests =
-      interrupt?.value && (interrupt.value as any)["action_requests"];
-    if (!actionRequests) return new Map<string, ActionRequest>();
-    return new Map(actionRequests.map((ar: ActionRequest) => [ar.name, ar]));
-  }, [interrupt]);
-
-  const reviewConfigsMap: Map<string, ReviewConfig> | null = useMemo(() => {
-    const reviewConfigs =
-      interrupt?.value && (interrupt.value as any)["review_configs"];
-    if (!reviewConfigs) return new Map<string, ReviewConfig>();
-    return new Map(
-      reviewConfigs.map((rc: ReviewConfig) => [rc.actionName, rc])
-    );
-  }, [interrupt]);
-
-  // Extract current execution info for the status bar
+  // Extract current execution info for the status bar and execution indicator
   const currentExecutionInfo = useMemo(() => {
     if (!isLoading) return { step: null, tool: null };
 
@@ -472,6 +502,31 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     return { step: null, tool: null };
   }, [isLoading, messages]);
 
+  // Calculate tool execution progress
+  const toolExecutionProgress = useMemo(() => {
+    if (!isLoading) return { completed: 0, total: 0 };
+
+    let completedCount = 0;
+    let totalCount = 0;
+
+    // Count tool calls from all AI messages
+    messages.forEach((msg) => {
+      if (msg.type === "ai" && msg.tool_calls) {
+        totalCount += msg.tool_calls.length;
+        // Count completed tool calls (those with corresponding ToolMessage)
+        const completedInThisMsg = msg.tool_calls.filter((tc: any) => {
+          const toolCallId = tc.id;
+          return messages.some(
+            (m) => m.type === "tool" && m.tool_call_id === toolCallId
+          );
+        }).length;
+        completedCount += completedInThisMsg;
+      }
+    });
+
+    return { completed: completedCount, total: totalCount };
+  }, [isLoading, messages]);
+
   return (
     <div
       ref={containerRef}
@@ -485,6 +540,15 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           className="mx-auto w-full max-w-[1024px] px-6 pb-6 pt-4"
           ref={contentRef}
         >
+          {/* Agent 执行状态指示器 */}
+          <AgentExecutionIndicator
+            isLoading={isLoading}
+            currentTool={currentExecutionInfo.tool || undefined}
+            completedTools={toolExecutionProgress.completed}
+            totalTools={toolExecutionProgress.total}
+            className="mb-4"
+          />
+
           {isThreadLoading ? (
             <div className="flex items-center justify-center p-8">
               <p className="text-muted-foreground">Loading...</p>
@@ -517,11 +581,19 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       isStreaming={
                         isLoading && isLastMessage && data.message.type === "ai"
                       }
+                      // 🔧 修复 HIL 审批面板不显示问题 (2026-03-27):
+                      // 原问题：actionRequestsMap 只传递给最后一条消息
+                      // 根因：被中断的 tool call 可能在之前的消息中
+                      // 修复：将 actionRequestsMap 传递给所有包含 interrupted tool call 的消息
                       actionRequestsMap={
-                        isLastMessage ? actionRequestsMap : undefined
+                        data.toolCalls.some(tc => tc.status === "interrupted")
+                          ? actionRequestsMap
+                          : undefined
                       }
                       reviewConfigsMap={
-                        isLastMessage ? reviewConfigsMap : undefined
+                        data.toolCalls.some(tc => tc.status === "interrupted")
+                          ? reviewConfigsMap
+                          : undefined
                       }
                       ui={messageUi}
                       stream={stream}
@@ -584,48 +656,11 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         </div>
       </div>
 
-      <ExecutionStatusBar
-        isLoading={isLoading}
-        currentStep={currentExecutionInfo.step}
-        currentTool={currentExecutionInfo.tool}
-      />
-
-      {/* SubAgent Status Panel */}
-      {subagentList.length > 0 ? (
-        <div className="space-y-2 border-t p-4">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-            <Bot size={14} />
-            SubAgent 执行状态
-            <span className="text-xs font-normal">({subagentList.length})</span>
-          </h3>
-          <div className="max-h-[400px] space-y-2 overflow-y-auto">
-            {subagentList.map((sa, idx) => (
-              <div
-                key={sa.id || `sa-${idx}`}
-                className="animate-[fadeIn_200ms_ease-out_both,slideUp_200ms_ease-out_both]"
-                style={{ animationDelay: `${Math.min(idx, 5) * 40}ms` }}
-              >
-                <SubAgentCard
-                  subagent={sa}
-                  expandedHeight={sa.status === "running" ? 200 : 120}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : isLoading ? (
-        // Show subtle hint during loading even without subagents
-        <div className="flex items-center justify-center border-t px-4 py-2 text-xs text-muted-foreground">
-          <Bot
-            size={14}
-            className="mr-2"
-          />
-          暂无子代理活动
-        </div>
-      ) : null}
+      {/* ExecutionStatusBar 已整合到 WorkPanelV527 中 */}
 
       {/* Interrupt Banner — shows when agent needs human approval */}
-      {interrupt && (
+      {/* Filter out SDK bug: empty __interrupt__: [] incorrectly becomes [{ when: "breakpoint" }] */}
+      {interrupt && !(Array.isArray(interrupt) && interrupt.length === 1 && interrupt[0].when === "breakpoint" && Object.keys(interrupt[0]).length === 1) && (
         <div className="flex animate-[slideDown_250ms_ease-out] items-center gap-3 border-b border-orange-300/30 bg-orange-50 px-4 py-2.5 dark:border-orange-500/20 dark:bg-orange-950/30">
           <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
             <AlertCircle
@@ -643,7 +678,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           </div>
           <button
             onClick={() => {
-              // Scroll to the interrupt tool call
+              // Scroll to the interrupt tool call AND expand it
               // Priority: ThoughtChain (AntdX) > data-last-message (ChatMessage) > content bottom
               const thoughtChain = document.querySelector(
                 ".ant-thought-chain:last-of-type"
@@ -651,6 +686,19 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               const lastMessage = document.querySelector("[data-last-message]");
               const contentBottom = contentRef.current?.lastElementChild;
               const target = thoughtChain || lastMessage || contentBottom;
+
+              // Also find and expand any interrupted tool calls
+              const interruptedToolCalls = document.querySelectorAll(
+                '[role="region"][aria-label*="Tool call"]'
+              );
+              interruptedToolCalls.forEach((el) => {
+                if (el.querySelector('[size="16"].text-warning')) {
+                  // Found interrupted status icon, expand it
+                  const button = el.querySelector("button[aria-expanded]") as HTMLButtonElement | null;
+                  if (button) button.click();
+                }
+              });
+
               target?.scrollIntoView({ behavior: "smooth", block: "center" });
             }}
             className="flex-shrink-0 rounded-md border border-orange-300 bg-white px-3 py-1 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-50 dark:border-orange-600 dark:bg-orange-900/50 dark:text-orange-300"
