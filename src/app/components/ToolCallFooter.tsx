@@ -4,7 +4,7 @@ import React from "react";
 import { ThoughtChain } from "@ant-design/x";
 import type { ToolCall } from "@/app/types/types";
 import { ToolArgsRenderer } from "./tool-renderers";
-import { InterruptActions } from "./InterruptActions";
+import { ToolApprovalInterrupt } from "./ToolApprovalInterrupt";
 
 // ThoughtChain status type: 'loading' | 'success' | 'error' | 'abort'
 type ThoughtChainItemStatus = "loading" | "success" | "error" | "abort";
@@ -32,7 +32,7 @@ function mapToolCallStatus(status: ToolCall["status"]): ThoughtChainItemStatus {
 }
 
 export const ToolCallFooter = React.memo<ToolCallFooterProps>(
-  ({ toolCalls, isLoading, interrupt, stream, onResumeInterrupt }) => {
+  ({ toolCalls, isLoading: _isLoading, interrupt: _interrupt, stream: _stream, onResumeInterrupt }) => {
     const items = toolCalls.map((tc) => ({
       key: tc.id,
       title: tc.name,
@@ -51,21 +51,13 @@ export const ToolCallFooter = React.memo<ToolCallFooterProps>(
             </div>
           )}
           {tc.status === "interrupted" && onResumeInterrupt && (
-            <InterruptActions
-              toolName={tc.name}
-              onApprove={(value) => onResumeInterrupt(value)}
-              onReject={(message) => {
-                // 对于 submit_deliverable，reject 表示"需要修改"
-                // 使用用户提供的修改意见作为 reject message
-                onResumeInterrupt({
-                  decisions: [
-                    {
-                      type: "reject",
-                      message: message || "用户要求修改产物",
-                    },
-                  ],
-                });
+            <ToolApprovalInterrupt
+              actionRequest={{
+                name: tc.name,
+                args: tc.args,
+                description: `Tool "${tc.name}" requires approval`,
               }}
+              onResume={(value) => onResumeInterrupt(value)}
             />
           )}
         </div>

@@ -14,6 +14,28 @@ interface ToolApprovalInterruptProps {
   isLoading?: boolean;
 }
 
+// 工具特定的按钮文案（从 InterruptActions 迁移）
+const TOOL_LABELS: Record<
+  string,
+  { approve: string; reject: string; reply: string; description: string; rejectPlaceholder: string }
+> = {
+  submit_deliverable: {
+    approve: "验收通过",
+    reject: "需要修改",
+    reply: "修改意见",
+    description: "产物验收",
+    rejectPlaceholder: "请描述需要修改的地方...",
+  },
+};
+
+const DEFAULT_LABELS = {
+  approve: "Approve",
+  reject: "Reject",
+  reply: "Reply",
+  description: "Approval Required",
+  rejectPlaceholder: "Explain why you're rejecting this action...",
+};
+
 export function ToolApprovalInterrupt({
   actionRequest,
   reviewConfig,
@@ -26,6 +48,8 @@ export function ToolApprovalInterrupt({
   const [showRejectionInput, setShowRejectionInput] = useState(false);
   const [approveFeedback, setApproveFeedback] = useState("");
   const [showApproveFeedback, setShowApproveFeedback] = useState(false);
+
+  const labels = TOOL_LABELS[actionRequest.name] ?? DEFAULT_LABELS;
 
   const allowedDecisions = reviewConfig?.allowedDecisions ?? [
     "approve",
@@ -134,7 +158,7 @@ export function ToolApprovalInterrupt({
           className="text-warning"
         />
         <span className="text-xs font-semibold uppercase tracking-wider">
-          Approval Required
+          {labels.description}
         </span>
       </div>
 
@@ -204,7 +228,7 @@ export function ToolApprovalInterrupt({
       {showApproveFeedback && !isEditing && (
         <div className="mb-4">
           <label className="mb-2 block text-xs font-medium text-foreground">
-            您的回复 (可选)
+            {labels.reply} (可选)
           </label>
           <Textarea
             value={approveFeedback}
@@ -221,12 +245,12 @@ export function ToolApprovalInterrupt({
       {showRejectionInput && !isEditing && (
         <div className="mb-4">
           <label className="mb-2 block text-xs font-medium text-foreground">
-            Rejection Message (optional)
+            {labels.reject} (可选)
           </label>
           <Textarea
             value={rejectionMessage}
             onChange={(e) => setRejectionMessage(e.target.value)}
-            placeholder="Explain why you're rejecting this action..."
+            placeholder={labels.rejectPlaceholder}
             className="text-sm"
             rows={2}
             disabled={isLoading}
@@ -314,7 +338,7 @@ export function ToolApprovalInterrupt({
                 className="text-destructive hover:bg-destructive/10"
               >
                 <X size={14} />
-                Reject
+                {labels.reject}
               </Button>
             )}
             {allowedDecisions.includes("edit") && (
@@ -336,7 +360,7 @@ export function ToolApprovalInterrupt({
                   onClick={toggleApproveFeedback}
                   disabled={isLoading}
                 >
-                  Reply
+                  {labels.reply}
                 </Button>
                 <Button
                   size="sm"
@@ -344,7 +368,7 @@ export function ToolApprovalInterrupt({
                   disabled={isLoading}
                 >
                   <Check size={14} />
-                  {isLoading ? "Approving..." : "Approve"}
+                  {isLoading ? "处理中..." : labels.approve}
                 </Button>
               </>
             )}
