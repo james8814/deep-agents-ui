@@ -57,22 +57,18 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [, setContextPanel] = useQueryState("context");
   const [, setContextTab] = useQueryState("contextTab");
 
-  // File viewing and delivery card state
+  // File viewing state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(
     new Map()
   );
   const [viewingFile, setViewingFile] = useState<string | null>(null);
-  const [showDelivery, setShowDelivery] = useState(false);
   const prevFilesRef = useRef<Record<string, string>>({});
-  const wasLoadingRef = useRef(false);
 
   // Reset file-related state when thread changes
   useEffect(() => {
     setFileMetadata(new Map());
     setViewingFile(null);
-    setShowDelivery(false);
     prevFilesRef.current = {};
-    wasLoadingRef.current = false;
   }, [threadId]);
 
   // Height constants (moved inside useEffect to avoid dependency warnings)
@@ -186,18 +182,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
     prevFilesRef.current = files;
   }, [files]);
-
-  // Detect task completion for delivery cards
-  useEffect(() => {
-    if (isLoading) {
-      // Reset when new task starts
-      setShowDelivery(false);
-    } else if (wasLoadingRef.current) {
-      // Task just completed
-      setShowDelivery(true);
-    }
-    wasLoadingRef.current = isLoading;
-  }, [isLoading]);
 
   const submitDisabled = isLoading || !assistant;
 
@@ -571,15 +555,10 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                           ? handleEditAndResend
                           : undefined
                       }
-                      files={isLastMessage ? files : undefined}
+                      files={data.message.type === "ai" ? files : undefined}
                       fileMetadata={fileMetadata}
                       onViewFile={handleViewFile}
                       onViewAllFiles={handleViewAllFiles}
-                      showDeliveryCards={
-                        isLastMessage &&
-                        showDelivery &&
-                        data.message.type === "ai"
-                      }
                       threadId={threadId ?? undefined}
                       subagentLogs={subagent_logs}
                       enableAnimation={isLastMessage && !isLoading}

@@ -268,7 +268,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
         <ScrollArea
           ref={setRefs}
           onScroll={handleScroll}
-          className="flex-1"
+          className="min-h-0 flex-1"
         >
           <div className="space-y-2 p-3">
             {(() => {

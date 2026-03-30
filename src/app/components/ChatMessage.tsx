@@ -57,7 +57,6 @@ interface ChatMessageProps {
   fileMetadata?: Map<string, FileMetadata>;
   onViewFile?: (path: string) => void;
   onViewAllFiles?: () => void;
-  showDeliveryCards?: boolean;
   threadId?: string;
   // Phase 2.5 support
   schemaVersion?: string;
@@ -175,7 +174,6 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     fileMetadata,
     onViewFile,
     onViewAllFiles,
-    showDeliveryCards,
     threadId,
     schemaVersion,
     attachmentSummaries,
@@ -218,30 +216,46 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         });
     }, [toolCalls, subagentLogs]);
 
-    // Memoize delivery files to prevent unnecessary re-renders
-    // Sort by creation time (newest first) and take last 3 files
-    const deliveryFiles = useMemo(() => {
-      if (!files) return [];
-      const fileEntries = Object.entries(files).map(([path, content]) => ({
-        path,
-        content,
-        metadata: fileMetadata?.get(path),
-        shareUrl: threadId
-          ? `${
-              typeof window !== "undefined" ? window.location.origin : ""
-            }/threads/${threadId}/files/${encodeURIComponent(path)}`
-          : undefined,
-      }));
+    // Extract submit_deliverable tool calls from this message's toolCalls
+    // Each submit_deliverable call maps to one DeliveryCard
+    const deliveryToolCalls = useMemo(() => {
+      return toolCalls.filter(
+        (tc) => tc.name === "submit_deliverable" && tc.args?.deliverable_path
+      );
+    }, [toolCalls]);
 
-      // Sort by addedAt time (newest first)
-      return fileEntries
-        .sort((a, b) => {
-          const timeA = a.metadata?.addedAt || 0;
-          const timeB = b.metadata?.addedAt || 0;
-          return timeB - timeA; // Descending order (newest first)
-        })
-        .slice(0, 3); // Take last 3 (most recent)
-    }, [files, fileMetadata, threadId]);
+    // Build delivery files from submit_deliverable tool calls
+    // Look up file content from the global files state by deliverable_path
+    const deliveryFiles = useMemo(() => {
+      if (!files || deliveryToolCalls.length === 0) return [];
+      return deliveryToolCalls.map((tc) => {
+        const deliverablePath = tc.args.deliverable_path as string;
+        // Exact match first, then fallback to filename match
+        let matchedPath = deliverablePath;
+        let content = files[deliverablePath];
+        if (content === undefined) {
+          const filename = deliverablePath.split("/").pop();
+          const fallbackKey = Object.keys(files).find(
+            (k) => k.split("/").pop() === filename
+          );
+          if (fallbackKey) {
+            matchedPath = fallbackKey;
+            content = files[fallbackKey];
+          }
+        }
+        return {
+          path: matchedPath,
+          content: content ?? "",
+          metadata: fileMetadata?.get(matchedPath),
+          shareUrl: threadId
+            ? `${
+                typeof window !== "undefined" ? window.location.origin : ""
+              }/threads/${threadId}/files/${encodeURIComponent(matchedPath)}`
+            : undefined,
+          available: content !== undefined,
+        };
+      });
+    }, [files, fileMetadata, threadId, deliveryToolCalls]);
 
     const [_setExpandedSubAgents] = useState<Record<string, boolean>>({});
     const [expandedSubAgentId, setExpandedSubAgentId] = useState<string | null>(
@@ -664,16 +678,14 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                 </div>
             </div>
           )}
-          {/* Delivery cards - show for AI messages with delivered files */}
-          {message.type === "ai" &&
-            showDeliveryCards &&
-            deliveryFiles.length > 0 && (
-              <DeliveryCard
-                files={deliveryFiles}
-                onViewFile={onViewFile || NOOP}
-                onViewAll={onViewAllFiles}
-              />
-            )}
+          {/* Delivery cards - bound to submit_deliverable tool calls */}
+          {message.type === "ai" && deliveryFiles.length > 0 && (
+            <DeliveryCard
+              files={deliveryFiles}
+              onViewFile={onViewFile || NOOP}
+              onViewAll={onViewAllFiles}
+            />
+          )}
         </div>
       </div>
     );
