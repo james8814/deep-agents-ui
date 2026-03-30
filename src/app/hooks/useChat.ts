@@ -89,12 +89,23 @@ export function useChat({
   // 供后端 AuthMiddleware 读取，实现用户身份验证
   const getConfigWithToken = useCallback(
     (baseConfig?: Record<string, unknown>) => {
-      // 无 token 时直接返回原配置，避免不必要的对象分配
+      // 默认配置：timeout 和 recursion_limit
+      const defaultConfig: Record<string, unknown> = {
+        timeout: 60_000, // ✅ 60 seconds timeout for LLM API calls
+        recursion_limit: 1000, // ✅ Align with backend config.yaml
+      };
+
+      // 合并默认配置、baseConfig 和 token
+      const config: Record<string, unknown> = {
+        ...defaultConfig,
+        ...baseConfig,
+      };
+
+      // 无 token 时直接返回配置，避免不必要的对象分配
       if (!token) {
-        return baseConfig;
+        return config;
       }
 
-      const config = baseConfig ? { ...baseConfig } : {};
       const configurable = config.configurable
         ? { ...(config.configurable as Record<string, unknown>) }
         : {};
@@ -260,7 +271,8 @@ export function useChat({
           },
           config: getConfigWithToken(
             (activeAssistant?.config as Record<string, unknown>) ?? {
-              recursion_limit: 200,
+              recursion_limit: 1000, // ✅ Align with backend config.yaml
+              timeout: 60_000, // ✅ 60 seconds timeout for LLM API calls
             }
           ),
           // ✅ 传递 checkpoint，让后端从上一个 checkpoint 恢复消息历史
@@ -446,20 +458,72 @@ export function useChat({
   // 原因：stream.messages 数组引用频繁变化
   // 解决：只在消息数量或 ID 集合变化时重新计算
   const messages = useMemo(() => {
+    // 🔧 诊断日志：检查 stream 数据源（详细版）
+    if (process.env.NODE_ENV === 'development') {
+      const lastStreamMsg = stream.messages[stream.messages.length - 1];
+      const lastValuesMsg = (stream.values.messages || [])[(stream.values.messages || []).length - 1];
+
+      if (lastStreamMsg?.type === 'ai' || lastValuesMsg?.type === 'ai') {
+        console.log('[useChat] 诊断 - AI 消息对比:', JSON.stringify({
+          streamMsg: lastStreamMsg ? {
+            id: lastStreamMsg.id,
+            type: lastStreamMsg.type,
+            hasToolCalls: !!(lastStreamMsg as any).tool_calls?.length,
+            toolCallsCount: (lastStreamMsg as any).tool_calls?.length || 0,
+            toolCalls: (lastStreamMsg as any).tool_calls || [],
+            hasAdditionalKwargs: !!(lastStreamMsg as any).additional_kwargs?.tool_calls?.length,
+            additionalKwargsToolCalls: (lastStreamMsg as any).additional_kwargs?.tool_calls || [],
+          } : null,
+          valuesMsg: lastValuesMsg ? {
+            id: lastValuesMsg.id,
+            type: lastValuesMsg.type,
+            hasToolCalls: !!(lastValuesMsg as any).tool_calls?.length,
+            toolCallsCount: (lastValuesMsg as any).tool_calls?.length || 0,
+            toolCalls: (lastValuesMsg as any).tool_calls || [],
+            hasAdditionalKwargs: !!(lastValuesMsg as any).additional_kwargs?.tool_calls?.length,
+            additionalKwargsToolCalls: (lastValuesMsg as any).additional_kwargs?.tool_calls || [],
+          } : null,
+        }, null, 2));
+      }
+    }
+
     // 将 SDK messages 添加到 Map（去重）
     stream.messages.forEach((msg) => {
       if (msg.id) {
-        // 🔧 修复：LangGraph SDK 在流式传输期间可能返回空内容
+        // 🔧 修复：LangGraph SDK 在流式传输期间可能返回空内容或缺失 tool_calls
         // 检查 stream.values.messages 中是否有完整内容作为回退
         let finalMsg = msg;
-        if (!msg.content || (typeof msg.content === 'string' && msg.content.trim() === '')) {
-          // 检查 stream.values 中是否有该消息的完整版本
-          const valuesMessages = stream.values.messages || [];
-          const completeMsg = valuesMessages.find((m: any) => m.id === msg.id);
-          if (completeMsg && completeMsg.content) {
+
+        // 🔧 修复 tool_calls 不显示问题：合并 stream.values.messages 中的 tool_calls
+        // 问题：stream.messages 可能不包含 tool_calls，而 stream.values.messages 中有
+        const valuesMessages = stream.values.messages || [];
+        const completeMsg = valuesMessages.find((m: any) => m.id === msg.id);
+
+        const hasEmptyContent = !msg.content || (typeof msg.content === 'string' && msg.content.trim() === '');
+        const hasNoToolCalls = msg.type === 'ai' && !(msg as any).tool_calls?.length;
+        const hasToolCallsInValues = completeMsg && (completeMsg as any).tool_calls?.length > 0;
+
+        // 如果内容为空，或 AI 消息缺少 tool_calls 但 values 中有，使用 values 中的消息
+        if ((hasEmptyContent || hasNoToolCalls) && completeMsg) {
+          if (hasEmptyContent && completeMsg.content) {
             finalMsg = completeMsg;
+          } else if (hasNoToolCalls && hasToolCallsInValues) {
+            // 合并 tool_calls：保留原消息内容，补充 tool_calls
+            finalMsg = {
+              ...msg,
+              tool_calls: (completeMsg as any).tool_calls,
+              additional_kwargs: {
+                ...msg.additional_kwargs,
+                tool_calls: (completeMsg as any).tool_calls,
+              },
+            };
+            console.debug('[useChat] 补充 tool_calls 从 stream.values.messages:', {
+              msgId: msg.id,
+              toolCallsCount: (completeMsg as any).tool_calls?.length || 0,
+            });
           }
         }
+
         messagesMap.current.set(msg.id, finalMsg);
       }
     });

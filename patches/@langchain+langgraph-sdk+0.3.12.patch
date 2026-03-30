@@ -1,0 +1,29 @@
+diff --git a/node_modules/@langchain/langgraph-sdk/dist/react/stream.lgp.js b/node_modules/@langchain/langgraph-sdk/dist/react/stream.lgp.js
+index 1111111..2222222 100644
+--- a/node_modules/@langchain/langgraph-sdk/dist/react/stream.lgp.js
++++ b/node_modules/@langchain/langgraph-sdk/dist/react/stream.lgp.js
+@@ -312,7 +312,16 @@ function useStreamLGP(options) {
+ 			const streamMode = unique([
+ 				...submitOptions?.streamMode ?? [],
+ 				...trackStreamModeRef.current,
+ 				...callbackStreamMode
+ 			]);
++			// 🔧 过滤掉后端不支持的 streamMode，避免 HTTP 422 错误
++			// 后端支持的 streamMode: 'values', 'updates', 'checkpoints', 'tasks', 'debug', 'messages', 'custom'
++			// 后端不支持：'messages-tuple', 'tools', 'events'
++			const SUPPORTED_STREAM_MODES = ['values', 'updates', 'checkpoints', 'tasks', 'debug', 'messages', 'custom'];
++			const filteredStreamMode = streamMode.filter(mode => SUPPORTED_STREAM_MODES.includes(mode));
++			if (streamMode.length !== filteredStreamMode.length) {
++				console.debug('[useStreamLGP] 过滤不支持的 streamMode:', streamMode.filter(mode => !SUPPORTED_STREAM_MODES.includes(mode)));
++			}
+ 			let checkpoint = submitOptions?.checkpoint ?? (includeImplicitBranch ? branchContext.threadHead?.checkpoint : void 0) ?? void 0;
+ 			if (submitOptions?.checkpoint === null) checkpoint = void 0;
+ 			if (checkpoint != null) delete checkpoint.thread_id;
+@@ -322,7 +331,7 @@ function useStreamLGP(options) {
+ 				signal,
+ 				checkpoint,
+-				streamMode,
++				streamMode: filteredStreamMode,
+ 				streamSubgraphs: submitOptions?.streamSubgraphs,
+ 				streamResumable,
+ 				durability: submitOptions?.durability,

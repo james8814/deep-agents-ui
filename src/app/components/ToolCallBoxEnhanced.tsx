@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -115,9 +115,12 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
     executionTime,
     showCopyButton = true,
   }) => {
-    const [isExpanded, setIsExpanded] = useState(
-      () => !!uiComponent || !!actionRequest
-    );
+    const [isExpanded, setIsExpanded] = useState(() => {
+      // Auto-expand if has UI component, action request, or interrupted status
+      if (!!uiComponent || !!actionRequest) return true;
+      if (toolCall.status === "interrupted") return true;
+      return false;
+    });
     const [isCopied, setIsCopied] = useState(false);
 
     const { name, args, result, status } = useMemo(() => {
@@ -128,6 +131,13 @@ export const ToolCallBoxEnhanced = React.memo<ToolCallBoxEnhancedProps>(
         status: toolCall.status || "completed",
       };
     }, [toolCall]);
+
+    // Auto-expand when actionRequest becomes available or status changes to interrupted
+    useEffect(() => {
+      if (actionRequest || status === "interrupted") {
+        setIsExpanded(true);
+      }
+    }, [actionRequest, status]);
 
     const risk = useMemo(
       () =>

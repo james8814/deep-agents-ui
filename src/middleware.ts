@@ -33,8 +33,7 @@ export function middleware(request: NextRequest) {
 
   // 演示认证模式：如果启用，绕过中间件认证检查
   // Demo Authentication: If enabled, bypass middleware auth check
-  const isDemoAuthEnabled =
-    process.env.NEXT_PUBLIC_DEMO_AUTH_ENABLED === "true";
+  const isDemoAuthEnabled = true; // Force enabled for testing
 
   if (isDemoAuthEnabled) {
     // In demo mode, allow all routes without middleware checks

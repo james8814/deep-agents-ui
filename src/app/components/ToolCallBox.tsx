@@ -16,6 +16,7 @@ import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { ToolApprovalInterrupt } from "@/app/components/ToolApprovalInterrupt";
 import { ToolArgsRenderer } from "@/app/components/tool-renderers";
 import { ViewImageResult } from "@/app/components/ViewImageResult";
+import { getToolDisplayName } from "@/app/utils/toolNames";
 
 interface ToolCallBoxProps {
   toolCall: ToolCall;
@@ -43,9 +44,11 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
       () => !!uiComponent || !!actionRequest
     );
 
-    const { name, args, result, status } = useMemo(() => {
+    const { name, displayName, args, result, status } = useMemo(() => {
+      const codeName = toolCall.name || "unknown_tool";
       return {
-        name: toolCall.name || "Unknown Tool",
+        name: codeName, // 保持代码名称，用于内部逻辑
+        displayName: getToolDisplayName(codeName, codeName), // 可读的显示名称
         args: toolCall.args || {},
         result: toolCall.result,
         status: toolCall.status || "completed",
@@ -101,6 +104,8 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
           status === "interrupted" &&
             "ring-warning/50 ring-2 ring-offset-1 ring-offset-background"
         )}
+        role="region"
+        aria-label={`工具调用: ${displayName}`}
       >
         <Button
           variant="ghost"
@@ -116,7 +121,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
             <div className="flex items-center gap-2">
               {statusIcon}
               <span className="text-[15px] font-medium tracking-[-0.6px] text-foreground">
-                {name}
+                {displayName}
               </span>
             </div>
             {hasContent && (

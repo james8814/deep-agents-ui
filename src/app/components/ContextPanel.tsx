@@ -20,7 +20,6 @@ import {
   Copy,
   Download,
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useChatContext } from "@/providers/ChatProvider";
@@ -50,6 +49,10 @@ export const ContextPanel = React.memo<ContextPanelProps>(
       interrupt,
       subagent_logs,
     } = useChatContext();
+
+    // ✅ 修复：stream 未定义，使用 useChatContext 返回的 files
+    // const filesFromStream = stream.values.files ?? {};
+    const filesFromStream = files ?? {};
     const [activeTab, setActiveTab] = useState<Tab>(initialTab || "worklog");
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
     const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
@@ -121,10 +124,29 @@ export const ContextPanel = React.memo<ContextPanelProps>(
       });
     }, [files]);
 
-    // Get sorted file metadata
-    // Note: 'files' in deps triggers re-sort when files change (updates metadataRef via useEffect)
+    // Get sorted file metadata - compute directly from files
     const sortedFileMetadata = useMemo(() => {
-      const metadata = Array.from(fileMetadataRef.current.values());
+      const now = Date.now();
+      const metadata = Object.keys(files).map((path) => {
+        const rawContent = files[path];
+        const content = extractFileContent(rawContent);
+        const segments = path.split("/");
+        const name = segments[segments.length - 1] || path;
+        const directory = segments.slice(0, -1).join("/") || ".";
+        const extension = name.includes(".")
+          ? name.split(".").pop()?.toLowerCase() || ""
+          : "";
+
+        return {
+          path,
+          name,
+          directory,
+          addedAt: now,
+          size: content.length,
+          extension,
+        };
+      });
+
       return metadata.sort((a, b) => {
         if (sortBy === "name") {
           return sortAsc
@@ -135,11 +157,19 @@ export const ContextPanel = React.memo<ContextPanelProps>(
         }
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sortBy, sortAsc, files]);
+    }, [files, sortBy, sortAsc]);
 
     const hasTasks = todos.length > 0;
     const fileCount = Object.keys(files).length;
     const hasFiles = fileCount > 0;
+
+    // 🔧 调试日志：检查 files 状态
+    useEffect(() => {
+      console.log('[ContextPanel] files:', files ? Object.keys(files).length + ' files' : 'null/undefined');
+      if (files && Object.keys(files).length > 0) {
+        console.log('[ContextPanel]   File paths:', Object.keys(files).slice(0, 5));
+      }
+    }, [files]);
 
     const handleSaveFile = useCallback(
       async (fileName: string, content: string) => {
@@ -242,11 +272,11 @@ export const ContextPanel = React.memo<ContextPanelProps>(
         </div>
 
         {/* Content */}
-        <ScrollArea
-          className="flex-1"
+        <div
+          className="flex-1 overflow-hidden"
           key={`${refreshKey}-${activeTab}`}
         >
-          <div className="animate-[fadeIn_150ms_ease-out]">
+          <div className="animate-[fadeIn_150ms_ease-out] h-full">
             {activeTab === "worklog" && (
               <WorkPanelV527
                 subagentLogs={subagent_logs ?? {}}
@@ -280,7 +310,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(
               />
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* File Dialog — remains modal for editing */}
         {selectedFile && (
@@ -354,7 +384,7 @@ function FilesTab({
 
   if (sortedMetadata.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center p-8 text-center">
         <FileText
           size={24}
           className="mb-2 text-muted-foreground/50"
@@ -368,7 +398,7 @@ function FilesTab({
   }
 
   return (
-    <div className="p-3">
+    <div className="h-full overflow-y-auto p-3">
       {/* Sort Controls */}
       <div className="mb-2 flex items-center gap-2">
         <span className="text-[10px] text-muted-foreground">Sort by:</span>
@@ -598,7 +628,7 @@ function InlineFileViewer({
       </div>
 
       {/* Content - scrollable within ScrollArea */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-2">
+      <div className="h-full min-h-0 flex-1 overflow-y-auto p-2">
         {isMarkdown ? (
           <div className="rounded-md p-2">
             <MarkdownContent content={file.content} />

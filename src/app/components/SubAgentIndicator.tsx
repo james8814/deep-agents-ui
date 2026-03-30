@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { SubAgent } from "@/app/types/types";
 import { cn } from "@/lib/utils";
+import { getToolDisplayName } from "@/app/utils/toolNames";
 
 interface SubAgentIndicatorProps {
   subAgent: SubAgent;
@@ -101,7 +102,7 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
           <div className="flex items-center gap-2">
             {statusIcon}
             <span className="text-[14px] font-semibold tracking-tight text-foreground">
-              {subAgent.subAgentName}
+              {getToolDisplayName(subAgent.subAgentName, subAgent.subAgentName)}
             </span>
           </div>
           <div className="flex items-center gap-2">

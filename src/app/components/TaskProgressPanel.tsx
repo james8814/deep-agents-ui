@@ -79,14 +79,19 @@ export const TaskProgressPanel = React.memo<TaskProgressPanelProps>(
 
         {/* 任务标签列表 */}
         <div className="scrollbar-none flex items-center gap-1 overflow-x-auto">
-          {tasks.map((task) => (
-            <TaskFilterTag
-              key={task.id}
-              task={task}
-              isSelected={selectedTaskId === task.id}
-              onClick={() => onSelectTask(task.id)}
-            />
-          ))}
+          {tasks.filter(task => task && task.id).map((task, index) => {
+            // 🔧 修复 React key prop 错误: 使用组合 key 确保唯一性
+            const key = task.id || `task-${index}-${task.content?.substring(0, 10) || 'unknown'}`;
+
+            return (
+              <TaskFilterTag
+                key={key}
+                task={task}
+                isSelected={selectedTaskId === task.id}
+                onClick={() => onSelectTask(task.id)}
+              />
+            );
+          })}
         </div>
       </div>
     );
@@ -235,28 +240,33 @@ function TaskFilterDropdown({
         <div className="my-1 border-t border-[var(--b1)]" />
 
         {/* 任务列表 */}
-        {tasks.map((task, index) => (
-          <button
-            key={task.id}
-            id={`option-${index + 1}`}
-            onClick={() => handleSelect(task.id)}
-            className={cn(
-              "w-full px-3 py-1.5 text-left text-xs",
-              "transition-colors",
-              focusedIndex === index + 1 && "bg-[var(--bg3)]",
-              "hover:bg-[var(--bg3)]",
-              "flex items-center gap-2",
-              selectedTaskId === task.id
-                ? "font-medium text-[var(--brand)]"
-                : "text-[var(--t2)]"
-            )}
-            role="option"
-            aria-selected={selectedTaskId === task.id}
-          >
-            <TaskStatusIcon status={task.status} />
-            <span className="flex-1 truncate">{task.content}</span>
-          </button>
-        ))}
+        {tasks.filter(task => task && task.id).map((task, index) => {
+          // 🔧 修复 React key prop 错误: 使用组合 key 确保唯一性
+          const key = task.id || `task-${index}-${task.content?.substring(0, 10) || 'unknown'}`;
+
+          return (
+            <button
+              key={key}
+              id={`option-${index + 1}`}
+              onClick={() => handleSelect(task.id)}
+              className={cn(
+                "w-full px-3 py-1.5 text-left text-xs",
+                "transition-colors",
+                focusedIndex === index + 1 && "bg-[var(--bg3)]",
+                "hover:bg-[var(--bg3)]",
+                "flex items-center gap-2",
+                selectedTaskId === task.id
+                  ? "font-medium text-[var(--brand)]"
+                  : "text-[var(--t2)]"
+              )}
+              role="option"
+              aria-selected={selectedTaskId === task.id}
+            >
+              <TaskStatusIcon status={task.status} />
+              <span className="flex-1 truncate">{task.content}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

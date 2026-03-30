@@ -34,14 +34,24 @@ export function convertMessagesToBubbles(
 ): ConvertedBubbleItem[] {
   const processed = processMessagesWithTools(messages, interrupt);
 
-  return processed.map((data, index) => {
-    const isLast = index === processed.length - 1;
+  // 🔧 修复: 过滤掉没有内容的消息（空消息气泡）
+  // 同时保留有 toolCalls 的消息（即使内容为空）
+  const filtered = processed.filter((data) => {
+    const content = extractStringFromMessageContent(data.message);
+    const hasToolCalls = data.toolCalls && data.toolCalls.length > 0;
+    // 保留：有内容 或 有 toolCalls 的消息
+    return content.trim() !== "" || hasToolCalls;
+  });
+
+  return filtered.map((data, index) => {
+    const isLast = index === filtered.length - 1;
     const isStreaming = isLoading && isLast && data.message.type === "ai";
+    const content = extractStringFromMessageContent(data.message);
 
     return {
       key: data.message.id || `msg-${index}`,
       role: data.message.type === "human" ? "user" : "ai",
-      content: extractStringFromMessageContent(data.message),
+      content: content,
       typing:
         data.message.type === "ai" && !isStreaming
           ? { effect: "fade-in" }
@@ -99,15 +109,20 @@ function processMessagesWithTools(
       messageMap.set(message.id!, {
         message,
         toolCalls: toolCalls.map((tc, tcIndex) => {
+          // 🔧 修复 ISSUE-006: 优先使用 tool call 的实际状态，而不是硬编码 "pending"
+          // LangGraph SDK 在 tool_calls 中提供了 status 字段
+          const actualStatus = tc.status || "pending";
+
           // 🔧 修复: 使用 hasActionRequests 或 tool_call_id 匹配来判断 interrupt 状态
           // 当有 action_requests 时（submit_deliverable 等 HIL），所有 pending tool call 都需要用户审批
           const shouldBeInterrupted = hasActionRequests
-            ? tc.status === "pending" || tc.status === "interrupted" // 标记所有 pending 为 interrupted
+            ? actualStatus === "pending" || actualStatus === "interrupted" // 标记所有 pending 为 interrupted
             : (interrupt && tc.id === interruptedToolCallId);
 
           return {
             ...tc,
-            status: shouldBeInterrupted ? "interrupted" : "pending",
+            // 仅在需要中断时覆盖状态，否则使用实际状态
+            status: shouldBeInterrupted ? "interrupted" : actualStatus,
           };
         }),
       });
@@ -153,7 +168,9 @@ function extractToolCalls(message: Message): ToolCall[] {
             string,
             unknown
           >,
-          status: "pending" as const,
+          // 🔧 修复: 读取 LangGraph 返回的实际状态，而不是硬编码 "pending"
+          status: ((tcObj.status || func?.status) as ToolCall["status"]) || "pending",
+          result: (tcObj.result || func?.result) as string | undefined,
         };
       })
     );
@@ -173,7 +190,14 @@ function extractToolCalls(message: Message): ToolCall[] {
             id: String(tcObj.id || `tc-${Date.now()}`),
             name: String(tcObj.name),
             args: (tcObj.args || {}) as Record<string, unknown>,
-            status: "pending" as const,
+            // 🔧 修复 ISSUE-006: 读取 LangGraph 返回的实际状态，而不是硬编码 "pending"
+            // LangGraph SDK 在 tool_calls 中提供了 status 字段：
+            // - "pending": 工具调用已创建，等待执行
+            // - "completed": 工具调用已完成，结果在 result 字段
+            // - "error": 工具调用失败
+            status: (tcObj.status as ToolCall["status"]) || "pending",
+            // 同时读取 result 字段（如果有）
+            result: tcObj.result as string | undefined,
           };
         })
     );

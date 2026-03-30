@@ -47,7 +47,7 @@ export function getDefaultConfig(): StandaloneConfig {
   return {
     deploymentUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024",
     assistantId: "pmagent",
-    useAntdX: true,
+    useAntdX: false, // 🔧 修复：默认使用原生 InputArea，避免双 Send 按钮
   };
 }
 

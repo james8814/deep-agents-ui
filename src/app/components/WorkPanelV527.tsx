@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatContext } from "@/providers/ChatProvider";
 import type { LogEntry } from "@/app/types/subagent";
+import { Loader2 } from "lucide-react";
 
 // v5.27 Components
 import { TaskProgressPanel, TaskWithIndex } from "./TaskProgressPanel";
@@ -43,8 +44,67 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
   ({ onClose: _onClose, subagentLogs: externalSubagentLogs, isVisible = true }) => {
     const { todos, files = {}, isLoading, subagents, subagent_logs: contextSubagentLogs } = useChatContext();
 
+    // 🔧 修复 Issue 1: 当 subagent_logs 更新时，通知自动滚动 hook
+    // 注意：必须在组件顶部定义，确保在其他 useEffect 之前初始化
+    const {
+      containerRef: scrollContainerRef,
+      autoScrollEnabled,
+      newLogsCount,
+      handleScroll,
+      scrollToLatest,
+      onNewLog,
+    } = useAutoScrollControl({
+      bottomThreshold: 50,
+      behavior: "smooth",
+      isVisible,
+    });
+
+    // 🔧 调试日志：检查 subagent_logs 状态
+    useEffect(() => {
+      console.log('[WorkPanelV527] contextSubagentLogs:', contextSubagentLogs ? Object.keys(contextSubagentLogs).length + ' entries' : 'null/undefined');
+      if (contextSubagentLogs) {
+        Object.entries(contextSubagentLogs).forEach(([key, logs]) => {
+          console.log(`[WorkPanelV527]   - ${key.substring(0, 12)}...: ${logs.length} logs`);
+        });
+      }
+    }, [contextSubagentLogs]);
+
     // 优先使用 props，fallback 到 context（修复 ISSUE-003）
-    const subagentLogs = externalSubagentLogs ?? contextSubagentLogs ?? {};
+    // 🔧 修复：将 subagentLogs 包装在 useMemo 中，避免每次渲染都创建新对象
+    const subagentLogs = useMemo(() =>
+      externalSubagentLogs ?? contextSubagentLogs ?? {},
+      [externalSubagentLogs, contextSubagentLogs]
+    );
+
+    // 🔧 修复 Issue 1: 当 subagent_logs 更新时，通知自动滚动 hook
+    const prevLogsCountRef = useRef<number>(0);
+
+    useEffect(() => {
+      // 计算当前日志总数
+      const totalLogs = Object.values(subagentLogs).reduce((sum, logs) => sum + logs.length, 0);
+      const prevCount = prevLogsCountRef.current;
+
+      // 如果有新日志，通知滚动 hook
+      if (totalLogs > prevCount && totalLogs > 0) {
+        onNewLog();
+      }
+
+      prevLogsCountRef.current = totalLogs;
+    }, [subagentLogs, onNewLog]);
+
+    // 提取当前执行信息
+    const currentExecutionInfo = useMemo(() => {
+      if (!isLoading || !contextSubagentLogs) return { step: null, tool: null };
+
+      // 从 subagent_logs 中提取当前工具
+      const logEntries = Object.values(contextSubagentLogs).flat();
+      const latestToolCall = logEntries.find(entry => entry.type === 'tool_call');
+
+      return {
+        step: null,
+        tool: latestToolCall?.tool_name || null,
+      };
+    }, [isLoading, contextSubagentLogs]);
 
     // 🔧 修复无限循环：移除组件体内的 console.log
     // 原因：console.log 在组件体内会在每次渲染时执行
@@ -71,19 +131,6 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
 
     // 面板级别折叠状态 (用于 Progress Header 的收起/展开按钮)
     const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
-
-    // 自动滚动控制
-    const {
-      containerRef: scrollContainerRef,
-      autoScrollEnabled,
-      newLogsCount,
-      handleScroll,
-      scrollToLatest,
-    } = useAutoScrollControl({
-      bottomThreshold: 50,
-      behavior: "smooth",
-      isVisible,
-    });
 
     // 滚动到高亮
     const { scrollToTask, containerRef: highlightContainerRef } =
@@ -177,6 +224,32 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
     // Work 模式
     return (
       <div className="flex h-full flex-col">
+        {/* Execution Status Bar - 整合自 ChatInterface */}
+        {isLoading && (
+          <div className="flex h-9 items-center gap-3 border-b border-border bg-accent/50 px-4 py-2 text-sm">
+            <Loader2
+              size={14}
+              className="animate-spin text-primary"
+            />
+            <div className="flex flex-1 items-center gap-2 truncate">
+              <span className="font-medium text-foreground">
+                {currentExecutionInfo.step || "Running agent"}
+              </span>
+              {currentExecutionInfo.tool && (
+                <>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="truncate font-mono text-xs text-muted-foreground">
+                    {currentExecutionInfo.tool}
+                  </span>
+                </>
+              )}
+            </div>
+            <span className="flex-shrink-0 text-xs tabular-nums text-muted-foreground">
+              运行中...
+            </span>
+          </div>
+        )}
+
         {/* Progress Header */}
         <PanelProgressHeader
           todos={todos}
@@ -199,21 +272,53 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
         >
           <div className="space-y-2 p-3">
             {(() => {
+              // 🔧 修复 Issue 4: 当没有任务但有日志时，也应该显示日志
+              // 检查是否有未映射到任务的日志
+              const taskIds = new Set(tasksWithIndex.map(t => t.id));
+              const unmappedLogs = Object.entries(logsByTaskId).filter(
+                ([key]) => !taskIds.has(key)
+              );
+
               // 筛选器逻辑：根据选中的任务过滤显示
               if (selectedTaskId === null) {
                 // 选中"全部"，显示所有任务
-                return tasksWithIndex.map((task) => (
-                  <StepGroup
-                    key={task.id}
-                    taskId={task.id}
-                    taskContent={task.content}
-                    status={task.status}
-                    logs={logsByTaskId[task.id] || []}
-                    collapsed={isCollapsed(task.id, task.status === "in_progress")}
-                    highlighted={false}
-                    onToggleCollapse={handleToggleCollapse(task.id)}
-                  />
-                ));
+                return (
+                  <>
+                    {/* 首先显示所有任务及其日志 */}
+                    {tasksWithIndex.map((task) => (
+                      <StepGroup
+                        key={task.id}
+                        taskId={task.id}
+                        taskContent={task.content}
+                        status={task.status}
+                        logs={logsByTaskId[task.id] || []}
+                        collapsed={isCollapsed(task.id, task.status === "in_progress")}
+                        highlighted={false}
+                        onToggleCollapse={handleToggleCollapse(task.id)}
+                      />
+                    ))}
+                    {/* 然后显示未映射到任务的日志 */}
+                    {unmappedLogs.map(([toolCallId, logs]) => (
+                      <StepGroup
+                        key={toolCallId}
+                        taskId={toolCallId}
+                        taskContent={`SubAgent 执行 (${toolCallId.substring(0, 8)}...)`}
+                        status="completed"
+                        logs={logs}
+                        collapsed={false}
+                        highlighted={false}
+                        onToggleCollapse={() => {}}
+                      />
+                    ))}
+                    {/* 如果既没有任务也没有日志，显示空状态 */}
+                    {tasksWithIndex.length === 0 && unmappedLogs.length === 0 && (
+                      <div className="text-center text-muted-foreground py-8">
+                        <p className="text-sm">暂无工作日志</p>
+                        <p className="text-xs mt-1">开始对话以查看任务进度</p>
+                      </div>
+                    )}
+                  </>
+                );
               } else {
                 // 选中特定任务，只显示该任务
                 const task = tasksWithIndex.find((t) => t.id === selectedTaskId);

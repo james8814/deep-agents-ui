@@ -89,6 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setToken(demoToken);
           setUser(demoUser);
           console.debug("[Auth] Demo authentication enabled");
+          // ✅ Bug 修复: 在 return 前设置状态，确保 AuthGuard 不会卡在加载状态
+          setIsLoading(false);
+          setHasChecked(true);
           return;
         }
 
