@@ -55,7 +55,6 @@ interface ChatMessageAnimatedProps {
   fileMetadata?: Map<string, FileMetadata>;
   onViewFile?: (path: string) => void;
   onViewAllFiles?: () => void;
-  showDeliveryCards?: boolean;
   threadId?: string;
   schemaVersion?: string;
   attachmentSummaries?: AttachmentSummary[];

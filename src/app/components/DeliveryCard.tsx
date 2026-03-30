@@ -26,6 +26,8 @@ interface DeliveryFile {
   content: string;
   metadata?: FileMetadata;
   shareUrl?: string;
+  /** Whether the file content is available in current state (false = file deleted or not yet loaded) */
+  available?: boolean;
 }
 
 interface DeliveryCardProps {
@@ -148,6 +150,15 @@ const FilePreview = React.memo<{
   const isImage = ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext);
 
   const previewContent = useMemo(() => {
+    if (file.available === false) {
+      return (
+        <div className="flex h-24 items-center justify-center rounded-lg bg-muted/30">
+          <span className="text-xs text-muted-foreground">
+            文件内容暂不可用
+          </span>
+        </div>
+      );
+    }
     if (isImage) {
       return (
         <div className="flex h-32 items-center justify-center rounded-lg bg-muted/30">
@@ -178,7 +189,7 @@ const FilePreview = React.memo<{
         />
       </div>
     );
-  }, [file.content, isTextFile, isImage]);
+  }, [file.content, file.available, isTextFile, isImage]);
 
   return (
     <div className="mt-3 overflow-hidden rounded-lg border border-border/50 bg-background/50">
@@ -192,7 +203,7 @@ const FilePreview = React.memo<{
           {getFileName(file.path)}
         </span>
         <span className="text-xs text-muted-foreground">
-          {formatFileSize(file.content)}
+          {file.available === false ? "不可用" : formatFileSize(file.content)}
         </span>
         {file.shareUrl && <CopyUrlButton shareUrl={file.shareUrl} />}
       </div>
