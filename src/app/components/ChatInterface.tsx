@@ -587,32 +587,34 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                   </div>
                 );
               })}
-              {/* Streaming indicator — shows when agent is loading but no AI content yet */}
+              {/* Streaming indicator — shows when agent is working
+                  显示条件: isLoading 且最后一条 AI 消息没有正在流式输出文本内容
+                  覆盖场景: Agent 调用工具、执行 SubAgent、等待 LLM 回复等 */}
               {isLoading &&
                 processedMessages.length > 0 &&
                 (() => {
                   const lastMsg = messages[messages.length - 1];
+                  // 如果最后一条是 AI 消息且有文本内容正在流式输出，不显示（避免重叠）
                   if (lastMsg?.type === "ai") {
                     const content = extractStringFromMessageContent(lastMsg);
-                    if (!content?.trim()) {
-                      return (
-                        <div className="mt-4 flex items-start gap-2 px-1">
-                          <div className="flex items-center gap-1.5 rounded-lg px-3 py-2">
-                            <span className="bg-primary/60 inline-block h-2 w-2 animate-pulse rounded-full" />
-                            <span
-                              className="bg-primary/40 inline-block h-2 w-2 animate-pulse rounded-full"
-                              style={{ animationDelay: "0.2s" }}
-                            />
-                            <span
-                              className="bg-primary/20 inline-block h-2 w-2 animate-pulse rounded-full"
-                              style={{ animationDelay: "0.4s" }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    }
+                    if (content?.trim()) return null;
                   }
-                  return null;
+                  // 其他情况（最后是 tool 消息、空 AI 消息、human 消息后等待回复）都显示
+                  return (
+                    <div className="mt-4 flex items-start gap-2 px-1">
+                      <div className="flex items-center gap-1.5 rounded-lg px-3 py-2">
+                        <span className="bg-primary/60 inline-block h-2 w-2 animate-pulse rounded-full" />
+                        <span
+                          className="bg-primary/40 inline-block h-2 w-2 animate-pulse rounded-full"
+                          style={{ animationDelay: "0.2s" }}
+                        />
+                        <span
+                          className="bg-primary/20 inline-block h-2 w-2 animate-pulse rounded-full"
+                          style={{ animationDelay: "0.4s" }}
+                        />
+                      </div>
+                    </div>
+                  );
                 })()}
             </>
           )}
