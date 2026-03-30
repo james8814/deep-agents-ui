@@ -18,7 +18,7 @@ let isPatchApplied = false;
  * 检查 URL 是否需要添加 Authorization header
  *
  * 覆盖范围：
- * - LangGraph Server (:2024/:2025) — Agent API 调用
+ * - LangGraph Server (:2024) — Agent API 调用
  * - Auth Server (:8000) 的 /api/ 端点 — 文件上传/下载/删除
  *   注意：/auth/ 端点不需要（登录/注册本身不需要 token）
  */
@@ -30,8 +30,6 @@ function shouldAddAuthHeader(url: string): boolean {
   if (
     url.includes("localhost:2024") ||
     url.includes("127.0.0.1:2024") ||
-    url.includes("localhost:2025") ||
-    url.includes("127.0.0.1:2025") ||
     (apiUrl ? url.includes(apiUrl) : false)
   ) {
     return true;

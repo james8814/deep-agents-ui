@@ -15,8 +15,6 @@ function shouldAddAuthHeader(url: string): boolean {
   if (
     url.includes("localhost:2024") ||
     url.includes("127.0.0.1:2024") ||
-    url.includes("localhost:2025") ||
-    url.includes("127.0.0.1:2025") ||
     (apiUrl ? url.includes(apiUrl) : false)
   ) {
     return true;
@@ -72,14 +70,10 @@ describe("shouldAddAuthHeader", () => {
       expect(shouldAddAuthHeader("http://127.0.0.1:2024/threads")).toBe(true);
     });
 
-    test("localhost:2025 应匹配", () => {
+    test("localhost:2025 不再匹配（已废弃的上传服务端口）", () => {
       expect(shouldAddAuthHeader("http://localhost:2025/assistants")).toBe(
-        true
+        false
       );
-    });
-
-    test("127.0.0.1:2025 应匹配", () => {
-      expect(shouldAddAuthHeader("http://127.0.0.1:2025/runs")).toBe(true);
     });
 
     test("使用环境变量配置的 API URL 应匹配", () => {
