@@ -246,6 +246,38 @@ function formatInput(
         return `提交交付物: ${obj.deliverable_path}${summary}`;
       }
       break;
+
+    case "update_opdca_stage":
+      if (obj.stage) return `更新工作流阶段: ${obj.stage}`;
+      break;
+
+    case "generate_chart":
+      if (obj.title) return `生成图表: ${obj.title}`;
+      if (obj.data) return `生成图表: ${String(obj.data).substring(0, 100)}`;
+      break;
+
+    case "ppt_search_web":
+      if (obj.query) return `PPT 搜索: ${obj.query}`;
+      break;
+
+    case "ppt_fetch_url":
+      if (obj.url) return `PPT 抓取: ${obj.url}`;
+      break;
+
+    case "ppt_download_file":
+      if (obj.url) return `PPT 下载: ${obj.url}`;
+      break;
+
+    case "ppt_hil_approval":
+      return "PPT 审批: 等待用户确认";
+
+    case "ppt_inspect_slide":
+      if (obj.slide_index !== undefined) return `PPT 检查: 第 ${Number(obj.slide_index) + 1} 页`;
+      return "PPT 视觉检查";
+
+    case "ppt_convert_html":
+      if (obj.output_path) return `HTML → PPTX: ${obj.output_path}`;
+      return "HTML → PPTX 转换";
   }
 
   // 通用: 尝试常见字段
