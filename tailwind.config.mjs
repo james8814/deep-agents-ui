@@ -110,8 +110,7 @@ export default {
         "warning-strong": "var(--bg-warning-strong)",
       },
       borderColor: {
-        primary: "var(--border-primary)",
-        secondary: "var(--border-secondary)",
+        // primary/secondary: 不再覆盖，回归 shadcn colors.primary/secondary (品牌色)
         tertiary: "var(--border-tertiary)",
         error: "var(--border-error)",
         "error-strong": "var(--border-error-strong)",
