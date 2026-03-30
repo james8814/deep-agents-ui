@@ -88,10 +88,7 @@ export default {
         xs: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
       },
       backgroundColor: {
-        primary: "var(--bg-primary)",
-        "primary-hover": "var(--bg-primary_hover)",
-        secondary: "var(--bg-secondary)",
-        "secondary-hover": "var(--bg-secondary_hover)",
+        // primary/secondary: 不再覆盖，回归 shadcn colors.primary/secondary (品牌色)
         tertiary: "var(--bg-tertiary)",
         quaternary: "var(--bg-quaternary)",
 
@@ -132,7 +129,9 @@ export default {
       },
       textColor: {
         primary: "var(--text-primary)",
+        "primary-foreground": "hsl(var(--primary-foreground))",
         secondary: "var(--text-secondary)",
+        "secondary-foreground": "hsl(var(--secondary-foreground))",
         tertiary: "var(--text-tertiary)",
         quaternary: "var(--text-quaternary)",
         disabled: "var(--text-disabled)",

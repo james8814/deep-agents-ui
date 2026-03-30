@@ -111,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 h-screen border-r border-secondary bg-primary",
+          "fixed left-0 top-0 h-screen border-r border-secondary bg-background",
           "z-50 flex flex-col items-center gap-3 p-3 transition-all duration-300",
           "overflow-y-auto",
           expanded ? "w-56" : "w-16"
