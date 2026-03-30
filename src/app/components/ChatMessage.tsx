@@ -1,22 +1,10 @@
 "use client";
 
 import React, { useMemo, useState, useCallback } from "react";
-import dynamic from "next/dynamic";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
 import { DeliveryCard } from "@/app/components/DeliveryCard";
-import { useFeatureFlag } from "@/lib/featureFlags";
-
-// AntdX 组件动态加载 — feature flag 关闭时不会被打包
-const SubAgentThoughtChain = dynamic(
-  () => import("@/app/components/SubAgentThoughtChain").then((m) => m.SubAgentThoughtChain),
-  { ssr: false }
-);
-const AntdXMarkdown = dynamic(
-  () => import("@/app/components/AntdXMarkdown").then((m) => m.AntdXMarkdown),
-  { ssr: false }
-);
 import type {
   SubAgent,
   ToolCall,
@@ -195,8 +183,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     timeoutSeconds,
     subagentLogs,
   }) => {
-    const useAntdxMarkdown = useFeatureFlag("USE_ANTDX_MARKDOWN");
-    const useAntdxSubAgent = useFeatureFlag("USE_ANTDX_SUB_AGENT");
+    // Feature flags removed — AntdX components deleted
     const isUser = message.type === "human";
     const messageContent = extractStringFromMessageContent(message);
     const hasContent = messageContent && messageContent.trim() !== "";
@@ -426,17 +413,10 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                     </p>
                   )
                 ) : hasContent ? (
-                  useAntdxMarkdown ? (
-                    <AntdXMarkdown
-                      content={messageContent}
-                      isStreaming={isStreaming}
-                    />
-                  ) : (
-                    <MarkdownContent
-                      content={messageContent}
-                      isStreaming={isStreaming}
-                    />
-                  )
+                  <MarkdownContent
+                    content={messageContent}
+                    isStreaming={isStreaming}
+                  />
                 ) : null}
               </div>
 
@@ -615,17 +595,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           )}
           {!isUser && subAgents.length > 0 && (
             <div className="flex w-fit max-w-full flex-col gap-4">
-              {useAntdxSubAgent ? (
-                /* Ant Design X ThoughtChain implementation */
-                <SubAgentThoughtChain
-                  subAgents={subAgents}
-                  isLoading={isLoading}
-                  expandedSubAgentId={expandedSubAgentId}
-                  onToggleExpand={toggleSubAgent}
-                />
-              ) : (
-                /* Legacy SubAgentIndicator implementation */
-                <div className="flex w-fit max-w-full flex-col gap-4">
+              <div className="flex w-fit max-w-full flex-col gap-4">
                   {subAgents.map((subAgent) => (
                     <div
                       key={subAgent.id}
@@ -647,19 +617,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                               Input
                             </h4>
                             <div className="mb-4">
-                              {useAntdxMarkdown ? (
-                                <AntdXMarkdown
-                                  content={extractSubAgentContent(
-                                    subAgent.input
-                                  )}
-                                />
-                              ) : (
-                                <MarkdownContent
-                                  content={extractSubAgentContent(
-                                    subAgent.input
-                                  )}
-                                />
-                              )}
+                              <MarkdownContent
+                                content={extractSubAgentContent(
+                                  subAgent.input
+                                )}
+                              />
                             </div>
                             {/* Execution Steps — shown when subagent_logs data available */}
                             {subAgent.logs &&
@@ -687,19 +649,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                                 <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
                                   Output
                                 </h4>
-                                {useAntdxMarkdown ? (
-                                  <AntdXMarkdown
-                                    content={extractSubAgentContent(
-                                      subAgent.output
-                                    )}
-                                  />
-                                ) : (
-                                  <MarkdownContent
-                                    content={extractSubAgentContent(
-                                      subAgent.output
-                                    )}
-                                  />
-                                )}
+                                <MarkdownContent
+                                  content={extractSubAgentContent(
+                                    subAgent.output
+                                  )}
+                                />
                               </>
                             )}
                           </div>
@@ -708,7 +662,6 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                     </div>
                   ))}
                 </div>
-              )}
             </div>
           )}
           {/* Delivery cards - show for AI messages with delivered files */}

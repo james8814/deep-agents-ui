@@ -36,7 +36,6 @@ export function ConfigDialog({
   const [assistantId, setAssistantId] = useState(
     initialConfig?.assistantId || ""
   );
-  const [useAntdX, setUseAntdX] = useState(initialConfig?.useAntdX ?? false);
   const [connectionStatus, setConnectionStatus] = useState<
     "idle" | "testing" | "ok" | "error"
   >("idle");
@@ -47,7 +46,6 @@ export function ConfigDialog({
       setDeploymentUrl(initialConfig.deploymentUrl);
       setAssistantId(initialConfig.assistantId);
       // 移除 API Key，使用 Cookie 认证
-      setUseAntdX(initialConfig.useAntdX ?? false);
       setConnectionStatus("idle");
       setConnectionError("");
     }
@@ -78,7 +76,6 @@ export function ConfigDialog({
     onSave({
       deploymentUrl,
       assistantId,
-      useAntdX,
     });
     onOpenChange(false);
   };
@@ -151,24 +148,6 @@ export function ConfigDialog({
               placeholder="<assistant-id>"
               value={assistantId}
               onChange={(e) => setAssistantId(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center justify-between rounded-lg border p-3">
-            <div className="space-y-0.5">
-              <Label
-                htmlFor="useAntdX"
-                className="text-sm font-medium"
-              >
-                使用 Ant Design X 样式
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                切换到 Ant Design X 2.0 组件样式
-              </p>
-            </div>
-            <Switch
-              id="useAntdX"
-              checked={useAntdX}
-              onCheckedChange={setUseAntdX}
             />
           </div>
         </div>

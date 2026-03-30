@@ -19,21 +19,7 @@ import {
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
-// ExecutionStatusBar 已整合到 WorkPanelV527 中
-import dynamic from "next/dynamic";
-import { useUseAntdX } from "@/lib/featureFlags";
-
-// AntdX 组件动态加载 — useAntdX=false 时不会被打包
-const AntdXMessageList = dynamic(
-  () => import("@/app/components/AntdXMessageList").then((m) => m.AntdXMessageList),
-  { ssr: false }
-);
-const AntdXSender = dynamic(
-  () => import("@/app/components/AntdXSender").then((m) => m.AntdXSender),
-  { ssr: false }
-);
-
-// MultimodalContent 原来是 AntdXSender 的类型别名 (= string)
+// MultimodalContent 类型定义
 type MultimodalContent = string;
 import type {
   ToolCall,
@@ -70,10 +56,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [threadId] = useQueryState("threadId");
   const [, setContextPanel] = useQueryState("context");
   const [, setContextTab] = useQueryState("contextTab");
-
-  // Unified Feature Flag for Ant Design X migration
-  // 使用统一的 useUseAntdX() hook，确保 UI 一致性
-  const useAntdX = useUseAntdX();
 
   // File viewing and delivery card state
   const [fileMetadata, setFileMetadata] = useState<Map<string, FileMetadata>>(
@@ -279,16 +261,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
       setAttachedFiles([]);
     },
     [input, isLoading, sendMessage, setInput, assistant, attachedFiles]
-  );
-
-  // Handler for AntdXSender - accepts content directly instead of reading from state
-  const handleSubmitWithContent = useCallback(
-    (content: MultimodalContent) => {
-      if (isLoading || !assistant) return;
-      // AntdXSender 现在发送的是构造好的文本消息（包含文件引用）
-      sendMessage(content);
-    },
-    [isLoading, sendMessage, assistant]
   );
 
   const triggerUpload = useCallback(() => {
@@ -553,15 +525,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             <div className="flex items-center justify-center p-8">
               <p className="text-muted-foreground">Loading...</p>
             </div>
-          ) : useAntdX ? (
-            <AntdXMessageList
-              messages={messages}
-              isLoading={isLoading}
-              interrupt={interrupt}
-              stream={stream}
-              onEditAndResend={handleEditAndResend}
-              onResumeInterrupt={resumeInterrupt}
-            />
           ) : (
             <>
               {processedMessages.map((data, index) => {
@@ -713,23 +676,12 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         ref={inputPanelRef}
         className="flex-shrink-0 bg-background p-4 pt-2"
       >
-        {useAntdX ? (
-          <AntdXSender
-            onSend={(content) => {
-              handleSubmitWithContent(content as typeof content);
-            }}
-            onStop={stopStream}
-            disabled={!!interrupt}
-            loading={isLoading}
-            interrupt={interrupt}
-          />
-        ) : (
-          <div
-            className={cn(
-              "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
-              "w-full max-w-[1024px] transition-all duration-200 ease-out"
-            )}
-          >
+        <div
+          className={cn(
+            "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
+            "w-full max-w-[1024px] transition-all duration-200 ease-out"
+          )}
+        >
             <form
               onSubmit={handleSubmit}
               className="flex flex-col"
@@ -857,8 +809,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                 </div>
               </div>
             </form>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* File viewer dialog */}

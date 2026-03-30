@@ -64,7 +64,7 @@ ClientInitializer (loads fetchInterceptor)
   → AuthProvider (user, token state, login/logout)
     → AuthGuard (redirect to /login if not authenticated)
       → NuqsAdapter (URL state)
-        → AntdProvider
+        → ThemeProvider (useSettings hook)
           → ClientProvider (LangGraph SDK Client with Bearer Token)
             → ChatProvider (useChat hook)
               → Page components
@@ -119,7 +119,7 @@ User Input → ChatInterface → useChat.sendMessage()
 - `src/app/components/tool-renderers/` — Tool-specific argument renderers (registry pattern)
 - `src/app/hooks/` — `useChat` (streaming) and `useThreads` (pagination)
 - `src/app/(auth)/` — Login and Register pages
-- `src/providers/` — React context providers (ClientProvider, ChatProvider, AntdProvider)
+- `src/providers/` — React context providers (ClientProvider, ChatProvider, ThemeProvider)
 - `src/contexts/` — AuthContext for authentication state
 - `src/components/ui/` — shadcn/ui components (Radix UI primitives)
 - `src/lib/` — Utilities, config, fetchInterceptor

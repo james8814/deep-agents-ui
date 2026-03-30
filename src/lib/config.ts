@@ -7,7 +7,6 @@ export interface StandaloneConfig {
   deploymentUrl: string;
   assistantId: string;
   // 移除 langsmithApiKey，改用 Cookie 认证
-  useAntdX?: boolean;
 }
 
 const CONFIG_KEY = "deep-agent-config-v2"; // 新版本 key，避免冲突
@@ -47,7 +46,6 @@ export function getDefaultConfig(): StandaloneConfig {
   return {
     deploymentUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024",
     assistantId: "pmagent",
-    useAntdX: false, // 🔧 修复：默认使用原生 InputArea，避免双 Send 按钮
   };
 }
 

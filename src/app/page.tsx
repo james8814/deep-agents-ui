@@ -16,14 +16,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import dynamic from "next/dynamic";
 import { ThreadList } from "@/app/components/ThreadList";
-
-// AntdX 组件动态加载 — useAntdX=false 时不会被打包
-const AntdXThreadList = dynamic(
-  () => import("@/app/components/AntdXThreadList").then((m) => m.AntdXThreadList),
-  { ssr: false }
-);
 import { ChatProvider } from "@/providers/ChatProvider";
 import { ChatInterface } from "@/app/components/ChatInterface";
 import { ContextPanel } from "@/app/components/ContextPanel";
@@ -53,10 +46,7 @@ function HomePageInner({
   const [contextTab, setContextTab] = useQueryState("contextTab");
 
   // Feature Flag for Ant Design X ThreadList
-  const [useAntdxThreadList] = useQueryState("useAntdxThreadList");
-  // URL 参数优先，如果没有则使用 localStorage 中的 useAntdX 设置
-  const isAntdxThreadList =
-    useAntdxThreadList === "true" || config.useAntdX === true;
+  // AntdX ThreadList 已移除
 
   const [mutateThreads, setMutateThreads] = useState<(() => void) | null>(null);
   const [interruptCount, setInterruptCount] = useState(0);
@@ -245,25 +235,14 @@ function HomePageInner({
                       minSize={20}
                       className="relative min-w-[380px]"
                     >
-                      {isAntdxThreadList ? (
-                        <AntdXThreadList
-                          onThreadSelect={async (id) => {
-                            await setThreadId(id);
-                          }}
-                          onMutateReady={(fn) => setMutateThreads(() => fn)}
-                          onClose={() => setSidebar(null)}
-                          onInterruptCountChange={setInterruptCount}
-                        />
-                      ) : (
-                        <ThreadList
-                          onThreadSelect={async (id) => {
-                            await setThreadId(id);
-                          }}
-                          onMutateReady={(fn) => setMutateThreads(() => fn)}
-                          onClose={() => setSidebar(null)}
-                          onInterruptCountChange={setInterruptCount}
-                        />
-                      )}
+                      <ThreadList
+                        onThreadSelect={async (id) => {
+                          await setThreadId(id);
+                        }}
+                        onMutateReady={(fn) => setMutateThreads(() => fn)}
+                        onClose={() => setSidebar(null)}
+                        onInterruptCountChange={setInterruptCount}
+                      />
                     </ResizablePanel>
                     <ResizableHandle />
                   </>

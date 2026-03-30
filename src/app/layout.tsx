@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
-import { AntdProvider } from "@/providers/AntdProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ClientInitializer } from "@/components/ClientInitializer";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -36,7 +35,7 @@ export default function RootLayout({
             <AuthGuard>
               <NuqsAdapter>
                 <ThemeProvider>
-                  <AntdProvider>{children}</AntdProvider>
+                  {children}
                 </ThemeProvider>
               </NuqsAdapter>
             </AuthGuard>
