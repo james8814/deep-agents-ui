@@ -176,6 +176,19 @@ UI config dialog settings take precedence over env vars.
 - `resumeInterrupt(value)` sends `Command({ resume: value })` to resume execution
 - Interrupt banner appears when agent needs approval
 
+## SSE 断连保护 (Long-Running SubAgent)
+
+**问题**: SubAgent 执行 10+ 分钟时，浏览器关闭空闲 SSE 连接。LangGraph SDK 默认 `on_disconnect="cancel"` 会终止后端 run。
+
+**解决方案** (`useChat.ts`):
+
+1. **`onDisconnect: "continue"`**: 所有 `stream.submit()` 调用（6 处）设置此参数，后端在 SSE 断连后继续执行
+2. **轮询兜底**: 检测 `isLoading: true → false` 后查询后端 run 状态，如果仍 running 则启动 15s 轮询。完成后 `window.location.reload()` 刷新
+3. **`isLoading: stream.isLoading || isPolling`**: 轮询期间 UI 保持 "Running..." 状态
+4. **Stop 按钮**: 轮询期间点击 Stop 通过 REST API `client.runs.cancel()` 取消后端 run
+
+**注意**: 新增 `stream.submit()` 调用时，**必须**包含 `onDisconnect: "continue"`（除 `markCurrentThreadAsResolved` 等终止操作外）。
+
 ## 文档管理规范
 
 前端项目无独立 `docs/` 目录，文档管理��循以下规���：
