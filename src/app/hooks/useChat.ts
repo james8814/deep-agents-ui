@@ -390,7 +390,19 @@ export function useChat({
 
   const stopStream = useCallback(() => {
     stream.stop();
-  }, [stream]);
+    // 轮询期间：取消后端 run + 停止轮询
+    if (pollingRef.current && threadId && client) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+      setIsPolling(false);
+      client.runs.list(threadId, { limit: 1 }).then((runs: any[]) => {
+        const run = runs[0];
+        if (run?.status === "running" || run?.status === "pending") {
+          client!.runs.cancel(threadId!, run.run_id);
+        }
+      }).catch(() => {});
+    }
+  }, [stream, threadId, client]);
 
   const regenerateLastMessage = useCallback(() => {
     // Find the last human message to re-submit
