@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import {
   type Message,
@@ -281,6 +281,9 @@ export function useChat({
           // 使用 "values" + "messages" 组合模式，确保 subagent_logs 自动推送到 stream.values
           // 注意："updates" 模式不会自动更新 stream.values，必须用 "values" 模式
           streamMode: ["values", "messages"],
+          // 🔧 修复 SSE 断连导致后端取消 run：SubAgent 长时间执行时浏览器会关闭空闲连接，
+          // 默认 on_disconnect="cancel" 会直接终止后端 run。改为 "continue" 让后端继续执行。
+          onDisconnect: "continue",
         }
       );
 
@@ -309,8 +312,8 @@ export function useChat({
           ...(isRerunningSubagent
             ? { interruptAfter: ["tools"] }
             : { interruptBefore: ["tools"] }),
-          // 🔧 修复：添加 streamMode 配置以获取完整状态
           streamMode: ["values", "messages"],
+          onDisconnect: "continue",
         });
       } else {
         stream.submit(
@@ -320,9 +323,8 @@ export function useChat({
               activeAssistant?.config as Record<string, unknown>
             ),
             interruptBefore: ["tools"],
-            // 🔧 修复：统一使用 "values" 模式，确保 stream.values 正确更新
-            // 这与 sendMessage() 保持一致，避免状态不一致问题
             streamMode: ["values", "messages"],
+            onDisconnect: "continue",
           }
         );
       }
@@ -350,9 +352,8 @@ export function useChat({
         ...(hasTaskToolCall
           ? { interruptAfter: ["tools"] }
           : { interruptBefore: ["tools"] }),
-        // 🔧 修复：统一使用 "values" 模式，确保 stream.values 正确更新
-        // 这与 sendMessage() 保持一致，避免状态不一致问题
         streamMode: ["values", "messages"],
+        onDisconnect: "continue",
       });
       // Update thread list when continuing stream
       onHistoryRevalidate?.();
@@ -378,6 +379,7 @@ export function useChat({
           // 2. stream.interrupt getter 能正确读取最新状态（应为 undefined）
           // 3. HIL banner 正确消失，Agent 继续执行
           streamMode: ["values", "messages"],
+          onDisconnect: "continue",
         }
       );
       // Update thread list when resuming from interrupt
@@ -421,6 +423,7 @@ export function useChat({
             recursion_limit: 200,
           }
         ),
+        onDisconnect: "continue",
       }
     );
     onHistoryRevalidate?.();
@@ -547,6 +550,54 @@ export function useChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream.messages.length, stream.messages.map(m => m.id).join(','), stream.isLoading]);
 
+  // 🔧 SSE 断连轮询兜底：当 SSE 断连但后端仍在运行时，轮询检测完成
+  const wasStreamLoadingRef = useRef(false);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
+
+  // 检测 SSE 断连（isLoading: true → false）并启动轮询
+  useEffect(() => {
+    const wasLoading = wasStreamLoadingRef.current;
+    wasStreamLoadingRef.current = stream.isLoading;
+
+    // 只在 true → false 转换时触发，且未在轮询中
+    if (wasLoading && !stream.isLoading && !pollingRef.current && threadId && client) {
+      client.runs.list(threadId, { limit: 1 }).then((runs: any[]) => {
+        const latestRun = runs[0];
+        if (latestRun?.status === "running" || latestRun?.status === "pending") {
+          setIsPolling(true);
+          pollingRef.current = setInterval(async () => {
+            try {
+              const currentRuns = await client!.runs.list(threadId!, { limit: 1 });
+              const run = currentRuns[0];
+              if (run?.status !== "running" && run?.status !== "pending") {
+                clearInterval(pollingRef.current!);
+                pollingRef.current = null;
+                setIsPolling(false);
+                // 刷新页面加载最终状态（最可靠的恢复方式）
+                window.location.reload();
+              }
+            } catch {
+              // 网络错误，继续轮询
+            }
+          }, 15_000);
+        }
+      }).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stream.isLoading]);
+
+  // 清理轮询 on thread change or unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+        setIsPolling(false);
+      }
+    };
+  }, [threadId]);
+
   return {
     stream,
     todos: stream.values.todos ?? [],
@@ -557,7 +608,7 @@ export function useChat({
     ui: stream.values.ui,
     setFiles,
     messages, // ✅ 使用合并后的 messages
-    isLoading: stream.isLoading,
+    isLoading: stream.isLoading || isPolling,
     isThreadLoading: stream.isThreadLoading,
     interrupt: stream.interrupt,
     getMessagesMetadata: stream.getMessagesMetadata,
