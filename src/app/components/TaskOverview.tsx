@@ -70,9 +70,9 @@ export const TaskOverview = React.memo<TaskOverviewProps>(
         >
           <div className="overflow-hidden">
             <div className="space-y-0.5 px-4 pb-3">
-              {todos.map((todo) => (
+              {todos.map((todo, index) => (
                 <div
-                  key={todo.id}
+                  key={`${todo.id}-${index}`}
                   className="flex items-center gap-2.5 rounded-md px-2 py-1.5"
                 >
                   {STATUS_ICON[todo.status]}
