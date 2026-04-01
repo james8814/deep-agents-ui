@@ -219,15 +219,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         });
     }, [toolCalls, subagentLogs]);
 
-    // Extract submit_deliverable tool calls from this message's toolCalls
-    // Each submit_deliverable call maps to one DeliveryCard
-    const deliveryToolCalls = useMemo(() => {
-      return toolCalls.filter(
-        (tc) => tc.name === "submit_deliverable" && tc.args?.deliverable_path
-      );
-    }, [toolCalls]);
-
-    // Build delivery files — only on the last AI message (using allDeliverablePaths)
+    // Build delivery files — on each turn's last AI message (using allDeliverablePaths)
     // This ensures DeliveryCard appears after all agent messages, not mid-conversation
     const deliveryFiles = useMemo(() => {
       if (!files || !allDeliverablePaths || allDeliverablePaths.length === 0) return [];
