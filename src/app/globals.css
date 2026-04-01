@@ -690,6 +690,16 @@ button {
   }
 }
 
+/* 自适应焦点布局 — 面板比例过渡动画 */
+[data-panel-group-id="standalone-chat"] > [data-panel] {
+  transition: flex-grow 600ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* 用户拖拽 handle 时禁用动画（避免拖拽滞后） */
+[data-panel-group-id="standalone-chat"]:has([data-resize-handle-state="drag"]) > [data-panel] {
+  transition: none !important;
+}
+
 /* Reduced motion support for logo animation */
 @media (prefers-reduced-motion: reduce) {
   * {

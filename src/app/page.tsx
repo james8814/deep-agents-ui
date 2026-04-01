@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useQueryState } from "nuqs";
 import { getConfig, saveConfig, StandaloneConfig } from "@/lib/config";
 import { ConfigDialog } from "@/app/components/ConfigDialog";
@@ -17,7 +17,9 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ThreadList } from "@/app/components/ThreadList";
-import { ChatProvider } from "@/providers/ChatProvider";
+import { ChatProvider, useChatContext } from "@/providers/ChatProvider";
+import { useFocusLayout } from "@/app/hooks/useFocusLayout";
+import type { ImperativePanelGroupHandle } from "react-resizable-panels";
 import { ChatInterface } from "@/app/components/ChatInterface";
 import { ContextPanel } from "@/app/components/ContextPanel";
 import { cn } from "@/lib/utils";
@@ -45,8 +47,18 @@ function HomePageInner({
   const [contextPanel, setContextPanel] = useQueryState("context");
   const [contextTab, setContextTab] = useQueryState("contextTab");
 
-  // Feature Flag for Ant Design X ThreadList
-  // AntdX ThreadList 已移除
+  // ─── 自适应焦点布局 refs ───
+  const panelGroupRef = useRef<ImperativePanelGroupHandle>(null);
+  const isProgrammaticRef = useRef(false);
+  const isManualOverrideRef = useRef(false);
+
+  const handlePanelLayout = useCallback((layout: number[]) => {
+    if (isProgrammaticRef.current) {
+      isProgrammaticRef.current = false;
+      return;
+    }
+    isManualOverrideRef.current = true;
+  }, []);
 
   const [mutateThreads, setMutateThreads] = useState<(() => void) | null>(null);
   const [interruptCount, setInterruptCount] = useState(0);
@@ -222,9 +234,23 @@ function HomePageInner({
               onHistoryRevalidate={() => mutateThreads?.()}
               threadId={threadId}
             >
+              <FocusLayoutBridge
+                panelGroupRef={panelGroupRef}
+                isProgrammaticRef={isProgrammaticRef}
+                isManualOverrideRef={isManualOverrideRef}
+                contextPanelOpen={!!contextPanel}
+                openContextPanel={() => {
+                  setContextPanel("1");
+                  setContextTab("worklog");
+                }}
+                hasSidebar={!!sidebar}
+                threadId={threadId}
+              />
               <ResizablePanelGroup
+                ref={panelGroupRef}
                 direction="horizontal"
                 autoSaveId="standalone-chat"
+                onLayout={handlePanelLayout}
               >
                 {sidebar && (
                   <>
@@ -285,6 +311,39 @@ function HomePageInner({
       </main>
     </>
   );
+}
+
+// ─── FocusLayoutBridge: 桥接 ChatContext 和面板 refs ───
+function FocusLayoutBridge({
+  panelGroupRef,
+  isProgrammaticRef,
+  isManualOverrideRef,
+  contextPanelOpen,
+  openContextPanel,
+  hasSidebar,
+  threadId,
+}: {
+  panelGroupRef: React.RefObject<ImperativePanelGroupHandle | null>;
+  isProgrammaticRef: React.MutableRefObject<boolean>;
+  isManualOverrideRef: React.MutableRefObject<boolean>;
+  contextPanelOpen: boolean;
+  openContextPanel: () => void;
+  hasSidebar: boolean;
+  threadId: string | null;
+}) {
+  const { isLoading, messages } = useChatContext();
+  useFocusLayout({
+    isLoading,
+    messages,
+    panelGroupRef,
+    isProgrammaticRef,
+    isManualOverrideRef,
+    contextPanelOpen,
+    openContextPanel,
+    hasSidebar,
+    threadId,
+  });
+  return null;
 }
 
 function HomePageContent() {

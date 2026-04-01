@@ -30,6 +30,18 @@ export function extractStringFromMessageContent(message: Message): string {
     : "";
 }
 
+/**
+ * 检测主 Agent 是否正在流式输出文字。
+ * 与 ChatInterface "思考中"动画的检测逻辑一致。
+ */
+export function isAgentStreamingText(messages: Message[]): boolean {
+  if (messages.length === 0) return false;
+  const lastMsg = messages[messages.length - 1];
+  if (lastMsg?.type !== "ai") return false;
+  const content = extractStringFromMessageContent(lastMsg);
+  return !!content?.trim();
+}
+
 export function extractSubAgentContent(data: unknown): string {
   if (typeof data === "string") {
     return data;
