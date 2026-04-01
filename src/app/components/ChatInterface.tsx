@@ -512,15 +512,35 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           ) : (
             <>
               {(() => {
-                // Collect all submit_deliverable paths across all messages for DeliveryCard on last AI message
-                const allDeliverablePaths: string[] = [];
-                for (const pm of processedMessages) {
+                // Per-turn deliverable paths: group by turn (between human messages)
+                // Each turn's LAST AI message gets that turn's deliverable paths
+                const deliverablePathsForMessage = new Map<number, string[]>();
+                let turnPaths: string[] = [];
+                let lastAiIdx = -1;
+                for (let i = 0; i < processedMessages.length; i++) {
+                  const pm = processedMessages[i];
+                  if (pm.message.type === "human" && i > 0) {
+                    // New turn — assign accumulated paths to previous turn's last AI message
+                    if (lastAiIdx >= 0 && turnPaths.length > 0) {
+                      deliverablePathsForMessage.set(lastAiIdx, [...turnPaths]);
+                    }
+                    turnPaths = [];
+                    lastAiIdx = -1;
+                  }
+                  if (pm.message.type === "ai") {
+                    lastAiIdx = i;
+                  }
                   for (const tc of pm.toolCalls) {
                     if (tc.name === "submit_deliverable" && tc.args?.deliverable_path) {
-                      allDeliverablePaths.push(tc.args.deliverable_path as string);
+                      turnPaths.push(tc.args.deliverable_path as string);
                     }
                   }
                 }
+                // Final turn (no trailing human message)
+                if (lastAiIdx >= 0 && turnPaths.length > 0) {
+                  deliverablePathsForMessage.set(lastAiIdx, [...turnPaths]);
+                }
+
                 return processedMessages.map((data, index) => {
                 const messageUi = ui?.filter(
                   (u: any) => u.metadata?.message_id === data.message.id
@@ -566,7 +586,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                           : undefined
                       }
                       files={data.message.type === "ai" ? files : undefined}
-                      allDeliverablePaths={isLastMessage && data.message.type === "ai" ? allDeliverablePaths : undefined}
+                      allDeliverablePaths={deliverablePathsForMessage.get(index)}
                       fileMetadata={fileMetadata}
                       onViewFile={handleViewFile}
                       onViewAllFiles={handleViewAllFiles}
