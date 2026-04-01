@@ -57,6 +57,8 @@ interface ChatMessageProps {
   fileMetadata?: Map<string, FileMetadata>;
   onViewFile?: (path: string) => void;
   onViewAllFiles?: () => void;
+  /** All deliverable paths from submit_deliverable calls across all messages (only set on last AI message) */
+  allDeliverablePaths?: string[];
   threadId?: string;
   // Phase 2.5 support
   schemaVersion?: string;
@@ -174,6 +176,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     fileMetadata,
     onViewFile,
     onViewAllFiles,
+    allDeliverablePaths,
     threadId,
     schemaVersion,
     attachmentSummaries,
@@ -224,12 +227,11 @@ export const ChatMessage = React.memo<ChatMessageProps>(
       );
     }, [toolCalls]);
 
-    // Build delivery files from submit_deliverable tool calls
-    // Look up file content from the global files state by deliverable_path
+    // Build delivery files — only on the last AI message (using allDeliverablePaths)
+    // This ensures DeliveryCard appears after all agent messages, not mid-conversation
     const deliveryFiles = useMemo(() => {
-      if (!files || deliveryToolCalls.length === 0) return [];
-      return deliveryToolCalls.map((tc) => {
-        const deliverablePath = tc.args.deliverable_path as string;
+      if (!files || !allDeliverablePaths || allDeliverablePaths.length === 0) return [];
+      return allDeliverablePaths.map((deliverablePath) => {
         // Exact match first, then fallback to filename match
         let matchedPath = deliverablePath;
         let content = files[deliverablePath];
@@ -255,7 +257,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           available: content !== undefined,
         };
       });
-    }, [files, fileMetadata, threadId, deliveryToolCalls]);
+    }, [files, fileMetadata, threadId, allDeliverablePaths]);
 
     const [_setExpandedSubAgents] = useState<Record<string, boolean>>({});
     const [expandedSubAgentId, setExpandedSubAgentId] = useState<string | null>(

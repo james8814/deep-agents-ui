@@ -511,7 +511,17 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
             </div>
           ) : (
             <>
-              {processedMessages.map((data, index) => {
+              {(() => {
+                // Collect all submit_deliverable paths across all messages for DeliveryCard on last AI message
+                const allDeliverablePaths: string[] = [];
+                for (const pm of processedMessages) {
+                  for (const tc of pm.toolCalls) {
+                    if (tc.name === "submit_deliverable" && tc.args?.deliverable_path) {
+                      allDeliverablePaths.push(tc.args.deliverable_path as string);
+                    }
+                  }
+                }
+                return processedMessages.map((data, index) => {
                 const messageUi = ui?.filter(
                   (u: any) => u.metadata?.message_id === data.message.id
                 );
@@ -556,6 +566,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                           : undefined
                       }
                       files={data.message.type === "ai" ? files : undefined}
+                      allDeliverablePaths={isLastMessage && data.message.type === "ai" ? allDeliverablePaths : undefined}
                       fileMetadata={fileMetadata}
                       onViewFile={handleViewFile}
                       onViewAllFiles={handleViewAllFiles}
@@ -565,7 +576,8 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                     />
                   </div>
                 );
-              })}
+              });
+              })()}
               {/* Streaming indicator — shows when agent is working
                   显示条件: isLoading 且最后一条 AI 消息没有正在流式输出文本内容
                   覆盖场景: Agent 调用工具、执行 SubAgent、等待 LLM 回复等 */}
