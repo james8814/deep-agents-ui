@@ -63,11 +63,19 @@ export function useFocusLayout({
   const workingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const userClosedManuallyRef = useRef(false);
   const prevContextOpenRef = useRef(contextPanelOpen);
+  const contextPanelOpenRef = useRef(contextPanelOpen);
+  const hasSidebarRef = useRef(hasSidebar);
+  const openContextPanelRef = useRef(openContextPanel);
+
+  // 保持 refs 与最新 props 同步
+  contextPanelOpenRef.current = contextPanelOpen;
+  hasSidebarRef.current = hasSidebar;
+  openContextPanelRef.current = openContextPanel;
 
   // ─── 工具函数 ───
 
   function getLayout(state: "dialog" | "working") {
-    return hasSidebar
+    return hasSidebarRef.current
       ? (state === "dialog" ? LAYOUTS_3.dialog : LAYOUTS_3.working)
       : (state === "dialog" ? LAYOUTS_2.dialog : LAYOUTS_2.working);
   }
@@ -154,19 +162,19 @@ export function useFocusLayout({
       if (workingTimerRef.current) return; // 已有定时器运行中
       workingTimerRef.current = setTimeout(() => {
         workingTimerRef.current = null;
-        // 2s 后仍然 isLoading 且无文字流 → 进入 working
+        // 2s 后读取最新 ref 值（避免 stale closure）
         focusStateRef.current = "working";
 
-        if (!contextPanelOpen && !userClosedManuallyRef.current) {
+        if (!contextPanelOpenRef.current && !userClosedManuallyRef.current) {
           // 自动打开工作台
-          openContextPanel();
+          openContextPanelRef.current();
           // 面板挂载后设置布局
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               applyLayout(getLayout("working"));
             });
           });
-        } else if (contextPanelOpen) {
+        } else if (contextPanelOpenRef.current) {
           applyLayout(getLayout("working"));
         }
       }, workingDelay);

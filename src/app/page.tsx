@@ -288,7 +288,7 @@ function HomePageInner({
                     <ResizablePanel
                       id="context"
                       order={3}
-                      defaultSize={25}
+                      defaultSize={30}
                       minSize={20}
                       className="relative h-full min-w-[280px]"
                     >
