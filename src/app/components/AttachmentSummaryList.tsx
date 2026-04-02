@@ -55,7 +55,7 @@ export const AttachmentSummaryList = React.memo<AttachmentSummaryListProps>(
                     href={attachment.preview_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded p-2 transition-colors hover:bg-accent"
+                    className="rounded p-2 transition-colors hover:bg-accent hover:text-accent-foreground"
                     title="Preview attachment"
                     aria-label="Preview"
                   >
@@ -69,7 +69,7 @@ export const AttachmentSummaryList = React.memo<AttachmentSummaryListProps>(
                   <a
                     href={attachment.download_url}
                     download={attachment.path.split("/").pop()}
-                    className="rounded p-2 transition-colors hover:bg-accent"
+                    className="rounded p-2 transition-colors hover:bg-accent hover:text-accent-foreground"
                     title="Download attachment"
                     aria-label="Download"
                   >
