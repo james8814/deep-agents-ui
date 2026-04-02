@@ -334,7 +334,7 @@ function FocusLayoutBridge({
   const { isLoading, messages, subagent_logs } = useChatContext();
   // 计算 SubAgent 日志总条数
   const logsCount = subagent_logs
-    ? Object.values(subagent_logs).reduce((sum, logs) => sum + logs.length, 0)
+    ? Object.values(subagent_logs).reduce((sum, logs) => sum + (Array.isArray(logs) ? logs.length : 0), 0)
     : 0;
   useFocusLayout({
     isLoading,

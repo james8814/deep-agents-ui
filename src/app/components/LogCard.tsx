@@ -37,12 +37,15 @@ export const LogCard = React.memo<LogCardProps>(
     const isRunning = !result;
     const isError = status === "error";
 
-    // 解析输入内容
-    const inputContent = formatInput(toolName, call.tool_input);
-    // 解析输出内容
-    const outputContent = result?.tool_output
-      ? formatOutput(result.tool_output)
-      : null;
+    // 安全解析输入/输出（防止 malformed data 导致整个面板崩溃）
+    let inputContent = "";
+    let outputContent: string | null = null;
+    try {
+      inputContent = formatInput(toolName, call.tool_input);
+      outputContent = result?.tool_output ? formatOutput(result.tool_output) : null;
+    } catch {
+      inputContent = "[解析失败]";
+    }
 
     // 判断是否需要折叠
     const fullContent = [inputContent, outputContent].filter(Boolean).join("\n\n");
@@ -103,6 +106,8 @@ export const LogCard = React.memo<LogCardProps>(
         {needsCollapse && (
           <button
             onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            aria-label={expanded ? "收起详情" : "展开详情"}
             className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronDown

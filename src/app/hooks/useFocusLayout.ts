@@ -190,6 +190,11 @@ export function useFocusLayout({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, messages, contextPanelOpen, subagentLogsCount]);
 
+  // 组件卸载时清除定时器（不在 deps 变化时清除，避免重置定时器）
+  useEffect(() => {
+    return () => { clearWorkingTimer(); };
+  }, []);
+
   // ─── beforeunload 兜底：确保 localStorage 保存的是 dialog 比例 ───
 
   useEffect(() => {
