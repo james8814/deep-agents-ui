@@ -62,6 +62,7 @@ interface ChatMessageAnimatedProps {
   cancellationReason?: string;
   timeoutSeconds?: number;
   subagentLogs?: Record<string, LogEntry[]>;
+  realtimeSubagentLogs?: Record<string, Array<{ type: string; tool_name?: string; content_preview?: string; step_type?: string }>>;
   /**
    * 新增 props：是否启用动画
    */

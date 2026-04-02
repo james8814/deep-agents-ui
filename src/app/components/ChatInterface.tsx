@@ -142,6 +142,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     files,
     setFiles,
     subagent_logs,
+    realtimeSubagentLogs,
   } = useChatContext();
 
   // Notify user when interrupt occurs on background tab
@@ -592,6 +593,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                       onViewAllFiles={handleViewAllFiles}
                       threadId={threadId ?? undefined}
                       subagentLogs={subagent_logs}
+                      realtimeSubagentLogs={realtimeSubagentLogs}
                       enableAnimation={isLastMessage && !isLoading}
                     />
                   </div>

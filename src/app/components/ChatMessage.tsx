@@ -67,6 +67,8 @@ interface ChatMessageProps {
   timeoutSeconds?: number;
   // SubAgent 工作日志：键为 task tool_call_id，值为工具步骤列表
   subagentLogs?: Record<string, LogEntry[]>;
+  // SubAgent 实时进度日志（custom 事件驱动，键为 subagent_type）
+  realtimeSubagentLogs?: Record<string, Array<{ type: string; tool_name?: string; content_preview?: string; step_type?: string }>>;
 }
 
 // Stable no-op function to avoid creating new references on each render
@@ -183,6 +185,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     cancellationReason,
     timeoutSeconds,
     subagentLogs,
+    realtimeSubagentLogs,
   }) => {
     // Feature flags removed — AntdX components deleted
     const isUser = message.type === "human";
@@ -214,10 +217,17 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             input: toolCall.args,
             output: toolCall.result ? { result: toolCall.result } : undefined,
             status: toolCall.status,
-            logs: subagentLogs?.[toolCall.id] ?? [],
+            // 优先使用持久化日志（完成后），否则使用实时进度日志（执行中）
+            logs: subagentLogs?.[toolCall.id]?.length
+              ? subagentLogs[toolCall.id]
+              : (realtimeSubagentLogs?.[subagentType] ?? []).map((e) => ({
+                  type: (e.step_type === "tool_call" ? "tool_call" : "tool_result") as "tool_call" | "tool_result",
+                  tool_name: e.tool_name,
+                  tool_output: e.content_preview,
+                })),
           } as SubAgent;
         });
-    }, [toolCalls, subagentLogs]);
+    }, [toolCalls, subagentLogs, realtimeSubagentLogs]);
 
     // Build delivery files — on each turn's last AI message (using allDeliverablePaths)
     // This ensures DeliveryCard appears after all agent messages, not mid-conversation

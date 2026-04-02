@@ -153,31 +153,51 @@ export function useChat({
     [onHistoryRevalidate]
   );
 
+  // SubAgent 实时进度日志（custom 事件驱动）
+  const [realtimeSubagentLogs, setRealtimeSubagentLogs] = useState<
+    Record<string, Array<{ type: string; tool_name?: string; content_preview?: string; step_type?: string }>>
+  >({});
+
   const stream = useStream<StateType>({
     assistantId: activeAssistant?.assistant_id || "",
     client: client ?? undefined,
     threadId: threadId ?? null,
     onThreadId: (newThreadId) => {
-      // 🔧 P0 修复：Thread 重复创建 Bug
-      // 根因：当 externalThreadId 为 null 时，条件 externalThreadId === undefined 为 false
-      // 导致 setInternalThreadId 不会被调用，URL 不会更新为新 threadId
-      // 修复：检查 null 或 undefined，都触发更新
-      // 🔧 使用 setTimeout 确保状态更新后执行
       setTimeout(() => {
         if (externalThreadId == null) {
           setInternalThreadId(newThreadId);
         }
       }, 100);
     },
-    // Revalidate thread list when stream finishes, errors, or creates new thread
     onFinish: () => {
+      // 完成后清除实时日志（由 subagent_logs state 接管）
+      setRealtimeSubagentLogs({});
       onHistoryRevalidate?.();
     },
     onError: (error) => {
+      setRealtimeSubagentLogs({});
       handleStreamError(error);
     },
     onCreated: () => {
       onHistoryRevalidate?.();
+    },
+    // SubAgent 实时进度：DeepAgents stream_writer 发送 custom 事件
+    onCustomEvent: (event: any) => {
+      if (event?.type === "subagent_progress") {
+        const key = event.subagent_type || "unknown";
+        setRealtimeSubagentLogs((prev) => {
+          const existing = prev[key] || [];
+          return {
+            ...prev,
+            [key]: [...existing, {
+              type: event.step_type || "progress",
+              tool_name: event.tool_name,
+              content_preview: event.content_preview,
+              step_type: event.step_type,
+            }],
+          };
+        });
+      }
     },
     fetchStateHistory: true,
   });
@@ -599,8 +619,9 @@ export function useChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream.isLoading]);
 
-  // 清理轮询 on thread change or unmount
+  // 清理轮询 + 实时日志 on thread change or unmount
   useEffect(() => {
+    setRealtimeSubagentLogs({});
     return () => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
@@ -615,6 +636,7 @@ export function useChat({
     todos: stream.values.todos ?? [],
     files: filesFromStream,
     subagent_logs: stream.values.subagent_logs ?? {},
+    realtimeSubagentLogs,
     subagents: stream.values.subagents ?? {},
     email: stream.values.email,
     ui: stream.values.ui,
