@@ -35,6 +35,7 @@ type FocusState = "idle" | "dialog" | "working";
 interface UseFocusLayoutOptions {
   isLoading: boolean;
   messages: Message[];
+  subagentLogsCount: number;  // SubAgent 日志总条数（>0 表示有执行日志）
   panelGroupRef: React.RefObject<ImperativePanelGroupHandle | null>;
   isProgrammaticRef: React.MutableRefObject<boolean>;
   isManualOverrideRef: React.MutableRefObject<boolean>;
@@ -50,6 +51,7 @@ interface UseFocusLayoutOptions {
 export function useFocusLayout({
   isLoading,
   messages,
+  subagentLogsCount,
   panelGroupRef,
   isProgrammaticRef,
   isManualOverrideRef,
@@ -66,11 +68,13 @@ export function useFocusLayout({
   const contextPanelOpenRef = useRef(contextPanelOpen);
   const hasSidebarRef = useRef(hasSidebar);
   const openContextPanelRef = useRef(openContextPanel);
+  const subagentLogsCountRef = useRef(subagentLogsCount);
 
   // 保持 refs 与最新 props 同步
   contextPanelOpenRef.current = contextPanelOpen;
   hasSidebarRef.current = hasSidebar;
   openContextPanelRef.current = openContextPanel;
+  subagentLogsCountRef.current = subagentLogsCount;
 
   // ─── 工具函数 ───
 
@@ -159,10 +163,13 @@ export function useFocusLayout({
         return;
       }
       // idle 或 dialog → 启动 working 定时器
+      // 只有 SubAgent 有执行日志时才启动 working 定时器
+      // 仅有 Todo 任务计划（无日志）不展开 — 用户焦点仍在主会话
+      if (subagentLogsCount === 0) return;
+
       if (workingTimerRef.current) return; // 已有定时器运行中
       workingTimerRef.current = setTimeout(() => {
         workingTimerRef.current = null;
-        // 2s 后读取最新 ref 值（避免 stale closure）
         focusStateRef.current = "working";
 
         if (!contextPanelOpenRef.current && !userClosedManuallyRef.current) {
@@ -181,7 +188,7 @@ export function useFocusLayout({
     }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, messages, contextPanelOpen]);
+  }, [isLoading, messages, contextPanelOpen, subagentLogsCount]);
 
   // ─── beforeunload 兜底：确保 localStorage 保存的是 dialog 比例 ───
 

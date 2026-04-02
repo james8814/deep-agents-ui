@@ -331,10 +331,15 @@ function FocusLayoutBridge({
   hasSidebar: boolean;
   threadId: string | null;
 }) {
-  const { isLoading, messages } = useChatContext();
+  const { isLoading, messages, subagent_logs } = useChatContext();
+  // 计算 SubAgent 日志总条数
+  const logsCount = subagent_logs
+    ? Object.values(subagent_logs).reduce((sum, logs) => sum + logs.length, 0)
+    : 0;
   useFocusLayout({
     isLoading,
     messages,
+    subagentLogsCount: logsCount,
     panelGroupRef,
     isProgrammaticRef,
     isManualOverrideRef,
