@@ -220,11 +220,45 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             // 优先使用持久化日志（完成后），否则使用实时进度日志（执行中）
             logs: subagentLogs?.[toolCall.id]?.length
               ? subagentLogs[toolCall.id]
-              : (realtimeSubagentLogs?.[subagentType] ?? []).map((e) => ({
-                  type: (e.step_type === "tool_call" ? "tool_call" : "tool_result") as "tool_call" | "tool_result",
-                  tool_name: e.tool_name,
-                  tool_output: e.content_preview,
-                })),
+              : (() => {
+                  const events = realtimeSubagentLogs?.[subagentType] ?? [];
+                  const logs: LogEntry[] = [];
+                  let currentId: string | null = null;
+                  let counter = 0;
+
+                  for (const e of events) {
+                    if (e.step_type === "tool_call") {
+                      counter += 1;
+                      currentId = `${toolCall.id}:${counter}`;
+                      logs.push({
+                        type: "tool_call",
+                        tool_name: e.tool_name,
+                        tool_call_id: currentId,
+                      });
+                      continue;
+                    }
+
+                    if (!currentId) {
+                      counter += 1;
+                      currentId = `${toolCall.id}:${counter}`;
+                      logs.push({
+                        type: "tool_call",
+                        tool_name: e.tool_name || e.step_type || "progress",
+                        tool_call_id: currentId,
+                      });
+                    }
+
+                    logs.push({
+                      type: "tool_result",
+                      tool_name: e.tool_name,
+                      tool_output: e.content_preview,
+                      tool_call_id: currentId,
+                      status: "success",
+                    });
+                  }
+
+                  return logs;
+                })(),
           } as SubAgent;
         });
     }, [toolCalls, subagentLogs, realtimeSubagentLogs]);
