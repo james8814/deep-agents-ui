@@ -66,7 +66,7 @@ export type StateType = {
 export function useChat({
   activeAssistant,
   onHistoryRevalidate,
-  thread,
+  thread: _thread,
   externalThreadId,
 }: {
   activeAssistant: Assistant | null;
@@ -78,10 +78,6 @@ export function useChat({
   const [internalThreadId, setInternalThreadId] = useQueryState("threadId");
   // 🔧 修复：使用外部传入的 threadId，避免和 page.tsx 的 threadId 冲突
   const threadId = externalThreadId !== undefined ? externalThreadId : internalThreadId;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _setThreadId = externalThreadId !== undefined
-    ? ((_id: string | null) => { /* external set handled by parent */ })
-    : setInternalThreadId;
   const client = useClient();
   const token = useClientToken();
 
@@ -127,7 +123,7 @@ export function useChat({
       const msg = error instanceof Error ? error.message : String(error);
       const isAuthError = /401|403|unauthorized|forbidden/i.test(msg);
       const isNetworkError =
-        /failed to fetch|network\s*error|abort|timeout|ECONNREFUSED|ERR_CONNECTION/i.test(
+        /failed to fetch|network\s*error|abort|timeout|timed\s*out|ECONNREFUSED|ERR_CONNECTION/i.test(
           msg
         );
 
@@ -157,6 +153,7 @@ export function useChat({
   const [realtimeSubagentLogs, setRealtimeSubagentLogs] = useState<
     Record<string, Array<{ type: string; tool_name?: string; content_preview?: string; step_type?: string }>>
   >({});
+  const realtimeSubagentLogMessageCountRef = useRef<Record<string, number>>({});
 
   const stream = useStream<StateType>({
     assistantId: activeAssistant?.assistant_id || "",
@@ -172,10 +169,12 @@ export function useChat({
     onFinish: () => {
       // 完成后清除实时日志（由 subagent_logs state 接管）
       setRealtimeSubagentLogs({});
+      realtimeSubagentLogMessageCountRef.current = {};
       onHistoryRevalidate?.();
     },
     onError: (error) => {
       setRealtimeSubagentLogs({});
+      realtimeSubagentLogMessageCountRef.current = {};
       handleStreamError(error);
     },
     onCreated: () => {
@@ -185,16 +184,28 @@ export function useChat({
     onCustomEvent: (event: any) => {
       if (event?.type === "subagent_progress") {
         const key = event.subagent_type || "unknown";
+        const messageCount =
+          typeof event.message_count === "number" ? event.message_count : undefined;
+        const prevCount = realtimeSubagentLogMessageCountRef.current[key];
+        const shouldReset =
+          messageCount !== undefined && prevCount !== undefined && messageCount < prevCount;
+        if (messageCount !== undefined) {
+          realtimeSubagentLogMessageCountRef.current[key] = messageCount;
+        }
         setRealtimeSubagentLogs((prev) => {
-          const existing = prev[key] || [];
-          return {
-            ...prev,
-            [key]: [...existing, {
+          const existing = shouldReset ? [] : prev[key] || [];
+          const next = [
+            ...existing,
+            {
               type: event.step_type || "progress",
               tool_name: event.tool_name,
               content_preview: event.content_preview,
               step_type: event.step_type,
-            }],
+            },
+          ];
+          return {
+            ...prev,
+            [key]: next.length > 200 ? next.slice(-200) : next,
           };
         });
       }
@@ -300,7 +311,7 @@ export function useChat({
           // 🔧 修复：添加 streamMode 配置以获取完整状态（包含 subagent_logs）
           // 使用 "values" + "messages" 组合模式，确保 subagent_logs 自动推送到 stream.values
           // 注意："updates" 模式不会自动更新 stream.values，必须用 "values" 模式
-          streamMode: ["values", "messages"],
+          streamMode: ["values", "messages", "custom"],
           // 🔧 修复 SSE 断连导致后端取消 run：SubAgent 长时间执行时浏览器会关闭空闲连接，
           // 默认 on_disconnect="cancel" 会直接终止后端 run。改为 "continue" 让后端继续执行。
           onDisconnect: "continue",
@@ -332,7 +343,7 @@ export function useChat({
           ...(isRerunningSubagent
             ? { interruptAfter: ["tools"] }
             : { interruptBefore: ["tools"] }),
-          streamMode: ["values", "messages"],
+          streamMode: ["values", "messages", "custom"],
           onDisconnect: "continue",
         });
       } else {
@@ -343,7 +354,7 @@ export function useChat({
               activeAssistant?.config as Record<string, unknown>
             ),
             interruptBefore: ["tools"],
-            streamMode: ["values", "messages"],
+            streamMode: ["values", "messages", "custom"],
             onDisconnect: "continue",
           }
         );
@@ -372,7 +383,7 @@ export function useChat({
         ...(hasTaskToolCall
           ? { interruptAfter: ["tools"] }
           : { interruptBefore: ["tools"] }),
-        streamMode: ["values", "messages"],
+        streamMode: ["values", "messages", "custom"],
         onDisconnect: "continue",
       });
       // Update thread list when continuing stream
@@ -398,7 +409,7 @@ export function useChat({
           // 1. 后端清除 __interrupt__ 字段后，前端 stream.values 自动更新
           // 2. stream.interrupt getter 能正确读取最新状态（应为 undefined）
           // 3. HIL banner 正确消失，Agent 继续执行
-          streamMode: ["values", "messages"],
+          streamMode: ["values", "messages", "custom"],
           onDisconnect: "continue",
         }
       );
@@ -622,6 +633,7 @@ export function useChat({
   // 清理轮询 + 实时日志 on thread change or unmount
   useEffect(() => {
     setRealtimeSubagentLogs({});
+    realtimeSubagentLogMessageCountRef.current = {};
     return () => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
