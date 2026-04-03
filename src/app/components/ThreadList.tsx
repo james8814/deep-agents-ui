@@ -40,9 +40,9 @@ const GROUP_LABELS = {
 } as const;
 
 const STATUS_COLORS: Record<ThreadItem["status"], string> = {
-  idle: "bg-success",
+  idle: "bg-green-500",
   busy: "bg-primary",
-  interrupted: "bg-warning",
+  interrupted: "bg-yellow-500",
   error: "bg-destructive",
 };
 
