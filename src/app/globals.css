@@ -112,6 +112,15 @@
     --color-info: #7c3aed;
     --color-info-bg: #f5f3ff;
 
+    /* Tailwind textColor/borderColor 映射变量 (Light) */
+    --text-success: #16a34a;
+    --text-warning: #d97706;
+    --text-error: #dc2626;
+    --text-purple: #7c3aed;
+    --text-placeholder: #a1a1aa;
+    --border-warning: #f59e0b;
+    --border-success: #22c55e;
+
     /* OPDCA Stage Colors */
     --opdca-observe: #06b6d4;
     --opdca-plan: #6366f1;
@@ -374,6 +383,15 @@
     --color-info: #7c6bf0; /* --brand */
     --color-info-bg: rgba(124, 107, 240, 0.1);
 
+    /* Tailwind textColor/borderColor 映射变量 (Dark) */
+    --text-success: #4ade80;
+    --text-warning: #fbbf24;
+    --text-error: #f87171;
+    --text-purple: #a78bfa;
+    --text-placeholder: #71717a;
+    --border-warning: #f59e0b;
+    --border-success: #22c55e;
+
     /* Shadows (Dark Mode - Reduced) */
     --shadow-xs: none;
     --shadow-sm: none;
@@ -493,6 +511,15 @@
       --color-error-bg: rgba(239, 68, 68, 0.1);
       --color-info: #7c6bf0; /* --brand */
       --color-info-bg: rgba(124, 107, 240, 0.1);
+
+      /* Tailwind textColor/borderColor 映射变量 (Dark) */
+      --text-success: #4ade80;
+      --text-warning: #fbbf24;
+      --text-error: #f87171;
+      --text-purple: #a78bfa;
+      --text-placeholder: #71717a;
+      --border-warning: #f59e0b;
+      --border-success: #22c55e;
 
       /* Shadows (Dark Mode - Reduced) */
       --shadow-xs: none;
