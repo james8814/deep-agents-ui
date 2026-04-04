@@ -15,12 +15,11 @@ import {
   AlertCircle,
   Maximize2,
   Minimize2,
+  Loader2,
 } from "lucide-react";
 import { FileUploadZone, UploadButton, UploadedFile } from "./FileUploadZone";
 import { ChatMessageAnimated } from "@/app/components/ChatMessageAnimated";
 import type { FileAttachment } from "@/app/hooks/useChat";
-// MultimodalContent 类型定义
-type MultimodalContent = string;
 import type {
   ToolCall,
   ActionRequest,
@@ -35,8 +34,7 @@ import { useStickToBottom } from "use-stick-to-bottom";
 import { useInterruptNotification } from "@/app/hooks/useInterruptNotification";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
 import { useQueryState } from "nuqs";
-import { AgentExecutionIndicator } from "@/app/components/AgentExecutionIndicator";
-import { getToolDisplayName } from "@/app/utils/toolNames";
+// AgentExecutionIndicator 已内联到输入框上方（轻量状态行）
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
@@ -497,15 +495,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
           className="mx-auto w-full max-w-[1024px] px-6 pb-6 pt-4"
           ref={contentRef}
         >
-          {/* Agent 执行状态指示器 */}
-          <AgentExecutionIndicator
-            isLoading={isLoading}
-            currentTool={currentExecutionInfo.tool || undefined}
-            completedTools={toolExecutionProgress.completed}
-            totalTools={toolExecutionProgress.total}
-            className="mb-4"
-          />
-
           {isThreadLoading ? (
             <div className="flex items-center justify-center p-8">
               <p className="text-muted-foreground">Loading...</p>
@@ -691,6 +680,22 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         ref={inputPanelRef}
         className="flex-shrink-0 bg-background p-4 pt-2"
       >
+        {/* Agent 执行状态 — 附着在输入框上方 */}
+        {isLoading && (
+          <div className="mx-auto mb-2 flex w-full max-w-[1024px] items-center gap-2 px-1 text-sm text-muted-foreground">
+            <Loader2 size={14} className="animate-spin text-primary" />
+            <span>
+              {currentExecutionInfo.tool
+                ? `正在执行: ${currentExecutionInfo.tool}`
+                : "正在思考"}
+            </span>
+            {toolExecutionProgress.total > 0 && (
+              <span className="text-xs">
+                ({toolExecutionProgress.completed}/{toolExecutionProgress.total})
+              </span>
+            )}
+          </div>
+        )}
         <div
           className={cn(
             "mx-auto flex flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
