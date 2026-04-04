@@ -607,7 +607,14 @@ export function useChat({
     if (wasLoading && !stream.isLoading && !pollingRef.current && threadId && client) {
       client.runs.list(threadId, { limit: 1 }).then((runs: any[]) => {
         const latestRun = runs[0];
+        // 方案 3: 区分 SSE 断连 vs 真正的 interrupt
+        if (latestRun?.status === "interrupted") {
+          // 真正的 interrupt（如 submit_deliverable HIL），不需要轮询
+          // 前端 useStream 会正确处理 interrupt 状态
+          return;
+        }
         if (latestRun?.status === "running" || latestRun?.status === "pending") {
+          // SSE 断连但后端仍在运行 — 启动轮询
           setIsPolling(true);
           pollingRef.current = setInterval(async () => {
             try {
@@ -617,7 +624,6 @@ export function useChat({
                 clearInterval(pollingRef.current!);
                 pollingRef.current = null;
                 setIsPolling(false);
-                // 刷新页面加载最终状态（最可靠的恢复方式）
                 window.location.reload();
               }
             } catch {
