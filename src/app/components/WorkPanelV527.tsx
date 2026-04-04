@@ -31,11 +31,13 @@ import { Activity } from "lucide-react";
 interface WorkPanelV527Props {
   onClose?: () => void;
   subagentLogs?: Record<string, LogEntry[]>;
+  /** SubAgent 实时进度日志（custom 事件驱动，键为 subagent_type） */
+  realtimeSubagentLogs?: Record<string, Array<{ type: string; tool_name?: string; content_preview?: string; step_type?: string }>>;
   isVisible?: boolean;
 }
 
 export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
-  ({ onClose: _onClose, subagentLogs: externalSubagentLogs, isVisible = true }) => {
+  ({ onClose: _onClose, subagentLogs: externalSubagentLogs, realtimeSubagentLogs, isVisible = true }) => {
     const {
       todos,
       files = {},
@@ -57,11 +59,30 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
       isVisible,
     });
 
-    // 日志数据源
-    const subagentLogs = useMemo(
-      () => externalSubagentLogs ?? contextSubagentLogs ?? {},
-      [externalSubagentLogs, contextSubagentLogs]
-    );
+    // 日志数据源：持久化日志优先，执行中使用实时日志
+    // 设计依据：LangGraph 并行 tool call 由 asyncio.gather 收集，
+    // 所有并行 SubAgent 的 persistent logs 在同一个 values 事件中一次性到达，
+    // 不存在"A 完成有 persistent、B 未完成只有 realtime"的中间状态。
+    const subagentLogs = useMemo(() => {
+      const persistent = externalSubagentLogs ?? contextSubagentLogs ?? {};
+      if (Object.keys(persistent).length > 0) return persistent;
+
+      // SubAgent 执行中：将实时日志转换为 LogEntry 格式供面板渲染
+      if (!realtimeSubagentLogs || Object.keys(realtimeSubagentLogs).length === 0) return {};
+      const result: Record<string, LogEntry[]> = {};
+      for (const [key, events] of Object.entries(realtimeSubagentLogs)) {
+        const logs: LogEntry[] = [];
+        for (const e of events) {
+          if (e.step_type === "tool_call") {
+            logs.push({ type: "tool_call", tool_name: e.tool_name });
+          } else {
+            logs.push({ type: "tool_result", tool_name: e.tool_name, tool_output: e.content_preview, status: "success" });
+          }
+        }
+        if (logs.length > 0) result[`realtime_${key}`] = logs;
+      }
+      return result;
+    }, [externalSubagentLogs, contextSubagentLogs, realtimeSubagentLogs]);
 
     // 日志更新时触发自动滚动
     const prevLogsCountRef = useRef<number>(0);

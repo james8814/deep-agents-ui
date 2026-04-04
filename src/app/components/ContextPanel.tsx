@@ -48,11 +48,9 @@ export const ContextPanel = React.memo<ContextPanelProps>(
       isLoading,
       interrupt,
       subagent_logs,
+      realtimeSubagentLogs,
     } = useChatContext();
 
-    // ✅ 修复：stream 未定义，使用 useChatContext 返回的 files
-    // const filesFromStream = stream.values.files ?? {};
-    const filesFromStream = files ?? {};
     const [activeTab, setActiveTab] = useState<Tab>(initialTab || "worklog");
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
     const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
@@ -156,20 +154,11 @@ export const ContextPanel = React.memo<ContextPanelProps>(
           return sortAsc ? a.addedAt - b.addedAt : b.addedAt - a.addedAt;
         }
       });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [files, sortBy, sortAsc]);
 
     const hasTasks = todos.length > 0;
     const fileCount = Object.keys(files).length;
     const hasFiles = fileCount > 0;
-
-    // 🔧 调试日志：检查 files 状态
-    useEffect(() => {
-      console.log('[ContextPanel] files:', files ? Object.keys(files).length + ' files' : 'null/undefined');
-      if (files && Object.keys(files).length > 0) {
-        console.log('[ContextPanel]   File paths:', Object.keys(files).slice(0, 5));
-      }
-    }, [files]);
 
     const handleSaveFile = useCallback(
       async (fileName: string, content: string) => {
@@ -280,6 +269,7 @@ export const ContextPanel = React.memo<ContextPanelProps>(
             {activeTab === "worklog" && (
               <WorkPanelV527
                 subagentLogs={subagent_logs ?? {}}
+                realtimeSubagentLogs={realtimeSubagentLogs}
                 isVisible={activeTab === "worklog"}
               />
             )}
