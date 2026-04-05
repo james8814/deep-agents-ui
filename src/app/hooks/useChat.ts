@@ -167,13 +167,12 @@ export function useChat({
       }, 100);
     },
     onFinish: () => {
-      // 完成后清除实时日志（由 subagent_logs state 接管）
-      setRealtimeSubagentLogs({});
+      // 不清空实时日志 — subagent_logs state 持久化接管尚未实现（DeepAgents 已知缺失）
+      // 保留 realtimeSubagentLogs 供右侧工作台在 run 结束后仍可查看
       realtimeSubagentLogMessageCountRef.current = {};
       onHistoryRevalidate?.();
     },
     onError: (error) => {
-      setRealtimeSubagentLogs({});
       realtimeSubagentLogMessageCountRef.current = {};
       handleStreamError(error);
     },
