@@ -72,11 +72,18 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
       const result: Record<string, LogEntry[]> = {};
       for (const [key, events] of Object.entries(realtimeSubagentLogs)) {
         const logs: LogEntry[] = [];
+        let callCounter = 0;
         for (const e of events) {
+          const callId = `rt_${key}_${callCounter++}`;
           if (e.step_type === "tool_call") {
-            logs.push({ type: "tool_call", tool_name: e.tool_name });
+            logs.push({ type: "tool_call", tool_name: e.tool_name, tool_call_id: callId });
+          } else if (e.tool_name) {
+            // tool_result with a tool name — pair with a synthetic call
+            logs.push({ type: "tool_call", tool_name: e.tool_name, tool_call_id: callId });
+            logs.push({ type: "tool_result", tool_name: e.tool_name, tool_output: e.content_preview, tool_call_id: callId, status: "success" });
           } else {
-            logs.push({ type: "tool_result", tool_name: e.tool_name, tool_output: e.content_preview, status: "success" });
+            // progress event — show as a standalone call
+            logs.push({ type: "tool_call", tool_name: e.type || "progress", tool_call_id: callId });
           }
         }
         if (logs.length > 0) result[`realtime_${key}`] = logs;
