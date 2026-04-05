@@ -1,6 +1,7 @@
 import { Message } from "@langchain/langgraph-sdk";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { ToolCall } from "@/app/types/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -71,6 +72,45 @@ export function extractSubAgentContent(data: unknown): string {
 
   // Fallback for any other type
   return JSON.stringify(data, null, 2);
+}
+
+export function buildDeliverablePathsForMessages(
+  processedMessages: Array<{
+    message: Message;
+    toolCalls: ToolCall[];
+  }>,
+  _hasActiveTurn?: boolean
+): Map<number, string[]> {
+  const deliverablePathsForMessage = new Map<number, string[]>();
+  let turnPaths: string[] = [];
+  let lastAiIdx = -1;
+
+  for (let i = 0; i < processedMessages.length; i++) {
+    const pm = processedMessages[i];
+    if (pm.message.type === "human" && i > 0) {
+      if (lastAiIdx >= 0 && turnPaths.length > 0) {
+        deliverablePathsForMessage.set(lastAiIdx, [...turnPaths]);
+      }
+      turnPaths = [];
+      lastAiIdx = -1;
+    }
+    if (pm.message.type === "ai") {
+      lastAiIdx = i;
+    }
+    for (const tc of pm.toolCalls) {
+      if (tc.name === "submit_deliverable" && tc.args?.deliverable_path) {
+        turnPaths.push(tc.args.deliverable_path as string);
+      }
+    }
+  }
+
+  // Final turn: always show DeliveryCard if submit_deliverable was called
+  // (including during HIL interrupt — agent submitted deliverable and awaits approval)
+  if (lastAiIdx >= 0 && turnPaths.length > 0) {
+    deliverablePathsForMessage.set(lastAiIdx, [...turnPaths]);
+  }
+
+  return deliverablePathsForMessage;
 }
 
 export function isPreparingToCallTaskTool(messages: Message[]): boolean {
