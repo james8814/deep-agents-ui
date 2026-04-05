@@ -79,7 +79,7 @@ export function buildDeliverablePathsForMessages(
     message: Message;
     toolCalls: ToolCall[];
   }>,
-  _hasActiveTurn?: boolean
+  hasActiveTurn: boolean
 ): Map<number, string[]> {
   const deliverablePathsForMessage = new Map<number, string[]>();
   let turnPaths: string[] = [];
@@ -88,6 +88,7 @@ export function buildDeliverablePathsForMessages(
   for (let i = 0; i < processedMessages.length; i++) {
     const pm = processedMessages[i];
     if (pm.message.type === "human" && i > 0) {
+      // 过去的 turn（已被 human 消息分隔）→ 始终显示 DeliveryCard
       if (lastAiIdx >= 0 && turnPaths.length > 0) {
         deliverablePathsForMessage.set(lastAiIdx, [...turnPaths]);
       }
@@ -104,9 +105,10 @@ export function buildDeliverablePathsForMessages(
     }
   }
 
-  // Final turn: always show DeliveryCard if submit_deliverable was called
-  // (including during HIL interrupt — agent submitted deliverable and awaits approval)
-  if (lastAiIdx >= 0 && turnPaths.length > 0) {
+  // 最后一轮：仅在 run 结束后显示 DeliveryCard
+  // isLoading=true 或 interrupt 存在时不显示（防止抢跑在总结文本之前出现）
+  // 用户审批后 run 继续并最终结束，此时才显示 DeliveryCard 作为永久记录
+  if (!hasActiveTurn && lastAiIdx >= 0 && turnPaths.length > 0) {
     deliverablePathsForMessage.set(lastAiIdx, [...turnPaths]);
   }
 
