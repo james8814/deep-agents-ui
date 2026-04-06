@@ -107,7 +107,6 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
             tool_call_id: currentId,
             status: "success",
           });
-          currentId = null; // reset for next pair
         }
         if (logs.length > 0) result[`realtime_${key}`] = logs;
       }
