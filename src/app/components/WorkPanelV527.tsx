@@ -67,24 +67,47 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
       const persistent = externalSubagentLogs ?? contextSubagentLogs ?? {};
       if (Object.keys(persistent).length > 0) return persistent;
 
-      // SubAgent 执行中：将实时日志转换为 LogEntry 格式供面板渲染
+      // SubAgent 执行中：将实时日志转换为 LogEntry 格式
+      // 使用与左侧 ChatMessage SubAgent 展开面板相同的精密配对逻辑
       if (!realtimeSubagentLogs || Object.keys(realtimeSubagentLogs).length === 0) return {};
       const result: Record<string, LogEntry[]> = {};
       for (const [key, events] of Object.entries(realtimeSubagentLogs)) {
         const logs: LogEntry[] = [];
-        let callCounter = 0;
+        let currentId: string | null = null;
+        let counter = 0;
+
         for (const e of events) {
-          const callId = `rt_${key}_${callCounter++}`;
           if (e.step_type === "tool_call") {
-            logs.push({ type: "tool_call", tool_name: e.tool_name, tool_call_id: callId });
-          } else if (e.tool_name) {
-            // tool_result with a tool name — pair with a synthetic call
-            logs.push({ type: "tool_call", tool_name: e.tool_name, tool_call_id: callId });
-            logs.push({ type: "tool_result", tool_name: e.tool_name, tool_output: e.content_preview, tool_call_id: callId, status: "success" });
-          } else {
-            // progress event — show as a standalone call
-            logs.push({ type: "tool_call", tool_name: e.type || "progress", tool_call_id: callId });
+            // 新的工具调用 — 创建 call entry
+            counter += 1;
+            currentId = `rt_${key}:${counter}`;
+            logs.push({
+              type: "tool_call",
+              tool_name: e.tool_name,
+              tool_call_id: currentId,
+            });
+            continue;
           }
+
+          // tool_result 或 progress — 确保有对应的 call entry
+          if (!currentId) {
+            counter += 1;
+            currentId = `rt_${key}:${counter}`;
+            logs.push({
+              type: "tool_call",
+              tool_name: e.tool_name || e.step_type || "progress",
+              tool_call_id: currentId,
+            });
+          }
+
+          logs.push({
+            type: "tool_result",
+            tool_name: e.tool_name,
+            tool_output: e.content_preview,
+            tool_call_id: currentId,
+            status: "success",
+          });
+          currentId = null; // reset for next pair
         }
         if (logs.length > 0) result[`realtime_${key}`] = logs;
       }
