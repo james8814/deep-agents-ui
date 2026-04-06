@@ -227,6 +227,10 @@ export function useChat({
    */
   const sendMessage = useCallback(
     (content: MultimodalContent, fileAttachments?: FileAttachment[]) => {
+      // 新消息发送时清空上一轮的实时日志
+      setRealtimeSubagentLogs({});
+      realtimeSubagentLogMessageCountRef.current = {};
+
       // 将内容转换为适当的消息内容格式
       let messageContent: Message["content"];
 
