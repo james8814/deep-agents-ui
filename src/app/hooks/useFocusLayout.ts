@@ -187,8 +187,10 @@ export function useFocusLayout({
       }, workingDelay);
     }
 
+  // subagentLogsCount 故意不放入 deps — 它只是条件检查值，
+  // 不应驱动状态机重新执行（否则每个 custom event 都触发布局调整）
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, messages, contextPanelOpen, subagentLogsCount]);
+  }, [isLoading, messages, contextPanelOpen]);
 
   // 组件卸载时清除定时器（不在 deps 变化时清除，避免重置定时器）
   useEffect(() => {

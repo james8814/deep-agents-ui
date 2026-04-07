@@ -250,7 +250,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
 
     // Work 模式
     return (
-      <div className="flex h-full flex-col">
+      <div className="relative flex h-full flex-col">
         {/* 区域 1: 任务概览 */}
         {todos.length > 0 && <TaskOverview todos={todos} />}
 

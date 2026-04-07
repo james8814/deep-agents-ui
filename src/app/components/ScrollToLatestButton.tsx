@@ -39,8 +39,8 @@ export const ScrollToLatestButton = React.memo<ScrollToLatestButtonProps>(
       <button
         onClick={onClick}
         className={cn(
-          // 布局
-          "fixed bottom-4 left-1/2 -translate-x-1/2",
+          // 布局 — absolute 相对于工作台面板定位
+          "absolute bottom-4 left-1/2 -translate-x-1/2",
           "h-9 min-w-[200px] px-4",
           "flex items-center justify-center gap-2",
           // 外观
