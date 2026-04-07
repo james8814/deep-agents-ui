@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  ChevronDown,
-  ChevronUp,
   Loader2,
   CheckCircle,
   XCircle,
@@ -85,7 +82,7 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
     return (
       <div
         className={cn(
-          "w-fit max-w-[70vw] overflow-hidden rounded-lg border",
+          "inline-flex items-center gap-2 overflow-hidden rounded-lg border px-3 py-1.5",
           subAgent.status === "active"
             ? "border-primary/30 bg-primary/5 dark:border-primary/40 dark:bg-primary/10"
             : subAgent.status === "error"
@@ -93,23 +90,11 @@ export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
             : "border-border bg-card"
         )}
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClick}
-          className="flex w-full items-center justify-between gap-3 border-none px-4 py-2.5 text-left shadow-none"
-        >
-          <div className="flex items-center gap-2">
-            {statusIcon}
-            <span className="text-[14px] font-semibold tracking-tight text-foreground">
-              {getToolDisplayName(subAgent.subAgentName, subAgent.subAgentName)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{statusText}</span>
-            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </div>
-        </Button>
+        {statusIcon}
+        <span className="text-sm font-medium text-foreground">
+          {getToolDisplayName(subAgent.subAgentName, subAgent.subAgentName)}
+        </span>
+        <span className="text-xs text-muted-foreground">{statusText}</span>
       </div>
     );
   }

@@ -645,75 +645,17 @@ export const ChatMessage = React.memo<ChatMessageProps>(
               })}
             </div>
           )}
+          {/* SubAgent 紧凑标签（详情在右侧工作台查看） */}
           {!isUser && subAgents.length > 0 && (
-            <div className="flex w-fit max-w-full flex-col gap-4">
-              <div className="flex w-fit max-w-full flex-col gap-4">
-                  {subAgents.map((subAgent) => (
-                    <div
-                      key={subAgent.id}
-                      className="flex w-full flex-col gap-2"
-                    >
-                      <div className="flex items-end gap-2">
-                        <div className="w-[calc(100%-100px)]">
-                          <SubAgentIndicator
-                            subAgent={subAgent}
-                            onClick={() => toggleSubAgent(subAgent.id)}
-                            isExpanded={isSubAgentExpanded(subAgent.id)}
-                          />
-                        </div>
-                      </div>
-                      {isSubAgentExpanded(subAgent.id) && (
-                        <div className="w-full max-w-full">
-                          <div className="rounded-md border border-border bg-muted p-4">
-                            <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
-                              Input
-                            </h4>
-                            <div className="mb-4">
-                              <MarkdownContent
-                                content={extractSubAgentContent(
-                                  subAgent.input
-                                )}
-                              />
-                            </div>
-                            {/* Execution Steps — shown when subagent_logs data available */}
-                            {subAgent.logs &&
-                              subAgent.logs.length > 0 &&
-                              (() => {
-                                const lPairs = pairedLogs(subAgent.logs!);
-                                return lPairs.length > 0 ? (
-                                  <div className="mb-4">
-                                    <h4 className="text-primary/70 mb-1.5 text-xs font-semibold uppercase tracking-wider">
-                                      执行步骤 ({lPairs.length})
-                                    </h4>
-                                    <div className="space-y-1">
-                                      {lPairs.map((pair, idx) => (
-                                        <InlineLegacyLogRow
-                                          key={pair.call.tool_call_id ?? idx}
-                                          pair={pair}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : null;
-                              })()}
-                            {subAgent.output && (
-                              <>
-                                <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
-                                  Output
-                                </h4>
-                                <MarkdownContent
-                                  content={extractSubAgentContent(
-                                    subAgent.output
-                                  )}
-                                />
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {subAgents.map((subAgent) => (
+                <SubAgentIndicator
+                  key={subAgent.id}
+                  subAgent={subAgent}
+                  onClick={() => {}} // 不再展开，详情在右侧工作台
+                  isExpanded={false}
+                />
+              ))}
             </div>
           )}
           {/* Delivery cards - bound to submit_deliverable tool calls */}
