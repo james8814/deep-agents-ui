@@ -16,22 +16,42 @@ import { ScrollToLatestButton } from "./ScrollToLatestButton";
 // Hooks
 import { usePanelMode } from "@/app/hooks/usePanelMode";
 import { useAutoScrollControl } from "@/app/hooks/useAutoScrollControl";
-import { Activity, Bot, Brain, Search, PenTool, FileCheck, Presentation, BarChart3, FileText } from "lucide-react";
+import { Activity, Bot, Brain, Search, PenTool, FileCheck, Presentation, BarChart3, FileText, Sparkles, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { getToolDisplayName } from "@/app/utils/toolNames";
 
 // SubAgent 角色配置
-const SUBAGENT_CONFIG: Record<string, { icon: React.ElementType; color: string; label: string }> = {
-  research_agent: { icon: Search, color: "text-blue-400", label: "研究代理" },
-  writing_agent: { icon: PenTool, color: "text-green-400", label: "写作代理" },
-  reflection_agent: { icon: FileCheck, color: "text-yellow-400", label: "反思代理" },
-  analysis_agent: { icon: BarChart3, color: "text-purple-400", label: "分析代理" },
-  design_agent: { icon: Brain, color: "text-pink-400", label: "设计代理" },
-  document_agent: { icon: FileText, color: "text-cyan-400", label: "文档代理" },
-  presentation_designer_agent: { icon: Presentation, color: "text-orange-400", label: "演示文稿设计代理" },
-  deep_research_agent: { icon: Search, color: "text-indigo-400", label: "深度研究代理" },
+const SUBAGENT_CONFIG: Record<string, { icon: React.ElementType; color: string; bgColor: string; label: string }> = {
+  research_agent: { icon: Search, color: "text-blue-400", bgColor: "bg-blue-400/15", label: "研究代理" },
+  writing_agent: { icon: PenTool, color: "text-green-400", bgColor: "bg-green-400/15", label: "写作代理" },
+  reflection_agent: { icon: FileCheck, color: "text-yellow-400", bgColor: "bg-yellow-400/15", label: "反思代理" },
+  analysis_agent: { icon: BarChart3, color: "text-purple-400", bgColor: "bg-purple-400/15", label: "分析代理" },
+  design_agent: { icon: Brain, color: "text-pink-400", bgColor: "bg-pink-400/15", label: "设计代理" },
+  document_agent: { icon: FileText, color: "text-cyan-400", bgColor: "bg-cyan-400/15", label: "文档代理" },
+  presentation_designer_agent: { icon: Presentation, color: "text-orange-400", bgColor: "bg-orange-400/15", label: "演示文稿设计代理" },
+  deep_research_agent: { icon: Search, color: "text-indigo-400", bgColor: "bg-indigo-400/15", label: "深度研究代理" },
 };
 
 function getAgentConfig(type: string) {
-  return SUBAGENT_CONFIG[type] || { icon: Bot, color: "text-muted-foreground", label: TOOL_NAME_MAPPING[type]?.displayName || type };
+  return SUBAGENT_CONFIG[type] || { icon: Bot, color: "text-muted-foreground", bgColor: "bg-muted", label: TOOL_NAME_MAPPING[type]?.displayName || type };
+}
+
+// 工具步骤名称人性化
+function humanizeToolName(raw: string | undefined): string {
+  if (!raw) return "处理中";
+  const display = getToolDisplayName(raw);
+  if (display !== raw) return display;
+  // 常见工具名直接映射
+  const map: Record<string, string> = {
+    progress: "准备中",
+    deep_research: "深度研究",
+    multi_source_research: "多源研究",
+    think_tool: "思考分析",
+    query_academic: "学术搜索",
+    query_tech: "技术搜索",
+    query_intelligence: "商业情报搜索",
+    wikipedia_summary: "维基百科查询",
+  };
+  return map[raw] || raw;
 }
 
 /**
@@ -239,43 +259,75 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
           className="min-h-0 flex-1"
         >
           {groupedLogs.length > 0 ? (
-            <div className="space-y-1 p-3">
+            <div className="space-y-3 p-3">
               {groupedLogs.map((group, gi) => {
                 const config = getAgentConfig(group.agentType);
                 const Icon = config.icon;
                 const statusLabel = group.status === "running" ? "执行中" : group.status === "pending" ? "等待中" : "已完成";
                 const statusColor = group.status === "running" ? "text-blue-400" : group.status === "pending" ? "text-muted-foreground" : "text-green-400";
+                const StatusIcon = group.status === "running" ? Loader2 : group.status === "completed" ? CheckCircle2 : Activity;
                 return (
-                  <div key={`group-${gi}-${group.agentType}`}>
-                    {/* SubAgent 分组头 */}
-                    <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border border-border/30 bg-muted/40 px-3 py-2 backdrop-blur-sm">
-                      <Icon size={16} className={config.color} />
-                      <span className="flex-1 truncate text-xs font-semibold">{config.label}</span>
-                      <span className={`text-[10px] font-medium ${statusColor}`}>{statusLabel}</span>
-                    </div>
-                    {/* 任务描述 */}
+                  <div key={`group-${gi}-${group.agentType}`} className="space-y-2">
+                    {/* 主 Agent 委派消息 */}
                     {group.taskDescription && (
-                      <div className="mx-3 mt-1 mb-1.5 rounded border-l-2 border-primary/30 bg-primary/5 px-2.5 py-1.5">
-                        <p className="line-clamp-2 text-[11px] text-muted-foreground">{group.taskDescription}</p>
+                      <div className="flex items-start gap-2">
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20">
+                          <Sparkles size={12} className="text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] font-semibold text-primary">product_coach</span>
+                            <ArrowRight size={10} className="text-muted-foreground/50" />
+                            <span className="text-[11px] font-medium text-muted-foreground">{config.label}</span>
+                          </div>
+                          <div className="mt-1 rounded-lg rounded-tl-none border border-border/30 bg-muted/30 px-2.5 py-1.5">
+                            <p className="line-clamp-3 text-[11px] leading-relaxed text-foreground/80">{group.taskDescription}</p>
+                          </div>
+                        </div>
                       </div>
                     )}
-                    {/* 工具步骤 */}
-                    {group.pairs.length > 0 ? (
-                      <div className="mb-3 space-y-1.5 pl-2">
-                        {group.pairs.map((pair, pi) => (
-                          <LogCard
-                            key={pair.call.tool_call_id || `log-${gi}-${pi}`}
-                            call={pair.call}
-                            result={pair.result}
-                          />
-                        ))}
+
+                    {/* SubAgent 执行区域 */}
+                    <div className="flex items-start gap-2">
+                      <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
+                        <Icon size={12} className={config.color} />
                       </div>
-                    ) : (
-                      <div className="mb-3 flex items-center gap-2 px-3 py-2">
-                        <Activity size={12} className="animate-spin text-muted-foreground/50" />
-                        <span className="text-[11px] text-muted-foreground">等待执行...</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-[11px] font-semibold ${config.color}`}>{config.label}</span>
+                          <span className={`flex items-center gap-0.5 text-[10px] ${statusColor}`}>
+                            <StatusIcon size={10} className={group.status === "running" ? "animate-spin" : ""} />
+                            {statusLabel}
+                          </span>
+                        </div>
+
+                        {/* 工具步骤 */}
+                        {group.pairs.length > 0 ? (
+                          <div className="mt-1.5 space-y-1">
+                            {group.pairs.map((pair, pi) => (
+                              <LogCard
+                                key={pair.call.tool_call_id || `log-${gi}-${pi}`}
+                                call={{ ...pair.call, tool_name: humanizeToolName(pair.call.tool_name) }}
+                                result={pair.result}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-muted/20 px-2.5 py-1.5">
+                            <Activity size={10} className="animate-spin text-muted-foreground/40" />
+                            <span className="text-[10px] text-muted-foreground">正在初始化...</span>
+                          </div>
+                        )}
+
+                        {/* SubAgent 完成总结 */}
+                        {group.status === "completed" && group.pairs.length > 0 && (
+                          <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-green-500/10 px-2.5 py-1.5">
+                            <CheckCircle2 size={10} className="text-green-400" />
+                            <span className="text-[10px] text-green-400/80">已完成 {group.pairs.length} 个步骤</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
