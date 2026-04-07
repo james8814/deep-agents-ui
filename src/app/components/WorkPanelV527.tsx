@@ -259,7 +259,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
           className="min-h-0 flex-1"
         >
           {groupedLogs.length > 0 ? (
-            <div className="space-y-4 px-3 py-2">
+            <div className="space-y-5 px-3 py-3">
               {groupedLogs.map((group, gi) => {
                 const config = getAgentConfig(group.agentType);
                 const Icon = config.icon;
@@ -269,62 +269,61 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
                   <div key={`group-${gi}-${group.agentType}`}>
                     {/* ── 主 Agent 委派（右对齐气泡） ── */}
                     {group.taskDescription && (
-                      <div className="mb-2 flex justify-end">
-                        <div className="flex max-w-[85%] items-start gap-1.5">
+                      <div className="mb-3 flex justify-end">
+                        <div className="flex max-w-[88%] items-start gap-2">
                           <div className="min-w-0">
-                            <p className="mb-0.5 text-right text-[10px] text-primary/70">产品教练</p>
-                            <div className="rounded-xl rounded-tr-sm bg-primary/15 px-3 py-2">
-                              <p className="text-[11px] leading-relaxed text-foreground/90">
+                            <p className="mb-1 text-right text-xs text-primary/70">产品教练</p>
+                            <div className="rounded-2xl rounded-tr-sm bg-primary/15 px-3.5 py-2.5">
+                              <p className="text-xs leading-relaxed text-foreground/90">
                                 委派 <span className={`font-semibold ${config.color}`}>{config.label}</span> 执行任务
                               </p>
-                              <p className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-foreground/60">{group.taskDescription}</p>
+                              <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-foreground/60">{group.taskDescription}</p>
                             </div>
                           </div>
-                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20">
-                            <Sparkles size={10} className="text-primary" />
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/20">
+                            <Sparkles size={14} className="text-primary" />
                           </div>
                         </div>
                       </div>
                     )}
 
                     {/* ── SubAgent 回复（左对齐气泡） ── */}
-                    <div className="flex items-start gap-1.5">
-                      <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
-                        <Icon size={10} className={config.color} />
+                    <div className="flex items-start gap-2">
+                      <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
+                        <Icon size={14} className={config.color} />
                       </div>
                       <div className="min-w-0 max-w-[90%]">
-                        <div className="mb-0.5 flex items-center gap-1.5">
-                          <span className={`text-[10px] font-semibold ${config.color}`}>{config.label}</span>
-                          <span className={`flex items-center gap-0.5 text-[9px] ${statusColor}`}>
-                            <StatusIcon size={8} className={group.status === "running" ? "animate-spin" : ""} />
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className={`text-xs font-semibold ${config.color}`}>{config.label}</span>
+                          <span className={`flex items-center gap-1 text-xs ${statusColor}`}>
+                            <StatusIcon size={12} className={group.status === "running" ? "animate-spin" : ""} />
                             {group.status === "running" ? "工作中..." : group.status === "completed" ? "已完成" : "等待中"}
                           </span>
                         </div>
-                        <div className="rounded-xl rounded-tl-sm border border-border/20 bg-muted/25 px-2.5 py-2">
+                        <div className="rounded-2xl rounded-tl-sm border border-border/20 bg-muted/25 px-3.5 py-2.5">
                           {group.pairs.length > 0 ? (
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {group.pairs.map((pair, pi) => {
                                 const toolName = humanizeToolName(pair.call.tool_name);
                                 const hasResult = !!pair.result;
                                 const isError = pair.result?.status === "error" || pair.result?.tool_output?.includes('"error"');
                                 return (
-                                  <div key={pair.call.tool_call_id || `s-${gi}-${pi}`} className="group">
-                                    <div className="flex items-center gap-1.5 py-0.5">
+                                  <div key={pair.call.tool_call_id || `s-${gi}-${pi}`}>
+                                    <div className="flex items-center gap-2 py-0.5">
                                       {hasResult ? (
                                         isError ? (
-                                          <span className="text-[9px] text-red-400">✗</span>
+                                          <span className="text-xs text-red-400">✗</span>
                                         ) : (
-                                          <span className="text-[9px] text-green-400">✓</span>
+                                          <span className="text-xs text-green-400">✓</span>
                                         )
                                       ) : (
-                                        <Loader2 size={9} className="animate-spin text-blue-400" />
+                                        <Loader2 size={12} className="animate-spin text-blue-400" />
                                       )}
-                                      <span className="text-[10px] text-foreground/70">{toolName}</span>
+                                      <span className="text-xs text-foreground/80">{toolName}</span>
                                     </div>
-                                    {/* 展开的输出预览 */}
                                     {pair.result?.tool_output && (
-                                      <p className="ml-4 line-clamp-2 text-[9px] leading-relaxed text-muted-foreground/60">
-                                        {pair.result.tool_output.slice(0, 120)}
+                                      <p className="ml-5 line-clamp-2 text-xs leading-relaxed text-muted-foreground/50">
+                                        {pair.result.tool_output.slice(0, 150)}
                                       </p>
                                     )}
                                   </div>
@@ -332,24 +331,22 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
                               })}
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1.5">
-                              <Loader2 size={9} className="animate-spin text-muted-foreground/40" />
-                              <span className="text-[10px] text-muted-foreground/60">正在启动...</span>
+                            <div className="flex items-center gap-2">
+                              <Loader2 size={12} className="animate-spin text-muted-foreground/40" />
+                              <span className="text-xs text-muted-foreground/60">正在启动...</span>
                             </div>
                           )}
-                          {/* 完成总结 */}
                           {group.status === "completed" && group.pairs.length > 0 && (
-                            <div className="mt-1.5 border-t border-border/10 pt-1.5">
-                              <span className="text-[9px] text-green-400/70">✓ 已完成 {group.pairs.length} 个步骤</span>
+                            <div className="mt-2 border-t border-border/10 pt-2">
+                              <span className="text-xs text-green-400/70">✓ 已完成 {group.pairs.length} 个步骤</span>
                             </div>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* 分隔线 */}
                     {gi < groupedLogs.length - 1 && (
-                      <div className="my-2 border-t border-border/10" />
+                      <div className="my-3 border-t border-border/10" />
                     )}
                   </div>
                 );
