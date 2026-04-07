@@ -227,9 +227,10 @@ export function useChat({
    */
   const sendMessage = useCallback(
     (content: MultimodalContent, fileAttachments?: FileAttachment[]) => {
-      // 新消息发送时清空上一轮的实时日志
+      // 新消息发送时清空上一轮的实时日志和轮询 todos
       setRealtimeSubagentLogs({});
       realtimeSubagentLogMessageCountRef.current = {};
+      setPollingTodos(null);
 
       // 将内容转换为适当的消息内容格式
       let messageContent: Message["content"];
@@ -600,6 +601,8 @@ export function useChat({
   const wasStreamLoadingRef = useRef(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  // 轮询期间的 state 覆盖（SSE 断连时 stream.values 停止更新）
+  const [pollingTodos, setPollingTodos] = useState<TodoItem[] | null>(null);
 
   // 检测 SSE 断连（isLoading: true → false）并启动轮询
   useEffect(() => {
@@ -627,7 +630,19 @@ export function useChat({
                 clearInterval(pollingRef.current!);
                 pollingRef.current = null;
                 setIsPolling(false);
+                setPollingTodos(null);
                 window.location.reload();
+              } else {
+                // 轮询期间拉取最新 state 更新 todos
+                try {
+                  const state = await client!.threads.getState(threadId!);
+                  const latestTodos = (state as any)?.values?.todos;
+                  if (Array.isArray(latestTodos)) {
+                    setPollingTodos(latestTodos);
+                  }
+                } catch {
+                  // state 拉取失败不影响轮询
+                }
               }
             } catch {
               // 网络错误，继续轮询
@@ -639,10 +654,11 @@ export function useChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream.isLoading]);
 
-  // 清理轮询 + 实时日志 on thread change or unmount
+  // 清理轮询 + 实时日志 + 轮询 todos on thread change or unmount
   useEffect(() => {
     setRealtimeSubagentLogs({});
     realtimeSubagentLogMessageCountRef.current = {};
+    setPollingTodos(null);
     return () => {
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
@@ -654,7 +670,7 @@ export function useChat({
 
   return {
     stream,
-    todos: stream.values.todos ?? [],
+    todos: pollingTodos ?? stream.values.todos ?? [],
     files: filesFromStream,
     subagent_logs: stream.values.subagent_logs ?? {},
     realtimeSubagentLogs,
