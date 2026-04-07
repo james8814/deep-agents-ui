@@ -331,11 +331,15 @@ function FocusLayoutBridge({
   hasSidebar: boolean;
   threadId: string | null;
 }) {
-  const { isLoading, messages, subagent_logs } = useChatContext();
-  // 计算 SubAgent 日志总条数
-  const logsCount = subagent_logs
+  const { isLoading, messages, subagent_logs, realtimeSubagentLogs } = useChatContext();
+  // 计算 SubAgent 日志总条数（持久化 + 实时）
+  const persistentCount = subagent_logs
     ? Object.values(subagent_logs).reduce((sum, logs) => sum + (Array.isArray(logs) ? logs.length : 0), 0)
     : 0;
+  const realtimeCount = realtimeSubagentLogs
+    ? Object.values(realtimeSubagentLogs).reduce((sum, events) => sum + (Array.isArray(events) ? events.length : 0), 0)
+    : 0;
+  const logsCount = persistentCount + realtimeCount;
   useFocusLayout({
     isLoading,
     messages,
