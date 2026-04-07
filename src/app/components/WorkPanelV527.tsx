@@ -259,75 +259,98 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
           className="min-h-0 flex-1"
         >
           {groupedLogs.length > 0 ? (
-            <div className="space-y-3 p-3">
+            <div className="space-y-4 px-3 py-2">
               {groupedLogs.map((group, gi) => {
                 const config = getAgentConfig(group.agentType);
                 const Icon = config.icon;
-                const statusLabel = group.status === "running" ? "执行中" : group.status === "pending" ? "等待中" : "已完成";
-                const statusColor = group.status === "running" ? "text-blue-400" : group.status === "pending" ? "text-muted-foreground" : "text-green-400";
                 const StatusIcon = group.status === "running" ? Loader2 : group.status === "completed" ? CheckCircle2 : Activity;
+                const statusColor = group.status === "running" ? "text-blue-400" : group.status === "pending" ? "text-muted-foreground" : "text-green-400";
                 return (
-                  <div key={`group-${gi}-${group.agentType}`} className="space-y-2">
-                    {/* 主 Agent 委派消息 */}
+                  <div key={`group-${gi}-${group.agentType}`}>
+                    {/* ── 主 Agent 委派（右对齐气泡） ── */}
                     {group.taskDescription && (
-                      <div className="flex items-start gap-2">
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20">
-                          <Sparkles size={12} className="text-primary" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-semibold text-primary">product_coach</span>
-                            <ArrowRight size={10} className="text-muted-foreground/50" />
-                            <span className="text-[11px] font-medium text-muted-foreground">{config.label}</span>
+                      <div className="mb-2 flex justify-end">
+                        <div className="flex max-w-[85%] items-start gap-1.5">
+                          <div className="min-w-0">
+                            <p className="mb-0.5 text-right text-[10px] text-primary/70">产品教练</p>
+                            <div className="rounded-xl rounded-tr-sm bg-primary/15 px-3 py-2">
+                              <p className="text-[11px] leading-relaxed text-foreground/90">
+                                委派 <span className={`font-semibold ${config.color}`}>{config.label}</span> 执行任务
+                              </p>
+                              <p className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-foreground/60">{group.taskDescription}</p>
+                            </div>
                           </div>
-                          <div className="mt-1 rounded-lg rounded-tl-none border border-border/30 bg-muted/30 px-2.5 py-1.5">
-                            <p className="line-clamp-3 text-[11px] leading-relaxed text-foreground/80">{group.taskDescription}</p>
+                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20">
+                            <Sparkles size={10} className="text-primary" />
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* SubAgent 执行区域 */}
-                    <div className="flex items-start gap-2">
-                      <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
-                        <Icon size={12} className={config.color} />
+                    {/* ── SubAgent 回复（左对齐气泡） ── */}
+                    <div className="flex items-start gap-1.5">
+                      <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${config.bgColor}`}>
+                        <Icon size={10} className={config.color} />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-[11px] font-semibold ${config.color}`}>{config.label}</span>
-                          <span className={`flex items-center gap-0.5 text-[10px] ${statusColor}`}>
-                            <StatusIcon size={10} className={group.status === "running" ? "animate-spin" : ""} />
-                            {statusLabel}
+                      <div className="min-w-0 max-w-[90%]">
+                        <div className="mb-0.5 flex items-center gap-1.5">
+                          <span className={`text-[10px] font-semibold ${config.color}`}>{config.label}</span>
+                          <span className={`flex items-center gap-0.5 text-[9px] ${statusColor}`}>
+                            <StatusIcon size={8} className={group.status === "running" ? "animate-spin" : ""} />
+                            {group.status === "running" ? "工作中..." : group.status === "completed" ? "已完成" : "等待中"}
                           </span>
                         </div>
-
-                        {/* 工具步骤 */}
-                        {group.pairs.length > 0 ? (
-                          <div className="mt-1.5 space-y-1">
-                            {group.pairs.map((pair, pi) => (
-                              <LogCard
-                                key={pair.call.tool_call_id || `log-${gi}-${pi}`}
-                                call={{ ...pair.call, tool_name: humanizeToolName(pair.call.tool_name) }}
-                                result={pair.result}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-muted/20 px-2.5 py-1.5">
-                            <Activity size={10} className="animate-spin text-muted-foreground/40" />
-                            <span className="text-[10px] text-muted-foreground">正在初始化...</span>
-                          </div>
-                        )}
-
-                        {/* SubAgent 完成总结 */}
-                        {group.status === "completed" && group.pairs.length > 0 && (
-                          <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-green-500/10 px-2.5 py-1.5">
-                            <CheckCircle2 size={10} className="text-green-400" />
-                            <span className="text-[10px] text-green-400/80">已完成 {group.pairs.length} 个步骤</span>
-                          </div>
-                        )}
+                        <div className="rounded-xl rounded-tl-sm border border-border/20 bg-muted/25 px-2.5 py-2">
+                          {group.pairs.length > 0 ? (
+                            <div className="space-y-1">
+                              {group.pairs.map((pair, pi) => {
+                                const toolName = humanizeToolName(pair.call.tool_name);
+                                const hasResult = !!pair.result;
+                                const isError = pair.result?.status === "error" || pair.result?.tool_output?.includes('"error"');
+                                return (
+                                  <div key={pair.call.tool_call_id || `s-${gi}-${pi}`} className="group">
+                                    <div className="flex items-center gap-1.5 py-0.5">
+                                      {hasResult ? (
+                                        isError ? (
+                                          <span className="text-[9px] text-red-400">✗</span>
+                                        ) : (
+                                          <span className="text-[9px] text-green-400">✓</span>
+                                        )
+                                      ) : (
+                                        <Loader2 size={9} className="animate-spin text-blue-400" />
+                                      )}
+                                      <span className="text-[10px] text-foreground/70">{toolName}</span>
+                                    </div>
+                                    {/* 展开的输出预览 */}
+                                    {pair.result?.tool_output && (
+                                      <p className="ml-4 line-clamp-2 text-[9px] leading-relaxed text-muted-foreground/60">
+                                        {pair.result.tool_output.slice(0, 120)}
+                                      </p>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <Loader2 size={9} className="animate-spin text-muted-foreground/40" />
+                              <span className="text-[10px] text-muted-foreground/60">正在启动...</span>
+                            </div>
+                          )}
+                          {/* 完成总结 */}
+                          {group.status === "completed" && group.pairs.length > 0 && (
+                            <div className="mt-1.5 border-t border-border/10 pt-1.5">
+                              <span className="text-[9px] text-green-400/70">✓ 已完成 {group.pairs.length} 个步骤</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {/* 分隔线 */}
+                    {gi < groupedLogs.length - 1 && (
+                      <div className="my-2 border-t border-border/10" />
+                    )}
                   </div>
                 );
               })}
