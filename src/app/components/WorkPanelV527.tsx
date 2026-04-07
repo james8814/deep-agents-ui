@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useChatContext } from "@/providers/ChatProvider";
 import type { LogEntry } from "@/app/types/subagent";
 import { pairedLogs } from "@/app/types/subagent";
+import { TOOL_NAME_MAPPING } from "@/app/utils/toolNames";
 
 // 方案 D 组件
 import { TaskOverview } from "./TaskOverview";
@@ -15,7 +16,23 @@ import { ScrollToLatestButton } from "./ScrollToLatestButton";
 // Hooks
 import { usePanelMode } from "@/app/hooks/usePanelMode";
 import { useAutoScrollControl } from "@/app/hooks/useAutoScrollControl";
-import { Activity } from "lucide-react";
+import { Activity, Bot, Brain, Search, PenTool, FileCheck, Presentation, BarChart3, FileText } from "lucide-react";
+
+// SubAgent 角色配置
+const SUBAGENT_CONFIG: Record<string, { icon: React.ElementType; color: string; label: string }> = {
+  research_agent: { icon: Search, color: "text-blue-400", label: "研究代理" },
+  writing_agent: { icon: PenTool, color: "text-green-400", label: "写作代理" },
+  reflection_agent: { icon: FileCheck, color: "text-yellow-400", label: "反思代理" },
+  analysis_agent: { icon: BarChart3, color: "text-purple-400", label: "分析代理" },
+  design_agent: { icon: Brain, color: "text-pink-400", label: "设计代理" },
+  document_agent: { icon: FileText, color: "text-cyan-400", label: "文档代理" },
+  presentation_designer_agent: { icon: Presentation, color: "text-orange-400", label: "演示文稿设计代理" },
+  deep_research_agent: { icon: Search, color: "text-indigo-400", label: "深度研究代理" },
+};
+
+function getAgentConfig(type: string) {
+  return SUBAGENT_CONFIG[type] || { icon: Bot, color: "text-muted-foreground", label: TOOL_NAME_MAPPING[type]?.displayName || type };
+}
 
 /**
  * WorkPanelV527 — 方案 D 重构
@@ -42,6 +59,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
       todos,
       files = {},
       isLoading,
+      messages,
       subagent_logs: contextSubagentLogs,
     } = useChatContext();
 
@@ -129,11 +147,67 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
     // 模式检测
     const { mode } = usePanelMode({ todos, files, subagentLogs });
 
-    // 合并所有日志 → 配对 → 按时间线排列
+    // 按 SubAgent 分组：每个 key 独立配对
+    const groupedLogs = useMemo(() => {
+      const groups: Array<{
+        agentType: string;
+        taskDescription?: string;
+        status: "pending" | "running" | "completed";
+        pairs: Array<{ call: LogEntry; result?: LogEntry }>;
+      }> = [];
+
+      // 从 messages 提取 task toolCalls 的顺序和描述
+      const taskOrder: Array<{ subagentType: string; description: string; status: string }> = [];
+      for (const msg of messages) {
+        const tc = (msg as any).tool_calls || [];
+        for (const t of tc) {
+          if (t.name === "task" && t.args?.subagent_type) {
+            taskOrder.push({
+              subagentType: t.args.subagent_type,
+              description: typeof t.args.description === "string" ? t.args.description.slice(0, 120) : "",
+              status: t.status || "completed",
+            });
+          }
+        }
+      }
+
+      // 按 subagentLogs 的 key 分组配对
+      for (const [key, logs] of Object.entries(subagentLogs)) {
+        const agentType = key.replace(/^realtime_/, "");
+        const pairs = pairedLogs(logs);
+        if (pairs.length === 0) continue;
+
+        // 匹配 task 描述
+        const matchingTask = taskOrder.find((t) => t.subagentType === agentType);
+        const hasRunningStep = pairs.some((p) => !p.result);
+
+        groups.push({
+          agentType,
+          taskDescription: matchingTask?.description,
+          status: hasRunningStep ? "running" : "completed",
+          pairs,
+        });
+      }
+
+      // 补充已分派但尚无日志的 SubAgent（pending 状态）
+      for (const task of taskOrder) {
+        if (!groups.some((g) => g.agentType === task.subagentType) && task.status !== "completed") {
+          groups.push({
+            agentType: task.subagentType,
+            taskDescription: task.description,
+            status: "pending",
+            pairs: [],
+          });
+        }
+      }
+
+      return groups;
+    }, [subagentLogs, messages]);
+
+    // 向后兼容：扁平列表用于模式检测
     const pairedLogCards = useMemo(() => {
-      const allLogs: LogEntry[] = Object.values(subagentLogs).flat();
-      return pairedLogs(allLogs);
-    }, [subagentLogs]);
+      return groupedLogs.flatMap((g) => g.pairs);
+    }, [groupedLogs]);
 
     // Ref 赋值
     const setRef = useCallback(
@@ -164,24 +238,51 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
           onScroll={handleScroll}
           className="min-h-0 flex-1"
         >
-          {pairedLogCards.length > 0 ? (
-            <div className="space-y-2 p-3">
-              {pairedLogCards.map((pair, index) => (
-                <LogCard
-                  key={pair.call.tool_call_id || `log-${index}`}
-                  call={pair.call}
-                  result={pair.result}
-                />
-              ))}
+          {groupedLogs.length > 0 ? (
+            <div className="space-y-1 p-3">
+              {groupedLogs.map((group, gi) => {
+                const config = getAgentConfig(group.agentType);
+                const Icon = config.icon;
+                const statusLabel = group.status === "running" ? "执行中" : group.status === "pending" ? "等待中" : "已完成";
+                const statusColor = group.status === "running" ? "text-blue-400" : group.status === "pending" ? "text-muted-foreground" : "text-green-400";
+                return (
+                  <div key={`group-${gi}-${group.agentType}`}>
+                    {/* SubAgent 分组头 */}
+                    <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border border-border/30 bg-muted/40 px-3 py-2 backdrop-blur-sm">
+                      <Icon size={16} className={config.color} />
+                      <span className="flex-1 truncate text-xs font-semibold">{config.label}</span>
+                      <span className={`text-[10px] font-medium ${statusColor}`}>{statusLabel}</span>
+                    </div>
+                    {/* 任务描述 */}
+                    {group.taskDescription && (
+                      <div className="mx-3 mt-1 mb-1.5 rounded border-l-2 border-primary/30 bg-primary/5 px-2.5 py-1.5">
+                        <p className="line-clamp-2 text-[11px] text-muted-foreground">{group.taskDescription}</p>
+                      </div>
+                    )}
+                    {/* 工具步骤 */}
+                    {group.pairs.length > 0 ? (
+                      <div className="mb-3 space-y-1.5 pl-2">
+                        {group.pairs.map((pair, pi) => (
+                          <LogCard
+                            key={pair.call.tool_call_id || `log-${gi}-${pi}`}
+                            call={pair.call}
+                            result={pair.result}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mb-3 flex items-center gap-2 px-3 py-2">
+                        <Activity size={12} className="animate-spin text-muted-foreground/50" />
+                        <span className="text-[11px] text-muted-foreground">等待执行...</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            /* 空状态 — 有任务但无日志 */
             <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-              <Activity
-                size={28}
-                className="mb-3 text-muted-foreground/50"
-                strokeWidth={1.5}
-              />
+              <Activity size={28} className="mb-3 text-muted-foreground/50" strokeWidth={1.5} />
               <p className="text-sm text-muted-foreground">
                 {isLoading
                   ? "Agent 正在工作，执行步骤将在此显示..."
