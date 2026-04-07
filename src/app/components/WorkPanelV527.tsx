@@ -229,10 +229,12 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
       return groupedLogs.flatMap((g) => g.pairs);
     }, [groupedLogs]);
 
-    // Ref 赋值
+    // Ref 赋值 — ScrollArea 的 ref 指向 Root，但实际滚动元素是内部 Viewport
     const setRef = useCallback(
       (el: HTMLDivElement | null) => {
-        scrollContainerRef.current = el;
+        // 找到真正的滚动容器 (Radix Viewport)
+        const viewport = el?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLDivElement | null;
+        scrollContainerRef.current = viewport || el;
       },
       [scrollContainerRef]
     );
@@ -259,7 +261,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
           className="min-h-0 flex-1"
         >
           {groupedLogs.length > 0 ? (
-            <div className="space-y-5 px-3 py-3">
+            <div className="space-y-5 overflow-hidden px-3 py-3">
               {groupedLogs.map((group, gi) => {
                 const config = getAgentConfig(group.agentType);
                 const Icon = config.icon;
@@ -273,11 +275,11 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
                         <div className="flex max-w-[88%] items-start gap-2">
                           <div className="min-w-0">
                             <p className="mb-1 text-right text-xs text-primary/70">产品教练</p>
-                            <div className="rounded-2xl rounded-tr-sm bg-primary/15 px-3.5 py-2.5">
-                              <p className="text-xs leading-relaxed text-foreground/90">
+                            <div className="overflow-hidden rounded-2xl rounded-tr-sm bg-primary/15 px-3.5 py-2.5">
+                              <p className="break-words text-xs leading-relaxed text-foreground/90">
                                 委派 <span className={`font-semibold ${config.color}`}>{config.label}</span> 执行任务
                               </p>
-                              <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-foreground/60">{group.taskDescription}</p>
+                              <p className="mt-1.5 line-clamp-3 break-words text-xs leading-relaxed text-foreground/60">{group.taskDescription}</p>
                             </div>
                           </div>
                           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/20">
@@ -300,7 +302,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
                             {group.status === "running" ? "工作中..." : group.status === "completed" ? "已完成" : "等待中"}
                           </span>
                         </div>
-                        <div className="rounded-2xl rounded-tl-sm border border-border/20 bg-muted/25 px-3.5 py-2.5">
+                        <div className="overflow-hidden rounded-2xl rounded-tl-sm border border-border/20 bg-muted/25 px-3.5 py-2.5">
                           {group.pairs.length > 0 ? (
                             <div className="space-y-1.5">
                               {group.pairs.map((pair, pi) => {
@@ -322,7 +324,7 @@ export const WorkPanelV527 = React.memo<WorkPanelV527Props>(
                                       <span className="text-xs text-foreground/80">{toolName}</span>
                                     </div>
                                     {pair.result?.tool_output && (
-                                      <p className="ml-5 line-clamp-2 text-xs leading-relaxed text-muted-foreground/50">
+                                      <p className="ml-5 line-clamp-2 break-all text-xs leading-relaxed text-muted-foreground/50">
                                         {pair.result.tool_output.slice(0, 150)}
                                       </p>
                                     )}
