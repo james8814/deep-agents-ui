@@ -189,6 +189,25 @@ UI config dialog settings take precedence over env vars.
 
 **注意**: 新增 `stream.submit()` 调用时，**必须**包含 `onDisconnect: "continue"`（除 `markCurrentThreadAsResolved` 等终止操作外）。
 
+## 主面板 vs 工作台信息分工
+
+**设计原则**: 主面板 = 对话（用户看什么），工作台 = 过程（Agent 怎么做）
+
+- **主面板**: 用户消息、AI 回复、主 Agent 所有工具调用、SubAgent 紧凑状态标签、HIL 审批、DeliveryCard
+- **工作台**: 任务概览（OPDCA）、Agent 协作对话面板（产品教练委派 → SubAgent 实时步骤）
+- **SubAgent 在主面板**: 紧凑内联标签（角色名 + 状态 + 耗时），**不可展开**
+- **SubAgent 在工作台**: 完整对话气泡（头像 + 任务指令 + 工具步骤详情 + 完成总结）
+
+## 工作台 Agent 协作面板 (WorkPanelV527)
+
+右侧工作台的工作日志 tab 显示 Agent 内部协作对话：
+
+- **数据源**: `realtimeSubagentLogs`（stream_writer custom events）+ `messages`（task toolCalls）
+- **按 SubAgent 分组**: `realtimeSubagentLogs` 的 key 为 `subagent_type`
+- **并行兼容**: 同类型并行 SubAgent 日志自然合并到同一 key
+- **realtime 日志不在 onFinish 清空**: DeepAgents `subagent_logs` 持久化尚未实现，实时日志保留供 run 结束后查看
+- **sendMessage 时清空**: 新轮次重置旧日志
+
 ## 文档管理规范
 
 前端项目无独立 `docs/` 目录，文档管理��循以下规���：
