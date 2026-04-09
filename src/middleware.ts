@@ -31,20 +31,17 @@ const ALWAYS_PUBLIC_ROUTES = ["/antd-x-poc", "/demo", "/_not-found"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 演示认证模式：如果启用，绕过中间件认证检查
-  // Demo Authentication: If enabled, bypass middleware auth check
-  const isDemoAuthEnabled = true; // Force enabled for testing
+  // 演示认证模式：通过环境变量控制
+  const isDemoAuthEnabled = process.env.NEXT_PUBLIC_DEMO_AUTH === "true";
 
   if (isDemoAuthEnabled) {
-    // In demo mode, allow all routes without middleware checks
-    // 在演示模式下，绕过所有中间件认证检查
     return NextResponse.next();
   }
 
   // Get auth token from cookies (set after login)
   // Note: In this system, token is stored in localStorage (client-side)
   // For full middleware protection, token should also be set as HttpOnly cookie
-  const token = request.cookies.get("auth_token")?.value;
+  const token = request.cookies.get("access_token")?.value;
 
   // Check if route requires protection
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname === route);
