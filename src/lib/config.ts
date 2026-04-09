@@ -15,7 +15,12 @@ export function getConfig(): StandaloneConfig | null {
   if (typeof window === "undefined") return null;
 
   const stored = localStorage.getItem(CONFIG_KEY);
-  if (!stored) return null;
+  if (!stored) {
+    // 无保存配置时，使用环境变量默认值（用户无需手动配置）
+    const defaults = getDefaultConfig();
+    saveConfig(defaults);
+    return defaults;
+  }
 
   try {
     const config = JSON.parse(stored);
@@ -45,7 +50,7 @@ export function saveConfig(config: StandaloneConfig): void {
 export function getDefaultConfig(): StandaloneConfig {
   return {
     deploymentUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024",
-    assistantId: "pmagent",
+    assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID || "pmagent",
   };
 }
 
