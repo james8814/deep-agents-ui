@@ -13,20 +13,6 @@ import { HttpError } from "@/api/client";
 import type { User } from "@/types/auth";
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/lib/constants";
 
-function isTokenExpired(token: string): boolean {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return true;
-    const raw = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = raw.padEnd(raw.length + ((4 - (raw.length % 4)) % 4), "=");
-    const payload = JSON.parse(atob(padded));
-    if (typeof payload.exp !== "number") return false;
-    return Date.now() >= payload.exp * 1000 - 30_000;
-  } catch {
-    return true;
-  }
-}
-
 function saveTokenToStorage(token: string): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(TOKEN_KEY, token);
@@ -102,14 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (isTokenExpired(storedToken)) {
-          console.debug("[Auth] Token 已过期（客户端预检），跳过网络验证");
-          setUser(null);
-          setToken(null);
-          clearTokenFromStorage();
-          return;
-        }
-
         setToken(storedToken);
         const userInfo = await authApi.getUserInfo(storedToken);
         setUser(userInfo);
@@ -118,9 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           error instanceof HttpError &&
           (error.statusCode === 401 || error.statusCode === 403);
         if (isAuthError) {
+          // 此时 fetchWithCredentials 内部 refresh 已试过且失败，cookie 需彻底失效
+          authApi.logout().catch(() => {});  // fire-and-forget，不阻塞 UI
           setUser(null);
           setToken(null);
           clearTokenFromStorage();
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
         } else {
           console.warn("[Auth] Network error during auth check:", error);
           setUser(null);
@@ -143,13 +124,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
     }
 
-    // 为 Middleware 路由保护设置 cookie
-    // Cookie 允许 Next.js Middleware 在请求级别检查认证状态
-    // 比 localStorage 更安全（不易被 XSS 窃取）
-    if (typeof window !== "undefined") {
-      document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Strict`;
-    }
-
     const userInfo = await authApi.getUserInfo(accessToken);
     setUser(userInfo);
   }, []);
@@ -162,11 +136,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(null);
       clearTokenFromStorage();
       localStorage.removeItem(REFRESH_TOKEN_KEY);
-
-      // 清除 Middleware 使用的认证 cookie
-      if (typeof window !== "undefined") {
-        document.cookie = "access_token=; path=/; max-age=0; SameSite=Strict";
-      }
     }
   }, []);
 

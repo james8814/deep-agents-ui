@@ -18,6 +18,7 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isJwtExpired } from "@/lib/jwt";
 
 // Routes that require authentication
 const PROTECTED_ROUTES = ["/"];
@@ -32,16 +33,18 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 演示认证模式：通过环境变量控制
-  const isDemoAuthEnabled = process.env.NEXT_PUBLIC_DEMO_AUTH === "true";
+  const isDemoAuthEnabled = process.env.NEXT_PUBLIC_DEMO_AUTH_ENABLED === "true";
 
   if (isDemoAuthEnabled) {
     return NextResponse.next();
   }
 
   // Get auth token from cookies (set after login)
-  // Note: In this system, token is stored in localStorage (client-side)
-  // For full middleware protection, token should also be set as HttpOnly cookie
   const token = request.cookies.get("access_token")?.value;
+  // v1.2: 对 cookie 做 JWT exp 校验，stale cookie 视同未登录
+  // 两个分支必须同时用 validToken（而非 !token / token），否则 stale cookie 会触发
+  // / ↔ /login 死循环（方案 FRONTEND_AUTH_REDIRECT_GAP_FIX_PLAN.md §14.1）
+  const validToken = !!token && !isJwtExpired(token);
 
   // Check if route requires protection
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname === route);
@@ -57,17 +60,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // For protected routes - require authentication
-  if (isProtectedRoute && !token) {
-    // Redirect to login if not authenticated
+  // For protected routes - require valid authentication
+  if (isProtectedRoute && !validToken) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.redirect(loginUrl);
+    // 清 stale cookie，避免后续请求重蹈覆辙
+    if (token) response.cookies.delete("access_token");
+    return response;
   }
 
-  // For public auth routes - redirect to home if already authenticated
-  if (isPublicAuthRoute && token) {
-    // User is already logged in, redirect to home
+  // For public auth routes - redirect to home only if truly authenticated
+  if (isPublicAuthRoute && validToken) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
