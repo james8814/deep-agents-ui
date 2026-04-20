@@ -173,7 +173,16 @@ export async function uploadFile(
       emitAuthError();
       throw err;
     }
-    return uploadOnce(file, onProgress);
+    // 第二次 upload。若仍返回 401(罕见:refresh 成功但服务端立即二次吊销),
+    // 也要派发 auth-error,避免用户卡在错误 toast 上没有 redirect
+    try {
+      return await uploadOnce(file, onProgress);
+    } catch (err2: unknown) {
+      if ((err2 as { statusCode?: number })?.statusCode === 401) {
+        emitAuthError();
+      }
+      throw err2;
+    }
   }
 }
 
