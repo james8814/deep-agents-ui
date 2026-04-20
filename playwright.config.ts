@@ -28,8 +28,8 @@ export default defineConfig({
 
   // Shared settings for all projects
   use: {
-    // Base URL for tests
-    baseURL: "http://localhost:3000",
+    // Base URL for tests (3000 被 Trae IDE 占用,改用 3100 避免冲突)
+    baseURL: "http://localhost:3100",
 
     // Trace on first retry
     trace: "on-first-retry",
@@ -60,8 +60,8 @@ export default defineConfig({
 
   // Local web server configuration
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: "PORT=3100 npm run dev",
+    url: "http://localhost:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
