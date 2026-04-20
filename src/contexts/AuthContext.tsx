@@ -60,8 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // P1-2: 监听运行时 401 → 统一清态 + 跳转登录
   // 去重防并发 401 重复跳转;pathname 检查防在 /login 页自循环
+  //
+  // 注意:此处用 window.location.replace 而非 next/navigation 的 router.replace。
+  // 原因:本项目 HomePage 用 nuqs (useQueryState) 管控 URL query,与 App Router 的
+  // client-side navigation 会发生竞态——实测 router.replace 发起的跳转被 nuqs 的
+  // URL 回写覆盖,导致跳转不生效。401 登出场景下硬刷新反而更安全(清空所有
+  // React/SWR/LangGraph stream 状态),是合理取舍。
   useEffect(() => {
-    const handler = () => {
+    const handler = async () => {
       if (isHandlingAuthErrorRef.current) return;
       isHandlingAuthErrorRef.current = true;
 
@@ -76,9 +82,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setToken(null);
 
-      router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+      // 关键:必须先让后端清 HttpOnly cookie,否则 middleware 会把 /login 反弹回 /
+      // (JS 无法覆写 HttpOnly cookie,必须走 /auth/logout-cookie)
+      // 加 2s timeout 兜底,网络挂起不阻塞跳转
+      try {
+        await Promise.race([
+          authApi.logout(),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("logout timeout")), 2000)
+          ),
+        ]);
+      } catch {
+        // 即便后端清 cookie 失败也继续跳转;middleware 的 exp 校验会兜底
+        // (stale cookie 若 exp 已过,会被 P0-1 的 validToken 检查识别并清掉)
+      }
 
-      // 2 秒后解除去重,避免后续会话被锁
+      if (typeof window !== "undefined") {
+        const target = `/login?from=${encodeURIComponent(pathname)}`;
+        window.location.replace(target);
+      }
+
+      // 2 秒后解除去重(防御,此时页面已在刷新)
       setTimeout(() => {
         isHandlingAuthErrorRef.current = false;
       }, 2000);
