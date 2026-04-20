@@ -13,6 +13,17 @@
 import { ApiError } from "@/types/auth";
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/lib/constants";
 
+/**
+ * P1-2: 统一派发 auth-error 事件
+ * 供 AuthProvider 订阅后清本地态 + 跳转登录
+ * 统一从此处派发,避免 fetchInterceptor/upload/useChat 多路重复派发
+ */
+export function emitAuthError(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("auth-error"));
+  }
+}
+
 const AUTH_SERVER = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000";
 const API_SERVER = process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024";
 
@@ -92,8 +103,10 @@ async function doRefreshToken(): Promise<void> {
 
 /**
  * 获取 Token 刷新 Promise（单例模式）
+ *
+ * P1: 已 export,供 upload.ts 等 XHR 路径手工触发 refresh
  */
-async function refreshToken(): Promise<void> {
+export async function refreshToken(): Promise<void> {
   if (refreshPromise) {
     return refreshPromise;
   }
@@ -134,6 +147,7 @@ export async function fetchWithCredentials<T = unknown>(
     if (response.status === 401 && !url.includes("/auth/") && !isRetry) {
       if (refreshRetryCount >= MAX_REFRESH_RETRIES) {
         refreshRetryCount = 0;
+        emitAuthError();
         throw new HttpError("登录已过期，请重新登录", 401);
       }
 
@@ -145,6 +159,8 @@ export async function fetchWithCredentials<T = unknown>(
         return fetchWithCredentials<T>(url, options, true);
       } catch {
         refreshRetryCount = 0;
+        // P1-2: refresh 彻底失败,通知 AuthProvider 做跳转登录
+        emitAuthError();
         throw new HttpError("请重新登录", 401);
       }
     }

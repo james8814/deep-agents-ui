@@ -7,7 +7,12 @@
  * 3. 在消息中引用文件路径
  */
 
-import { AUTH_SERVER, fetchWithCredentials } from "./client";
+import {
+  AUTH_SERVER,
+  fetchWithCredentials,
+  refreshToken,
+  emitAuthError,
+} from "./client";
 import { TOKEN_KEY } from "@/lib/constants";
 
 // 统一的文件类型配置
@@ -81,24 +86,19 @@ export interface UploadProgressCallback {
 }
 
 /**
- * 上传单个文件
- *
- * @param file 要上传的文件
- * @param onProgress 上传进度回调（0-100）
- * @returns 上传结果，包含文件路径
+ * 内部:执行一次 XHR 上传。
+ * P1-3: 不做 refresh/重试,只负责单次网络操作。错误对象附 statusCode。
  */
-export async function uploadFile(
+function uploadOnce(
   file: File,
   onProgress?: UploadProgressCallback
 ): Promise<UploadFileResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  // 使用 XMLHttpRequest 以便获取上传进度
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
 
-    // 进度监听
     if (onProgress) {
       xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable) {
@@ -114,30 +114,31 @@ export async function uploadFile(
           const response: UploadFileResponse = JSON.parse(xhr.responseText);
           resolve(response);
         } catch {
-          reject(new Error("解析响应失败"));
+          reject(Object.assign(new Error("解析响应失败"), { statusCode: xhr.status }));
         }
       } else {
+        let message = `上传失败: ${xhr.statusText}`;
         try {
-          const error = JSON.parse(xhr.responseText);
-          reject(new Error(error.detail || `上传失败: ${xhr.statusText}`));
+          const parsed = JSON.parse(xhr.responseText);
+          message = parsed.detail || message;
         } catch {
-          reject(new Error(`上传失败: ${xhr.statusText}`));
+          // 保留默认 message
         }
+        reject(Object.assign(new Error(message), { statusCode: xhr.status }));
       }
     });
 
     xhr.addEventListener("error", () => {
-      reject(new Error("网络错误，请检查连接"));
+      reject(Object.assign(new Error("网络错误，请检查连接"), { statusCode: 0 }));
     });
 
     xhr.addEventListener("abort", () => {
       reject(new Error("上传已取消"));
     });
 
-    // 上传到 Auth Server（与 deleteUploadedFile 统一使用同一服务）
     xhr.open("POST", `${AUTH_SERVER}/api/upload`);
 
-    // 添加 Bearer Token 认证（XHR 不走 fetchInterceptor，需要手动添加）
+    // XHR 不走 fetchInterceptor,手动从 localStorage 读 token
     const token =
       typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
     if (token) {
@@ -146,6 +147,34 @@ export async function uploadFile(
 
     xhr.send(formData);
   });
+}
+
+/**
+ * 上传单个文件(P1-3:函数级重试 + 401 自动 refresh + auth-error 派发)
+ *
+ * @param file 要上传的文件
+ * @param onProgress 上传进度回调（0-100）
+ * @returns 上传结果，包含文件路径
+ */
+export async function uploadFile(
+  file: File,
+  onProgress?: UploadProgressCallback
+): Promise<UploadFileResponse> {
+  try {
+    return await uploadOnce(file, onProgress);
+  } catch (err: unknown) {
+    const statusCode = (err as { statusCode?: number })?.statusCode;
+    if (statusCode !== 401) throw err;
+
+    // 401: 尝试 refresh 后用全新 XHR 重发一次(XHR 不可复用,必须新建)
+    try {
+      await refreshToken();
+    } catch {
+      emitAuthError();
+      throw err;
+    }
+    return uploadOnce(file, onProgress);
+  }
 }
 
 /**

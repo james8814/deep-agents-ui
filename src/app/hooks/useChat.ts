@@ -128,8 +128,12 @@ export function useChat({
         );
 
       if (isAuthError) {
-        // 认证错误由 AuthContext 统一处理，降级为 debug 日志
-        console.debug("[useChat] 认证错误（由 AuthContext 处理）:", msg);
+        // P1-4 补丁 1: 认证错误派发 auth-error 事件
+        // (原注释"由 AuthContext 处理"是假处理——AuthProvider 现已订阅该事件)
+        console.debug("[useChat] 认证错误,派发 auth-error:", msg);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("auth-error"));
+        }
       } else if (isNetworkError) {
         // 网络错误会自动重连，降级为 debug 日志
         console.debug("[useChat] 网络错误（将自动重连）:", msg);
@@ -644,8 +648,21 @@ export function useChat({
                   // state 拉取失败不影响轮询
                 }
               }
-            } catch {
-              // 网络错误，继续轮询
+            } catch (err: unknown) {
+              // P1-4 补丁 2: 检测 401/403 → 停止轮询 + 派发 auth-error
+              // (原实现吞掉所有错误,token 失效时会死循环轮询)
+              const msg = err instanceof Error ? err.message : String(err);
+              if (/401|403|unauthorized|forbidden/i.test(msg)) {
+                clearInterval(pollingRef.current!);
+                pollingRef.current = null;
+                setIsPolling(false);
+                setPollingTodos(null);
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("auth-error"));
+                }
+                return;
+              }
+              // 非 401 继续轮询(网络抖动等)
             }
           }, 15_000);
         }

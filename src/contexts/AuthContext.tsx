@@ -6,8 +6,10 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
   ReactNode,
 } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import * as authApi from "@/api/auth";
 import { HttpError } from "@/api/client";
 import type { User } from "@/types/auth";
@@ -52,6 +54,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasChecked, setHasChecked] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() || "/";
+  const isHandlingAuthErrorRef = useRef(false);
+
+  // P1-2: 监听运行时 401 → 统一清态 + 跳转登录
+  // 去重防并发 401 重复跳转;pathname 检查防在 /login 页自循环
+  useEffect(() => {
+    const handler = () => {
+      if (isHandlingAuthErrorRef.current) return;
+      isHandlingAuthErrorRef.current = true;
+
+      if (pathname.startsWith("/login")) {
+        isHandlingAuthErrorRef.current = false;
+        return;
+      }
+
+      // 三处同步清理(v1.2 P2-4 原子同步原则)
+      clearTokenFromStorage();
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      setUser(null);
+      setToken(null);
+
+      router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+
+      // 2 秒后解除去重,避免后续会话被锁
+      setTimeout(() => {
+        isHandlingAuthErrorRef.current = false;
+      }, 2000);
+    };
+    window.addEventListener("auth-error", handler);
+    return () => window.removeEventListener("auth-error", handler);
+  }, [router, pathname]);
 
   useEffect(() => {
     if (hasChecked) return;
