@@ -1,6 +1,9 @@
 /** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: "jsdom",
+  testEnvironmentOptions: {
+    url: "http://localhost:3000",
+  },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.cjs"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

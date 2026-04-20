@@ -1,75 +1,23 @@
-/**
- * Jest Test Setup
- * 配置全局 mocks 和测试环境
- */
+// Jest Test Setup
 
 require("@testing-library/jest-dom");
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-  get length() {
-    return 0;
-  },
-  key: jest.fn(),
-};
-
-Object.defineProperty(global, "localStorage", {
-  value: localStorageMock,
-});
-
-// Mock window.location
-const locationMock = {
-  href: "http://localhost:3000",
-  origin: "http://localhost:3000",
-  pathname: "/",
-  search: "",
-  hash: "",
-  host: "localhost:3000",
-  hostname: "localhost",
-  port: "3000",
-  protocol: "http:",
-};
-
-Object.defineProperty(global, "location", {
-  value: locationMock,
-  writable: true,
-});
-
-// Mock window.matchMedia
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: jest.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
-
-// Mock window.fetch
-global.fetch = jest.fn();
-
 // Mock next/navigation
-jest.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-    refresh: jest.fn(),
-    prefetch: jest.fn(),
-  }),
-  usePathname: () => "/",
-  useSearchParams: () => new URLSearchParams(),
-}));
+jest.mock("next/navigation", () => {
+  return {
+    __esModule: true,
+    useRouter: jest.fn(() => ({
+      push: jest.fn(),
+      replace: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+      prefetch: jest.fn(),
+    })),
+    usePathname: jest.fn(() => "/"),
+    useSearchParams: jest.fn(() => new URLSearchParams()),
+  };
+});
 
 // Mock nuqs
 jest.mock("nuqs", () => ({
@@ -102,6 +50,13 @@ jest.mock("@/providers/ClientProvider", () => ({
     },
   })),
 }));
+
+// Jest runtime has an issue where assigning to location in some newer versions throws.
+// Let's clear up that try/catch and use the built-in JSDOM setup config instead of
+// modifying global in jest.setup.js
+
+// Mock fetch globally
+global.fetch = jest.fn();
 
 // Silence console errors/warnings in tests (optional)
 const originalError = console.error;
